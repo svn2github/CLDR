@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.2/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.2"/>
+		<generation date="2004-08-27"/>
+		<language type="ar"/>
+		<territory type="EG"/>
+	</identity>
+	<dates>
+		<calendars>
+			<calendar type="gregorian">
+				<week>
+					<weekendStart day="fri" draft="true"/>
+					<weekendEnd day="sat" draft="true"/>
+				</week>
+			</calendar>
+		</calendars>
+	</dates>
+</ldml>
+
