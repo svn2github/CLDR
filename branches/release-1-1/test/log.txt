@@ -42,6 +42,8 @@ In Tailored, but not Exemplar; Locale: nb	Norwegian Bokmål
 [ÄÐÖÞäðöþĐđĘęŐ-œŰű]
 In Tailored, but not Exemplar; Locale: nl	Dutch
 [Ææ]
+In Tailored, but not Exemplar; Locale: nn	Norwegian Nynorsk
+[ÄÐÖÞäðöþĐđĘęŐ-œŰű]
 In Tailored, but not Exemplar; Locale: ps	Pashto (Pushto)
 [إكىٱ-ٳٹڈڑڪگڻھۀہۃۇۉےە{حٔ}{هٔ}{ىٔ}{یٔ}]
 In Tailored, but not Exemplar; Locale: pt	Portuguese
@@ -69,4 +71,10 @@ In Tailored, but not Exemplar; Locale: zh@collation=stroke	Chinese (Collation=st
 In Tailored, but not Exemplar; Locale: zh@collation=traditional	Chinese (Collation=traditional)
 [ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
 In Tailored, but not Exemplar; Locale: zh_HK	Chinese (Hong Kong S.A.R., China)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh_Hant	Chinese (Traditional Han)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh_MO	Chinese (Macao S.A.R., China)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh_TW	Chinese (Taiwan)
 [ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
