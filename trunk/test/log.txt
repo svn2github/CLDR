@@ -1,0 +1,80 @@
+In Tailored, but not Exemplar; Locale: ca	Catalan
+[{CH}{Ch}{LL}{Ll}{L·L}{L·l}{cH}{ch}{lL}{ll}{l·L}{l·l}]
+In Tailored, but not Exemplar; Locale: cs	Czech
+[{CH}{Ch}{cH}{ch}]
+In Tailored, but not Exemplar; Locale: da	Danish
+[ÄÐÖÜÞäðöüþĐđĘęŐ-œŰű{AA}{Aa}{aA}{aa}]
+In Tailored, but not Exemplar; Locale: de	German
+[Ææ]
+In Tailored, but not Exemplar; Locale: de@collation=phonebook	German (Collation=phonebook)
+[Ææ]
+In Tailored, but not Exemplar; Locale: en	English
+[Ææ]
+In Tailored, but not Exemplar; Locale: es	Spanish
+[Ææ]
+In Tailored, but not Exemplar; Locale: es@collation=traditional	Spanish (Collation=traditional)
+[{CH}{Ch}{LL}{Ll}{cH}{ch}{lL}{ll}]
+In Tailored, but not Exemplar; Locale: fa	Persian
+[إكىيٱ-ٳڪ-ڮھۀہۃۍێې-ےە{ىٔ}{یٔ}]
+In Tailored, but not Exemplar; Locale: fa_AF	Persian (Afghanistan)
+[إكىيٱ-ٳٹټځڅڈډڑړږڪڻھۀہۃۇۉۍېےە{حٔ}{هٔ}{ىٔ}{یٔ}]
+In Tailored, but not Exemplar; Locale: fi	Finnish
+[ÅÆÐÕØÜÞåæðõøüþĐđŊŋŐ-œŰű]
+In Tailored, but not Exemplar; Locale: fo	Faroese
+[ÄÅÖÜÞäåöüþĐđĘęŐ-œŰű{AA}{Aa}{aA}{aa}]
+In Tailored, but not Exemplar; Locale: ga	Irish
+[Ææ]
+In Tailored, but not Exemplar; Locale: hi	Hindi
+[।॥॰]
+In Tailored, but not Exemplar; Locale: hi@collation=direct	Hindi (Collation=direct)
+[।॥॰]
+In Tailored, but not Exemplar; Locale: is	Icelandic
+[ÄÅØäåøĐđ]
+In Tailored, but not Exemplar; Locale: it	Italian
+[Ææ]
+In Tailored, but not Exemplar; Locale: ja	Japanese
+[　ぁ-かきくけこさしすせそたちっつてとな-はひふへほま-ん゙゚ゝァ-カキクケコサシスセソタチッツテトナ-ハヒフヘホマ-ンヵヶーヽ！-～｡-､ｦ-ｯｱ-ﾝﾠ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ￠-￦￨-￮{ぁゝ}{ぁー}{あゝ}{あー}{ぃゝ}{ぃー}{いゝ}{いー}{ぅゝ}{ぅゞ}{ぅー}{うゝ}{うゞ}{うー}{ぇゝ}{ぇー}{えゝ}{えー}{ぉゝ}{ぉー}{おゝ}{おー}{かゝ}{かー}{がゝ}{がー}{きゝ}{きゞ}{きー}{ぎゝ}{ぎゞ}{ぎー}{くゝ}{くゞ}{くー}{ぐゝ}{ぐゞ}{ぐー}{けゝ}{けー}{げゝ}{げー}{こゝ}{こゞ}{こー}{ごゝ}{ごゞ}{ごー}{さゝ}{さゞ}{さー}{ざゝ}{ざゞ}{ざー}{しゝ}{しゞ}{しー}{じゝ}{じゞ}{じー}{すゝ}{すゞ}{すー}{ずゝ}{ずゞ}{ずー}{せゝ}{せゞ}{せー}{ぜゝ}{ぜゞ}{ぜー}{そゝ}{そゞ}{そー}{ぞゝ}{ぞゞ}{ぞー}{たゝ}{たゞ}{たー}{だゝ}{だゞ}{だー}{ちゝ}{ちゞ}{ちー}{ぢゝ}{ぢゞ}{ぢー}{っゝ}{っゞ}{っー}{つゝ}{つゞ}{つー}{づゝ}{づゞ}{づー}{てゝ}{てゞ}{てー}{でゝ}{でゞ}{でー}{とゝ}{とゞ}{とー}{どゝ}{どゞ}{どー}{なゝ}{なー}{にゝ}{にー}{ぬゝ}{ぬー}{ねゝ}{ねー}{のゝ}{のー}{はゝ}{はゞ}{はー}{ばゝ}{ばゞ}{ばー}{ぱゝ}{ぱゞ}{ぱー}{ひゝ}{ひゞ}{ひー}{びゝ}{びゞ}{びー}{ぴゝ}{ぴゞ}{ぴー}{ふゝ}{ふゞ}{ふー}{ぶゝ}{ぶゞ}{ぶー}{ぷゝ}{ぷゞ}{ぷー}{へゝ}{へゞ}{へー}{べゝ}{べゞ}{べー}{ぺゝ}{ぺゞ}{ぺー}{ほゝ}{ほゞ}{ほー}{ぼゝ}{ぼゞ}{ぼー}{ぽゝ}{ぽゞ}{ぽー}{まゝ}{まー}{みゝ}{みー}{むゝ}{むー}{めゝ}{めー}{もゝ}{もー}{ゃゝ}{ゃー}{やゝ}{やー}{ゅゝ}{ゅー}{ゆゝ}{ゆー}{ょゝ}{ょー}{よゝ}{よー}{らゝ}{らー}{りゝ}{りー}{るゝ}{るー}{れゝ}{れー}{ろゝ}{ろー}{ゎゝ}{ゎゞ}{ゎー}{わゝ}{わゞ}{わー}{ゐゝ}{ゐゞ}{ゐー}{ゑゝ}{ゑゞ}{ゑー}{をゝ}{をゞ}{をー}{んゝ}{ゔゝ}{ゔゞ}{ゔー}{ァー}{ァヽ}{アー}{アヽ}{ィー}{ィヽ}{イー}{イヽ}{ゥー}{ゥヽ}{ゥヾ}{ウー}{ウヽ}{ウヾ}{ェー}{ェヽ}{エー}{エヽ}{ォー}{ォヽ}{オー}{オヽ}{カー}{カヽ}{ガー}{ガヽ}{キー}{キヽ}{キヾ}{ギー}{ギヽ}{ギヾ}{クー}{クヽ}{クヾ}{グー}{グヽ}{グヾ}{ケー}{ケヽ}{ゲー}{ゲヽ}{コー}{コヽ}{コヾ}{ゴー}{ゴヽ}{ゴヾ}{サー}{サヽ}{サヾ}{ザー}{ザヽ}{ザヾ}{シー}{シヽ}{シヾ}{ジー}{ジヽ}{ジヾ}{スー}{スヽ}{スヾ}{ズー}{ズヽ}{ズヾ}{セー}{セヽ}{セヾ}{ゼー}{ゼヽ}{ゼヾ}{ソー}{ソヽ}{ソヾ}{ゾー}{ゾヽ}{ゾヾ}{ター}{タヽ}{タヾ}{ダー}{ダヽ}{ダヾ}{チー}{チヽ}{チヾ}{ヂー}{ヂヽ}{ヂヾ}{ッー}{ッヽ}{ッヾ}{ツー}{ツヽ}{ツヾ}{ヅー}{ヅヽ}{ヅヾ}{テー}{テヽ}{テヾ}{デー}{デヽ}{デヾ}{トー}{トヽ}{トヾ}{ドー}{ドヽ}{ドヾ}{ナー}{ナヽ}{ニー}{ニヽ}{ヌー}{ヌヽ}{ネー}{ネヽ}{ノー}{ノヽ}{ハー}{ハヽ}{ハヾ}{バー}{バヽ}{バヾ}{パー}{パヽ}{パヾ}{ヒー}{ヒヽ}{ヒヾ}{ビー}{ビヽ}{ビヾ}{ピー}{ピヽ}{ピヾ}{フー}{フヽ}{フヾ}{ブー}{ブヽ}{ブヾ}{プー}{プヽ}{プヾ}{ヘー}{ヘヽ}{ヘヾ}{ベー}{ベヽ}{ベヾ}{ペー}{ペヽ}{ペヾ}{ホー}{ホヽ}{ホヾ}{ボー}{ボヽ}{ボヾ}{ポー}{ポヽ}{ポヾ}{マー}{マヽ}{ミー}{ミヽ}{ムー}{ムヽ}{メー}{メヽ}{モー}{モヽ}{ャー}{ャヽ}{ヤー}{ヤヽ}{ュー}{ュヽ}{ユー}{ユヽ}{ョー}{ョヽ}{ヨー}{ヨヽ}{ラー}{ラヽ}{リー}{リヽ}{ルー}{ルヽ}{レー}{レヽ}{ロー}{ロヽ}{ヮー}{ヮヽ}{ヮヾ}{ワー}{ワヽ}{ワヾ}{ヰー}{ヰヽ}{ヰヾ}{ヱー}{ヱヽ}{ヱヾ}{ヲー}{ヲヽ}{ヲヾ}{ンヽ}{ヴー}{ヴヽ}{ヴヾ}{ヵー}{ヵヽ}{ヶー}{ヶヽ}{ヷー}{ヷヽ}{ヷヾ}{ヸー}{ヸヽ}{ヸヾ}{ヹー}{ヹヽ}{ヹヾ}{ヺー}{ヺヽ}{ヺヾ}{ｦー}{ｦヽ}{ｦヾ}{ｧー}{ｧヽ}{ｨー}{ｨヽ}{ｩー}{ｩヽ}{ｩヾ}{ｪー}{ｪヽ}{ｫー}{ｫヽ}{ｬー}{ｬヽ}{ｭー}{ｭヽ}{ｮー}{ｮヽ}{ｯー}{ｯヽ}{ｯヾ}{ｱー}{ｱヽ}{ｲー}{ｲヽ}{ｳー}{ｳヽ}{ｳヾ}{ｴー}{ｴヽ}{ｵー}{ｵヽ}{ｶー}{ｶヽ}{ｷー}{ｷヽ}{ｷヾ}{ｸー}{ｸヽ}{ｸヾ}{ｹー}{ｹヽ}{ｺー}{ｺヽ}{ｺヾ}{ｻー}{ｻヽ}{ｻヾ}{ｼー}{ｼヽ}{ｼヾ}{ｽー}{ｽヽ}{ｽヾ}{ｾー}{ｾヽ}{ｾヾ}{ｿー}{ｿヽ}{ｿヾ}{ﾀー}{ﾀヽ}{ﾀヾ}{ﾁー}{ﾁヽ}{ﾁヾ}{ﾂー}{ﾂヽ}{ﾂヾ}{ﾃー}{ﾃヽ}{ﾃヾ}{ﾄー}{ﾄヽ}{ﾄヾ}{ﾅー}{ﾅヽ}{ﾆー}{ﾆヽ}{ﾇー}{ﾇヽ}{ﾈー}{ﾈヽ}{ﾉー}{ﾉヽ}{ﾊー}{ﾊヽ}{ﾊヾ}{ﾋー}{ﾋヽ}{ﾋヾ}{ﾌー}{ﾌヽ}{ﾌヾ}{ﾍー}{ﾍヽ}{ﾍヾ}{ﾎー}{ﾎヽ}{ﾎヾ}{ﾏー}{ﾏヽ}{ﾐー}{ﾐヽ}{ﾑー}{ﾑヽ}{ﾒー}{ﾒヽ}{ﾓー}{ﾓヽ}{ﾔー}{ﾔヽ}{ﾕー}{ﾕヽ}{ﾖー}{ﾖヽ}{ﾗー}{ﾗヽ}{ﾘー}{ﾘヽ}{ﾙー}{ﾙヽ}{ﾚー}{ﾚヽ}{ﾛー}{ﾛヽ}{ﾜー}{ﾜヽ}{ﾜヾ}{ﾝヽ}]
+In Tailored, but not Exemplar; Locale: kl	Kalaallisut
+[ÄÐÖÜÞäðöüþĐđĘęŐ-œŰű{K'}{k'}]
+In Tailored, but not Exemplar; Locale: lt	Lithuanian
+[̇]
+In Tailored, but not Exemplar; Locale: nb	Norwegian Bokmål
+[ÄÐÖÞäðöþĐđĘęŐ-œŰű]
+In Tailored, but not Exemplar; Locale: nl	Dutch
+[Ææ]
+In Tailored, but not Exemplar; Locale: nn	Norwegian Nynorsk
+[ÄÐÖÞäðöþĐđĘęŐ-œŰű]
+In Tailored, but not Exemplar; Locale: ps	Pashto (Pushto)
+[إكىٱ-ٳٹڈڑڪگڻھۀہۃۇۉےە{حٔ}{هٔ}{ىٔ}{یٔ}]
+In Tailored, but not Exemplar; Locale: pt	Portuguese
+[Ææ]
+In Tailored, but not Exemplar; Locale: ro	Romanian
+[ĐđŻżȘ-ț]
+In Tailored, but not Exemplar; Locale: sk	Slovak
+[ĐđŁłŘřŻż{CH}{Ch}{cH}{ch}]
+In Tailored, but not Exemplar; Locale: sl	Slovenian
+[Ćć]
+In Tailored, but not Exemplar; Locale: sv	Swedish
+[ÆÐÔØÞæðôøþĐđĘęŐ-œŰű]
+In Tailored, but not Exemplar; Locale: th	Thai
+[\ \-.{...}{ฤๅ}{ฦๅ}]
+In Tailored, but not Exemplar; Locale: tr	Turkish
+[İ{i̇}]
+In Tailored, but not Exemplar; Locale: vi	Vietnamese
+[̣́̃̉]
+In Tailored, but not Exemplar; Locale: zh	Chinese
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề-{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh@collation=pinyin	Chinese (Collation=pinyin)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ềㄅ-ㄩ㈱㊣-------{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh@collation=stroke	Chinese (Collation=stroke)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh@collation=traditional	Chinese (Collation=traditional)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh_HK	Chinese (Hong Kong S.A.R., China)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh_Hant	Chinese (Traditional Han)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh_MO	Chinese (Macao S.A.R., China)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+In Tailored, but not Exemplar; Locale: zh_TW	Chinese (Taiwan)
+[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
