@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.openi18n.org/spec/ldml/1.0/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.0"/>
+		<generation date="2003-12-19" />
+		<language type="cs" /> 
+	</identity>
+	<collations>
+		<collation type="standard" >
+			<rules>
+				<reset>C</reset>
+				<p>č</p>
+				<t>Č</t>
+				<reset>H</reset>
+				<p>ch</p>
+				<t>Ch</t>
+				<t>CH</t>
+				<reset>R</reset>
+				<p>ř</p>
+				<t>Ř</t>
+				<reset>S</reset>
+				<p>š</p>
+				<t>Š</t>
+				<reset>Z</reset>
+				<p>ž</p>
+			</rules>
+		</collation  >
+	</collations>
+</ldml>
