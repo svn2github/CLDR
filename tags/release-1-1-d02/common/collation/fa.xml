@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.1/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="3.0"/>
+		<generation date="2004-06-01" />
+		<language type="fa" /> 
+	</identity>
+	<layout>
+		<orientation lines="top-to-bottom" characters="right-to-left" />
+	</layout>
+	<collations>
+		<collation type="standard" >
+			<settings normalization="on"  />
+			<rules>
+				<reset>َ</reset>
+				<sc>ًٌٍُِ</sc>
+				<reset>آ</reset>
+				<p>ا</p>
+				<s>ٱ</s>
+				<p>ء</p>
+				<sc>أٲإٳؤ</sc>
+				<s>یٔ</s>
+				<t>ىٔ</t>
+				<t>ئ</t>
+				<reset>ک</reset>
+				<sc>ڪګكڬڭڮ</sc>
+				<reset>ۏ</reset>
+				<p>ه</p>
+				<sc>ەہةۃۀھ</sc>
+				<reset>ی</reset>
+				<sc>ىےيېۑۍێ</sc>
+			</rules>
+		</collation  >
+	</collations>
+</ldml>

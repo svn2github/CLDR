@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.1/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="4.0"/>
+		<generation date="2004-06-01" />
+		<language type="ca" /> 
+	</identity>
+	<collations>
+		<collation type="standard" >
+			<settings backwards="on"  />
+			<rules>
+				<reset>C</reset>
+				<p>ch</p>
+				<t>Ch</t>
+				<t>CH</t>
+				<reset>L</reset>
+				<p>ll</p>
+				<t>l·l</t>
+				<t>Ll</t>
+				<t>L·l</t>
+				<t>LL</t>
+			</rules>
+		</collation  >
+	</collations>
+</ldml>
