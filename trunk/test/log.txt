@@ -62,19 +62,15 @@ In Tailored, but not Exemplar; Locale: tr	Turkish
 [İ{i̇}]
 In Tailored, but not Exemplar; Locale: vi	Vietnamese
 [̣́̃̉]
+HACK for Pinyin
 In Tailored, but not Exemplar; Locale: zh	Chinese
-[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề-{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+[A-UW-Za-uw-zÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề-{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+HACK for Pinyin
 In Tailored, but not Exemplar; Locale: zh@collation=pinyin	Chinese (Collation=pinyin)
-[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ềㄅ-ㄩ㈱㊣-------{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+[A-UW-Za-uw-zÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ềㄅ-ㄩ㈱㊣-------{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+HACK for Pinyin
 In Tailored, but not Exemplar; Locale: zh@collation=stroke	Chinese (Collation=stroke)
-[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+[A-UW-Za-uw-zÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+HACK for Pinyin
 In Tailored, but not Exemplar; Locale: zh@collation=traditional	Chinese (Collation=traditional)
-[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
-In Tailored, but not Exemplar; Locale: zh_HK	Chinese (Hong Kong S.A.R., China)
-[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
-In Tailored, but not Exemplar; Locale: zh_Hant	Chinese (Traditional Han)
-[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
-In Tailored, but not Exemplar; Locale: zh_MO	Chinese (Macao S.A.R., China)
-[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
-In Tailored, but not Exemplar; Locale: zh_TW	Chinese (Taiwan)
-[ÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
+[A-UW-Za-uw-zÀÁÈÉÌÍÒÓÙÚÜàáèéìíòóùúüĀāĒēĚěĪīŃńŇňŌōŪūǍ-ǜǸǹḾḿẾ-ề{M̀}{M̄}{M̌}{N̄}{m̀}{m̄}{m̌}{n̄}{Ê̄}{Ê̌}{ê̄}{ê̌}]
