@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.1/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.1"/>
+		<generation date="2004-06-01" />
+		<language type="he" /> 
+	</identity>
+	<layout>
+		<orientation lines="top-to-bottom" characters="right-to-left" />
+	</layout>
+	<collations>
+		<collation type="standard" >
+			<settings normalization="on"  />
+		</collation  >
+	</collations>
+</ldml>

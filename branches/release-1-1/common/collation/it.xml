@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.1/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.1"/>
+		<generation date="2004-06-01" />
+		<language type="it" /> 
+	</identity>
+	<collations>
+		<collation type="standard" >
+			<rules>
+				<reset>A</reset>
+				<x><p>Æ</p><extend>E</extend></x>
+				<reset>a</reset>
+				<x><p>æ</p><extend>e</extend></x>
+			</rules>
+		</collation  >
+	</collations>
+</ldml>
