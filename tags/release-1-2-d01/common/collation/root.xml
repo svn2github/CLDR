@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.2/alpha/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.2"/>
+		<generation date="2004-08-26" />
+		<language type="root" /> 
+	</identity>
+		<collations>
+			<default type="standard"/>
+			<collation type="standard" >
+			</collation  >
+		</collations>
+    <!-- for UCA rules please see: http://www.unicode.org/reports/tr10/ -->
+</ldml>

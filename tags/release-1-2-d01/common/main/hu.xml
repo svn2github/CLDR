@@ -1,0 +1,2217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.2/alpha/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.2"></version>
+		<generation date="2004-08-27"></generation>
+		<language type="hu"></language> 
+	</identity>
+	<localeDisplayNames>
+		<languages>
+			<language type="aa">afar</language>
+			<language type="ab">abház</language>
+			<language type="af">afrikai</language>
+			<language type="am">amhara</language>
+			<language type="ar">arab</language>
+			<language type="as">asszámi</language>
+			<language type="ay">ajmara</language>
+			<language type="az">azerbajdzsáni</language>
+			<language type="ba">baskír</language>
+			<language type="be">belorusz</language>
+			<language type="bg">bolgár</language>
+			<language type="bh">bihari</language>
+			<language type="bi">bislama</language>
+			<language type="bn">bengáli</language>
+			<language type="bo">tibeti</language>
+			<language type="br">breton</language>
+			<language type="ca">katalán</language>
+			<language type="co">korzikai</language>
+			<language type="cs">cseh</language>
+			<language type="cy">walesi</language>
+			<language type="da">dán</language>
+			<language type="de">német</language>
+			<language type="dz">butáni</language>
+			<language type="el">görög</language>
+			<language type="en">angol</language>
+			<language type="eo">eszperantó</language>
+			<language type="es">spanyol</language>
+			<language type="et">észt</language>
+			<language type="eu">baszk</language>
+			<language type="fa">perzsa</language>
+			<language type="fi">finn</language>
+			<language type="fj">fidzsi</language>
+			<language type="fo">feröeri</language>
+			<language type="fr">francia</language>
+			<language type="fy">fríz</language>
+			<language type="ga">ír</language>
+			<language type="gd">skót (gael)</language>
+			<language type="gl">galíciai</language>
+			<language type="gn">guarani</language>
+			<language type="gu">gudzsaráti</language>
+			<language type="ha">hausza</language>
+			<language type="he">héber</language>
+			<language type="hi">hindi</language>
+			<language type="hr">horvát</language>
+			<language type="hu">magyar</language>
+			<language type="hy">örmény</language>
+			<language type="ia">interlingua</language>
+			<language type="id">indonéz</language>
+			<language type="ie">interlingue</language>
+			<language type="ik">inupiak</language>
+			<language type="is">izlandi</language>
+			<language type="it">olasz</language>
+			<language type="iu">inuktitut</language>
+			<language type="ja">japán</language>
+			<language type="jv">jávai</language>
+			<language type="ka">grúz</language>
+			<language type="kk">kazah</language>
+			<language type="kl">grönlandi</language>
+			<language type="km">kambodzsai</language>
+			<language type="kn">kannada</language>
+			<language type="ko">koreai</language>
+			<language type="ks">kasmíri</language>
+			<language type="ku">kurd</language>
+			<language type="ky">kirgiz</language>
+			<language type="la">latin</language>
+			<language type="ln">lingala</language>
+			<language type="lo">laoszi</language>
+			<language type="lt">litván</language>
+			<language type="lv">lett</language>
+			<language type="mg">madagaszkári</language>
+			<language type="mi">maori</language>
+			<language type="mk">macedón</language>
+			<language type="ml">malajalam</language>
+			<language type="mn">mongol</language>
+			<language type="mo">moldvai</language>
+			<language type="mr">marati</language>
+			<language type="ms">maláj</language>
+			<language type="mt">máltai</language>
+			<language type="my">burmai</language>
+			<language type="na">naurui</language>
+			<language type="ne">nepáli</language>
+			<language type="nl">holland</language>
+			<language type="no">norvég</language>
+			<language type="oc">okszitán</language>
+			<language type="om">oromói</language>
+			<language type="or">orija</language>
+			<language type="pa">pandzsábi</language>
+			<language type="pl">lengyel</language>
+			<language type="ps">pastu (afgán)</language>
+			<language type="pt">portugál</language>
+			<language type="qu">kecsua</language>
+			<language type="rm">rétoromán</language>
+			<language type="rn">kirundi</language>
+			<language type="ro">román</language>
+			<language type="ru">orosz</language>
+			<language type="rw">kiruanda</language>
+			<language type="sa">szanszkrit</language>
+			<language type="sd">szindi</language>
+			<language type="sg">sango</language>
+			<language type="sh">szerb-horvát</language>
+			<language type="si">szingaléz</language>
+			<language type="sk">szlovák</language>
+			<language type="sl">szlovén</language>
+			<language type="sm">szamoai</language>
+			<language type="sn">sona</language>
+			<language type="so">szomáli</language>
+			<language type="sq">albán</language>
+			<language type="sr">szerb</language>
+			<language type="ss">sziszuati</language>
+			<language type="st">szeszotó</language>
+			<language type="su">szundanéz</language>
+			<language type="sv">svéd</language>
+			<language type="sw">szuahéli</language>
+			<language type="ta">tamil</language>
+			<language type="te">telugu</language>
+			<language type="tg">tadzsik</language>
+			<language type="th">thai</language>
+			<language type="ti">tigrinya</language>
+			<language type="tk">türkmén</language>
+			<language type="tl">tagalog</language>
+			<language type="tn">szecsuáni</language>
+			<language type="to">tonga</language>
+			<language type="tr">török</language>
+			<language type="ts">conga</language>
+			<language type="tt">tatár</language>
+			<language type="tw">tui</language>
+			<language type="ug">ujgur</language>
+			<language type="uk">ukrán</language>
+			<language type="ur">urdu</language>
+			<language type="uz">üzbég</language>
+			<language type="vi">vietnámi</language>
+			<language type="vo">volapük</language>
+			<language type="wo">volof</language>
+			<language type="xh">hosza</language>
+			<language type="yi">zsidó</language>
+			<language type="yo">joruba</language>
+			<language type="za">zsuang</language>
+			<language type="zh">kínai</language>
+			<language type="zu">zulu</language>
+		</languages>
+		<scripts>
+			<script draft="true" type="Armn">Örmény</script>
+			<script draft="true" type="Beng">Bengáli</script>
+			<script draft="true" type="Bopo">Bopomofo</script>
+			<script draft="true" type="Brai">Vakírás</script>
+			<script draft="true" type="Cans">Egyesített kanadai őslakos jelek</script>
+			<script draft="true" type="Cprt">Ciprusi</script>
+			<script draft="true" type="Cyrl">Cirill</script>
+			<script draft="true" type="Ethi">Etióp</script>
+			<script draft="true" type="Geor">Grúz</script>
+			<script draft="true" type="Goth">Gótikus</script>
+			<script draft="true" type="Grek">Görög</script>
+			<script draft="true" type="Hano">Hanunoo</script>
+			<script draft="true" type="Hani">Han</script>
+			<script draft="true" type="Hans">Egyszerűsített Han</script>
+			<script draft="true" type="Hant">Hagyományos Han</script>
+			<script draft="true" type="Hebr">Héber</script>
+			<script draft="true" type="Ital">Régi olasz</script>
+			<script draft="true" type="Knda">Kannada</script>
+			<script draft="true" type="Laoo">Lao</script>
+			<script draft="true" type="Limb">Limbu</script>
+			<script draft="true" type="Mlym">Malayalam</script>
+			<script draft="true" type="Mymr">Burmai</script>
+			<script draft="true" type="Ogam">Ogham</script>
+			<script draft="true" type="Orya">Oriya</script>
+			<script draft="true" type="Osma">Oszmán</script>
+			<script draft="true" type="Sinh">Szingaléz</script>
+			<script draft="true" type="Syrc">Szíriai</script>
+			<script draft="true" type="Tagb">Tagbanwa</script>
+			<script draft="true" type="Tale">Tai Le</script>
+			<script draft="true" type="Telu">Telugu</script>
+			<script draft="true" type="Thaa">Thaana</script>
+			<script draft="true" type="Tibt">Tibeti</script>
+			<script draft="true" type="Ugar">Ugari</script>
+			<script draft="true" type="Zyyy">Meghatározatlan</script>
+		</scripts>
+		<territories>
+			<territory type="AD">Andorra</territory>
+			<territory type="AE">Egyesült Arab Emirátus</territory>
+			<territory type="AF">Afganisztán</territory>
+			<territory type="AG">Antigua és Barbuda</territory>
+			<territory type="AI">Anguilla</territory>
+			<territory type="AL">Albánia</territory>
+			<territory type="AM">Örményország</territory>
+			<territory type="AN">Holland Antillák</territory>
+			<territory type="AO">Angola</territory>
+			<territory type="AQ">Antarktisz</territory>
+			<territory type="AR">Argentína</territory>
+			<territory type="AS">Amerikai Szamoa</territory>
+			<territory type="AT">Ausztria</territory>
+			<territory type="AU">Ausztrália</territory>
+			<territory type="AW">Aruba</territory>
+			<territory type="AZ">Azerbajdzsán</territory>
+			<territory type="BA">Bosznia-Hercegovina</territory>
+			<territory type="BB">Barbados</territory>
+			<territory type="BD">Banglades</territory>
+			<territory type="BE">Belgium</territory>
+			<territory type="BF">Burkina Faso</territory>
+			<territory type="BG">Bulgária</territory>
+			<territory type="BH">Bahrain</territory>
+			<territory type="BI">Burundi</territory>
+			<territory type="BJ">Benin</territory>
+			<territory type="BM">Bermuda</territory>
+			<territory type="BN">Brunei Darussalam</territory>
+			<territory type="BO">Bolívia</territory>
+			<territory type="BR">Brazília</territory>
+			<territory type="BS">Bahamák</territory>
+			<territory type="BT">Bhután</territory>
+			<territory type="BV">Bouvet-sziget</territory>
+			<territory type="BW">Botswana</territory>
+			<territory type="BY">Fehéroroszország</territory>
+			<territory type="BZ">Beliz</territory>
+			<territory type="CA">Kanada</territory>
+			<territory type="CC">Kókusz (Keeling)-szigetek</territory>
+			<territory type="CD">Kongó, Demokratikus köztársaság</territory>
+			<territory type="CF">Közép-afrikai Köztársaság</territory>
+			<territory type="CG">Kongó</territory>
+			<territory type="CH">Svájc</territory>
+			<territory type="CI">Elefántcsontpart</territory>
+			<territory type="CK">Cook-szigetek</territory>
+			<territory type="CL">Chile</territory>
+			<territory type="CM">Kamerun</territory>
+			<territory type="CN">Kína</territory>
+			<territory type="CO">Kolumbia</territory>
+			<territory type="CR">Costa Rica</territory>
+			<territory type="CU">Kuba</territory>
+			<territory type="CV">Zöld-foki Köztársaság</territory>
+			<territory type="CX">Karácsony-szigetek</territory>
+			<territory type="CY">Ciprus</territory>
+			<territory type="CZ">Cseh Köztársaság</territory>
+			<territory type="DE">Németország</territory>
+			<territory type="DJ">Dzsibuti</territory>
+			<territory type="DK">Dánia</territory>
+			<territory type="DM">Dominika</territory>
+			<territory type="DO">Dominikai Köztársaság</territory>
+			<territory type="DZ">Algéria</territory>
+			<territory type="EC">Ecuador</territory>
+			<territory type="EE">Észtország</territory>
+			<territory type="EG">Egyiptom</territory>
+			<territory type="EH">Nyugat Szahara</territory>
+			<territory type="ER">Eritrea</territory>
+			<territory type="ES">Spanyolország</territory>
+			<territory type="ET">Etiópia</territory>
+			<territory type="FI">Finnország</territory>
+			<territory type="FJ">Fidzsi</territory>
+			<territory type="FK">Falkland-szigetek</territory>
+			<territory type="FM">Mikronézia, Szövetségi Államok</territory>
+			<territory type="FO">Feröer-szigetek</territory>
+			<territory type="FR">Franciaország</territory>
+			<territory type="GA">Gabon</territory>
+			<territory type="GB">Egyesült Királyság</territory>
+			<territory type="GD">Grenada</territory>
+			<territory type="GE">Grúzia</territory>
+			<territory type="GF">Francia Guyana</territory>
+			<territory type="GH">Ghana</territory>
+			<territory type="GI">Gibraltár</territory>
+			<territory type="GL">Grönland</territory>
+			<territory type="GM">Gambia</territory>
+			<territory type="GN">Guinea</territory>
+			<territory type="GP">Guadeloupe</territory>
+			<territory type="GQ">Egyenlítďi Guinea</territory>
+			<territory type="GR">Görögország</territory>
+			<territory type="GS">Dél-Georgia és Dél-Sandwich Szigetek</territory>
+			<territory type="GT">Guatemala</territory>
+			<territory type="GU">Guam</territory>
+			<territory type="GW">Guinea-Bissau</territory>
+			<territory type="GY">Guyana</territory>
+			<territory type="HK">Hong Kong S.A.R., China</territory>
+			<territory type="HM">Heard és McDonald Szigetek</territory>
+			<territory type="HN">Honduras</territory>
+			<territory type="HR">Horvátország</territory>
+			<territory type="HT">Haiti</territory>
+			<territory type="HU">Magyarország</territory>
+			<territory type="ID">Indonézia</territory>
+			<territory type="IE">Írország</territory>
+			<territory type="IL">Izrael</territory>
+			<territory type="IN">India</territory>
+			<territory type="IO">Brit Indiai Oceán</territory>
+			<territory type="IQ">Irak</territory>
+			<territory type="IR">Irán</territory>
+			<territory type="IS">Izland</territory>
+			<territory type="IT">Olaszország</territory>
+			<territory type="JM">Jamaica</territory>
+			<territory type="JO">Jordánia</territory>
+			<territory type="JP">Japán</territory>
+			<territory type="KE">Kenya</territory>
+			<territory type="KG">Kirgizisztán</territory>
+			<territory type="KH">Kambodzsa</territory>
+			<territory type="KI">Kiribati</territory>
+			<territory type="KM">Comore-szigetek</territory>
+			<territory type="KN">Saint Kitts és Nevis</territory>
+			<territory type="KP">Korea, Észak</territory>
+			<territory type="KR">Korea, Dél</territory>
+			<territory type="KW">Kuwait</territory>
+			<territory type="KY">Kajmán-szigetek</territory>
+			<territory type="KZ">Kazahsztán</territory>
+			<territory type="LA">Laoszi Népi Demokratikus Köztársaság</territory>
+			<territory type="LB">Libanon</territory>
+			<territory type="LC">Saint Lucia</territory>
+			<territory type="LI">Liechtenstein</territory>
+			<territory type="LK">Sri Lanka</territory>
+			<territory type="LR">Libéria</territory>
+			<territory type="LS">Lesotho</territory>
+			<territory type="LT">Litvánia</territory>
+			<territory type="LU">Luxemburg</territory>
+			<territory type="LV">Lettország</territory>
+			<territory type="LY">Líbiai Arab Jamahiriya</territory>
+			<territory type="MA">Marokkó</territory>
+			<territory type="MC">Monaco</territory>
+			<territory type="MD">Moldáv Köztársaság</territory>
+			<territory type="MG">Madagaszkár</territory>
+			<territory type="MH">Marshall-szigetek</territory>
+			<territory type="MK">Macedónia, Köztársaság</territory>
+			<territory type="ML">Mali</territory>
+			<territory type="MM">Mianmar</territory>
+			<territory type="MN">Mongólia</territory>
+			<territory type="MO">Macao S.A.R., China</territory>
+			<territory type="MP">Északi Mariana-szigetek</territory>
+			<territory type="MQ">Martinique (francia)</territory>
+			<territory type="MR">Mauritánia</territory>
+			<territory type="MS">Montserrat</territory>
+			<territory type="MT">Málta</territory>
+			<territory type="MU">Mauritius</territory>
+			<territory type="MV">Maldív-szigetek</territory>
+			<territory type="MW">Malawi</territory>
+			<territory type="MX">Mexikó</territory>
+			<territory type="MY">Malajzia</territory>
+			<territory type="MZ">Mozambik</territory>
+			<territory type="NA">Namíbia</territory>
+			<territory type="NC">Új Kaledónia (francia)</territory>
+			<territory type="NE">Niger</territory>
+			<territory type="NF">Norfolk-sziget</territory>
+			<territory type="NG">Nigéria</territory>
+			<territory type="NI">Nicaragua</territory>
+			<territory type="NL">Hollandia</territory>
+			<territory type="NO">Norvégia</territory>
+			<territory type="NP">Nepál</territory>
+			<territory type="NR">Nauru</territory>
+			<territory type="NU">Niue</territory>
+			<territory type="NZ">Új-Zéland</territory>
+			<territory type="OM">Omán</territory>
+			<territory type="PA">Panama</territory>
+			<territory type="PE">Peru</territory>
+			<territory type="PF">Polinézia (francia)</territory>
+			<territory type="PG">Pápua Új-Guinea</territory>
+			<territory type="PH">Fülöp-szigetek</territory>
+			<territory type="PK">Pakisztán</territory>
+			<territory type="PL">Lengyelország</territory>
+			<territory type="PM">Saint Pierre és Miquelon</territory>
+			<territory type="PN">Pitcairn-sziget</territory>
+			<territory type="PR">Puerto Rico</territory>
+			<territory type="PS">Palesztín Terület</territory>
+			<territory type="PT">Portugália</territory>
+			<territory type="PW">Palau</territory>
+			<territory type="PY">Paraguay</territory>
+			<territory type="QA">Katar</territory>
+			<territory type="RE">Reunion (francia)</territory>
+			<territory type="RO">Románia</territory>
+			<territory type="RU">Orosz Köztársaság</territory>
+			<territory type="RW">Ruanda</territory>
+			<territory type="SA">Szaud-Arábia</territory>
+			<territory type="SB">Salamon-szigetek</territory>
+			<territory type="SC">Seychelles</territory>
+			<territory type="SD">Szudán</territory>
+			<territory type="SE">Svédország</territory>
+			<territory type="SG">Szingapúr</territory>
+			<territory type="SH">Saint Helena</territory>
+			<territory type="SI">Szlovénia</territory>
+			<territory type="SJ">Svalbard és Jan Mayen</territory>
+			<territory type="SK">Szlovákia</territory>
+			<territory type="SL">Sierra Leone</territory>
+			<territory type="SM">San Marino</territory>
+			<territory type="SN">Szenegál</territory>
+			<territory type="SO">Szomália</territory>
+			<territory type="SP">Serbia</territory>
+			<territory type="SR">Suriname</territory>
+			<territory type="ST">Saint Tome és Principe</territory>
+			<territory type="SV">El Salvador</territory>
+			<territory type="SY">Szíriai Arab Köztársaság</territory>
+			<territory type="SZ">Szváziföld</territory>
+			<territory type="TC">Török és Caicos Szigetek</territory>
+			<territory type="TD">Csád</territory>
+			<territory type="TF">Francia Déli Területek</territory>
+			<territory type="TG">Togo</territory>
+			<territory type="TH">Thaiföld</territory>
+			<territory type="TJ">Tadzsikisztán</territory>
+			<territory type="TK">Tokelau</territory>
+			<territory type="TL">Kelet-Timor</territory>
+			<territory type="TM">Türkmenisztán</territory>
+			<territory type="TN">Tunézia</territory>
+			<territory type="TO">Tonga</territory>
+			<territory type="TR">Törökország</territory>
+			<territory type="TT">Trinidad és Tobago</territory>
+			<territory type="TV">Tuvalu</territory>
+			<territory type="TW">Taiwan</territory>
+			<territory type="TZ">Tanzánia</territory>
+			<territory type="UA">Ukrajna</territory>
+			<territory type="UG">Uganda</territory>
+			<territory type="UM">United States Minor Outlying Islands</territory>
+			<territory type="US">Egyesült Államok</territory>
+			<territory type="UY">Uruguay</territory>
+			<territory type="UZ">Üzbegisztán</territory>
+			<territory type="VA">Vatikán</territory>
+			<territory type="VC">Saint Vincent és Grenadines</territory>
+			<territory type="VE">Venezuela</territory>
+			<territory type="VG">Brit Virgin-szigetek</territory>
+			<territory type="VI">U.S. Virgin-szigetek</territory>
+			<territory type="VN">Vietnám</territory>
+			<territory type="VU">Vanuatu</territory>
+			<territory type="WF">Wallis és Futuna Szigetek</territory>
+			<territory type="WS">Szamoa</territory>
+			<territory type="YE">Jemen</territory>
+			<territory type="YT">Mayotte</territory>
+			<territory type="YU">Jugoszlávia</territory>
+			<territory type="ZA">Dél-Afrika</territory>
+			<territory type="ZM">Zambia</territory>
+			<territory type="ZW">Zimbabwe</territory>
+		</territories>
+		<keys>
+			<key draft="true" type="calendar">Naptár</key>
+			<key draft="true" type="collation">Rendezés</key>
+			<key draft="true" type="currency">Pénznem</key>
+		</keys>
+		<types>
+			<type draft="true" type="buddhist" key="calendar">buddhista naptár</type>
+			<type draft="true" type="chinese" key="calendar">kínai naptár</type>
+			<type draft="true" type="gregorian" key="calendar">Gergely-naptár</type>
+			<type draft="true" type="hebrew" key="calendar">héber naptár</type>
+			<type draft="true" type="islamic" key="calendar">iszlám naptár</type>
+			<type draft="true" type="islamic-civil" key="calendar">iszlám civil naptár</type>
+			<type draft="true" type="japanese" key="calendar">japán naptár</type>
+			<type draft="true" type="direct" key="collation">Közvetlen sorrend</type>
+			<type draft="true" type="phonebook" key="collation">Telefonkönyv sorrend</type>
+			<type draft="true" type="traditional" key="collation">Hagyományos</type>
+		</types>
+	</localeDisplayNames>
+	<characters>
+		<exemplarCharacters>[a-z á é í ó ú ö ü ő ű {cs} {dz} {dzs} {gy} {ly} {ny} {sz} {ty} {zs} {ccs} {ddz} {ddzs} {ggy} {lly} {nny} {ssz} {tty} {zzs}]</exemplarCharacters>
+	</characters>
+	<dates>
+		<localizedPatternChars>GanjkHmsSEDFwWxhKzAeugXZ</localizedPatternChars>
+		<calendars>
+			
+			<calendar type="buddhist">
+				<eras>
+					<eraAbbr>
+						<era type="0">BK</era>
+					</eraAbbr>
+				</eras>
+			</calendar>
+			<calendar type="gregorian">
+				<months>
+					<monthContext type="format">
+						<monthWidth type="abbreviated">
+							<month type="1">jan.</month>
+							<month type="2">febr.</month>
+							<month type="3">márc.</month>
+							<month type="4">ápr.</month>
+							<month type="5">máj.</month>
+							<month type="6">jún.</month>
+							<month type="7">júl.</month>
+							<month type="8">aug.</month>
+							<month type="9">szept.</month>
+							<month type="10">okt.</month>
+							<month type="11">nov.</month>
+							<month type="12">dec.</month>
+						</monthWidth>
+						<monthWidth draft="true" type="narrow">
+							<month type="1">J</month>
+							<month type="2">F</month>
+							<month type="3">M</month>
+							<month type="4">Á</month>
+							<month type="5">M</month>
+							<month type="6">J</month>
+							<month type="7">J</month>
+							<month type="8">A</month>
+							<month type="9">S</month>
+							<month type="10">O</month>
+							<month type="11">N</month>
+							<month type="12">D</month>
+						</monthWidth>
+						<monthWidth type="wide">
+							<month type="1">január</month>
+							<month type="2">február</month>
+							<month type="3">március</month>
+							<month type="4">április</month>
+							<month type="5">május</month>
+							<month type="6">június</month>
+							<month type="7">július</month>
+							<month type="8">augusztus</month>
+							<month type="9">szeptember</month>
+							<month type="10">október</month>
+							<month type="11">november</month>
+							<month type="12">december</month>
+						</monthWidth>
+					</monthContext>
+				</months>
+				<days>
+					<dayContext type="format">
+						<dayWidth type="abbreviated">
+							<day type="sun">V</day>
+							<day type="mon">H</day>
+							<day type="tue">K</day>
+							<day type="wed">Sze</day>
+							<day type="thu">Cs</day>
+							<day type="fri">P</day>
+							<day type="sat">Szo</day>
+						</dayWidth>
+						<dayWidth draft="true" type="narrow">
+							<day type="sun">V</day>
+							<day type="mon">H</day>
+							<day type="tue">K</day>
+							<day type="wed">S</day>
+							<day type="thu">C</day>
+							<day type="fri">P</day>
+							<day type="sat">S</day>
+						</dayWidth>
+						<dayWidth type="wide">
+							<day type="sun">vasárnap</day>
+							<day type="mon">hétfő</day>
+							<day type="tue">kedd</day>
+							<day type="wed">szerda</day>
+							<day type="thu">csütörtök</day>
+							<day type="fri">péntek</day>
+							<day type="sat">szombat</day>
+						</dayWidth>
+					</dayContext>
+				</days>
+				<week>
+					<minDays count="1"></minDays>
+					<firstDay day="mon"></firstDay>
+				</week>
+				<am>DE</am>
+				<pm>DU</pm>
+				<eras>
+					<eraAbbr>
+						<era type="0">i.e.</era>
+						<era type="1">i.u.</era>
+					</eraAbbr>
+				</eras>
+				<dateFormats>
+					<default type="medium"></default>
+					<dateFormatLength type="full">
+						<dateFormat>
+							<pattern>yyyy. MMMM d.</pattern>
+						</dateFormat>
+					</dateFormatLength>
+					<dateFormatLength type="long">
+						<dateFormat>
+							<pattern>yyyy. MMMM d.</pattern>
+						</dateFormat>
+					</dateFormatLength>
+					<dateFormatLength type="medium">
+						<dateFormat>
+							<pattern>yyyy.MM.dd.</pattern>
+						</dateFormat>
+					</dateFormatLength>
+					<dateFormatLength type="short">
+						<dateFormat>
+							<pattern>yyyy.MM.dd.</pattern>
+						</dateFormat>
+					</dateFormatLength>
+				</dateFormats>
+				<timeFormats>
+					<default type="medium"></default>
+					<timeFormatLength type="full">
+						<timeFormat>
+							<pattern>H:mm:ss z</pattern>
+						</timeFormat>
+					</timeFormatLength>
+					<timeFormatLength type="long">
+						<timeFormat>
+							<pattern>H:mm:ss z</pattern>
+						</timeFormat>
+					</timeFormatLength>
+					<timeFormatLength type="medium">
+						<timeFormat>
+							<pattern>H:mm:ss</pattern>
+						</timeFormat>
+					</timeFormatLength>
+					<timeFormatLength type="short">
+						<timeFormat>
+							<pattern>H:mm</pattern>
+						</timeFormat>
+					</timeFormatLength>
+				</timeFormats>
+				<dateTimeFormats>
+					<dateTimeFormatLength>
+						<dateTimeFormat>
+							<pattern>{1} {0}</pattern>
+						</dateTimeFormat>
+					</dateTimeFormatLength>
+				</dateTimeFormats>
+			</calendar>
+			<calendar type="hebrew">
+				<months>
+					<monthContext type="format">
+						<monthWidth type="abbreviated">
+							<alias source="hu" path="../monthWidth[@type='wide']"></alias>
+						</monthWidth>
+						<monthWidth type="wide">
+							<month type="1">Tisri</month>
+							<month type="2">Hesván</month>
+							<month type="3">Kiszlév</month>
+							<month type="4">Tévész</month>
+							<month type="5">Svát</month>
+							<month type="6">Ádár risón</month>
+							<month type="7">Ádár séni</month>
+							<month type="8">Niszán</month>
+							<month type="9">Ijár</month>
+							<month type="10">Sziván</month>
+							<month type="11">Tamuz</month>
+							<month type="12">Áv</month>
+							<month type="13">Elul</month>
+						</monthWidth>
+					</monthContext>
+				</months>
+				<eras>
+					<eraAbbr>
+						<era type="0">TÉ</era>
+					</eraAbbr>
+				</eras>
+			</calendar>
+			<calendar type="islamic">
+				<months>
+					<monthContext type="format">
+						<monthWidth type="abbreviated">
+							<alias source="hu" path="../monthWidth[@type='wide']"></alias>
+						</monthWidth>
+						<monthWidth type="wide">
+							<month type="1">Moharrem</month>
+							<month type="2">Safar</month>
+							<month type="3">Rébi el avvel</month>
+							<month type="4">Rébi el accher</month>
+							<month type="5">Dsemádi el avvel</month>
+							<month type="6">Dsemádi el accher</month>
+							<month type="7">Redseb</month>
+							<month type="8">Sabán</month>
+							<month type="9">Ramadán</month>
+							<month type="10">Sevvál</month>
+							<month type="11">Dsül kade</month>
+							<month type="12">Dsül hedse</month>
+						</monthWidth>
+					</monthContext>
+				</months>
+				<eras>
+					<eraAbbr>
+						<era type="0">MF</era>
+					</eraAbbr>
+				</eras>
+			</calendar>
+			<calendar type="islamic-civil">
+        <alias source="hu" path="../calendar[@type='islamic']"></alias>
+			</calendar>
+		</calendars>
+	</dates>
+	<numbers>
+		<symbols>
+			<decimal>,</decimal>
+			<group> </group>
+			<list>;</list>
+			<percentSign>%</percentSign>
+			<nativeZeroDigit>0</nativeZeroDigit>
+			<patternDigit>#</patternDigit>
+			<plusSign>+</plusSign>
+			<minusSign>-</minusSign>
+			<exponential>E</exponential>
+			<perMille>‰</perMille>
+			<infinity>∞</infinity>
+			<nan>�</nan>
+		</symbols>
+		<currencies>
+			<currency draft="true" type="ADD">
+				<displayName>Andorrai dínár</displayName>
+				<symbol>ADD</symbol>
+			</currency>
+			<currency draft="true" type="ADP">
+				<displayName>Andorrai peseta</displayName>
+				<symbol>ADP</symbol>
+			</currency>
+			<currency draft="true" type="AED">
+				<displayName>EAE dirham</displayName>
+				<symbol>AED</symbol>
+			</currency>
+			<currency draft="true" type="AFA">
+				<displayName>Afghani (1927-2002)</displayName>
+				<symbol>AFA</symbol>
+			</currency>
+			<currency draft="true" type="AFN">
+				<displayName>Afghani</displayName>
+				<symbol>Af</symbol>
+			</currency>
+			<currency draft="true" type="AIF">
+				<displayName>Affars and Issas Franc</displayName>
+				<symbol>AIF</symbol>
+			</currency>
+			<currency draft="true" type="ALK">
+				<displayName>Albán lek (1946-1961)</displayName>
+				<symbol>ALK</symbol>
+			</currency>
+			<currency draft="true" type="ALL">
+				<displayName>Albán lek</displayName>
+				<symbol>lek</symbol>
+			</currency>
+			<currency draft="true" type="ALV">
+				<displayName>Albán lek valuta</displayName>
+				<symbol>ALV</symbol>
+			</currency>
+			<currency draft="true" type="ALX">
+				<displayName>Albán dollár konvertibilis valuta</displayName>
+				<symbol>ALX</symbol>
+			</currency>
+			<currency draft="true" type="AMD">
+				<displayName>Dram</displayName>
+				<symbol>dram</symbol>
+			</currency>
+			<currency draft="true" type="ANG">
+				<displayName>Holland-antilla forint</displayName>
+				<symbol>NA f.</symbol>
+			</currency>
+			<currency draft="true" type="AOA">
+				<displayName>Angolai kwanza</displayName>
+				<symbol>AOA</symbol>
+			</currency>
+			<currency draft="true" type="AOK">
+				<displayName>Angolai kwanza (1977-1990)</displayName>
+				<symbol>AOK</symbol>
+			</currency>
+			<currency draft="true" type="AON">
+				<displayName>Angolai új kwanza (1990-2000)</displayName>
+				<symbol>AON</symbol>
+			</currency>
+			<currency draft="true" type="AOR">
+				<displayName>Angolai kwanza reajustado (1995-1999)</displayName>
+				<symbol>AOR</symbol>
+			</currency>
+			<currency draft="true" type="AOS">
+				<displayName>Angolai escudo</displayName>
+				<symbol>AOS</symbol>
+			</currency>
+			<currency draft="true" type="ARA">
+				<displayName>Argentín austral</displayName>
+				<symbol>ARA</symbol>
+			</currency>
+			<currency draft="true" type="ARM">
+				<displayName>Argentín peso moneda nacional</displayName>
+				<symbol>ARM</symbol>
+			</currency>
+			<currency draft="true" type="ARP">
+				<displayName>Argentín peso (1983-1985)</displayName>
+				<symbol>ARP</symbol>
+			</currency>
+			<currency draft="true" type="ARS">
+				<displayName>Peso</displayName>
+				<symbol>Arg$</symbol>
+			</currency>
+			<currency draft="true" type="ATS">
+				<displayName>Osztrák schilling</displayName>
+				<symbol>ATS</symbol>
+			</currency>
+			<currency draft="true" type="AUD">
+				<displayName>Ausztrál dollár</displayName>
+				<symbol>$A</symbol>
+			</currency>
+			<currency draft="true" type="AUP">
+				<displayName>Ausztrál font</displayName>
+				<symbol>AUP</symbol>
+			</currency>
+			<currency draft="true" type="AWG">
+				<displayName>Arubai forint</displayName>
+				<symbol>AWG</symbol>
+			</currency>
+			<currency draft="true" type="AZM">
+				<displayName>Azerbajdzsáni manat</displayName>
+				<symbol>AZM</symbol>
+			</currency>
+			<currency draft="true" type="BAD">
+				<displayName>Bosznia-hercegovinai dínár</displayName>
+				<symbol>BAD</symbol>
+			</currency>
+			<currency draft="true" type="BAM">
+				<displayName>Bozsnia-hercegovinai konvertibilis márka</displayName>
+				<symbol>KM</symbol>
+			</currency>
+			<currency draft="true" type="BAN">
+				<displayName>Bosznia-hercegovinai új dínár</displayName>
+				<symbol>BAN</symbol>
+			</currency>
+			<currency draft="true" type="BBD">
+				<displayName>Barbadosi dollár</displayName>
+				<symbol>BDS$</symbol>
+			</currency>
+			<currency draft="true" type="BDT">
+				<displayName>Bangladesi taka</displayName>
+				<symbol>Tk</symbol>
+			</currency>
+			<currency draft="true" type="BEC">
+				<displayName>Belga frank (konvertibilis)</displayName>
+				<symbol>BEC</symbol>
+			</currency>
+			<currency draft="true" type="BEF">
+				<displayName>Belga frank</displayName>
+				<symbol>BF</symbol>
+			</currency>
+			<currency draft="true" type="BEL">
+				<displayName>Belga frank (pénzügyi)</displayName>
+				<symbol>BEL</symbol>
+			</currency>
+			<currency draft="true" type="BGL">
+				<displayName>Bolgár kemény leva</displayName>
+				<symbol>lev</symbol>
+			</currency>
+			<currency draft="true" type="BGM">
+				<displayName>Bolgár szocialista leva</displayName>
+				<symbol>BGM</symbol>
+			</currency>
+			<currency draft="true" type="BGN">
+				<displayName>Bolgár új leva</displayName>
+				<symbol>BGN</symbol>
+			</currency>
+			<currency draft="true" type="BGO">
+				<displayName>Bolgár leva (1879-1952)</displayName>
+				<symbol>BGO</symbol>
+			</currency>
+			<currency draft="true" type="BGX">
+				<displayName>Bolgár leva konvertibilis valuta</displayName>
+				<symbol>BGX</symbol>
+			</currency>
+			<currency draft="true" type="BHD">
+				<displayName>Bahreini dinár</displayName>
+				<symbol>BD</symbol>
+			</currency>
+			<currency draft="true" type="BIF">
+				<displayName>Burundi frank</displayName>
+				<symbol>Fbu</symbol>
+			</currency>
+			<currency draft="true" type="BMD">
+				<displayName>Bermudai dollár</displayName>
+				<symbol>Ber$</symbol>
+			</currency>
+			<currency draft="true" type="BMP">
+				<displayName>Bermudai font</displayName>
+				<symbol>BMP</symbol>
+			</currency>
+			<currency draft="true" type="BND">
+				<displayName>Brunei dollár</displayName>
+				<symbol>BND</symbol>
+			</currency>
+			<currency draft="true" type="BOB">
+				<displayName>Boliviano</displayName>
+				<symbol>Bs</symbol>
+			</currency>
+			<currency draft="true" type="BOL">
+				<displayName>Boliviano (1863-1962)</displayName>
+				<symbol>BOL</symbol>
+			</currency>
+			<currency draft="true" type="BOP">
+				<displayName>Bolíviai peso</displayName>
+				<symbol>BOP</symbol>
+			</currency>
+			<currency draft="true" type="BOV">
+				<displayName>Bolíviai mvdol</displayName>
+				<symbol>BOV</symbol>
+			</currency>
+			<currency draft="true" type="BRB">
+				<displayName>Brazi cruzeiro novo (1967-1986)</displayName>
+				<symbol>BRB</symbol>
+			</currency>
+			<currency draft="true" type="BRC">
+				<displayName>Brazi cruzado</displayName>
+				<symbol>BRC</symbol>
+			</currency>
+			<currency draft="true" type="BRE">
+				<displayName>Brazil cruzeiro (1990-1993)</displayName>
+				<symbol>BRE</symbol>
+			</currency>
+			<currency draft="true" type="BRL">
+				<displayName>Brazil real</displayName>
+				<symbol>R$</symbol>
+			</currency>
+			<currency draft="true" type="BRN">
+				<displayName>Brazil cruzado novo</displayName>
+				<symbol>BRN</symbol>
+			</currency>
+			<currency draft="true" type="BRR">
+				<displayName>Brazil cruzeiro</displayName>
+				<symbol>BRR</symbol>
+			</currency>
+			<currency draft="true" type="BRZ">
+				<displayName>Brazil cruzeiro (1942-1967)</displayName>
+				<symbol>BRZ</symbol>
+			</currency>
+			<currency draft="true" type="BSD">
+				<displayName>Bahamai dollár</displayName>
+				<symbol>BSD</symbol>
+			</currency>
+			<currency draft="true" type="BSP">
+				<displayName>Bahamai font</displayName>
+				<symbol>BSP</symbol>
+			</currency>
+			<currency draft="true" type="BTN">
+				<displayName>Bhutáni ngultrum</displayName>
+				<symbol>Nu</symbol>
+			</currency>
+			<currency draft="true" type="BTR">
+				<displayName>Bhutáni rúpia</displayName>
+				<symbol>BTR</symbol>
+			</currency>
+			<currency draft="true" type="BUK">
+				<displayName>Burmai kyat</displayName>
+				<symbol>BUK</symbol>
+			</currency>
+			<currency draft="true" type="BUR">
+				<displayName>Burmai rúpia</displayName>
+				<symbol>BUR</symbol>
+			</currency>
+			<currency draft="true" type="BWP">
+				<displayName>Botswanai pula</displayName>
+				<symbol>BWP</symbol>
+			</currency>
+			<currency draft="true" type="BYB">
+				<displayName>Fehérorosz új rubel (1994-1999)</displayName>
+				<symbol>BYB</symbol>
+			</currency>
+			<currency draft="true" type="BYL">
+				<displayName>Fehérorosz rubel (1992-1994)</displayName>
+				<symbol>BYL</symbol>
+			</currency>
+			<currency draft="true" type="BYR">
+				<displayName>Fehérorosz rubel</displayName>
+				<symbol>Rbl</symbol>
+			</currency>
+			<currency draft="true" type="BZD">
+				<displayName>Belizei dollár</displayName>
+				<symbol>BZ$</symbol>
+			</currency>
+			<currency draft="true" type="BZH">
+				<displayName>Brit-hondurasi dollár</displayName>
+				<symbol>BZH</symbol>
+			</currency>
+			<currency draft="true" type="CAD">
+				<displayName>Kanadai dollár</displayName>
+				<symbol>Can$</symbol>
+			</currency>
+			<currency draft="true" type="CDF">
+				<displayName>Kongói frank</displayName>
+				<symbol>CDF</symbol>
+			</currency>
+			<currency draft="true" type="CDG">
+				<displayName>Kongói köztársasági frank</displayName>
+				<symbol>CDG</symbol>
+			</currency>
+			<currency draft="true" type="CDL">
+				<displayName>Kongói zaire</displayName>
+				<symbol>CDL</symbol>
+			</currency>
+			<currency draft="true" type="CFF">
+				<displayName>Közép-afrikai CFA frank</displayName>
+				<symbol>CFF</symbol>
+			</currency>
+			<currency draft="true" type="CHF">
+				<displayName>Svájci frank</displayName>
+				<symbol>SwF</symbol>
+			</currency>
+			<currency draft="true" type="CKD">
+				<displayName>Cook-szigeteki dollár</displayName>
+				<symbol>CKD</symbol>
+			</currency>
+			<currency draft="true" type="CLC">
+				<displayName>Chilei condor</displayName>
+				<symbol>CLC</symbol>
+			</currency>
+			<currency draft="true" type="CLE">
+				<displayName>Chilei escudo</displayName>
+				<symbol>CLE</symbol>
+			</currency>
+			<currency draft="true" type="CLF">
+				<displayName>Chilei unidades de fomento</displayName>
+				<symbol>CLF</symbol>
+			</currency>
+			<currency draft="true" type="CLP">
+				<displayName>Chilei peso</displayName>
+				<symbol>Ch$</symbol>
+			</currency>
+			<currency draft="true" type="CMF">
+				<displayName>Cameruni CFA frank</displayName>
+				<symbol>CMF</symbol>
+			</currency>
+			<currency draft="true" type="CNP">
+				<displayName>Kínai jen min piao jüan</displayName>
+				<symbol>CNP</symbol>
+			</currency>
+			<currency draft="true" type="CNX">
+				<displayName>Kínai USA dollár konvertibilis valuta</displayName>
+				<symbol>CNX</symbol>
+			</currency>
+			<currency draft="true" type="CNY">
+				<displayName>Kínai jüan renminbi</displayName>
+				<symbol>Y</symbol>
+			</currency>
+			<currency draft="true" type="COB">
+				<displayName>Kolumbiai papír peso</displayName>
+				<symbol>COB</symbol>
+			</currency>
+			<currency draft="true" type="COF">
+				<displayName>Kongói CFA frank</displayName>
+				<symbol>COF</symbol>
+			</currency>
+			<currency draft="true" type="COP">
+				<displayName>Kolumbiai peso</displayName>
+				<symbol>Col$</symbol>
+			</currency>
+			<currency draft="true" type="CRC">
+				<displayName>Costa Ricai colon</displayName>
+				<symbol>C</symbol>
+			</currency>
+			<currency draft="true" type="CSC">
+				<displayName>Csehszlovák korona</displayName>
+				<symbol>CSC</symbol>
+			</currency>
+			<currency draft="true" type="CSK">
+				<displayName>Csehszlovák kemény korona</displayName>
+				<symbol>CSK</symbol>
+			</currency>
+			<currency draft="true" type="CUP">
+				<displayName>Kubai peso</displayName>
+				<symbol>CUP</symbol>
+			</currency>
+			<currency draft="true" type="CUX">
+				<displayName>Kubai konvertibilis valuta</displayName>
+				<symbol>CUX</symbol>
+			</currency>
+			<currency draft="true" type="CVE">
+				<displayName>Cape Verdei escudo</displayName>
+				<symbol>CVEsc</symbol>
+			</currency>
+			<currency draft="true" type="CWG">
+				<displayName>Curacaoi forint</displayName>
+				<symbol>CWG</symbol>
+			</currency>
+			<currency draft="true" type="CYP">
+				<displayName>Ciprusi font</displayName>
+				<symbol>£C</symbol>
+			</currency>
+			<currency draft="true" type="CZK">
+				<displayName>Cseh korona</displayName>
+				<symbol>CZK</symbol>
+			</currency>
+			<currency draft="true" type="DDM">
+				<displayName>Kelet-Német márka</displayName>
+				<symbol>DDM</symbol>
+			</currency>
+			<currency draft="true" type="DEM">
+				<displayName>Német márka</displayName>
+				<symbol>DEM</symbol>
+			</currency>
+			<currency draft="true" type="DES">
+				<displayName>German Sperrmark</displayName>
+				<symbol>DES</symbol>
+			</currency>
+			<currency draft="true" type="DJF">
+				<displayName>Dzsibuti frank</displayName>
+				<symbol>DF</symbol>
+			</currency>
+			<currency draft="true" type="DKK">
+				<displayName>Dán korona</displayName>
+				<symbol>DKr</symbol>
+			</currency>
+			<currency draft="true" type="DOP">
+				<displayName>Dominikai peso</displayName>
+				<symbol>RD$</symbol>
+			</currency>
+			<currency draft="true" type="DZD">
+				<displayName>Algériai dínár</displayName>
+				<symbol>DA</symbol>
+			</currency>
+			<currency draft="true" type="DZF">
+				<displayName>Algériai új frank</displayName>
+				<symbol>DZF</symbol>
+			</currency>
+			<currency draft="true" type="DZG">
+				<displayName>Algériai kezdeti frank</displayName>
+				<symbol>DZG</symbol>
+			</currency>
+			<currency draft="true" type="ECS">
+				<displayName>Ecuadori sucre</displayName>
+				<symbol>ECS</symbol>
+			</currency>
+			<currency draft="true" type="ECV">
+				<displayName>Ecuadori Unidad de Valor Constante (UVC)</displayName>
+				<symbol>ECV</symbol>
+			</currency>
+			<currency draft="true" type="EEK">
+				<displayName>Észt korona</displayName>
+				<symbol>EEK</symbol>
+			</currency>
+			<currency draft="true" type="EGP">
+				<displayName>Egyiptomi font</displayName>
+				<symbol>EGP</symbol>
+			</currency>
+			<currency draft="true" type="ERN">
+				<displayName>Eritreai nakfa</displayName>
+				<symbol>ERN</symbol>
+			</currency>
+			<currency draft="true" type="ESP">
+				<displayName>Spanyol peseta</displayName>
+				<symbol>ESP</symbol>
+			</currency>
+			<currency draft="true" type="ETB">
+				<displayName>Etiópiai birr</displayName>
+				<symbol>Br</symbol>
+			</currency>
+			<currency draft="true" type="ETD">
+				<displayName>Etiópiai dollár</displayName>
+				<symbol>ETD</symbol>
+			</currency>
+			<currency draft="true" type="EUR">
+				<displayName>Euro</displayName>
+				<symbol>€</symbol>
+			</currency>
+			<currency draft="true" type="FIM">
+				<displayName>Finn markka</displayName>
+				<symbol>FIM</symbol>
+			</currency>
+			<currency draft="true" type="FIN">
+				<displayName>Finn markka (1860-1962)</displayName>
+				<symbol>FIN</symbol>
+			</currency>
+			<currency draft="true" type="FJD">
+				<displayName>Fidzsi dollár</displayName>
+				<symbol>F$</symbol>
+			</currency>
+			<currency draft="true" type="FJP">
+				<displayName>Fidzsi font</displayName>
+				<symbol>FJP</symbol>
+			</currency>
+			<currency draft="true" type="FKP">
+				<displayName>Falkland-szigeteki font</displayName>
+				<symbol>FKP</symbol>
+			</currency>
+			<currency draft="true" type="FOK">
+				<displayName>Feröer-szigeteki korona</displayName>
+				<symbol>FOK</symbol>
+			</currency>
+			<currency draft="true" type="FRF">
+				<displayName>Francia frank</displayName>
+				<symbol>FRF</symbol>
+			</currency>
+			<currency draft="true" type="FRG">
+				<displayName>Francia frank kezdeti/Frank poincare</displayName>
+				<symbol>FRG</symbol>
+			</currency>
+			<currency draft="true" type="GAF">
+				<displayName>Gaboni CFA frank</displayName>
+				<symbol>GAF</symbol>
+			</currency>
+			<currency draft="true" type="GBP">
+				<displayName>Brit font sterling</displayName>
+				<symbol>£</symbol>
+			</currency>
+			<currency draft="true" type="GEK">
+				<displayName>Grúz kupon larit</displayName>
+				<symbol>GEK</symbol>
+			</currency>
+			<currency draft="true" type="GEL">
+				<displayName>Grúz lari</displayName>
+				<symbol>lari</symbol>
+			</currency>
+			<currency draft="true" type="GHC">
+				<displayName>Ghánai cedi</displayName>
+				<symbol>GHC</symbol>
+			</currency>
+			<currency draft="true" type="GHO">
+				<displayName>Ghánai régi cedi</displayName>
+				<symbol>GHO</symbol>
+			</currency>
+			<currency draft="true" type="GHP">
+				<displayName>Ghánai font</displayName>
+				<symbol>GHP</symbol>
+			</currency>
+			<currency draft="true" type="GHR">
+				<displayName>Ghánai újraértékelt cedi</displayName>
+				<symbol>GHR</symbol>
+			</currency>
+			<currency draft="true" type="GIP">
+				<displayName>Gibraltári font</displayName>
+				<symbol>GIP</symbol>
+			</currency>
+			<currency draft="true" type="GLK">
+				<displayName>Grönlandi korona</displayName>
+				<symbol>GLK</symbol>
+			</currency>
+			<currency draft="true" type="GMD">
+				<displayName>Gambiai dalasi</displayName>
+				<symbol>GMD</symbol>
+			</currency>
+			<currency draft="true" type="GMP">
+				<displayName>Gambiai font</displayName>
+				<symbol>GMP</symbol>
+			</currency>
+			<currency draft="true" type="GNF">
+				<displayName>Guineai frank</displayName>
+				<symbol>GF</symbol>
+			</currency>
+			<currency draft="true" type="GNI">
+				<displayName>Guineai frank (1960-1972)</displayName>
+				<symbol>GNI</symbol>
+			</currency>
+			<currency draft="true" type="GNS">
+				<displayName>Guineai syli</displayName>
+				<symbol>GNS</symbol>
+			</currency>
+			<currency draft="true" type="GPF">
+				<displayName>Guadeloupei frank</displayName>
+				<symbol>GPF</symbol>
+			</currency>
+			<currency draft="true" type="GQE">
+				<displayName>Egyenlítői-guineai ekwele guineana</displayName>
+				<symbol>GQE</symbol>
+			</currency>
+			<currency draft="true" type="GQF">
+				<displayName>Egyenlítői-guineai franco</displayName>
+				<symbol>GQF</symbol>
+			</currency>
+			<currency draft="true" type="GQP">
+				<displayName>Egyenlítői-guineai peseta guineana</displayName>
+				<symbol>GQP</symbol>
+			</currency>
+			<currency draft="true" type="GRD">
+				<displayName>Görög drachma</displayName>
+				<symbol>GRD</symbol>
+			</currency>
+			<currency draft="true" type="GRN">
+				<displayName>Görög új drachma</displayName>
+				<symbol>GRN</symbol>
+			</currency>
+			<currency draft="true" type="GTQ">
+				<displayName>Guatemalai quetzal</displayName>
+				<symbol>Q</symbol>
+			</currency>
+			<currency draft="true" type="GUF">
+				<displayName>Francia Guyanai frank guiana</displayName>
+				<symbol>GUF</symbol>
+			</currency>
+			<currency draft="true" type="GWE">
+				<displayName>Portugál guinea escudo</displayName>
+				<symbol>GWE</symbol>
+			</currency>
+			<currency draft="true" type="GWM">
+				<displayName>Portugál guinea mil reis</displayName>
+				<symbol>GWM</symbol>
+			</currency>
+			<currency draft="true" type="GWP">
+				<displayName>Guinea-Bissaui peso</displayName>
+				<symbol>GWP</symbol>
+			</currency>
+			<currency draft="true" type="GYD">
+				<displayName>Guyanai dollár</displayName>
+				<symbol>G$</symbol>
+			</currency>
+			<currency draft="true" type="HKD">
+				<displayName>Hongkongi dollár</displayName>
+				<symbol>HK$</symbol>
+			</currency>
+			<currency draft="true" type="HNL">
+				<displayName>Hodurasi lempira</displayName>
+				<symbol>L</symbol>
+			</currency>
+			<currency draft="true" type="HRD">
+				<displayName>Horvát dínár</displayName>
+				<symbol>HRD</symbol>
+			</currency>
+			<currency draft="true" type="HRK">
+				<displayName>Horvát kuna</displayName>
+				<symbol>HRK</symbol>
+			</currency>
+			<currency draft="true" type="HTG">
+				<displayName>Haiti gourde</displayName>
+				<symbol>HTG</symbol>
+			</currency>
+			<currency draft="true" type="HUF">
+				<displayName>Magyar forint</displayName>
+				<symbol>Ft</symbol>
+			</currency>
+			<currency draft="true" type="IBP">
+				<displayName>Északír font</displayName>
+				<symbol>IBP</symbol>
+			</currency>
+			<currency draft="true" type="IDG">
+				<displayName>Indonéz nica guilder</displayName>
+				<symbol>IDG</symbol>
+			</currency>
+			<currency draft="true" type="IDJ">
+				<displayName>Indonéz jáva rúpia</displayName>
+				<symbol>IDJ</symbol>
+			</currency>
+			<currency draft="true" type="IDN">
+				<displayName>Indonéz új rúpia</displayName>
+				<symbol>IDN</symbol>
+			</currency>
+			<currency draft="true" type="IDR">
+				<displayName>Indonéz rúpia</displayName>
+				<symbol>Rp</symbol>
+			</currency>
+			<currency draft="true" type="IEP">
+				<displayName>Ír font</displayName>
+				<symbol>IR£</symbol>
+			</currency>
+			<currency draft="true" type="ILL">
+				<displayName>Izraeli sékel</displayName>
+				<symbol>ILL</symbol>
+			</currency>
+			<currency draft="true" type="ILP">
+				<displayName>Izraeli font</displayName>
+				<symbol>ILP</symbol>
+			</currency>
+			<currency draft="true" type="ILS">
+				<displayName>Izraeli új sékel</displayName>
+				<symbol>ILS</symbol>
+			</currency>
+			<currency draft="true" type="IMP">
+				<displayName>Man-szigeti font sterling</displayName>
+				<symbol>IMP</symbol>
+			</currency>
+			<currency draft="true" type="IQD">
+				<displayName>Iraki dínár</displayName>
+				<symbol>ID</symbol>
+			</currency>
+			<currency draft="true" type="IRR">
+				<displayName>Iráni rial</displayName>
+				<symbol>RI</symbol>
+			</currency>
+			<currency draft="true" type="ISK">
+				<displayName>Izlandi korona</displayName>
+				<symbol>ISK</symbol>
+			</currency>
+			<currency draft="true" type="ITL">
+				<displayName>Olasz líra</displayName>
+				<symbol>₤</symbol>
+			</currency>
+			<currency draft="true" type="JEP">
+				<displayName>Jersey font sterling</displayName>
+				<symbol>JEP</symbol>
+			</currency>
+			<currency draft="true" type="JMD">
+				<displayName>Jamaikai dollár</displayName>
+				<symbol>J$</symbol>
+			</currency>
+			<currency draft="true" type="JMP">
+				<displayName>Jamaikai font</displayName>
+				<symbol>JMP</symbol>
+			</currency>
+			<currency draft="true" type="JOD">
+				<displayName>Jordániai dínár</displayName>
+				<symbol>JD</symbol>
+			</currency>
+			<currency draft="true" type="JPY">
+				<displayName>Japán jen</displayName>
+				<symbol>¥</symbol>
+			</currency>
+			<currency draft="true" type="KES">
+				<displayName>Kenyai shilling</displayName>
+				<symbol>K Sh</symbol>
+			</currency>
+			<currency draft="true" type="KGS">
+				<displayName>Kirgizisztáni szom</displayName>
+				<symbol>som</symbol>
+			</currency>
+			<currency draft="true" type="KHO">
+				<displayName>Kambodzsai régi riel</displayName>
+				<symbol>KHO</symbol>
+			</currency>
+			<currency draft="true" type="KHR">
+				<displayName>Kambodzsai riel</displayName>
+				<symbol>CR</symbol>
+			</currency>
+			<currency draft="true" type="KID">
+				<displayName>Kiribati dollár</displayName>
+				<symbol>KID</symbol>
+			</currency>
+			<currency draft="true" type="KMF">
+				<displayName>Comorei frank</displayName>
+				<symbol>CF</symbol>
+			</currency>
+			<currency draft="true" type="KPP">
+				<displayName>Észak-koreai népi won</displayName>
+				<symbol>KPP</symbol>
+			</currency>
+			<currency draft="true" type="KPW">
+				<displayName>Észak-koreai won</displayName>
+				<symbol>KPW</symbol>
+			</currency>
+			<currency draft="true" type="KRH">
+				<displayName>Dél-koreai hwan</displayName>
+				<symbol>KRH</symbol>
+			</currency>
+			<currency draft="true" type="KRO">
+				<displayName>Dél-koreai régi won</displayName>
+				<symbol>KRO</symbol>
+			</currency>
+			<currency draft="true" type="KRW">
+				<displayName>Dél-koreai won</displayName>
+				<symbol>KRW</symbol>
+			</currency>
+			<currency draft="true" type="KWD">
+				<displayName>Kuvaiti dínár</displayName>
+				<symbol>KD</symbol>
+			</currency>
+			<currency draft="true" type="KYD">
+				<displayName>Kajmán-szigeteki dollár</displayName>
+				<symbol>KYD</symbol>
+			</currency>
+			<currency draft="true" type="KZR">
+				<displayName>Kazahsztáni rubel</displayName>
+				<symbol>KZR</symbol>
+			</currency>
+			<currency draft="true" type="KZT">
+				<displayName>Kazahsztáni tenge</displayName>
+				<symbol>T</symbol>
+			</currency>
+			<currency draft="true" type="LAK">
+				<displayName>Laoszi kip</displayName>
+				<symbol>LAK</symbol>
+			</currency>
+			<currency draft="true" type="LBP">
+				<displayName>Libanoni font</displayName>
+				<symbol>LL</symbol>
+			</currency>
+			<currency draft="true" type="LIF">
+				<displayName>Liechtensteini frank</displayName>
+				<symbol>LIF</symbol>
+			</currency>
+			<currency draft="true" type="LKR">
+				<displayName>Sri Lankai rúpia</displayName>
+				<symbol>SL Re</symbol>
+			</currency>
+			<currency draft="true" type="LNR">
+				<displayName>Ceyloni rúpia</displayName>
+				<symbol>LNR</symbol>
+			</currency>
+			<currency draft="true" type="LRD">
+				<displayName>Libériai dollár</displayName>
+				<symbol>LRD</symbol>
+			</currency>
+			<currency draft="true" type="LSL">
+				<displayName>Lesothoi loti</displayName>
+				<symbol>M</symbol>
+			</currency>
+			<currency draft="true" type="LTL">
+				<displayName>Litvániai litas</displayName>
+				<symbol>LTL</symbol>
+			</currency>
+			<currency draft="true" type="LTT">
+				<displayName>Litvániai talonas</displayName>
+				<symbol>LTT</symbol>
+			</currency>
+			<currency draft="true" type="LUF">
+				<displayName>Luxemburgi frank</displayName>
+				<symbol>LUF</symbol>
+			</currency>
+			<currency draft="true" type="LVL">
+				<displayName>Lett lats</displayName>
+				<symbol>LVL</symbol>
+			</currency>
+			<currency draft="true" type="LVR">
+				<displayName>Lett rubel</displayName>
+				<symbol>LVR</symbol>
+			</currency>
+			<currency draft="true" type="LYB">
+				<displayName>Líbiai brit katonai fennhatósági líra</displayName>
+				<symbol>LYB</symbol>
+			</currency>
+			<currency draft="true" type="LYD">
+				<displayName>Líbiai dínár</displayName>
+				<symbol>LD</symbol>
+			</currency>
+			<currency draft="true" type="LYP">
+				<displayName>Líbiai font</displayName>
+				<symbol>LYP</symbol>
+			</currency>
+			<currency draft="true" type="MAD">
+				<displayName>Marokkói dirham</displayName>
+				<symbol>MAD</symbol>
+			</currency>
+			<currency draft="true" type="MAF">
+				<displayName>Marokkói frank</displayName>
+				<symbol>MAF</symbol>
+			</currency>
+			<currency draft="true" type="MCF">
+				<displayName>Monacoi frank új</displayName>
+				<symbol>MCF</symbol>
+			</currency>
+			<currency draft="true" type="MCG">
+				<displayName>Monacoi frank kezdeti</displayName>
+				<symbol>MCG</symbol>
+			</currency>
+			<currency draft="true" type="MDC">
+				<displayName>Moldován lei kupon</displayName>
+				<symbol>MDC</symbol>
+			</currency>
+			<currency draft="true" type="MDL">
+				<displayName>Moldován lei</displayName>
+				<symbol>MDL</symbol>
+			</currency>
+			<currency draft="true" type="MDR">
+				<displayName>Moldován rubel kupon</displayName>
+				<symbol>MDR</symbol>
+			</currency>
+			<currency draft="true" type="MGA">
+				<displayName>Madagaszkári ariary</displayName>
+				<symbol>MGA</symbol>
+			</currency>
+			<currency draft="true" type="MGF">
+				<displayName>Madagaszkári frank</displayName>
+				<symbol>MGF</symbol>
+			</currency>
+			<currency draft="true" type="MHD">
+				<displayName>Marshall-szigeteki dollár</displayName>
+				<symbol>MHD</symbol>
+			</currency>
+			<currency draft="true" type="MKD">
+				<displayName>Macedon dínár</displayName>
+				<symbol>MDen</symbol>
+			</currency>
+			<currency draft="true" type="MKN">
+				<displayName>Macedon dínár (1992-1993)</displayName>
+				<symbol>MKN</symbol>
+			</currency>
+			<currency draft="true" type="MLF">
+				<displayName>Mali frank</displayName>
+				<symbol>MLF</symbol>
+			</currency>
+			<currency draft="true" type="MMK">
+				<displayName>Mianmari kyat</displayName>
+				<symbol>MMK</symbol>
+			</currency>
+			<currency draft="true" type="MMX">
+				<displayName>Mianmari dollár konvertibilis valuta</displayName>
+				<symbol>MMX</symbol>
+			</currency>
+			<currency draft="true" type="MNT">
+				<displayName>Mongóliai tugrik</displayName>
+				<symbol>Tug</symbol>
+			</currency>
+			<currency draft="true" type="MOP">
+				<displayName>Macaoi pataca</displayName>
+				<symbol>MOP</symbol>
+			</currency>
+			<currency draft="true" type="MQF">
+				<displayName>Martiniquei frank</displayName>
+				<symbol>MQF</symbol>
+			</currency>
+			<currency draft="true" type="MRO">
+				<displayName>Mauritániai ouguiya</displayName>
+				<symbol>UM</symbol>
+			</currency>
+			<currency draft="true" type="MTL">
+				<displayName>Máltai líra</displayName>
+				<symbol>Lm</symbol>
+			</currency>
+			<currency draft="true" type="MTP">
+				<displayName>Máltai font</displayName>
+				<symbol>MTP</symbol>
+			</currency>
+			<currency draft="true" type="MUR">
+				<displayName>Mauritiusi rúpia</displayName>
+				<symbol>MUR</symbol>
+			</currency>
+			<currency draft="true" type="MVP">
+				<displayName>Maldív-szigeteki rúpia</displayName>
+				<symbol>MVP</symbol>
+			</currency>
+			<currency draft="true" type="MVR">
+				<displayName>Maldív-szigeteki rufiyaa</displayName>
+				<symbol>MVR</symbol>
+			</currency>
+			<currency draft="true" type="MWK">
+				<displayName>Malawi kwacha</displayName>
+				<symbol>MK</symbol>
+			</currency>
+			<currency draft="true" type="MWP">
+				<displayName>Malawi font</displayName>
+				<symbol>MWP</symbol>
+			</currency>
+			<currency draft="true" type="MXN">
+				<displayName>Mexikói peso</displayName>
+				<symbol>MEX$</symbol>
+			</currency>
+			<currency draft="true" type="MXP">
+				<displayName>Mexikói ezüst peso (1861-1992)</displayName>
+				<symbol>MXP</symbol>
+			</currency>
+			<currency draft="true" type="MXV">
+				<displayName>Mexikói Unidad de Inversion (UDI)</displayName>
+				<symbol>MXV</symbol>
+			</currency>
+			<currency draft="true" type="MYR">
+				<displayName>Malajziai ringgit</displayName>
+				<symbol>RM</symbol>
+			</currency>
+			<currency draft="true" type="MZE">
+				<displayName>Mozambik escudo</displayName>
+				<symbol>MZE</symbol>
+			</currency>
+			<currency draft="true" type="MZM">
+				<displayName>Mozambik metical</displayName>
+				<symbol>Mt</symbol>
+			</currency>
+			<currency draft="true" type="NAD">
+				<displayName>Namíbiai dollár</displayName>
+				<symbol>N$</symbol>
+			</currency>
+			<currency draft="true" type="NCF">
+				<displayName>Új-kaledóniai frank kezdeti</displayName>
+				<symbol>NCF</symbol>
+			</currency>
+			<currency draft="true" type="NGN">
+				<displayName>Nigériai naira</displayName>
+				<symbol>NGN</symbol>
+			</currency>
+			<currency draft="true" type="NGP">
+				<displayName>Nigériai font</displayName>
+				<symbol>NGP</symbol>
+			</currency>
+			<currency draft="true" type="NHF">
+				<displayName>Új-hebridáki CFP frank</displayName>
+				<symbol>NHF</symbol>
+			</currency>
+			<currency draft="true" type="NIC">
+				<displayName>Nikaraguai cordoba</displayName>
+				<symbol>NIC</symbol>
+			</currency>
+			<currency draft="true" type="NIG">
+				<displayName>Nikaraguai arany cordoba</displayName>
+				<symbol>NIG</symbol>
+			</currency>
+			<currency draft="true" type="NIO">
+				<displayName>Nikaraguai cordoba oro</displayName>
+				<symbol>NIO</symbol>
+			</currency>
+			<currency draft="true" type="NLG">
+				<displayName>Holland forint</displayName>
+				<symbol>NLG</symbol>
+			</currency>
+			<currency draft="true" type="NOK">
+				<displayName>Norvég korona</displayName>
+				<symbol>NKr</symbol>
+			</currency>
+			<currency draft="true" type="NPR">
+				<displayName>Nepáli rúpia</displayName>
+				<symbol>Nrs</symbol>
+			</currency>
+			<currency draft="true" type="NZD">
+				<displayName>Új-zélandi dollár</displayName>
+				<symbol>$NZ</symbol>
+			</currency>
+			<currency draft="true" type="NZP">
+				<displayName>Új-zélandi font</displayName>
+				<symbol>NZP</symbol>
+			</currency>
+			<currency draft="true" type="OMR">
+				<displayName>Ománi rial</displayName>
+				<symbol>RO</symbol>
+			</currency>
+			<currency draft="true" type="OMS">
+				<displayName>Ománi rial saidi</displayName>
+				<symbol>OMS</symbol>
+			</currency>
+			<currency draft="true" type="PAB">
+				<displayName>Panamai balboa</displayName>
+				<symbol>PAB</symbol>
+			</currency>
+			<currency draft="true" type="PDK">
+				<displayName>Transzdnyeszteri rubel kupon</displayName>
+				<symbol>PDK</symbol>
+			</currency>
+			<currency draft="true" type="PDN">
+				<displayName>Transzdnyeszteri új rubel</displayName>
+				<symbol>PDN</symbol>
+			</currency>
+			<currency draft="true" type="PDR">
+				<displayName>Transzdnyeszteri rubel</displayName>
+				<symbol>PDR</symbol>
+			</currency>
+			<currency draft="true" type="PEI">
+				<displayName>Perui inti</displayName>
+				<symbol>PEI</symbol>
+			</currency>
+			<currency draft="true" type="PEN">
+				<displayName>Perui sol nuevo</displayName>
+				<symbol>PEN</symbol>
+			</currency>
+			<currency draft="true" type="PES">
+				<displayName>Perui sol</displayName>
+				<symbol>PES</symbol>
+			</currency>
+			<currency draft="true" type="PGK">
+				<displayName>Pápua új-guineai kina</displayName>
+				<symbol>PGK</symbol>
+			</currency>
+			<currency draft="true" type="PHP">
+				<displayName>Fülöp-szigeteki peso</displayName>
+				<symbol>PHP</symbol>
+			</currency>
+			<currency draft="true" type="PKR">
+				<displayName>Pakisztáni rúpia</displayName>
+				<symbol>Pra</symbol>
+			</currency>
+			<currency draft="true" type="PLN">
+				<displayName>Lengyel zloty</displayName>
+				<symbol>Zl</symbol>
+			</currency>
+			<currency draft="true" type="PLX">
+				<displayName>Lengyel USA dollár konvertibilis valuta</displayName>
+				<symbol>PLX</symbol>
+			</currency>
+			<currency draft="true" type="PLZ">
+				<displayName>Lengyel zloty (1950-1995)</displayName>
+				<symbol>PLZ</symbol>
+			</currency>
+			<currency draft="true" type="PSP">
+				<displayName>Palesztin font</displayName>
+				<symbol>PSP</symbol>
+			</currency>
+			<currency draft="true" type="PTC">
+				<displayName>Portugál conto</displayName>
+				<symbol>PTC</symbol>
+			</currency>
+			<currency draft="true" type="PTE">
+				<displayName>Portugál escudo</displayName>
+				<symbol>PTE</symbol>
+			</currency>
+			<currency draft="true" type="PYG">
+				<displayName>Paraguayi guarani</displayName>
+				<symbol>PYG</symbol>
+			</currency>
+			<currency draft="true" type="QAR">
+				<displayName>Katari rial</displayName>
+				<symbol>QR</symbol>
+			</currency>
+			<currency draft="true" type="REF">
+				<displayName>Réunioni frank</displayName>
+				<symbol>REF</symbol>
+			</currency>
+			<currency draft="true" type="ROL">
+				<displayName>Román lej</displayName>
+				<symbol>leu</symbol>
+			</currency>
+			<currency draft="true" type="RON">
+				<displayName>Román új lej</displayName>
+				<symbol>RON</symbol>
+			</currency>
+			<currency draft="true" type="RUB">
+				<displayName>Orosz rubel</displayName>
+				<symbol>RUB</symbol>
+			</currency>
+			<currency draft="true" type="RUR">
+				<displayName>Orosz rubel (1991-1998)</displayName>
+				<symbol>RUR</symbol>
+			</currency>
+			<currency draft="true" type="RWF">
+				<displayName>Ruandai frank</displayName>
+				<symbol>RWF</symbol>
+			</currency>
+			<currency draft="true" type="SAR">
+				<displayName>Szaúdi riyal</displayName>
+				<symbol>SRl</symbol>
+			</currency>
+			<currency draft="true" type="SAS">
+				<displayName>Szaúdi szuverén riyal</displayName>
+				<symbol>SAS</symbol>
+			</currency>
+			<currency draft="true" type="SBD">
+				<displayName>Salamon-szigeteki dollár</displayName>
+				<symbol>SI$</symbol>
+			</currency>
+			<currency draft="true" type="SCR">
+				<displayName>Seychelle-szigeteki rúpia</displayName>
+				<symbol>SR</symbol>
+			</currency>
+			<currency draft="true" type="SDD">
+				<displayName>Szudáni dínár</displayName>
+				<symbol>SDD</symbol>
+			</currency>
+			<currency draft="true" type="SDP">
+				<displayName>Szudáni font</displayName>
+				<symbol>SDP</symbol>
+			</currency>
+			<currency draft="true" type="SEK">
+				<displayName>Svéd korona</displayName>
+				<symbol>SKr</symbol>
+			</currency>
+			<currency draft="true" type="SGD">
+				<displayName>Szingapúri dollár</displayName>
+				<symbol>S$</symbol>
+			</currency>
+			<currency draft="true" type="SHP">
+				<displayName>Saint Helena font</displayName>
+				<symbol>SHP</symbol>
+			</currency>
+			<currency draft="true" type="SIB">
+				<displayName>Szlovén tolar bons</displayName>
+				<symbol>SIB</symbol>
+			</currency>
+			<currency draft="true" type="SIT">
+				<displayName>Szlovén tolar</displayName>
+				<symbol>SIT</symbol>
+			</currency>
+			<currency draft="true" type="SKK">
+				<displayName>Szlovák korona</displayName>
+				<symbol>Sk</symbol>
+			</currency>
+			<currency draft="true" type="SLL">
+				<displayName>Sierra Leonei leone</displayName>
+				<symbol>SLL</symbol>
+			</currency>
+			<currency draft="true" type="SML">
+				<displayName>San Marinoi líra</displayName>
+				<symbol>SML</symbol>
+			</currency>
+			<currency draft="true" type="SOS">
+				<displayName>Szomáli shilling</displayName>
+				<symbol>So. Sh.</symbol>
+			</currency>
+			<currency draft="true" type="SQS">
+				<displayName>Szomálföldi shilling</displayName>
+				<symbol>SQS</symbol>
+			</currency>
+			<currency draft="true" type="SRG">
+				<displayName>Suriname-i gulden</displayName>
+				<symbol>Sf</symbol>
+			</currency>
+			<currency draft="true" type="SSP">
+				<displayName>Skót font</displayName>
+				<symbol>SSP</symbol>
+			</currency>
+			<currency draft="true" type="STD">
+				<displayName>Sao tome-i és principe-i dobra</displayName>
+				<symbol>Db</symbol>
+			</currency>
+			<currency draft="true" type="STE">
+				<displayName>Sao tome-i és principe-i escudo</displayName>
+				<symbol>STE</symbol>
+			</currency>
+			<currency draft="true" type="SUN">
+				<displayName>Szovjet új rubel</displayName>
+				<symbol>SUN</symbol>
+			</currency>
+			<currency draft="true" type="SUR">
+				<displayName>Szovjet rubel</displayName>
+				<symbol>SUR</symbol>
+			</currency>
+			<currency draft="true" type="SVC">
+				<displayName>Salvadori colón</displayName>
+				<symbol>SVC</symbol>
+			</currency>
+			<currency draft="true" type="SYP">
+				<displayName>Szíriai font</displayName>
+				<symbol>LS</symbol>
+			</currency>
+			<currency draft="true" type="SZL">
+				<displayName>Szváziföldi lilangeni</displayName>
+				<symbol>E</symbol>
+			</currency>
+			<currency draft="true" type="TCC">
+				<displayName>Turks és caicosi korona</displayName>
+				<symbol>TCC</symbol>
+			</currency>
+			<currency draft="true" type="TDF">
+				<displayName>Csádi CFA frank</displayName>
+				<symbol>TDF</symbol>
+			</currency>
+			<currency draft="true" type="THB">
+				<displayName>Thai baht</displayName>
+				<symbol>THB</symbol>
+			</currency>
+			<currency draft="true" type="TJR">
+				<displayName>Tádzsikisztáni rubel</displayName>
+				<symbol>TJR</symbol>
+			</currency>
+			<currency draft="true" type="TJS">
+				<displayName>Tádzsikisztáni somoni</displayName>
+				<symbol>TJS</symbol>
+			</currency>
+			<currency draft="true" type="TMM">
+				<displayName>Türkmenisztáni manat</displayName>
+				<symbol>TMM</symbol>
+			</currency>
+			<currency draft="true" type="TND">
+				<displayName>Tunéziai dínár</displayName>
+				<symbol>TND</symbol>
+			</currency>
+			<currency draft="true" type="TOS">
+				<displayName>Tongai font sterling</displayName>
+				<symbol>TOS</symbol>
+			</currency>
+			<currency draft="true" type="TPE">
+				<displayName>Timori escudo</displayName>
+				<symbol>TPE</symbol>
+			</currency>
+			<currency draft="true" type="TPP">
+				<displayName>Timori pataca</displayName>
+				<symbol>TPP</symbol>
+			</currency>
+			<currency draft="true" type="TRL">
+				<displayName>Török líra</displayName>
+				<symbol>TL</symbol>
+			</currency>
+			<currency draft="true" type="TTD">
+				<displayName>Trinidad és tobagoi dollár</displayName>
+				<symbol>TT$</symbol>
+			</currency>
+			<currency draft="true" type="TTO">
+				<displayName>Trinidad és tobagoi régi dollár</displayName>
+				<symbol>TTO</symbol>
+			</currency>
+			<currency draft="true" type="TVD">
+				<displayName>Tuvalui dollár</displayName>
+				<symbol>TVD</symbol>
+			</currency>
+			<currency draft="true" type="TWD">
+				<displayName>Tajvani új dollár</displayName>
+				<symbol>NT$</symbol>
+			</currency>
+			<currency draft="true" type="TZS">
+				<displayName>Tanzániai shilling</displayName>
+				<symbol>T Sh</symbol>
+			</currency>
+			<currency draft="true" type="UAH">
+				<displayName>Ukrán hrivnya</displayName>
+				<symbol>UAH</symbol>
+			</currency>
+			<currency draft="true" type="UAK">
+				<displayName>Ukrán karbovanec</displayName>
+				<symbol>UAK</symbol>
+			</currency>
+			<currency draft="true" type="UGS">
+				<displayName>Ugandai shilling (1966-1987)</displayName>
+				<symbol>UGS</symbol>
+			</currency>
+			<currency draft="true" type="UGX">
+				<displayName>Ugandai shilling</displayName>
+				<symbol>U Sh</symbol>
+			</currency>
+			<currency draft="true" type="USD">
+				<displayName>USA dollár</displayName>
+				<symbol>US$</symbol>
+			</currency>
+			<currency draft="true" type="USN">
+				<displayName>USA dollár (következő napi)</displayName>
+				<symbol>USN</symbol>
+			</currency>
+			<currency draft="true" type="USS">
+				<displayName>USA dollár (aznapi)</displayName>
+				<symbol>USS</symbol>
+			</currency>
+			<currency draft="true" type="UYF">
+				<displayName>Uruguay-i peso fuerte</displayName>
+				<symbol>UYF</symbol>
+			</currency>
+			<currency draft="true" type="UYP">
+				<displayName>Uruguay-i peso (1975-1993)</displayName>
+				<symbol>UYP</symbol>
+			</currency>
+			<currency draft="true" type="UYU">
+				<displayName>Uruguay-i peso uruguayo</displayName>
+				<symbol>Ur$</symbol>
+			</currency>
+			<currency draft="true" type="UZC">
+				<displayName>Üzbegisztáni kupon som</displayName>
+				<symbol>UZC</symbol>
+			</currency>
+			<currency draft="true" type="UZS">
+				<displayName>Üzbegisztáni szum</displayName>
+				<symbol>UZS</symbol>
+			</currency>
+			<currency draft="true" type="VAL">
+				<displayName>Vatikáni líra</displayName>
+				<symbol>VAL</symbol>
+			</currency>
+			<currency draft="true" type="VDD">
+				<displayName>Észak-vietnámi piastre dong viet</displayName>
+				<symbol>VDD</symbol>
+			</currency>
+			<currency draft="true" type="VDN">
+				<displayName>Észak-vietnámi új dong</displayName>
+				<symbol>VDN</symbol>
+			</currency>
+			<currency draft="true" type="VDP">
+				<displayName>Észak-vietnámi viet minh piastre dong viet</displayName>
+				<symbol>VDP</symbol>
+			</currency>
+			<currency draft="true" type="VEB">
+				<displayName>Venezuelai bolívar</displayName>
+				<symbol>Be</symbol>
+			</currency>
+			<currency draft="true" type="VGD">
+				<displayName>Brit virgin-szigeteki dollár</displayName>
+				<symbol>VGD</symbol>
+			</currency>
+			<currency draft="true" type="VND">
+				<displayName>Vietnámi dong</displayName>
+				<symbol>VND</symbol>
+			</currency>
+			<currency draft="true" type="VNN">
+				<displayName>Vietnámi új dong</displayName>
+				<symbol>VNN</symbol>
+			</currency>
+			<currency draft="true" type="VNR">
+				<displayName>Vietnámi köztársasági dong</displayName>
+				<symbol>VNR</symbol>
+			</currency>
+			<currency draft="true" type="VNS">
+				<displayName>Vietnámi nemzeti dong</displayName>
+				<symbol>VNS</symbol>
+			</currency>
+			<currency draft="true" type="VUV">
+				<displayName>Vanuatui vatu</displayName>
+				<symbol>VT</symbol>
+			</currency>
+			<currency draft="true" type="WSP">
+				<displayName>Nyugat-szamoai font</displayName>
+				<symbol>WSP</symbol>
+			</currency>
+			<currency draft="true" type="WST">
+				<displayName>Nyugat-szamoai tala</displayName>
+				<symbol>WST</symbol>
+			</currency>
+			<currency draft="true" type="XAD">
+				<displayName>Asian Dinar Unit of Account</displayName>
+				<symbol>XAD</symbol>
+			</currency>
+			<currency draft="true" type="XAF">
+				<displayName>CFA frank BEAC</displayName>
+				<symbol>XAF</symbol>
+			</currency>
+			<currency draft="true" type="XAM">
+				<displayName>Asian Monetary Unit</displayName>
+				<symbol>XAM</symbol>
+			</currency>
+			<currency draft="true" type="XAU">
+				<displayName>Arany</displayName>
+				<symbol>XAU</symbol>
+			</currency>
+			<currency draft="true" type="XBA">
+				<displayName>European Composite Unit</displayName>
+				<symbol>XBA</symbol>
+			</currency>
+			<currency draft="true" type="XBB">
+				<displayName>European Monetary Unit</displayName>
+				<symbol>XBB</symbol>
+			</currency>
+			<currency draft="true" type="XBC">
+				<displayName>European Unit of Account (XBC)</displayName>
+				<symbol>XBC</symbol>
+			</currency>
+			<currency draft="true" type="XBD">
+				<displayName>European Unit of Account (XBD)</displayName>
+				<symbol>XBD</symbol>
+			</currency>
+			<currency draft="true" type="XCD">
+				<displayName>Kelet-karibi dollár</displayName>
+				<symbol>EC$</symbol>
+			</currency>
+			<currency draft="true" type="XCF">
+				<displayName>CFA új frank</displayName>
+				<symbol>XCF</symbol>
+			</currency>
+			<currency draft="true" type="XDR">
+				<displayName>Special Drawing Rights</displayName>
+				<symbol>XDR</symbol>
+			</currency>
+			<currency draft="true" type="XEF">
+				<displayName>CFA frank BCEAEC</displayName>
+				<symbol>XEF</symbol>
+			</currency>
+			<currency draft="true" type="XEU">
+				<displayName>European Currency Unit</displayName>
+				<symbol>XEU</symbol>
+			</currency>
+			<currency draft="true" type="XFO">
+				<displayName>Francia arany frank</displayName>
+				<symbol>XFO</symbol>
+			</currency>
+			<currency draft="true" type="XFU">
+				<displayName>Francia UIC-frank</displayName>
+				<symbol>XFU</symbol>
+			</currency>
+			<currency draft="true" type="XID">
+				<displayName>Iszlám dínár</displayName>
+				<symbol>XID</symbol>
+			</currency>
+			<currency draft="true" type="XMF">
+				<displayName>French Metropolitan Nouveau Franc</displayName>
+				<symbol>XMF</symbol>
+			</currency>
+			<currency draft="true" type="XNF">
+				<displayName>French Antilles CFA Franc</displayName>
+				<symbol>XNF</symbol>
+			</currency>
+			<currency draft="true" type="XOF">
+				<displayName>CFA frank BCEAO</displayName>
+				<symbol>XOF</symbol>
+			</currency>
+			<currency draft="true" type="XPF">
+				<displayName>CFP frank</displayName>
+				<symbol>CFPF</symbol>
+			</currency>
+			<currency draft="true" type="XTR">
+				<displayName>COMECON Transferable Ruble</displayName>
+				<symbol>XTR</symbol>
+			</currency>
+			<currency draft="true" type="YDD">
+				<displayName>Jemeni dínár</displayName>
+				<symbol>YDD</symbol>
+			</currency>
+			<currency draft="true" type="YEI">
+				<displayName>Jemeni imadi riyal</displayName>
+				<symbol>YEI</symbol>
+			</currency>
+			<currency draft="true" type="YER">
+				<displayName>Jemeni rial</displayName>
+				<symbol>YRl</symbol>
+			</currency>
+			<currency draft="true" type="YUD">
+				<displayName>Jugoszláv kemény dínár</displayName>
+				<symbol>YUD</symbol>
+			</currency>
+			<currency draft="true" type="YUF">
+				<displayName>Jugoszláv szövetségi dínár</displayName>
+				<symbol>YUF</symbol>
+			</currency>
+			<currency draft="true" type="YUG">
+				<displayName>Jugoszláv 1994-es dínár</displayName>
+				<symbol>YUG</symbol>
+			</currency>
+			<currency draft="true" type="YUM">
+				<displayName>Jugoszláv új dínár</displayName>
+				<symbol>YUM</symbol>
+			</currency>
+			<currency draft="true" type="YUN">
+				<displayName>Jugoszláv konvertibilis dínár</displayName>
+				<symbol>YUN</symbol>
+			</currency>
+			<currency draft="true" type="YUO">
+				<displayName>Jugoszláv októberi dínár</displayName>
+				<symbol>YUO</symbol>
+			</currency>
+			<currency draft="true" type="YUR">
+				<displayName>Jugoszláv reform dínár</displayName>
+				<symbol>YUR</symbol>
+			</currency>
+			<currency draft="true" type="ZAL">
+				<displayName>Dél-afrikai rand (pénzügyi)</displayName>
+				<symbol>ZAL</symbol>
+			</currency>
+			<currency draft="true" type="ZAP">
+				<displayName>Dél-afrikai font</displayName>
+				<symbol>ZAP</symbol>
+			</currency>
+			<currency draft="true" type="ZAR">
+				<displayName>Dél-afrikai rand</displayName>
+				<symbol>R</symbol>
+			</currency>
+			<currency draft="true" type="ZMK">
+				<displayName>Zambiai kwacha</displayName>
+				<symbol>ZMK</symbol>
+			</currency>
+			<currency draft="true" type="ZMP">
+				<displayName>Zambiai font</displayName>
+				<symbol>ZMP</symbol>
+			</currency>
+			<currency draft="true" type="ZRN">
+				<displayName>Zairei új zaire</displayName>
+				<symbol>ZRN</symbol>
+			</currency>
+			<currency draft="true" type="ZRZ">
+				<displayName>Zairei zaire</displayName>
+				<symbol>ZRZ</symbol>
+			</currency>
+			<currency draft="true" type="ZWD">
+				<displayName>Zimbabwei dollár</displayName>
+				<symbol>Z$</symbol>
+			</currency>
+		</currencies>
+	</numbers>
+  <posix draft="true">
+    <messages>
+      <yesstr>igen</yesstr>
+      <nostr>nem</nostr>
+      <yesexpr>I</yesexpr>
+      <noexpr>N</noexpr>
+    </messages>
+  </posix>
+</ldml>
+
+<!-- Old Comments. See root.xml for more info.
+URL: http://oss.software.ibm.com/cvs/icu/icu/source/data/locales/hu.txt?only_with_tag=final-update-LDML
+
+HK { "Hong Kong S.A.R. of China" }
+        KP { "Korea, \u00C9szak" }    // alternate name { "Korea, N\u00E9pi Demokratikus K\u00F6zt\u00E1rsas\u00E1g" }
+        KR { "Korea, D\u00E9l" }    // alternate name { "Koreai K\u00F6zt\u00E1rsas\u00E1g" }
+MO { "Macao S.A.R. of China" }
+        SY { "Sz\u00EDriai Arab K\u00F6zt\u00E1rsas\u00E1g" }    // alternate name { "Sz\u00EDria" }
+        "Latn",  // ISO 15924 Name 
+
+-->

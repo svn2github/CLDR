@@ -1,0 +1,1658 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.2/alpha/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.2"></version>
+		<generation date="2004-08-27"></generation>
+		<language type="ru"></language> 
+	</identity>
+	<localeDisplayNames>
+		<languages>
+			<language type="aa">Афар</language>
+			<language type="ab">Абхазский</language>
+			<language draft="true" type="ace">Ачехский</language>
+			<language draft="true" type="ach">Ачоли</language>
+			<language draft="true" type="ada">Адангме</language>
+			<language draft="true" type="ady">Адыгейский</language>
+			<language type="af">Африкаанс</language>
+			<language draft="true" type="afa">Афразийские (другие)</language>
+			<language draft="true" type="afh">Африхили</language>
+			<language draft="true" type="akk">Аккадский</language>
+			<language draft="true" type="ale">Алеутский</language>
+			<language draft="true" type="alg">Алгонкинские языки</language>
+			<language type="am">Амхарский</language>
+			<language draft="true" type="ang">Староанглийский</language>
+			<language type="ar">Арабский</language>
+			<language draft="true" type="arc">Арамейский</language>
+			<language draft="true" type="art">Искусственные (другие)</language>
+			<language draft="true" type="arw">Аравакский</language>
+			<language type="as">Ассамский</language>
+			<language draft="true" type="ath">Атапачские языки</language>
+			<language draft="true" type="awa">Авадхи</language>
+			<language type="ay">Аямара</language>
+			<language type="az">Азербайджанский</language>
+			<language type="ba">Башкирский</language>
+			<language draft="true" type="bad">Банда</language>
+			<language draft="true" type="bai">Бамилеке языки</language>
+			<language draft="true" type="bal">Белуджский</language>
+			<language draft="true" type="ban">Балийский</language>
+			<language draft="true" type="bas">Баса</language>
+			<language draft="true" type="bat">Балтийские (другие)</language>
+			<language type="be">Белорусский</language>
+			<language draft="true" type="bej">Беджа</language>
+			<language draft="true" type="bem">Бемба</language>
+			<language type="bg">Болгарский</language>
+			<language type="bh">Бихарский</language>
+			<language draft="true" type="bho">Бходжпури</language>
+			<language type="bi">Бислама</language>
+			<language draft="true" type="bik">Бикольский</language>
+			<language draft="true" type="bin">Бини</language>
+			<language draft="true" type="bla">Сиксика</language>
+			<language type="bn">Бенгальский</language>
+			<language draft="true" type="bnt">Банту (другие)</language>
+			<language type="bo">Тибетский</language>
+			<language type="br">Бретонский</language>
+			<language draft="true" type="bra">Брауи</language>
+			<language draft="true" type="bua">Бурятский</language>
+			<language draft="true" type="bug">Бугийский</language>
+			<language type="ca">Каталанский</language>
+			<language draft="true" type="cad">Каддо</language>
+			<language draft="true" type="cai">Центральной Америки индейцев (другие)</language>
+			<language draft="true" type="car">Кариб</language>
+			<language draft="true" type="cau">Кавказские (другие)</language>
+			<language draft="true" type="chb">Чибча</language>
+			<language draft="true" type="chg">Чагатайский</language>
+			<language draft="true" type="chk">Чукотский</language>
+			<language draft="true" type="chm">Марийский (Черемисский)</language>
+			<language draft="true" type="chn">Чинук жаргон</language>
+			<language draft="true" type="cho">Чоктав</language>
+			<language draft="true" type="chr">Чероки</language>
+			<language draft="true" type="chy">Чейенн</language>
+			<language type="co">Корсиканский</language>
+			<language draft="true" type="cop">Коптский</language>
+			<language draft="true" type="cpe">Англо-креольские и пиджины (другие)</language>
+			<language draft="true" type="cpf">Франко-креольские и пиджины (другие)</language>
+			<language draft="true" type="cpp">Португалокреольские и пиджины (другие)</language>
+			<language draft="true" type="crp">Креольские и пиджины (другие)</language>
+			<language type="cs">Чешский</language>
+			<language draft="true" type="cus">Кушитские (другие)</language>
+			<language draft="true" type="cv">Чувашский</language>
+			<language type="cy">Валлийский</language>
+			<language type="da">Датский</language>
+			<language draft="true" type="dak">Дакота</language>
+			<language type="de">Немецкий</language>
+			<language draft="true" type="del">Делаварский</language>
+			<language draft="true" type="din">Динка</language>
+			<language draft="true" type="doi">Догри</language>
+			<language draft="true" type="dra">Дравидийские (другие)</language>
+			<language draft="true" type="dua">Дуала</language>
+			<language draft="true" type="dum">Нидерландский средневековый</language>
+			<language draft="true" type="dyu">Диула (Дьюла)</language>
+			<language type="dz">Бутанский</language>
+			<language draft="true" type="efi">Эфик</language>
+			<language draft="true" type="egy">Древнеегипетский</language>
+			<language draft="true" type="eka">Экаджук</language>
+			<language type="el">Греческий</language>
+			<language draft="true" type="elx">Эламский</language>
+			<language type="en">Английский</language>
+			<language draft="true" type="enm">Среднеанглийский</language>
+			<language type="eo">Эсперанто</language>
+			<language type="es">Испанский</language>
+			<language type="et">Эстонский</language>
+			<language type="eu">Баскский</language>
+			<language draft="true" type="ewo">Эвондо</language>
+			<language type="fa">Персидский</language>
+			<language draft="true" type="fan">Фанг</language>
+			<language draft="true" type="fat">Фанти</language>
+			<language type="fi">Финский</language>
+			<language draft="true" type="fiu">Финно-угорские (другие)</language>
+			<language type="fj">Фиджи</language>
+			<language type="fo">Фарерский</language>
+			<language draft="true" type="fon">Фон</language>
+			<language type="fr">Французский</language>
+			<language draft="true" type="frm">Среднефранцузский</language>
+			<language draft="true" type="fro">Старофранцузский</language>
+			<language type="fy">Фризский</language>
+			<language type="ga">Ирландский</language>
+			<language draft="true" type="gaa">Га</language>
+			<language draft="true" type="gay">Гайо</language>
+			<language type="gd">Гаэльский</language>
+			<language draft="true" type="gem">Германские (другие)</language>
+			<language draft="true" type="gez">Геэз</language>
+			<language draft="true" type="gil">Гильбертский</language>
+			<language type="gl">Галицийский</language>
+			<language draft="true" type="gmh">Средневерхненемецкий</language>
+			<language type="gn">Гуарани</language>
+			<language draft="true" type="goh">Староверхненемецкий</language>
+			<language draft="true" type="gon">Гонди</language>
+			<language draft="true" type="got">Готский</language>
+			<language draft="true" type="grc">Древнегреческий</language>
+			<language type="gu">Гуярати</language>
+			<language type="ha">Хоса</language>
+			<language draft="true" type="hai">Хайда</language>
+			<language draft="true" type="haw">Гавайский</language>
+			<language type="he">Иврит</language>
+			<language type="hi">Хинди</language>
+			<language draft="true" type="hil">Хилигайнон</language>
+			<language draft="true" type="him">Химачали</language>
+			<language type="hr">Хорватский</language>
+			<language type="hu">Венгерский</language>
+			<language draft="true" type="hup">Хула</language>
+			<language type="hy">Армянский</language>
+			<language type="ia">Смешанный язык</language>
+			<language draft="true" type="iba">Ибанский</language>
+			<language type="id">Индонезийский</language>
+			<language type="ie">Смешанный язык</language>
+			<language draft="true" type="ijo">Иджо</language>
+			<language type="ik">Инапиак</language>
+			<language draft="true" type="ilo">Илоко</language>
+			<language draft="true" type="inc">Индийские (другие)</language>
+			<language draft="true" type="ira">Иранские (другие)</language>
+			<language draft="true" type="iro">Ирокезские языки</language>
+			<language type="is">Исландский</language>
+			<language type="it">Итальянский</language>
+			<language type="iu">Инактитут</language>
+			<language type="ja">Японский</language>
+			<language draft="true" type="jpr">Еврейско-персидский</language>
+			<language draft="true" type="jrb">Еврейско-арабский</language>
+			<language type="jv">Яванский</language>
+			<language type="ka">Грузинский</language>
+			<language draft="true" type="kaa">Каракалпакский</language>
+			<language draft="true" type="kab">Кабильский</language>
+			<language draft="true" type="kam">Камба</language>
+			<language draft="true" type="kar">Каренский</language>
+			<language draft="true" type="kaw">Кави</language>
+			<language draft="true" type="kha">Кхаси</language>
+			<language draft="true" type="khi">Койсанские (другие)</language>
+			<language draft="true" type="kho">Хотанский</language>
+			<language type="kk">Казахский</language>
+			<language type="kl">Гренландский</language>
+			<language type="km">Камбоджийский</language>
+			<language type="kn">Канада</language>
+			<language type="ko">Корейский</language>
+			<language draft="true" type="kok">Конкани</language>
+			<language draft="true" type="kpe">Кпелле</language>
+			<language draft="true" type="kro">Кру</language>
+			<language type="ks">Кашмирский</language>
+			<language type="ku">Курдиш</language>
+			<language draft="true" type="kum">Кумыкский</language>
+			<language draft="true" type="kut">Кутенаи</language>
+			<language type="ky">Киргизский</language>
+			<language type="la">Латинский</language>
+			<language draft="true" type="lad">Ладино</language>
+			<language draft="true" type="lah">Лахнда</language>
+			<language draft="true" type="lam">Ламба</language>
+			<language draft="true" type="lez">Лезгинский</language>
+			<language type="ln">Лингала</language>
+			<language type="lo">Лаосский</language>
+			<language draft="true" type="lol">Монго</language>
+			<language draft="true" type="loz">Лози</language>
+			<language type="lt">Литовский</language>
+			<language draft="true" type="lu">Луба-Катанга</language>
+			<language draft="true" type="lui">Луисеньо</language>
+			<language draft="true" type="lun">Лунда</language>
+			<language draft="true" type="luo">Луо (Кения и Танзания)</language>
+			<language type="lv">Латвийский</language>
+			<language draft="true" type="mad">Мадурский</language>
+			<language draft="true" type="mag">Магахи</language>
+			<language draft="true" type="mai">Майтхили</language>
+			<language draft="true" type="mak">Макассарский</language>
+			<language draft="true" type="man">Мандинго</language>
+			<language draft="true" type="map">Австронезийские (другие)</language>
+			<language draft="true" type="mas">Масаи</language>
+			<language draft="true" type="men">Менде</language>
+			<language type="mg">Малагасийский</language>
+			<language draft="true" type="mga">Среднеирландский</language>
+			<language type="mi">Маори</language>
+			<language draft="true" type="mic">Микмак</language>
+			<language draft="true" type="min">Минангкабау</language>
+			<language draft="true" type="mis">Смешанные (другие)</language>
+			<language type="mk">Македонский</language>
+			<language draft="true" type="mkh">Монкхмерские (другие)</language>
+			<language type="ml">Малаялам</language>
+			<language type="mn">Монгольский</language>
+			<language draft="true" type="mni">Манипурский</language>
+			<language draft="true" type="mno">Манобо языки</language>
+			<language type="mo">Молдавский</language>
+			<language draft="true" type="moh">Мохаук</language>
+			<language draft="true" type="mos">Моей</language>
+			<language type="mr">Маратийский</language>
+			<language type="ms">Малайский</language>
+			<language type="mt">Мальтийский</language>
+			<language draft="true" type="mul">Разных семей языки</language>
+			<language draft="true" type="mun">Мунда языки</language>
+			<language draft="true" type="mus">Крик</language>
+			<language draft="true" type="mwr">Марвари</language>
+			<language type="my">Бирманский</language>
+			<language draft="true" type="myn">Майя языки</language>
+			<language type="na">Науру</language>
+			<language draft="true" type="nah">Ацтекский</language>
+			<language draft="true" type="nai">Северной Америки индейцев (другие)</language>
+			<language type="ne">Непальский</language>
+			<language draft="true" type="new">Неварский</language>
+			<language draft="true" type="nic">Нигер-кордофанские (другие)</language>
+			<language draft="true" type="niu">Ниуэ</language>
+			<language type="nl">Голландский</language>
+			<language type="no">Норвежский</language>
+			<language draft="true" type="nog">Ногайский</language>
+			<language draft="true" type="non">Старонорвежский</language>
+			<language draft="true" type="nso">Сото Северный</language>
+			<language draft="true" type="nub">Нубийские языки</language>
+			<language draft="true" type="nym">Ньямвези</language>
+			<language draft="true" type="nyn">Ньянколе</language>
+			<language draft="true" type="nyo">Ньоро</language>
+			<language draft="true" type="nzi">Нзима</language>
+			<language type="oc">Окитан</language>
+			<language draft="true" type="oj">Оджибва</language>
+			<language type="om">Оромо (Афан)</language>
+			<language type="or">Ория</language>
+			<language draft="true" type="os">Осетинский</language>
+			<language draft="true" type="osa">Оседжи</language>
+			<language draft="true" type="ota">Старотурецкий</language>
+			<language draft="true" type="oto">Отомангские языки</language>
+			<language type="pa">Панджабский</language>
+			<language draft="true" type="paa">Папуасско-австралийские (другие)</language>
+			<language draft="true" type="pag">Пангасинан</language>
+			<language draft="true" type="pal">Пехлевийский</language>
+			<language draft="true" type="pam">Пампанга</language>
+			<language draft="true" type="pap">Папьяменто</language>
+			<language draft="true" type="pau">Палау</language>
+			<language draft="true" type="peo">Староперсидский</language>
+			<language draft="true" type="phn">Финикийский</language>
+			<language draft="true" type="pi">Пали</language>
+			<language type="pl">Польский</language>
+			<language draft="true" type="pon">Понапе</language>
+			<language draft="true" type="pra">Пракриты языки</language>
+			<language draft="true" type="pro">Старопровансальский</language>
+			<language type="ps">Пашто (Пушто)</language>
+			<language type="pt">Португальский</language>
+			<language type="qu">Кечуа</language>
+			<language draft="true" type="raj">Раджастхани</language>
+			<language type="rm">Раето-романский</language>
+			<language type="rn">Кирундийский</language>
+			<language type="ro">Румынский</language>
+			<language draft="true" type="roa">Романские (другие)</language>
+			<language draft="true" type="rom">Цыганский</language>
+			<language type="ru">Русский</language>
+			<language type="rw">Кинярванда</language>
+			<language type="sa">Санскрит</language>
+			<language draft="true" type="sad">Сандаве</language>
+			<language draft="true" type="sah">Якутский</language>
+			<language draft="true" type="sai">Южной Америки индейцев (другие)</language>
+			<language draft="true" type="sal">Салишские языки</language>
+			<language draft="true" type="sam">Самаритянский арамейский</language>
+			<language type="sd">Синди</language>
+			<language draft="true" type="sel">Селькупский</language>
+			<language draft="true" type="sem">Семитские (другие)</language>
+			<language type="sg">Санго</language>
+			<language draft="true" type="sga">Староирландский</language>
+			<language type="sh">Сербско-хорватский</language>
+			<language draft="true" type="shn">Шанский</language>
+			<language type="si">Сингальский</language>
+			<language draft="true" type="sid">Сидама</language>
+			<language draft="true" type="sio">Сиу языки</language>
+			<language draft="true" type="sit">Синотибетские (другие)</language>
+			<language type="sk">Словацкий</language>
+			<language type="sl">Словенский</language>
+			<language draft="true" type="sla">Славянские (другие)</language>
+			<language type="sm">Самоа</language>
+			<language draft="true" type="smi">Саамские языки</language>
+			<language type="sn">Шона</language>
+			<language type="so">Сомали</language>
+			<language draft="true" type="sog">Согдийский</language>
+			<language type="sq">Албанский</language>
+			<language type="sr">Сербский</language>
+			<language type="ss">Сисвати</language>
+			<language draft="true" type="ssa">Нило-сахарские (другие)</language>
+			<language type="st">Сесото</language>
+			<language type="su">Санданизский</language>
+			<language draft="true" type="suk">Сукума</language>
+			<language draft="true" type="sus">Сусу</language>
+			<language draft="true" type="sux">Шумерский</language>
+			<language type="sv">Шведский</language>
+			<language type="sw">Суахили</language>
+			<language type="ta">Тамильский</language>
+			<language draft="true" type="tai">Татский</language>
+			<language type="te">Телугу</language>
+			<language draft="true" type="ter">Терено</language>
+			<language type="tg">Таджикский</language>
+			<language type="th">Тайский</language>
+			<language type="ti">Тигриниа</language>
+			<language draft="true" type="tig">Тигре</language>
+			<language draft="true" type="tiv">Тиви</language>
+			<language type="tk">Туркменский</language>
+			<language type="tl">Тагалог</language>
+			<language draft="true" type="tli">Тлингит</language>
+			<language draft="true" type="tmh">Тамашек</language>
+			<language type="tn">Сетсвана</language>
+			<language type="to">Тонга</language>
+			<language draft="true" type="tog">Тонга (Ньяса)</language>
+			<language type="tr">Турецкий</language>
+			<language type="ts">Тсонга</language>
+			<language draft="true" type="tsi">Цимшиан</language>
+			<language type="tt">Татарский</language>
+			<language draft="true" type="tut">Алтайские (другие)</language>
+			<language type="tw">Тви</language>
+			<language draft="true" type="tyv">Тувинский</language>
+			<language type="ug">Уйгурский</language>
+			<language draft="true" type="uga">Угаритский</language>
+			<language type="uk">Украинский</language>
+			<language draft="true" type="umb">Умбунду</language>
+			<language draft="true" type="und">Неидентифицированный</language>
+			<language type="ur">Урду</language>
+			<language type="uz">Узбекский</language>
+			<language draft="true" type="vai">Ваи</language>
+			<language type="vi">Вьетнамский</language>
+			<language type="vo">Волапак</language>
+			<language draft="true" type="vot">Удмуртский (Вотяцкий)</language>
+			<language draft="true" type="wak">Вакашские языки</language>
+			<language draft="true" type="wal">Воламо</language>
+			<language draft="true" type="war">Варай</language>
+			<language draft="true" type="was">Вашо</language>
+			<language draft="true" type="wen">Лужицкие языки</language>
+			<language type="wo">Волоф</language>
+			<language type="xh">Хоза</language>
+			<language draft="true" type="yao">Яо</language>
+			<language draft="true" type="yap">Яп</language>
+			<language type="yi">Идиш</language>
+			<language type="yo">Йоруба</language>
+			<language type="za">Зуанг</language>
+			<language draft="true" type="zap">Сапотекский</language>
+			<language draft="true" type="zen">Зенагский</language>
+			<language type="zh">Китайский</language>
+			<language type="zu">Зулусский</language>
+			<language draft="true" type="zun">Зуньи</language>
+		</languages>
+		<scripts>
+			<script draft="true" type="Arab">Арабская</script>
+			<script draft="true" type="Armn">Армянская</script>
+			<script draft="true" type="Beng">Бенгальская</script>
+			<script draft="true" type="Bopo">Бопомофо</script>
+			<script draft="true" type="Brai">Брайля</script>
+			<script draft="true" type="Buhd">Бухид</script>
+			<script draft="true" type="Cans">Унифицированные Символы Канадских Аборигенов</script>
+			<script draft="true" type="Cher">Чероки</script>
+			<script draft="true" type="Copt">Коптская</script>
+			<script draft="true" type="Cprt">Кипрская</script>
+			<script draft="true" type="Cyrl">Кириллица</script>
+			<script draft="true" type="Deva">Деванагари</script>
+			<script draft="true" type="Dsrt">Дезерет</script>
+			<script draft="true" type="Ethi">Эфиопская</script>
+			<script draft="true" type="Geor">Грузинская</script>
+			<script draft="true" type="Goth">Готская</script>
+			<script draft="true" type="Grek">Греческая</script>
+			<script draft="true" type="Gujr">Гуджарати</script>
+			<script draft="true" type="Guru">Гурмукхи</script>
+			<script draft="true" type="Hang">Хангул</script>
+			<script draft="true" type="Hano">Хануну</script>
+			<script draft="true" type="Hebr">Иврит</script>
+			<script draft="true" type="Hira">Хирагана</script>
+			<script draft="true" type="Ital">Староитальянская</script>
+			<script draft="true" type="Kana">Катакана</script>
+			<script draft="true" type="Khmr">Кхмерская</script>
+			<script draft="true" type="Knda">Каннада</script>
+			<script draft="true" type="Laoo">Лаосская</script>
+			<script draft="true" type="Latn">Латиница</script>
+			<script draft="true" type="Limb">Лимбу</script>
+			<script draft="true" type="Linb">Линейная Б</script>
+			<script draft="true" type="Mlym">Малаяльская</script>
+			<script draft="true" type="Mong">Монгольская</script>
+			<script draft="true" type="Mymr">Майанмарская</script>
+			<script draft="true" type="Ogam">Огамическая</script>
+			<script draft="true" type="Orya">Ория</script>
+			<script draft="true" type="Osma">Османская</script>
+			<script draft="true" type="Qaai">Унаследованная</script>
+			<script draft="true" type="Runr">Руническая</script>
+			<script draft="true" type="Shaw">Алфавит Шоу</script>
+			<script draft="true" type="Sinh">Сингальская</script>
+			<script draft="true" type="Syrc">Сирийская</script>
+			<script draft="true" type="Tagb">Тагбанва</script>
+			<script draft="true" type="Tale">Tai Le</script>
+			<script draft="true" type="Taml">Тамильская</script>
+			<script draft="true" type="Telu">Телугу</script>
+			<script draft="true" type="Tglg">Тагалог</script>
+			<script draft="true" type="Thaa">Таана</script>
+			<script draft="true" type="Thai">Тайская</script>
+			<script draft="true" type="Tibt">Тибетская</script>
+			<script draft="true" type="Ugar">Угаритская</script>
+			<script draft="true" type="Yiii">Йи (ицзу)</script>
+			<script draft="true" type="Zyyy">Неопределенная</script>
+		</scripts>
+		<territories>
+			<territory type="AD">Андорра</territory>
+			<territory type="AE">Объединенные Арабские Эмираты</territory>
+			<territory type="AF">Афганистан</territory>
+			<territory type="AG">Антигуа и Барбуда</territory>
+			<territory type="AI">Ангуилла</territory>
+			<territory type="AL">Албания</territory>
+			<territory type="AM">Армения</territory>
+			<territory type="AN">Голландские Антильские Острова</territory>
+			<territory type="AO">Ангола</territory>
+			<territory type="AQ">Антарктида</territory>
+			<territory type="AR">Аргентина</territory>
+			<territory type="AS">Американское Самоа</territory>
+			<territory type="AT">Австрия</territory>
+			<territory type="AU">Австралия</territory>
+			<territory type="AW">Аруба</territory>
+			<territory type="AZ">Азербайджан</territory>
+			<territory type="BA">Босния</territory>
+			<territory type="BB">Барбадос</territory>
+			<territory type="BD">Бангладеш</territory>
+			<territory type="BE">Бельгия</territory>
+			<territory type="BF">Буркина Фасо</territory>
+			<territory type="BG">Болгария</territory>
+			<territory type="BH">Бахрейн</territory>
+			<territory type="BI">Бурунди</territory>
+			<territory type="BJ">Бенин</territory>
+			<territory type="BM">Бермудские Острова</territory>
+			<territory type="BN">Бруней Даруссалам</territory>
+			<territory type="BO">Боливия</territory>
+			<territory type="BR">Бразилия</territory>
+			<territory type="BS">Багамские острова</territory>
+			<territory type="BT">Бутан</territory>
+			<territory type="BV">Остров Буве</territory>
+			<territory type="BW">Ботсвана</territory>
+			<territory type="BY">Беларусь</territory>
+			<territory type="BZ">Белиз</territory>
+			<territory type="CA">Канада</territory>
+			<territory type="CC">Кокосовые Острова (Киилинг)</territory>
+			<territory type="CD">Конго, Демократическая Республика</territory>
+			<territory type="CF">Центрально-Африканская Республика</territory>
+			<territory type="CG">Конго</territory>
+			<territory type="CH">Швейцария</territory>
+			<territory type="CI">Кот д’Ивуар</territory>
+			<territory type="CK">Острова Кука</territory>
+			<territory type="CL">Чили</territory>
+			<territory type="CM">Камерун</territory>
+			<territory type="CN">Китай</territory>
+			<territory type="CO">Колумбия</territory>
+			<territory type="CR">Коста-Рика</territory>
+			<territory type="CU">Куба</territory>
+			<territory type="CV">Острова Зеленого Мыса</territory>
+			<territory type="CX">Остров Рождества</territory>
+			<territory type="CY">Кипр</territory>
+			<territory type="CZ">Чешская Республика</territory>
+			<territory type="DE">Германия</territory>
+			<territory type="DJ">Джибути</territory>
+			<territory type="DK">Дания</territory>
+			<territory type="DM">Остров Доминика</territory>
+			<territory type="DO">Доминиканская Республика</territory>
+			<territory type="DZ">Алжир</territory>
+			<territory type="EC">Эквадор</territory>
+			<territory type="EE">Эстония</territory>
+			<territory type="EG">Египет</territory>
+			<territory type="EH">Западная Сахара</territory>
+			<territory type="ER">Эритрея</territory>
+			<territory type="ES">Испания</territory>
+			<territory type="ET">Эфиопия</territory>
+			<territory type="FI">Финляндия</territory>
+			<territory type="FJ">Фиджи</territory>
+			<territory type="FK">Фольклендские Острова</territory>
+			<territory type="FM">Федеративное Государство Микронезия</territory>
+			<territory type="FO">Фарерские острова</territory>
+			<territory type="FR">Франция</territory>
+			<territory type="GA">Габон</territory>
+			<territory type="GB">Великобритания</territory>
+			<territory type="GD">Гренада</territory>
+			<territory type="GE">Грузия</territory>
+			<territory type="GF">Французская Гвиана</territory>
+			<territory type="GH">Гана</territory>
+			<territory type="GI">Гибралтар</territory>
+			<territory type="GL">Гренландия</territory>
+			<territory type="GM">Гамбия</territory>
+			<territory type="GN">Гвинея</territory>
+			<territory type="GP">Гваделупа</territory>
+			<territory type="GQ">Экваториальная Гвинея</territory>
+			<territory type="GR">Греция</territory>
+			<territory type="GS">Южная Джорджия и Южные Сандвичевы Острова</territory>
+			<territory type="GT">Гватемала</territory>
+			<territory type="GU">Гуам</territory>
+			<territory type="GW">Гвинея-Биссау</territory>
+			<territory type="GY">Гайана</territory>
+			<territory type="HK">Гонконг (Область с Особым Административным Управлением, Китай)</territory>
+			<territory type="HM">Острова Херд и Мак-Дональд</territory>
+			<territory type="HN">Гондурас</territory>
+			<territory type="HR">Хорватия</territory>
+			<territory type="HT">Гаити</territory>
+			<territory type="HU">Венгрия</territory>
+			<territory type="ID">Индонезия</territory>
+			<territory type="IE">Ирландия</territory>
+			<territory type="IL">Израиль</territory>
+			<territory type="IN">Индия</territory>
+			<territory type="IO">Британские Территории в Индийском Океане</territory>
+			<territory type="IQ">Ирак</territory>
+			<territory type="IR">Иран</territory>
+			<territory type="IS">Исландия</territory>
+			<territory type="IT">Италия</territory>
+			<territory type="JM">Ямайка</territory>
+			<territory type="JO">Иордания</territory>
+			<territory type="JP">Япония</territory>
+			<territory type="KE">Кения</territory>
+			<territory type="KG">Кыргызстан</territory>
+			<territory type="KH">Камбоджа</territory>
+			<territory type="KI">Кирибати</territory>
+			<territory type="KM">Коморские Острова</territory>
+			<territory type="KN">Сент-Киттс и Невис</territory>
+			<territory type="KP">Северная Корея</territory>
+			<territory type="KR">Южная Корея</territory>
+			<territory type="KW">Кувейт</territory>
+			<territory type="KY">Каймановы Острова</territory>
+			<territory type="KZ">Казахстан</territory>
+			<territory type="LA">Лаос</territory>
+			<territory type="LB">Ливан</territory>
+			<territory type="LC">Сент-Люсия</territory>
+			<territory type="LI">Лихтенштейн</territory>
+			<territory type="LK">Шри-Ланка</territory>
+			<territory type="LR">Либерия</territory>
+			<territory type="LS">Лесото</territory>
+			<territory type="LT">Литва</territory>
+			<territory type="LU">Люксембург</territory>
+			<territory type="LV">Латвия</territory>
+			<territory type="LY">Ливия</territory>
+			<territory type="MA">Марокко</territory>
+			<territory type="MC">Монако</territory>
+			<territory type="MD">Молдова</territory>
+			<territory type="MG">Мадагаскар</territory>
+			<territory type="MH">Маршалловы Острова</territory>
+			<territory type="MK">Македония</territory>
+			<territory type="ML">Мали</territory>
+			<territory type="MM">Майанмар</territory>
+			<territory type="MN">Монголия</territory>
+			<territory type="MO">Макао (Область с Особым Административным Управлением, Китай)</territory>
+			<territory type="MP">Северные Марианские Острова</territory>
+			<territory type="MQ">Мартиник</territory>
+			<territory type="MR">Мавритания</territory>
+			<territory type="MS">Монсеррат</territory>
+			<territory type="MT">Мальта</territory>
+			<territory type="MU">Маврикий</territory>
+			<territory type="MV">Мальдивы</territory>
+			<territory type="MW">Малави</territory>
+			<territory type="MX">Мексика</territory>
+			<territory type="MY">Малайзия</territory>
+			<territory type="MZ">Мозамбик</territory>
+			<territory type="NA">Намибия</territory>
+			<territory type="NC">Новая Каледония</territory>
+			<territory type="NE">Нигер</territory>
+			<territory type="NF">Остров Норфолк</territory>
+			<territory type="NG">Нигерия</territory>
+			<territory type="NI">Никарагуа</territory>
+			<territory type="NL">Нидерланды</territory>
+			<territory type="NO">Норвегия</territory>
+			<territory type="NP">Непал</territory>
+			<territory type="NR">Науру</territory>
+			<territory type="NU">Ниуе</territory>
+			<territory type="NZ">Новая Зеландия</territory>
+			<territory type="OM">Оман</territory>
+			<territory type="PA">Панама</territory>
+			<territory type="PE">Перу</territory>
+			<territory type="PF">Французская Полинезия</territory>
+			<territory type="PG">Папуа-Новая Гвинея</territory>
+			<territory type="PH">Филиппины</territory>
+			<territory type="PK">Пакистан</territory>
+			<territory type="PL">Польша</territory>
+			<territory type="PM">Сен-Пьер и Микелон</territory>
+			<territory type="PN">Остров Питкэрн</territory>
+			<territory type="PR">Пуэрто-Рико</territory>
+			<territory type="PS">Палестинская автономия</territory>
+			<territory type="PT">Португалия</territory>
+			<territory type="PW">Палау</territory>
+			<territory type="PY">Парагвай</territory>
+			<territory type="QA">Катар</territory>
+			<territory type="RE">Реюньон</territory>
+			<territory type="RO">Румыния</territory>
+			<territory type="RU">Россия</territory>
+			<territory type="RW">Руанда</territory>
+			<territory type="SA">Саудовская Аравия</territory>
+			<territory type="SB">Соломоновы Острова</territory>
+			<territory type="SC">Сейшельские Острова</territory>
+			<territory type="SD">Судан</territory>
+			<territory type="SE">Швеция</territory>
+			<territory type="SG">Сингапур</territory>
+			<territory type="SH">Остров Святой Елены</territory>
+			<territory type="SI">Словения</territory>
+			<territory type="SJ">Острова Свалбард и Жан Майен</territory>
+			<territory type="SK">Словакия</territory>
+			<territory type="SL">Сьерра-Леоне</territory>
+			<territory type="SM">Сан-Марино</territory>
+			<territory type="SN">Сенегал</territory>
+			<territory type="SO">Сомали</territory>
+			<territory type="SP">Сербия</territory>
+			<territory type="SR">Суринам</territory>
+			<territory type="ST">Сан-Томе и Принсипи</territory>
+			<territory type="SV">Сальвадор</territory>
+			<territory type="SY">Сирийская Арабская Республика</territory>
+			<territory type="SZ">Свазиленд</territory>
+			<territory type="TC">Острова Туркс и Кайкос</territory>
+			<territory type="TD">Чад</territory>
+			<territory type="TF">Французские Южные Территории</territory>
+			<territory type="TG">Того</territory>
+			<territory type="TH">Таиланд</territory>
+			<territory type="TJ">Таджикистан</territory>
+			<territory type="TK">Токелау</territory>
+			<territory type="TL">Восточный Тимор</territory>
+			<territory type="TM">Туркменистан</territory>
+			<territory type="TN">Тунис</territory>
+			<territory type="TO">Тонга</territory>
+			<territory type="TR">Турция</territory>
+			<territory type="TT">Тринидад и Тобаго</territory>
+			<territory type="TV">Тувалу</territory>
+			<territory type="TW">Тайвань, Китайская Провинция</territory>
+			<territory type="TZ">Танзания</territory>
+			<territory type="UA">Украина</territory>
+			<territory type="UG">Уганда</territory>
+			<territory type="UM">Внешние малые острова (США)</territory>
+			<territory type="US">Соединенные Штаты</territory>
+			<territory type="UY">Уругвай</territory>
+			<territory type="UZ">Узбекистан</territory>
+			<territory type="VA">Государство-город Ватикан</territory>
+			<territory type="VC">Сент-Винсент и Гренадины</territory>
+			<territory type="VE">Венесуэла</territory>
+			<territory type="VG">Британские Виргинские Острова</territory>
+			<territory type="VI">Американские Виргинские Острова</territory>
+			<territory type="VN">Вьетнам</territory>
+			<territory type="VU">Вануату</territory>
+			<territory type="WF">Эллис и Футуна</territory>
+			<territory type="WS">Самоа</territory>
+			<territory type="YE">Йемен</territory>
+			<territory type="YT">Майотта</territory>
+			<territory type="YU">Югославия</territory>
+			<territory type="ZA">Южная Африка</territory>
+			<territory type="ZM">Замбия</territory>
+			<territory type="ZW">Зимбабве</territory>
+		</territories>
+		<keys>
+			<key draft="true" type="collation">Сортировка</key>
+			<key draft="true" type="calendar">Календарь</key>
+			<key draft="true" type="currency">Валюта</key>
+		</keys>
+		<types>
+			<type draft="true" type="japanese" key="calendar">Японский календарь</type>
+			<type draft="true" type="buddhist" key="calendar">Буддистский календарь</type>
+			<type draft="true" type="islamic" key="calendar">Исламский календарь</type>
+			<type draft="true" type="islamic-civil" key="calendar">Исламский гражданский календарь</type>
+			<type draft="true" type="hebrew" key="calendar">Еврейский календарь</type>
+			<type draft="true" type="chinese" key="calendar">Китайский календарь</type>
+			<type draft="true" type="gregorian" key="calendar">Григорианский календарь</type>
+		</types>
+	</localeDisplayNames>
+	<characters>
+		<exemplarCharacters>[а-я ё і ѣ ѳ ѵ]</exemplarCharacters>
+	</characters>
+	<dates>
+		<localizedPatternChars>GanjkHmsSEDFwWxhKzAeugXZ</localizedPatternChars>
+		<calendars>
+			
+			<calendar type="gregorian">
+				<months>
+					<monthContext type="format">
+						<monthWidth type="abbreviated">
+							<month type="1">янв</month>
+							<month type="2">фев</month>
+							<month type="3">мар</month>
+							<month type="4">апр</month>
+							<month type="5">май</month>
+							<month type="6">июн</month>
+							<month type="7">июл</month>
+							<month type="8">авг</month>
+							<month type="9">сен</month>
+							<month type="10">окт</month>
+							<month type="11">ноя</month>
+							<month type="12">дек</month>
+						</monthWidth>
+						<monthWidth type="narrow">
+							<month type="1">Я</month>
+							<month type="2">Ф</month>
+							<month type="3">М</month>
+							<month type="4">А</month>
+							<month type="5">М</month>
+							<month type="6">И</month>
+							<month type="7">И</month>
+							<month type="8">А</month>
+							<month type="9">С</month>
+							<month type="10">О</month>
+							<month type="11">Н</month>
+							<month type="12">Д</month>
+						</monthWidth>
+						<monthWidth type="wide">
+							<month type="1">января</month>
+							<month type="2">февраля</month>
+							<month type="3">марта</month>
+							<month type="4">апреля</month>
+							<month type="5">мая</month>
+							<month type="6">июня</month>
+							<month type="7">июля</month>
+							<month type="8">августа</month>
+							<month type="9">сентября</month>
+							<month type="10">октября</month>
+							<month type="11">ноября</month>
+							<month type="12">декабря</month>
+						</monthWidth>
+					</monthContext>
+					<monthContext type="stand-alone">
+						<monthWidth type="abbreviated">
+							<month type="1">янв</month>
+							<month type="2">фев</month>
+							<month type="3">мар</month>
+							<month type="4">апр</month>
+							<month type="5">май</month>
+							<month type="6">июн</month>
+							<month type="7">июл</month>
+							<month type="8">авг</month>
+							<month type="9">сен</month>
+							<month type="10">окт</month>
+							<month type="11">ноя</month>
+							<month type="12">дек</month>
+						</monthWidth>
+						<monthWidth type="narrow">
+							<month type="1">Я</month>
+							<month type="2">Ф</month>
+							<month type="3">М</month>
+							<month type="4">А</month>
+							<month type="5">М</month>
+							<month type="6">И</month>
+							<month type="7">И</month>
+							<month type="8">А</month>
+							<month type="9">С</month>
+							<month type="10">О</month>
+							<month type="11">Н</month>
+							<month type="12">Д</month>
+						</monthWidth>
+						<monthWidth type="wide">
+							<month type="1">Январь</month>
+							<month type="2">Февраль</month>
+							<month type="3">Март</month>
+							<month type="4">Апрель</month>
+							<month type="5">Май</month>
+							<month type="6">Июнь</month>
+							<month type="7">Июль</month>
+							<month type="8">Август</month>
+							<month type="9">Сентябрь</month>
+							<month type="10">Октябрь</month>
+							<month type="11">Ноябрь</month>
+							<month type="12">Декабрь</month>
+						</monthWidth>
+					</monthContext>
+				</months>
+				<days>
+					<dayContext type="format">
+						<dayWidth type="abbreviated">
+							<day type="sun">Вс</day>
+							<day type="mon">Пн</day>
+							<day type="tue">Вт</day>
+							<day type="wed">Ср</day>
+							<day type="thu">Чт</day>
+							<day type="fri">Пт</day>
+							<day type="sat">Сб</day>
+						</dayWidth>
+						<dayWidth draft="true" type="narrow">
+							<day type="sun">В</day>
+							<day type="mon">П</day>
+							<day type="tue">В</day>
+							<day type="wed">С</day>
+							<day type="thu">Ч</day>
+							<day type="fri">П</day>
+							<day type="sat">С</day>
+						</dayWidth>
+						<dayWidth type="wide">
+							<day type="sun">воскресенье</day>
+							<day type="mon">понедельник</day>
+							<day type="tue">вторник</day>
+							<day type="wed">среда</day>
+							<day type="thu">четверг</day>
+							<day type="fri">пятница</day>
+							<day type="sat">суббота</day>
+						</dayWidth>
+					</dayContext>
+				</days>
+				<week>
+					<minDays count="1"></minDays>
+					<firstDay day="mon"></firstDay>
+				</week>
+				<eras>
+					<eraAbbr>
+						<era type="0">до н.э.</era>
+						<era type="1">н.э.</era>
+					</eraAbbr>
+				</eras>
+				<dateFormats>
+					<default type="medium"></default>
+					<dateFormatLength type="full">
+						<dateFormat>
+							<pattern>d MMMM yyyy 'г.'</pattern>
+						</dateFormat>
+					</dateFormatLength>
+					<dateFormatLength type="long">
+						<dateFormat>
+							<pattern>d MMMM yyyy 'г.'</pattern>
+						</dateFormat>
+					</dateFormatLength>
+					<dateFormatLength type="medium">
+						<dateFormat>
+							<pattern>dd.MM.yyyy</pattern>
+						</dateFormat>
+					</dateFormatLength>
+					<dateFormatLength type="short">
+						<dateFormat>
+							<pattern>dd.MM.yy</pattern>
+						</dateFormat>
+					</dateFormatLength>
+				</dateFormats>
+				<timeFormats>
+					<default type="medium"></default>
+					<timeFormatLength type="full">
+						<timeFormat>
+							<pattern>H:mm:ss z</pattern>
+						</timeFormat>
+					</timeFormatLength>
+					<timeFormatLength type="long">
+						<timeFormat>
+							<pattern>H:mm:ss z</pattern>
+						</timeFormat>
+					</timeFormatLength>
+					<timeFormatLength type="medium">
+						<timeFormat>
+							<pattern>H:mm:ss</pattern>
+						</timeFormat>
+					</timeFormatLength>
+					<timeFormatLength type="short">
+						<timeFormat>
+							<pattern>H:mm</pattern>
+						</timeFormat>
+					</timeFormatLength>
+				</timeFormats>
+				<dateTimeFormats>
+					<dateTimeFormatLength>
+						<dateTimeFormat>
+							<pattern>{1} {0}</pattern>
+						</dateTimeFormat>
+					</dateTimeFormatLength>
+				</dateTimeFormats>
+			</calendar>
+		</calendars>
+	</dates>
+	<numbers>
+		<currencies>
+			<currency draft="true" type="ADP">
+				<displayName>Андоррская песета</displayName>
+				<symbol>ADP</symbol>
+			</currency>
+			<currency draft="true" type="AED">
+				<displayName>Дирхам (ОАЭ)</displayName>
+				<symbol>AED</symbol>
+			</currency>
+			<currency draft="true" type="AFA">
+				<displayName>Афгани (1927-2002)</displayName>
+				<symbol>AFA</symbol>
+			</currency>
+			<currency draft="true" type="ALL">
+				<displayName>Лек</displayName>
+				<symbol>lek</symbol>
+			</currency>
+			<currency draft="true" type="AMD">
+				<displayName>Армянский драм</displayName>
+				<symbol>dram</symbol>
+			</currency>
+			<currency draft="true" type="ANG">
+				<displayName>Нидерландский антильский гульден</displayName>
+				<symbol>NA f.</symbol>
+			</currency>
+			<currency draft="true" type="AON">
+				<displayName>Новая кванза</displayName>
+				<symbol>AON</symbol>
+			</currency>
+			<currency draft="true" type="ARS">
+				<displayName>Аргентинское песо</displayName>
+				<symbol>Arg$</symbol>
+			</currency>
+			<currency draft="true" type="ATS">
+				<displayName>Шиллинг</displayName>
+				<symbol>ATS</symbol>
+			</currency>
+			<currency draft="true" type="AUD">
+				<displayName>Австралийский доллар</displayName>
+				<symbol>$A</symbol>
+			</currency>
+			<currency draft="true" type="AWG">
+				<displayName>Арубанский гульден</displayName>
+				<symbol>AWG</symbol>
+			</currency>
+			<currency draft="true" type="AZM">
+				<displayName>Азербайджанский манат</displayName>
+				<symbol>AZM</symbol>
+			</currency>
+			<currency draft="true" type="BBD">
+				<displayName>Барбадосский доллар</displayName>
+				<symbol>BDS$</symbol>
+			</currency>
+			<currency draft="true" type="BDT">
+				<displayName>Така</displayName>
+				<symbol>Tk</symbol>
+			</currency>
+			<currency draft="true" type="BEF">
+				<displayName>Бельгийский франк</displayName>
+				<symbol>BF</symbol>
+			</currency>
+			<currency draft="true" type="BGL">
+				<displayName>Лев</displayName>
+				<symbol>lev</symbol>
+			</currency>
+			<currency draft="true" type="BGN">
+				<displayName>Болгарский лев</displayName>
+				<symbol>BGN</symbol>
+			</currency>
+			<currency draft="true" type="BHD">
+				<displayName>Бахрейнский динар</displayName>
+				<symbol>BD</symbol>
+			</currency>
+			<currency draft="true" type="BIF">
+				<displayName>Бурундийский франк</displayName>
+				<symbol>Fbu</symbol>
+			</currency>
+			<currency draft="true" type="BMD">
+				<displayName>Бермудский доллар</displayName>
+				<symbol>Ber$</symbol>
+			</currency>
+			<currency draft="true" type="BND">
+				<displayName>Брунейский доллар</displayName>
+				<symbol>BND</symbol>
+			</currency>
+			<currency draft="true" type="BOB">
+				<displayName>Боливиано</displayName>
+				<symbol>Bs</symbol>
+			</currency>
+			<currency draft="true" type="BRL">
+				<displayName>Бразильский реал</displayName>
+				<symbol>R$</symbol>
+			</currency>
+			<currency draft="true" type="BRR">
+				<displayName>Крузейро реал</displayName>
+				<symbol>BRR</symbol>
+			</currency>
+			<currency draft="true" type="BSD">
+				<displayName>Багамский доллар</displayName>
+				<symbol>BSD</symbol>
+			</currency>
+			<currency draft="true" type="BTN">
+				<displayName>Нгултрум</displayName>
+				<symbol>Nu</symbol>
+			</currency>
+			<currency draft="true" type="BWP">
+				<displayName>Пула</displayName>
+				<symbol>BWP</symbol>
+			</currency>
+			<currency draft="true" type="BYB">
+				<displayName>Белорусский рубль (1994-1999)</displayName>
+				<symbol>BYB</symbol>
+			</currency>
+			<currency draft="true" type="BYL">
+				<displayName>Белорусский рубль (1992-1994)</displayName>
+				<symbol>BYL</symbol>
+			</currency>
+			<currency draft="true" type="BYR">
+				<displayName>Белорусский рубль</displayName>
+				<symbol>Rbl</symbol>
+			</currency>
+			<currency draft="true" type="BZD">
+				<displayName>Белизский доллар</displayName>
+				<symbol>BZ$</symbol>
+			</currency>
+			<currency draft="true" type="CAD">
+				<displayName>Канадский доллар</displayName>
+				<symbol>Can$</symbol>
+			</currency>
+			<currency draft="true" type="CDF">
+				<displayName>Конголезский франк</displayName>
+				<symbol>CDF</symbol>
+			</currency>
+			<currency draft="true" type="CHF">
+				<displayName>Швейцарский франк</displayName>
+				<symbol>SwF</symbol>
+			</currency>
+			<currency draft="true" type="CLP">
+				<displayName>Чилийское песо</displayName>
+				<symbol>Ch$</symbol>
+			</currency>
+			<currency draft="true" type="CNY">
+				<displayName>Китайский юань</displayName>
+				<symbol>Y</symbol>
+			</currency>
+			<currency draft="true" type="COP">
+				<displayName>Колумбийское песо</displayName>
+				<symbol>Col$</symbol>
+			</currency>
+			<currency draft="true" type="CRC">
+				<displayName>Костариканский колон</displayName>
+				<symbol>C</symbol>
+			</currency>
+			<currency draft="true" type="CUP">
+				<displayName>Кубинское песо</displayName>
+				<symbol>CUP</symbol>
+			</currency>
+			<currency draft="true" type="CVE">
+				<displayName>Эскудо Кабо - Верде</displayName>
+				<symbol>CVEsc</symbol>
+			</currency>
+			<currency draft="true" type="CYP">
+				<displayName>Кипрский фунт</displayName>
+				<symbol>£C</symbol>
+			</currency>
+			<currency draft="true" type="CZK">
+				<displayName>Чешская крона</displayName>
+				<symbol>CZK</symbol>
+			</currency>
+			<currency draft="true" type="DEM">
+				<displayName>Немецкая марка</displayName>
+				<symbol>DEM</symbol>
+			</currency>
+			<currency draft="true" type="DJF">
+				<displayName>Франк Джибути</displayName>
+				<symbol>DF</symbol>
+			</currency>
+			<currency draft="true" type="DKK">
+				<displayName>Датская крона</displayName>
+				<symbol>DKr</symbol>
+			</currency>
+			<currency draft="true" type="DOP">
+				<displayName>Доминиканское песо</displayName>
+				<symbol>RD$</symbol>
+			</currency>
+			<currency draft="true" type="DZD">
+				<displayName>Алжирский динар</displayName>
+				<symbol>DA</symbol>
+			</currency>
+			<currency draft="true" type="ECS">
+				<displayName>Сукре</displayName>
+				<symbol>ECS</symbol>
+			</currency>
+			<currency draft="true" type="EEK">
+				<displayName>Крона</displayName>
+				<symbol>EEK</symbol>
+			</currency>
+			<currency draft="true" type="EGP">
+				<displayName>Египетский фунт</displayName>
+				<symbol>EGP</symbol>
+			</currency>
+			<currency draft="true" type="ERN">
+				<displayName>Накфа</displayName>
+				<symbol>ERN</symbol>
+			</currency>
+			<currency draft="true" type="ETB">
+				<displayName>Эфиопский быр</displayName>
+				<symbol>Br</symbol>
+			</currency>
+			<currency draft="true" type="EUR">
+				<displayName>Евро</displayName>
+				<symbol>€</symbol>
+			</currency>
+			<currency draft="true" type="FIM">
+				<displayName>Марка</displayName>
+				<symbol>FIM</symbol>
+			</currency>
+			<currency draft="true" type="FJD">
+				<displayName>Доллар Фиджи</displayName>
+				<symbol>F$</symbol>
+			</currency>
+			<currency draft="true" type="FKP">
+				<displayName>Фунт Фолклендских островов</displayName>
+				<symbol>FKP</symbol>
+			</currency>
+			<currency draft="true" type="FRF">
+				<displayName>Французский франк</displayName>
+				<symbol>FRF</symbol>
+			</currency>
+			<currency draft="true" type="GBP">
+				<displayName>Фунт стерлингов</displayName>
+				<symbol>£</symbol>
+			</currency>
+			<currency draft="true" type="GEK">
+				<displayName>Грузинский купон</displayName>
+				<symbol>GEK</symbol>
+			</currency>
+			<currency draft="true" type="GEL">
+				<displayName>Грузинский лари</displayName>
+				<symbol>lari</symbol>
+			</currency>
+			<currency draft="true" type="GHC">
+				<displayName>Седи</displayName>
+				<symbol>GHC</symbol>
+			</currency>
+			<currency draft="true" type="GIP">
+				<displayName>Гибралтарский фунт</displayName>
+				<symbol>GIP</symbol>
+			</currency>
+			<currency draft="true" type="GMD">
+				<displayName>Даласи</displayName>
+				<symbol>GMD</symbol>
+			</currency>
+			<currency draft="true" type="GNF">
+				<displayName>Гвинейский франк</displayName>
+				<symbol>GF</symbol>
+			</currency>
+			<currency draft="true" type="GRD">
+				<displayName>Драхма</displayName>
+				<symbol>GRD</symbol>
+			</currency>
+			<currency draft="true" type="GTQ">
+				<displayName>Кетсаль</displayName>
+				<symbol>Q</symbol>
+			</currency>
+			<currency draft="true" type="GWP">
+				<displayName>Песо Гвинеи - Бисау</displayName>
+				<symbol>GWP</symbol>
+			</currency>
+			<currency draft="true" type="GYD">
+				<displayName>Гайанский доллар</displayName>
+				<symbol>G$</symbol>
+			</currency>
+			<currency draft="true" type="HKD">
+				<displayName>Гонконгский доллар</displayName>
+				<symbol>HK$</symbol>
+			</currency>
+			<currency draft="true" type="HNL">
+				<displayName>Лемпира</displayName>
+				<symbol>L</symbol>
+			</currency>
+			<currency draft="true" type="HRD">
+				<displayName>Хорватский динар</displayName>
+				<symbol>HRD</symbol>
+			</currency>
+			<currency draft="true" type="HRK">
+				<displayName>Куна</displayName>
+				<symbol>HRK</symbol>
+			</currency>
+			<currency draft="true" type="HTG">
+				<displayName>Гурд</displayName>
+				<symbol>HTG</symbol>
+			</currency>
+			<currency draft="true" type="HUF">
+				<displayName>Форинт</displayName>
+				<symbol>Ft</symbol>
+			</currency>
+			<currency draft="true" type="IDR">
+				<displayName>Рупия</displayName>
+				<symbol>Rp</symbol>
+			</currency>
+			<currency draft="true" type="IEP">
+				<displayName>Ирландский фунт</displayName>
+				<symbol>IR£</symbol>
+			</currency>
+			<currency draft="true" type="ILS">
+				<displayName>Шекель</displayName>
+				<symbol>ILS</symbol>
+			</currency>
+			<currency draft="true" type="INR">
+				<displayName>Индийская рупия</displayName>
+				<symbol>INR</symbol>
+			</currency>
+			<currency draft="true" type="IQD">
+				<displayName>Иракский динар</displayName>
+				<symbol>ID</symbol>
+			</currency>
+			<currency draft="true" type="IRR">
+				<displayName>Иранский риал</displayName>
+				<symbol>RI</symbol>
+			</currency>
+			<currency draft="true" type="ISK">
+				<displayName>Исландская крона</displayName>
+				<symbol>ISK</symbol>
+			</currency>
+			<currency draft="true" type="ITL">
+				<displayName>Итальянская лира</displayName>
+				<symbol>₤</symbol>
+			</currency>
+			<currency draft="true" type="JMD">
+				<displayName>Ямайский доллар</displayName>
+				<symbol>J$</symbol>
+			</currency>
+			<currency draft="true" type="JOD">
+				<displayName>Иорданский динар</displayName>
+				<symbol>JD</symbol>
+			</currency>
+			<currency draft="true" type="JPY">
+				<displayName>Йена</displayName>
+				<symbol>¥</symbol>
+			</currency>
+			<currency draft="true" type="KES">
+				<displayName>Кенийский шиллинг</displayName>
+				<symbol>K Sh</symbol>
+			</currency>
+			<currency draft="true" type="KGS">
+				<displayName>Сом (киргизский)</displayName>
+				<symbol>som</symbol>
+			</currency>
+			<currency draft="true" type="KHR">
+				<displayName>Риель</displayName>
+				<symbol>CR</symbol>
+			</currency>
+			<currency draft="true" type="KMF">
+				<displayName>Франк Коморских островов</displayName>
+				<symbol>CF</symbol>
+			</currency>
+			<currency draft="true" type="KPW">
+				<displayName>Северо - корейская вона</displayName>
+				<symbol>KPW</symbol>
+			</currency>
+			<currency draft="true" type="KRW">
+				<displayName>Вона</displayName>
+				<symbol>KRW</symbol>
+			</currency>
+			<currency draft="true" type="KWD">
+				<displayName>Кувейтский динар</displayName>
+				<symbol>KD</symbol>
+			</currency>
+			<currency draft="true" type="KYD">
+				<displayName>Доллар Каймановых островов</displayName>
+				<symbol>KYD</symbol>
+			</currency>
+			<currency draft="true" type="KZT">
+				<displayName>Тенге (казахский)</displayName>
+				<symbol>T</symbol>
+			</currency>
+			<currency draft="true" type="LAK">
+				<displayName>Кип</displayName>
+				<symbol>LAK</symbol>
+			</currency>
+			<currency draft="true" type="LBP">
+				<displayName>Ливанский фунт</displayName>
+				<symbol>LL</symbol>
+			</currency>
+			<currency draft="true" type="LKR">
+				<displayName>Шри - Ланкийская рупия</displayName>
+				<symbol>SL Re</symbol>
+			</currency>
+			<currency draft="true" type="LRD">
+				<displayName>Либерийский доллар</displayName>
+				<symbol>LRD</symbol>
+			</currency>
+			<currency draft="true" type="LSL">
+				<displayName>Лоти</displayName>
+				<symbol>M</symbol>
+			</currency>
+			<currency draft="true" type="LTL">
+				<displayName>Литовский лит</displayName>
+				<symbol>LTL</symbol>
+			</currency>
+			<currency draft="true" type="LUF">
+				<displayName>Люксембургский франк</displayName>
+				<symbol>LUF</symbol>
+			</currency>
+			<currency draft="true" type="LVL">
+				<displayName>Латвийский лат</displayName>
+				<symbol>LVL</symbol>
+			</currency>
+			<currency draft="true" type="LYD">
+				<displayName>Ливийский динар</displayName>
+				<symbol>LD</symbol>
+			</currency>
+			<currency draft="true" type="MAD">
+				<displayName>Марокканский дирхам</displayName>
+				<symbol>MAD</symbol>
+			</currency>
+			<currency draft="true" type="MDL">
+				<displayName>Молдавский лей</displayName>
+				<symbol>MDL</symbol>
+			</currency>
+			<currency draft="true" type="MGF">
+				<displayName>Малагасийский франк</displayName>
+				<symbol>MGF</symbol>
+			</currency>
+			<currency draft="true" type="MKD">
+				<displayName>Денар</displayName>
+				<symbol>MDen</symbol>
+			</currency>
+			<currency draft="true" type="MNT">
+				<displayName>Тугрик</displayName>
+				<symbol>Tug</symbol>
+			</currency>
+			<currency draft="true" type="MRO">
+				<displayName>Угия</displayName>
+				<symbol>UM</symbol>
+			</currency>
+			<currency draft="true" type="MTL">
+				<displayName>Мальтийская лира</displayName>
+				<symbol>Lm</symbol>
+			</currency>
+			<currency draft="true" type="MUR">
+				<displayName>Маврикийская рупия</displayName>
+				<symbol>MUR</symbol>
+			</currency>
+			<currency draft="true" type="MVR">
+				<displayName>Руфия</displayName>
+				<symbol>MVR</symbol>
+			</currency>
+			<currency draft="true" type="MWK">
+				<displayName>Квача (малавийская)</displayName>
+				<symbol>MK</symbol>
+			</currency>
+			<currency draft="true" type="MXN">
+				<displayName>Мексиканское новое песо</displayName>
+				<symbol>MEX$</symbol>
+			</currency>
+			<currency draft="true" type="MYR">
+				<displayName>Малайзийский ринггит</displayName>
+				<symbol>RM</symbol>
+			</currency>
+			<currency draft="true" type="MZM">
+				<displayName>Метикал</displayName>
+				<symbol>Mt</symbol>
+			</currency>
+			<currency draft="true" type="NAD">
+				<displayName>Доллар Намибии</displayName>
+				<symbol>N$</symbol>
+			</currency>
+			<currency draft="true" type="NGN">
+				<displayName>Найра</displayName>
+				<symbol>NGN</symbol>
+			</currency>
+			<currency draft="true" type="NIO">
+				<displayName>Золотая кордоба</displayName>
+				<symbol>NIO</symbol>
+			</currency>
+			<currency draft="true" type="NLG">
+				<displayName>Нидерландский гульден</displayName>
+				<symbol>NLG</symbol>
+			</currency>
+			<currency draft="true" type="NOK">
+				<displayName>Норвежская крона</displayName>
+				<symbol>NKr</symbol>
+			</currency>
+			<currency draft="true" type="NPR">
+				<displayName>Непальская рупия</displayName>
+				<symbol>Nrs</symbol>
+			</currency>
+			<currency draft="true" type="NZD">
+				<displayName>Новозеландский доллар</displayName>
+				<symbol>$NZ</symbol>
+			</currency>
+			<currency draft="true" type="OMR">
+				<displayName>Оманский риал</displayName>
+				<symbol>RO</symbol>
+			</currency>
+			<currency draft="true" type="PAB">
+				<displayName>Бальбоа</displayName>
+				<symbol>PAB</symbol>
+			</currency>
+			<currency draft="true" type="PEN">
+				<displayName>Новый соль</displayName>
+				<symbol>PEN</symbol>
+			</currency>
+			<currency draft="true" type="PGK">
+				<displayName>Кина</displayName>
+				<symbol>PGK</symbol>
+			</currency>
+			<currency draft="true" type="PHP">
+				<displayName>Филиппинское песо</displayName>
+				<symbol>PHP</symbol>
+			</currency>
+			<currency draft="true" type="PKR">
+				<displayName>Пакистанская рупия</displayName>
+				<symbol>Pra</symbol>
+			</currency>
+			<currency draft="true" type="PLN">
+				<displayName>Польский злотый</displayName>
+				<symbol>Zl</symbol>
+			</currency>
+			<currency draft="true" type="PLZ">
+				<displayName>Злотый</displayName>
+				<symbol>PLZ</symbol>
+			</currency>
+			<currency draft="true" type="PTE">
+				<displayName>Португальское эскудо</displayName>
+				<symbol>PTE</symbol>
+			</currency>
+			<currency draft="true" type="PYG">
+				<displayName>Гуарани</displayName>
+				<symbol>PYG</symbol>
+			</currency>
+			<currency draft="true" type="QAR">
+				<displayName>Катарский риал</displayName>
+				<symbol>QR</symbol>
+			</currency>
+			<currency draft="true" type="ROL">
+				<displayName>Лей</displayName>
+				<symbol>leu</symbol>
+			</currency>
+			<currency draft="true" type="RUB">
+				<displayName>Российский рубль</displayName>
+				<symbol>RUB</symbol>
+			</currency>
+			<currency draft="true" type="RUR">
+				<displayName>Российский рубль (1991-1998)</displayName>
+				<symbol>р.</symbol>
+			</currency>
+			<currency draft="true" type="RWF">
+				<displayName>Франк Руанды</displayName>
+				<symbol>RWF</symbol>
+			</currency>
+			<currency draft="true" type="SAR">
+				<displayName>Саудовский риал</displayName>
+				<symbol>SRl</symbol>
+			</currency>
+			<currency draft="true" type="SBD">
+				<displayName>Доллар Соломоновых островов</displayName>
+				<symbol>SI$</symbol>
+			</currency>
+			<currency draft="true" type="SCR">
+				<displayName>Сейшельская рупия</displayName>
+				<symbol>SR</symbol>
+			</currency>
+			<currency draft="true" type="SDD">
+				<displayName>Суданский динар</displayName>
+				<symbol>SDD</symbol>
+			</currency>
+			<currency draft="true" type="SEK">
+				<displayName>Шведская крона</displayName>
+				<symbol>SKr</symbol>
+			</currency>
+			<currency draft="true" type="SGD">
+				<displayName>Сингапурский доллар</displayName>
+				<symbol>S$</symbol>
+			</currency>
+			<currency draft="true" type="SHP">
+				<displayName>Фунт острова Святой Елены</displayName>
+				<symbol>SHP</symbol>
+			</currency>
+			<currency draft="true" type="SIT">
+				<displayName>Толар</displayName>
+				<symbol>SIT</symbol>
+			</currency>
+			<currency draft="true" type="SKK">
+				<displayName>Словацкая крона</displayName>
+				<symbol>Sk</symbol>
+			</currency>
+			<currency draft="true" type="SLL">
+				<displayName>Леоне</displayName>
+				<symbol>SLL</symbol>
+			</currency>
+			<currency draft="true" type="SOS">
+				<displayName>Сомалийский шиллинг</displayName>
+				<symbol>So. Sh.</symbol>
+			</currency>
+			<currency draft="true" type="SRG">
+				<displayName>Суринамский гульден</displayName>
+				<symbol>Sf</symbol>
+			</currency>
+			<currency draft="true" type="STD">
+				<displayName>Добра</displayName>
+				<symbol>Db</symbol>
+			</currency>
+			<currency draft="true" type="SVC">
+				<displayName>Сальвадорский колон</displayName>
+				<symbol>SVC</symbol>
+			</currency>
+			<currency draft="true" type="SYP">
+				<displayName>Сирийский фунт</displayName>
+				<symbol>LS</symbol>
+			</currency>
+			<currency draft="true" type="SZL">
+				<displayName>Лилангени</displayName>
+				<symbol>E</symbol>
+			</currency>
+			<currency draft="true" type="THB">
+				<displayName>Бат</displayName>
+				<symbol>THB</symbol>
+			</currency>
+			<currency draft="true" type="TJR">
+				<displayName>Таджикский рубль</displayName>
+				<symbol>TJR</symbol>
+			</currency>
+			<currency draft="true" type="TJS">
+				<displayName>Таджикский сомони</displayName>
+				<symbol>TJS</symbol>
+			</currency>
+			<currency draft="true" type="TMM">
+				<displayName>Манат</displayName>
+				<symbol>TMM</symbol>
+			</currency>
+			<currency draft="true" type="TND">
+				<displayName>Тунисский динар</displayName>
+				<symbol>TND</symbol>
+			</currency>
+			<currency draft="true" type="TOP">
+				<displayName>Паанга</displayName>
+				<symbol>T$</symbol>
+			</currency>
+			<currency draft="true" type="TPE">
+				<displayName>Тиморское эскудо</displayName>
+				<symbol>TPE</symbol>
+			</currency>
+			<currency draft="true" type="TRL">
+				<displayName>Турецкая лира</displayName>
+				<symbol>TL</symbol>
+			</currency>
+			<currency draft="true" type="TTD">
+				<displayName>Доллар Тринидада и Тобаго</displayName>
+				<symbol>TT$</symbol>
+			</currency>
+			<currency draft="true" type="TWD">
+				<displayName>Новый тайваньский доллар</displayName>
+				<symbol>NT$</symbol>
+			</currency>
+			<currency draft="true" type="TZS">
+				<displayName>Танзанийский шиллинг</displayName>
+				<symbol>T Sh</symbol>
+			</currency>
+			<currency draft="true" type="UAH">
+				<displayName>Украинская гривна</displayName>
+				<symbol>грн.</symbol>
+			</currency>
+			<currency draft="true" type="UAK">
+				<displayName>Карбованец (украинский)</displayName>
+				<symbol>UAK</symbol>
+			</currency>
+			<currency draft="true" type="UGS">
+				<displayName>Угандийский шиллинг</displayName>
+				<symbol>UGS</symbol>
+			</currency>
+			<currency draft="true" type="USD">
+				<displayName>Доллар США</displayName>
+				<symbol>US$</symbol>
+			</currency>
+			<currency draft="true" type="UYP">
+				<displayName>Уругвайское песо</displayName>
+				<symbol>UYP</symbol>
+			</currency>
+			<currency draft="true" type="UZS">
+				<displayName>Узбекский сум</displayName>
+				<symbol>UZS</symbol>
+			</currency>
+			<currency draft="true" type="VEB">
+				<displayName>Боливар</displayName>
+				<symbol>Be</symbol>
+			</currency>
+			<currency draft="true" type="VND">
+				<displayName>Донг</displayName>
+				<symbol>VND</symbol>
+			</currency>
+			<currency draft="true" type="VUV">
+				<displayName>Вату</displayName>
+				<symbol>VT</symbol>
+			</currency>
+			<currency draft="true" type="WST">
+				<displayName>Тала</displayName>
+				<symbol>WST</symbol>
+			</currency>
+			<currency draft="true" type="XAF">
+				<displayName>Франк КФА ВЕАС</displayName>
+				<symbol>XAF</symbol>
+			</currency>
+			<currency draft="true" type="XAU">
+				<displayName>Золото</displayName>
+				<symbol>XAU</symbol>
+			</currency>
+			<currency draft="true" type="XCD">
+				<displayName>Восточно - карибский доллар</displayName>
+				<symbol>EC$</symbol>
+			</currency>
+			<currency draft="true" type="XDR">
+				<displayName>СДР (специальные права заимствования</displayName>
+				<symbol>XDR</symbol>
+			</currency>
+			<currency draft="true" type="XEU">
+				<displayName>ЭКЮ (единица европейской валюты)</displayName>
+				<symbol>XEU</symbol>
+			</currency>
+			<currency draft="true" type="XOF">
+				<displayName>Франк КФА ВСЕАО</displayName>
+				<symbol>XOF</symbol>
+			</currency>
+			<currency draft="true" type="XPF">
+				<displayName>Франк КФП</displayName>
+				<symbol>CFPF</symbol>
+			</currency>
+			<currency draft="true" type="YER">
+				<displayName>Йеменский риал</displayName>
+				<symbol>YRl</symbol>
+			</currency>
+			<currency draft="true" type="YUN">
+				<displayName>Югославский динар</displayName>
+				<symbol>YUN</symbol>
+			</currency>
+			<currency draft="true" type="ZAR">
+				<displayName>Рэнд</displayName>
+				<symbol>R</symbol>
+			</currency>
+			<currency draft="true" type="ZMK">
+				<displayName>Квача (замбийская)</displayName>
+				<symbol>ZMK</symbol>
+			</currency>
+			<currency draft="true" type="ZRN">
+				<displayName>Новый заир</displayName>
+				<symbol>ZRN</symbol>
+			</currency>
+			<currency draft="true" type="ZWD">
+				<displayName>Доллар Зимбабве</displayName>
+				<symbol>Z$</symbol>
+			</currency>
+		</currencies>
+	</numbers>
+<posix draft="true">
+    <messages>
+      <yesstr>да</yesstr>
+      <nostr>нет</nostr>
+      <yesexpr></yesexpr>
+      <noexpr></noexpr>
+    </messages>
+  </posix></ldml>
+<!-- Old Comments. See root.xml for more info.
+URL: http://oss.software.ibm.com/cvs/icu/icu/source/data/locales/ru.txt?only_with_tag=final-update-LDML
+
+BA { "\u0411\u043E\u0441\u043D\u0438\u044F \u0438 \u0413\u0435\u0440\u0446\u0435\u0433\u043E\u0432\u0438\u043D\u0430" } // From translation center
+CZ { "\u0427\u0435\u0445\u0438\u044F" } // Old value
+IR { "\u0418\u0441\u043B\u0430\u043C\u0441\u043A\u0430\u044F \u0420\u0435\u0441\u043F\u0443\u0431\u043B\u0438\u043A\u0430 \u0418\u0440\u0430\u043D" }
+        KP { "\u0421\u0435\u0432\u0435\u0440\u043D\u0430\u044F \u041A\u043E\u0440\u0435\u044F" }    // alternate name { "\u041A\u043E\u0440\u0435\u0439\u0441\u043A\u0430\u044F \u041D\u0430\u0440\u043E\u0434\u043D\u043E-\u0414\u0435\u043C\u043E\u043A\u0440\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0420\u0435\u0441\u043F\u0443\u0431\u043B\u0438\u043A\u0430" }
+        KR { "\u042E\u0436\u043D\u0430\u044F \u041A\u043E\u0440\u0435\u044F" }    // alternate name { "\u0420\u0435\u0441\u043F\u0443\u0431\u043B\u0438\u043A\u0430 \u041A\u043E\u0440\u0435\u044F" }
+LA { "\u041B\u0430\u0442\u0438\u043D\u0441\u043A\u0430\u044F \u0410\u043C\u0435\u0440\u0438\u043A\u0430" }
+LY { "\u041B\u0438\u0432\u0438\u0439\u0441\u043A\u0430\u044F \u0410\u0440\u0430\u0431\u0441\u043A\u0430\u044F \u0414\u0436\u0430\u043C\u0430\u0445\u0438\u0440\u0438\u044F" }
+MK { "\u041C\u0430\u043A\u0435\u0434\u043E\u043D\u0438\u044F, \u0420\u0435\u0441\u043F\u0443\u0431\u043B\u0438\u043A\u0430" } // From translation center
+RU { "\u0420\u043E\u0441\u0441\u0438\u0439\u0441\u043A\u0430\u044F \u0424\u0435\u0434\u0435\u0440\u0430\u0446\u0438\u044F" } // From translation center
+        SY { "\u0421\u0438\u0440\u0438\u0439\u0441\u043A\u0430\u044F \u0410\u0440\u0430\u0431\u0441\u043A\u0430\u044F \u0420\u0435\u0441\u043F\u0443\u0431\u043B\u0438\u043A\u0430" }    // alternate name { "\u0421\u0438\u0440\u0438\u044F" }
+        TW { "\u0422\u0430\u0439\u0432\u0430\u043D\u044C, \u041A\u0438\u0442\u0430\u0439\u0441\u043A\u0430\u044F \u041F\u0440\u043E\u0432\u0438\u043D\u0446\u0438\u044F" }    // alternate name { "\u0422\u0430\u0439\u0432\u0430\u043D\u044C" }
+US { "\u0421\u0428\u0410" }
+ZA { "\u042E\u0410\u0420" } // Old value
+jw { "\u042f\u0432\u0430\u043d\u0441\u043a\u0438\u0439" } // Use jv instead
+lv { "\u041B\u0430\u0442\u0432\u0438\u0439\u0441\u043A\u0438\u0439" } // Old value
+        "Cyrl"      // ISO 15924 Name 
+Currency display names
+
+-->

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.2/alpha/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.2"></version>
+		<generation date="2004-08-27"></generation>
+		<language type="fr"></language> 
+		<territory type="FR"></territory> 
+	</identity>
+		<dates>
+			<calendars>
+				
+				<calendar type="gregorian">
+					<week>
+						<minDays count="1"></minDays>
+						<firstDay day="mon"></firstDay>
+					</week>
+				</calendar>
+			</calendars>
+		</dates>
+</ldml>

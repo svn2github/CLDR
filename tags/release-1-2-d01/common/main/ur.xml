@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.2/alpha/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="1.2"></version>
+		<generation date="2004-06-04"></generation>
+		<language type="ur"></language> 
+	</identity>
+	<localeDisplayNames>
+		<languages>
+			<language type="ur">اردو</language>
+		</languages>
+		<territories>
+			<territory type="PK">پاکستان</territory>
+		</territories>
+	</localeDisplayNames>
+	<characters>
+		<exemplarCharacters>[[:Arab:]‌‍‏‎]</exemplarCharacters>
+	</characters>
+	<numbers>
+		<currencies>
+			<currency type="PKR">
+				<displayName>PKR</displayName>
+				<symbol>Rs</symbol>
+			</currency>
+		</currencies>
+	</numbers>
+</ldml>
