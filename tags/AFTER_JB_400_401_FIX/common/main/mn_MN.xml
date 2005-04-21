@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.3/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="$Revision$"/>
+		<generation date="$Date$"/>
+		<language type="mn"/>
+		<territory type="MN"/>
+	</identity>
+	<dates>
+		<calendars>
+			<calendar type="gregorian">
+				<eras>
+					<eraNames>
+						<era type="0" draft="true">манай эриний өмнөх</era>
+					</eraNames>
+				</eras>
+			</calendar>
+		</calendars>
+	</dates>
+	<numbers>
+		<currencies>
+			<currency type="MNT">
+				<symbol draft="true">₮</symbol>
+			</currency>
+		</currencies>
+	</numbers>
+</ldml>
+
