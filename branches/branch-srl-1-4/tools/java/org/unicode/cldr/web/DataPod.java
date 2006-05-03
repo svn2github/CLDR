@@ -24,7 +24,16 @@ import com.ibm.icu.text.RuleBasedCollator;
  * It is sortable, as well, and has some level of persistence.
  **/
 
-public class DataPod {
+public class DataPod extends Registerable {
+
+/*
+    Ballast.
+    
+    int r[] = new int[1024000]; // red sand
+    int g[] = new int[1024000]; // grn sand
+    int b[] = new int[1024000]; // blu sand
+*/
+    
     long touchTime = -1;
     public void touch() {
         touchTime = System.currentTimeMillis();
@@ -40,15 +49,15 @@ public class DataPod {
     public static final String DATAPOD_PROPOSED = "Proposed";
     public static final String DATAPOD_VETPROB = "Vetting Issue";
 
-    public String locale = null;
     public String xpathPrefix = null;
     
     private String fieldHash; // prefix string used for calculating html fields
     private SurveyMain sm;
     
     DataPod(SurveyMain sm, String loc, String prefix) {
+        super(sm.lcr,loc); // initialize call to LCR
+
         this.sm = sm;
-        locale = loc;
         xpathPrefix = prefix;
         fieldHash =  CookieSession.cheapEncode(sm.xpt.getByXpath(prefix));
     }
@@ -115,23 +124,6 @@ public class DataPod {
         return path;
     }
         
-    
-    /** The unit of data within the pod.  contains all data of the specified Type. */
-    boolean valid = true;
-    public boolean isValid(LocaleChangeRegistry lcr) {
-        if(valid) { 
-            if(!lcr.isKeyValid(locale, key)) {
-                //lcr.unregister();
-                valid=false;
-            }
-        }
-        return valid;
-    }
-    public void register(LocaleChangeRegistry lcr) {
-        lcr.register(locale, key, this);
-    }
-    private String key = LocaleChangeRegistry.newKey(); // key for this item
-
     static Collator getOurCollator() {
         RuleBasedCollator rbc = 
             ((RuleBasedCollator)Collator.getInstance());
@@ -587,9 +579,11 @@ public class DataPod {
 	public static DataPod make(WebContext ctx, String locale,String prefix, boolean simple) {
 		DataPod pod = new DataPod(ctx.sm, locale, prefix);
 		if(simple==true) {
-//            pod.loadStandard(ctx.sm.getEnglishFile()); //load standardcodes + english        
-            CLDRDBSource ourSrc = (CLDRDBSource)ctx.getByLocale(SurveyMain.USER_FILE + SurveyMain.CLDRDBSRC, locale);
-            CheckCLDR checkCldr = (CheckCLDR)ctx.getByLocale(SurveyMain.USER_FILE + SurveyMain.CHECKCLDR+":"+ctx.defaultPtype());
+//            pod.loadStandard(ctx.sm.getEnglishFile()); //load standardcodes + english  
+            SurveyMain.UserLocaleStuff uf = ctx.sm.getUserFile(ctx, ctx.session.user, ctx.locale);
+      
+            CLDRDBSource ourSrc = uf.dbSource;
+            CheckCLDR checkCldr = uf.getCheck(ctx);
             if(checkCldr == null) {
                 throw new InternalError("checkCldr == null");
             }
@@ -1191,6 +1185,6 @@ public class DataPod {
     }
     
     public String toString() {
-        return "{DataPod " + locale + ":" + xpathPrefix + " #" + key + "} ";
+        return "{DataPod " + locale + ":" + xpathPrefix + " #" + super.toString() + "} ";
     }
 }
