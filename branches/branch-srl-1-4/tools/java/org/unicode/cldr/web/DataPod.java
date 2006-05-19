@@ -146,6 +146,7 @@ public class DataPod extends Registerable {
         public int voteType = 0; // bitmask of all voting types included
         public int reservedForSort = -1; // reserved to use in collator.
         String inheritFrom = null;
+        String pathWhereFound = null;
         public class Item {
             String inheritFrom = null;
             public String altProposed = null; // proposed part of the name (or NULL for nondraft)
@@ -970,7 +971,7 @@ public class DataPod extends Registerable {
                     if(xpathPrefix.startsWith("//ldml/localeDisplayNames/")||
                        xpathPrefix.startsWith("//ldml/dates/timeZoneNames/zone")||
                        (xpathPrefix.startsWith("//ldml/dates") && (-1==peaSuffixXpath.indexOf("/pattern"))
-                                                               && (-1==peaSuffixXpath.indexOf("availableFormats")))) {
+                                                            && (-1==peaSuffixXpath.indexOf("availableFormats")))) {
                         superP.displayName = engFile.getStringValue(xpath(superP)); // isn't this what it's for?
                         /*
                         if(mixedType == false) {
@@ -1026,8 +1027,9 @@ public class DataPod extends Registerable {
             if((superP != p) && (p.displayName == null)) {
                 p.displayName = superP.displayName;
             }
-            String sourceLocale = aFile.getSourceLocaleID(xpath);
-
+            CLDRFile.Status sourceLocaleStatus = new CLDRFile.Status();
+            String sourceLocale = aFile.getSourceLocaleID(xpath, sourceLocaleStatus);
+            
             boolean isInherited = !(sourceLocale.equals(locale));
             
 //    System.err.println("n07  "+(System.currentTimeMillis()-nextTime));
@@ -1051,6 +1053,11 @@ public class DataPod extends Registerable {
                    p.hasInherited=true;
                    p.inheritFrom=sourceLocale;
                 }
+            }
+            
+            if(!sourceLocaleStatus.pathWhereFound.equals(xpath)) {
+                p.pathWhereFound = sourceLocaleStatus.pathWhereFound;
+                continue;  // **************************** don't collect any data from aliased items.
             }
             
             String setInheritFrom = (isInherited)?sourceLocale:null; // no inherit if it's current.
