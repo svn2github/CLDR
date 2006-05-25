@@ -329,6 +329,9 @@ public class DataPod extends Registerable {
                 for(int j=0;j<testPartitions.length;j++) {
  ///*srl*/                   System.err.println("P"+j+" - " + testPartitions[j]);
                     if(testPartitions[j].start != -1) {
+						if(testPartitions[j].start!=0 && v.isEmpty()) {
+							v.add(new Partition("Other",0,testPartitions[j].start));
+						}
                         v.add(testPartitions[j]);
                     }
                 }
