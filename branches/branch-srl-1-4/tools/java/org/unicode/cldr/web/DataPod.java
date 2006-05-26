@@ -306,6 +306,7 @@ public class DataPod extends Registerable {
                     
                     for(int j=lastGood;j<testPartitions.length;j++) {
                         if(testPartitions[j].pm.isMember(p)) {
+//System.err.println(testPartitions[j].name+ " - OK @ " + i);
                             if(j>lastGood) {
                                 lastGood = j;
                             }
@@ -327,10 +328,10 @@ public class DataPod extends Registerable {
                 }
                     
                 for(int j=0;j<testPartitions.length;j++) {
- ///*srl*/                   System.err.println("P"+j+" - " + testPartitions[j]);
+// /*srl*/                   System.err.println("P"+j+" - " + testPartitions[j]);
                     if(testPartitions[j].start != -1) {
 						if(testPartitions[j].start!=0 && v.isEmpty()) {
-							v.add(new Partition("Other",0,testPartitions[j].start));
+//							v.add(new Partition("Other",0,testPartitions[j].start));
 						}
                         v.add(testPartitions[j]);
                     }
@@ -344,6 +345,7 @@ public class DataPod extends Registerable {
 
     }
 
+	public static String CHANGES_DISPUTED = "Changes Proposed: Disputed";
 
     private Partition[] createTestPartitions() {
         Partition theTestPartitions[] = 
@@ -351,11 +353,12 @@ public class DataPod extends Registerable {
                 new Partition("Changes Proposed: Insufficient Votes", 
                     new PartitionMembership() { 
                         public boolean isMember(Pea p) {
+//		System.err.println("CPI: "+Vetting.typeToStr(p.voteType)+" - " + p.type);
                             return  (p.voteType == Vetting.RES_INSUFFICIENT) ||
                                 (p.voteType == Vetting.RES_NO_VOTES);
                         }
                     }),
-                new Partition("Changes Proposed: Disputed", 
+                new Partition(CHANGES_DISPUTED, 
                     new PartitionMembership() { 
                         public boolean isMember(Pea p) {
                             return ((p.voteType & Vetting.RES_DISPUTED)>0);
