@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.regex.*;
 
 import com.ibm.icu.text.Collator;
+import com.ibm.icu.util.ULocale;
 import com.ibm.icu.text.RuleBasedCollator;
 
 /** A data pod represents a group of related data that will be displayed to users in a list
@@ -43,6 +44,7 @@ public class DataPod extends Registerable {
     }
     // UI strings
     boolean canName = true;
+    
     public static final String DATAPOD_MISSING = "Inherited";
     public static final String DATAPOD_NORMAL = "Normal";
     public static final String DATAPOD_PRIORITY = "Priority";
@@ -53,13 +55,15 @@ public class DataPod extends Registerable {
     
     private String fieldHash; // prefix string used for calculating html fields
     private SurveyMain sm;
-    
+
+    public String intgroup; 
     DataPod(SurveyMain sm, String loc, String prefix) {
         super(sm.lcr,loc); // initialize call to LCR
 
         this.sm = sm;
         xpathPrefix = prefix;
         fieldHash =  CookieSession.cheapEncode(sm.xpt.getByXpath(prefix));
+        intgroup = new ULocale(loc).getLanguage(); // calculate interest group
     }
     private static int n =0;
     protected static synchronized int getN() { return ++n; }
@@ -136,7 +140,7 @@ public class DataPod extends Registerable {
     public class Pea {
         public boolean confirmOnly = false; // if true: don't accept new data, this pea is something strange.
         public String type = null;
-		public String xpathSuffix = null; // if null:  prefix+type is sufficient (simple list).  If non-null: mixed Pod, prefix+suffix is required and type is informative only.
+        public String xpathSuffix = null; // if null:  prefix+type is sufficient (simple list).  If non-null: mixed Pod, prefix+suffix is required and type is informative only.
         public String displayName = null;
         public String altType = null; // alt type (NOT to be confused with -proposedn)
         int base_xpath = -1;
@@ -1200,4 +1204,51 @@ public class DataPod extends Registerable {
     public String toString() {
         return "{DataPod " + locale + ":" + xpathPrefix + " #" + super.toString() + "} ";
     }
+    
+    /** 
+     * Given a (cleaned, etc) xpath, this returns the podBase, i.e. context.getPod(base), that would be used to show
+     * that xpath.  
+     * Keep this in sync with SurveyMain.showLocale() where there is the list of menu items.
+     */
+    public static String xpathToPodBase(String xpath) {
+        int n;
+        String base;
+        
+        // is it one of the prefixes we can check statically?
+        String staticBases[] = { 
+            // LOCALEDISPLAYNAMES
+                "//ldml/"+SurveyMain.NUMBERSCURRENCIES,
+                "//ldml/"+"dates/timeZoneNames/zone",
+            // OTHERROOTS
+                SurveyMain.GREGO_XPATH,
+                SurveyMain.OTHER_CALENDARS_XPATH
+        };
+         
+        // is it one of the static bases?
+        for(n=0;n<staticBases.length;n++) {
+            if(xpath.startsWith(staticBases[n])) {
+                return staticBases[n];
+            }
+        }
+            
+        // dynamic LOCALEDISPLAYNAMES
+        for(n =0 ; n < SurveyMain.LOCALEDISPLAYNAMES_ITEMS.length; n++) {   // is it a simple code list?
+            base = SurveyMain.LOCALEDISPLAYNAMES+SurveyMain.LOCALEDISPLAYNAMES_ITEMS[n]+
+                '/'+SurveyMain.typeToSubtype(SurveyMain.LOCALEDISPLAYNAMES_ITEMS[n]);  // see: SurveyMain.showLocaleCodeList()
+            if(xpath.startsWith(base)) {
+                return base;
+            }
+        }
+        
+        // OTHERROOTS
+        for(n=0;n<SurveyMain.OTHERROOTS_ITEMS.length;n++) {
+            base= "//ldml/"+SurveyMain.OTHERROOTS_ITEMS[n];
+            if(xpath.startsWith(base)) {
+                return base;
+            }
+        }
+        
+        return "//ldml"; // the "misc" pile.
+    }
+    
 }
