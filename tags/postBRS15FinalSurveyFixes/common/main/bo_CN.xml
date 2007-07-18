@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "http://www.unicode.org/cldr/dtd/1.5/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="$Revision$"/>
+		<generation date="$Date$"/>
+		<language type="bo"/>
+		<territory type="CN"/>
+	</identity>
+	<characters>
+		<exemplarCharacters alt="proposed-x1001" draft="unconfirmed">ཀ-ཪ ཱ-ཱུ ེ-ྀ ྄ ྐ-ྯ ྱ-ྼ ་-།</exemplarCharacters>
+		<exemplarCharacters alt="proposed-x1002" draft="unconfirmed"> ཀ-ཪ ཱ-ཱེུ-ྀ ྄ ྐ-ྯ ྱ-ྼ ་-།</exemplarCharacters>
+		<exemplarCharacters alt="proposed-x1003" draft="unconfirmed"> ཀ-ཪ ཱ ི ུ ེ ཻ ོ ཽ ཾ ཿ ྀ ྄ ྐ-ྯ ྱ-ྼ ་ ་ །  </exemplarCharacters>
+		<exemplarCharacters alt="proposed-x1004" draft="unconfirmed">ཀ-ཇ ཉ-ཪ ཱ-ཱུ ེ-ྀ ྄ ྐ-ྯ ྱ-ྼ ་-།</exemplarCharacters>
+	</characters>
+</ldml>
