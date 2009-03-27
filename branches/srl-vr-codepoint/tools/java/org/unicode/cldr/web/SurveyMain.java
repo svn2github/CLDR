@@ -72,6 +72,7 @@ import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
 import org.unicode.cldr.web.CLDRDBSourceFactory.CLDRDBSource;
 import org.unicode.cldr.web.DataSection.DataRow.CandidateItem;
+import org.unicode.cldr.web.Race.Chad;
 import org.unicode.cldr.web.SurveyThread.SurveyTask;
 import org.unicode.cldr.web.UserRegistry.User;
 import org.w3c.dom.Document;
@@ -7945,7 +7946,7 @@ public class SurveyMain extends HttpServlet {
                 int onn=0;
 		for(Race.Organization org : r.orgVotes.values()) {
 		    Race.Chad orgVote = r.getOrgVote(org.name);				    
-		    Map<Integer,Long> o2v = r.getOrgToVotes(org.name);
+		    Map<Chad,Long> o2v = r.getOrgToVotes(org.name);
 /*
 		    System.err.println("org:"+org.name);
 		    for(int i : o2v.keySet()) {
@@ -7971,7 +7972,7 @@ public class SurveyMain extends HttpServlet {
 				}
 	                    }
 			    if(oitem!=null) {
-				Long l = o2v.get(oitem.xpathId);
+				Long l = o2v.get(oitem);
 				if(l != null) {
 				    score = l;
 //				    System.err.println(org.name+": ox " + oitem.xpathId + " -> l " + l + ", nn="+nn);
@@ -8066,7 +8067,7 @@ public class SurveyMain extends HttpServlet {
 		}
 		
                   
-		if((r.nexthighest > 0) && (r.winner!=null)&&(r.winner.score==0)) {
+		if((r.nexthighest > 0) && (r.winner()!=null)&&(r.winner().score==0)) {
 		    // This says that the optimal value was NOT the numeric winner.
 		    ctx.print("<i>not enough votes to overturn approved item</i><br>");
 		} else if(!r.disputes.isEmpty()) {
@@ -8121,7 +8122,7 @@ public class SurveyMain extends HttpServlet {
                     
 		    ctx.print("<td>");
 		    if(item!=null) {
-			if(item == r.winner) {
+			if(item == r.winner()) {
 			    ctx.print("<b>");
 			}
 			if(item.disqualified) {
@@ -8133,7 +8134,7 @@ public class SurveyMain extends HttpServlet {
 			if(item.disqualified) {
 			    ctx.print("</strike>");
 			}
-			if(item == r.winner) {
+			if(item == r.winner()) {
 			    ctx.print("</b>");
 			}
 			if(item == r.existing) {
@@ -8145,9 +8146,9 @@ public class SurveyMain extends HttpServlet {
 		    ctx.println("<th class='warningReference'>#"+nn+"</th>");
 		    if(item!=null) {
                     	ctx.print("<td>"+ totals[nn-1] +"</td>");
-			if(item == r.Ochad) {
+			if(item == r.Ochad()) {
 			    ctx.print("<td>O</td>");
-			} else if(item == r.Nchad) {
+			} else if(item == r.Nchad()) {
 			    ctx.print("<td>N</td>");
 			} else {
 			    ctx.print("<td></td>");
@@ -8157,7 +8158,7 @@ public class SurveyMain extends HttpServlet {
 			} else {
 			    ctx.print("<td></td>");
 			}
-			if(item == r.winner) {
+			if(item == r.winner()) {
 			    ctx.print("<td>"+r.vrstatus.toString().toLowerCase()+"</td>");
 			} else {
 			    ctx.print("<td></td>");
@@ -8175,19 +8176,19 @@ public class SurveyMain extends HttpServlet {
 		}
 		ctx.print("</table>");
 		//if(UserRegistry.userIsTC(ctx.session.user)) {
-		if(r.winner != null ) {
+		if(r.winner() != null ) {
 		    CandidateItem witem = null;
 		    int wn = -1;
 		    nn=0;
 		    for(CandidateItem citem : numberedItemsList) {
 			nn++;
 			if(citem == null) continue;
-			if(r.winner.xpath==citem.xpathId) {
+			if(r.winner().xpath==citem.xpathId) {
 			    witem = citem;
 			    wn=nn;
 			}
 		    }
-		    ctx.print("<b class='selected'>Optimal field</b>: #"+wn+" <span dir='"+ourDir+"' class='winner' title='#"+r.winner.xpath+"'>"+r.winner.value+"</span>, " + r.vrstatus + ", <!-- score: "+r.winner.score +" -->");
+		    ctx.print("<b class='selected'>Optimal field</b>: #"+wn+" <span dir='"+ourDir+"' class='winner' title='#"+r.winner().xpath+"'>"+r.winner().value+"</span>, " + r.vrstatus + ", <!-- score: "+r.winner().score +" -->");
 		}
 		                
 		ctx.println("For more information, see <a href='http://cldr.unicode.org/index/process#Voting_Process'>Voting Process</a><br>");

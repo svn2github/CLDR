@@ -4,11 +4,8 @@ package org.unicode.cldr.web;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,7 +15,6 @@ import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.XPathParts;
-import org.unicode.cldr.web.UserRegistry.User;
 import org.unicode.cldr.web.Vetting.Status;
 
 /**
@@ -30,7 +26,7 @@ import org.unicode.cldr.web.Vetting.Status;
  */
 public class Race {
     
-    private VoteResolver<Integer> resolver = new VoteResolver<Integer>();
+    private VoteResolver<Chad> resolver = new VoteResolver<Chad>();
 
     /**
      * 
@@ -45,7 +41,7 @@ public class Race {
     }
 
     // The vote of a particular organization for this item.
-    class Organization implements Comparable {
+    class Organization implements Comparable<Organization> {
         String name; // org's name
         Chad vote = null; // the winning item: -1 for unknown
         int strength = 0; // strength of the vote
@@ -80,11 +76,10 @@ public class Race {
         }
 
 
-        public int compareTo(Object o) {
-            if (o == this) {
+        public int compareTo(Organization other) {
+            if (other == this) {
                 return 0;
             }
-            Organization other = (Organization) o;
             if (other.strength > strength) {
                 return 1;
             } else if (other.strength < strength) {
@@ -96,7 +91,7 @@ public class Race {
     }
 
     // All votes for a particular item
-    class Chad implements Comparable {
+    class Chad implements Comparable<Chad> {
         public int xpath = -1;
         public int full_xpath = -1;
         public Set<UserRegistry.User> voters = new HashSet<UserRegistry.User>(); // Set
@@ -182,7 +177,7 @@ public class Race {
             voters.add(user);
         }
 
-        public int compareTo(Object o) {
+        public int compareTo(Chad o) {
             if (o == this) {
                 return 0;
             }
@@ -206,6 +201,12 @@ public class Race {
                 }
             }
         }
+        /**
+         * This function is for the VoteResolver's use - it returns the value as a string.
+         */
+        public String toString() {
+        	return value;
+        }
     }
 
     // Race variables
@@ -218,8 +219,8 @@ public class Race {
     public Set<Chad> disputes = new TreeSet<Chad>();
 
     // winning info
-    public Chad winner = null;
-    public Chad Nchad=null, Ochad = null;
+    private Chad winner = null;
+    private Chad Nchad=null, Ochad = null;
     public Status status = Status.INDETERMINATE;
     public VoteResolver.Status vrstatus = VoteResolver.Status.missing;
     public Chad existing = null; // existing vote
@@ -278,6 +279,29 @@ public class Race {
         } else {
             return optimal.xpath;
         }
+    }
+    
+    /**
+     * Return the winning chad. Call optimal() first.
+     * @return winner
+     */
+    public Chad winner() {
+    	return winner;
+    }
+
+    /**
+     * Return the N chad. Call optimal() first.
+     * @return winner
+     */
+    public Chad Nchad() {
+    	return Nchad;
+    }
+    /**
+     * Return the O chad. Call optimal() first.
+     * @return winner
+     */
+    public Chad Ochad() {
+    	return Ochad;
     }
 
     /* check for errors */
@@ -373,17 +397,22 @@ public class Race {
     /**
      * Get a map of xpath to score for this org.
      */
-    public Map<Integer, Long> getOrgToVotes(String org) {
+    public Map<Chad, Long> getOrgToVotes(String org) {
 	return resolver.getOrgToVotes(getVROrg(org));
     }
 
     /**
      * Get the last release xpath
+     * @deprecated use getLastReleaseChad
      */
     public int getLastReleaseXpath() {
-	return resolver.getLastReleaseValue();
+    	return getLastReleaseChad().xpath;
     }
-
+    
+    public Chad getLastReleaseChad() {
+    	return resolver.getLastReleaseValue();
+    }
+    
     /**
      * Get the last release status
      */
@@ -391,8 +420,8 @@ public class Race {
 	return Status.toStatus(resolver.getLastReleaseStatus());
     }
 
-    private final void existingVote(int vote_xpath, int full_xpath, String value) {
-        vote(null, vote_xpath, full_xpath, value);
+    private final Chad existingVote(int vote_xpath, int full_xpath, String value) {
+        return vote(null, vote_xpath, full_xpath, value);
     }
 
     private final void defaultVote(String org, int vote_xpath, int full_xpath, String value) {
@@ -400,7 +429,7 @@ public class Race {
         c.addDefault(getOrganization(org));
     }
 
-    private void vote(UserRegistry.User user, int vote_xpath, int full_xpath, String value) {
+    private Chad vote(UserRegistry.User user, int vote_xpath, int full_xpath, String value) {
         // add this vote to the chads, or create one if not present
         Chad c = getChad(vote_xpath, full_xpath, value);
 
@@ -411,7 +440,7 @@ public class Race {
             Organization theirOrg = getOrganization(user.voterOrg()); // we use the VR organization code
             theirOrg.add(c);
             if(!c.isDisqualified()) {
-                resolver.add(c.xpath, user.id); /* use chad's xpath- for collision calculation. */
+                resolver.add(c, user.id); /* use chad's xpath- for collision calculation. */
             }
         } else {
             // "existing" vote
@@ -440,7 +469,10 @@ public class Race {
                     existingStatus = Status.UNCONFIRMED;
                 }
             }
+            
+            resolver.add(c); // existing item
         }
+        return c;
     }
 
     /**
@@ -457,7 +489,9 @@ public class Race {
 
         // Add the base xpath. It may come in as data later, and there may be no other values (and no votes).
         // If the base xpath wins, and there's no matching chad, the winning result will be 'null'.
-        resolver.add(base_xpath);
+        
+//        Chad c = this.getChad(base_xpath, base_xpath, itemValue);
+//        resolver.add(base_xpath);
         
         ResultSet rs;
 
@@ -469,7 +503,7 @@ public class Race {
         if (rs.next()) {
             String itemValue = SurveyMain.getStringUTF8(rs, 1);
             int origXpath = rs.getInt(2);
-            existingVote(base_xpath, origXpath, itemValue);
+            Chad c = existingVote(base_xpath, origXpath, itemValue);
             
             // get draft status for VR
             String fullpathstr = vet.sm.xpt.getById(origXpath);
@@ -481,10 +515,11 @@ public class Race {
             VoteResolver.Status newStatus = VoteResolver.Status.valueOf(
                         VoteResolver.fixBogusDraftStatusValues(eDraft));
             // 'last release' here means, whatever is in CVS
-            resolver.setLastRelease(base_xpath, newStatus );
+            resolver.setLastRelease(c, newStatus );
         } else {
             // 'last release' is missing
-            resolver.setLastRelease(base_xpath, VoteResolver.Status.missing );
+        	Chad c = existingVote(base_xpath, base_xpath, null);
+            resolver.setLastRelease(c, VoteResolver.Status.missing );
         }
         
         // Now, fetch all votes for this path.
@@ -531,7 +566,7 @@ public class Race {
 
         // Now, add ALL other possible items.
         
-        Map<Chad,Integer> possibles = new HashMap<Chad,Integer>(); // checking if it is disqualified could load other bundles, leading to contention on dataByBase's RS
+        Set<Chad> possibles = new HashSet<Chad>(); // checking if it is disqualified could load other bundles, leading to contention on dataByBase's RS
        
       //  synchronized(vet) {
           if(dbb>5) {
@@ -551,7 +586,7 @@ public class Race {
 	            // 3 : alt_type
 	            String value = SurveyMain.getStringUTF8(rs, 4);
 	            Chad c = getChad(xpath, origXpath, value);
-	            possibles.put(c,xpath);
+	            possibles.add(c);
 //	            if(c.xpath != xpath) {
 //	            	throw new InternalError("Chad has xpath " + c.xpath+" but supposed to be + " + xpath);
 //	            }
@@ -562,9 +597,9 @@ public class Race {
 	        }
     //    }
 
-        for(Map.Entry<Race.Chad,Integer> e : possibles.entrySet()) {        	
-	        if(!e.getKey().isDisqualified()) {
-	            resolver.add(e.getValue());
+        for(Chad e : possibles) {        	
+	        if(!e.isDisqualified()) {
+	            resolver.add(e);
 	        }
         }
         
@@ -579,19 +614,12 @@ public class Race {
      * Calculate the winning item of the race. May be null if n/a.
      */
     private Chad calculateWinner() {
-        int winningXpath = resolver.getWinningValue();
-	Integer NXpath = resolver.getNValue();
-	Integer OXpath = resolver.getOValue();
+    winner = resolver.getWinningValue();
+	Nchad = resolver.getNValue();
+	Ochad = resolver.getOValue();
 
         vrstatus = resolver.getWinningStatus();
         status = Status.toStatus(vrstatus); // convert from VR status
-        winner = chads.get(winningXpath);
-	if(NXpath != null) {
-	    Nchad = chads.get(NXpath);
-	}
-	if(OXpath != null) {
-	    Ochad = chads.get(OXpath);
-	}
 //        System.out.println(resolver.toString() + " \n - resolved, winner: " + winner + " Found:"+(winner!=null));
         return winner;
     }
@@ -792,8 +820,7 @@ public class Race {
     }
     
     public Chad getOrgVote(String organization) {
-        Integer v = resolver.getOrgVote(VoteResolver.Organization.valueOf(organization));
-        if(v==null) return null;
-        return chads.get(v);
+        Chad v = resolver.getOrgVote(VoteResolver.Organization.valueOf(organization));
+        return v;
     }
 }
