@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding=".classpath|.externalToolBuilders/|.project|.svn/|build.xml|classes/|readme.txt" kind="src" path=""/>
+	<classpathentry combineaccessrules="false" kind="src" path="/icu4j-charset"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/icu4j-collate"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/icu4j-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/icu4j-core-tests"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/icu4j-test-framework"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/icu4j-translit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/icu4j-translit-tests"/>
+	<classpathentry kind="lib" path="/icu4j-core/out/lib/icu4j-core.jar"/>
+	<classpathentry kind="lib" path="/icu4j-collate/out/lib/icu4j-collate.jar"/>
+	<classpathentry kind="lib" path="/icu4j-shared/data/icudata.jar"/>
+	<classpathentry kind="lib" path="/icu4j-translit/out/lib/icu4j-translit.jar"/>
+	<classpathentry kind="lib" path="/icu4j-core-tests/out/bin"/>
+	<classpathentry kind="lib" path="/icu4j-test-framework/out/bin"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/xml-apis.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/xalan.jar"/>
+	<classpathentry kind="lib" path="/xsrl/E/J/trunk/out/cldr_util/lib/utilities.jar"/>
+	<classpathentry kind="lib" path="/opt/local/share/java/apache-ant/lib/ant.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/derby.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/mysql-connector-java-5.0.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/serializer.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/rome-0.9.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/jdom.jar"/>
+	<classpathentry kind="lib" path="/xsrl/apache-tomcat-6.0.13/lib/catalina-ant.jar"/>
+	<classpathentry kind="lib" path="/xsrl/Txtra/lib/mail.jar"/>
+	<classpathentry kind="lib" path="/xsrl/Txtra/lib/derby.jar"/>
+	<classpathentry kind="lib" path="/xsrl/Txtra/lib/activation.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v6.0">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.utility"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.5.0 (MacOS X Default)">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="classes"/>
+</classpath>
