@@ -296,7 +296,7 @@ public class XMLFileReader {
                 : XMLReaderFactory.createXMLReader();
         result.setFeature("http://xml.org/sax/features/validation", validating);
         break;
-      } catch (SAXException e1) { }
+      } catch (SAXException e1) { System.err.println("Coudln't use parser " + testList[i]+": "+e1.toString()); }
     }
     if (result == null) throw new NoClassDefFoundError("No SAX parser is available, or unable to set validation correctly");
     try {

@@ -86,6 +86,10 @@ public class VoteResolver<T> {
         Organization org = Organization.valueOf(name);
         return org;
     }
+    
+    public static String canonicalize(String o) {
+    	return fromString(o).name();
+    }
   };
 
   /**

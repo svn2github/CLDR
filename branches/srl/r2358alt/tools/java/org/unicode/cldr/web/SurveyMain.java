@@ -9,6 +9,8 @@ package org.unicode.cldr.web;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,6 +37,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -43,6 +46,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -71,6 +75,7 @@ import org.unicode.cldr.util.SupplementalData;
 import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
+import org.unicode.cldr.util.VoteResolver.Organization;
 import org.unicode.cldr.web.CLDRDBSourceFactory.CLDRDBSource;
 import org.unicode.cldr.web.DataSection.DataRow;
 import org.unicode.cldr.web.DataSection.DataRow.CandidateItem;
@@ -376,6 +381,8 @@ public class SurveyMain extends HttpServlet {
 */
 		"66.249.67.196",
                  };
+
+	private static final String CONFIG_PROPERTIES = "cldr-config.properties";
     
     public void doGet(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
@@ -815,8 +822,95 @@ public class SurveyMain extends HttpServlet {
     /** Hash of twiddlable (toggleable) parameters
      * 
      */
-	Hashtable twidHash = new Hashtable();
+	private Properties twidProps = null;
+	
+	/**
+	 * Get or load the persistent preferences
+	 * @return
+	 */
+	private synchronized Properties getTwidProps() {
+		if(twidProps==null) {
+	        File twidPropsFile = new File(this.vetdir, CONFIG_PROPERTIES);
+	        Properties newProps = new java.util.Properties();
+	        try {
+				newProps.load(new FileInputStream(twidPropsFile));
+				twidProps = newProps;
+			} catch (Throwable e) {
+				System.err.println("Coudln't load properties file "+twidPropsFile.getAbsolutePath()+" "+e.toString());
+				twidProps = new Properties();
+		        twidProps.put("$INIT_DATE", new Date().toString());
+			}
+		}
+		return twidProps;
+	}
+	
+	private synchronized void writeTwidProps() {
+		Properties props = getTwidProps();
+        File twidPropsFile = new File(this.vetdir, CONFIG_PROPERTIES);
+        File backupFile = new File(this.vetdir, CONFIG_PROPERTIES+".bak");
+        if(backupFile.exists()) {
+        	backupFile.delete();
+        }
+        if(twidPropsFile.exists()) {
+        	twidPropsFile.renameTo(backupFile);
+        }
+        props.put("$WRITE_DATE", new Date().toString());
+		try {
+			props.remove("$WRITE_OK");
+			props.save(new FileOutputStream(twidPropsFile), "SurveyTool persistent preferences file");
+			props.put("$WRITE_OK", "ok");
+		} catch(Throwable t) {
+			t.printStackTrace();
+			System.err.println("Couldn't write "+twidPropsFile.getAbsolutePath()+" - "+t.toString());
+			props.put("$WRITE_OK", "Couldn't write "+twidPropsFile.getAbsolutePath()+" - "+t.toString());
+		}
+	}
+	
+	/**
+	 * Get an object from the hash
+	 * @param key
+	 * @return
+	 */
+	Object twidGetObject(String key) {
+		Properties p = getTwidProps();
+		Object o;
+		synchronized(p) {
+			o = p.get(key);
+		}
+		if(o!=null && !(o instanceof Boolean) && !key.startsWith("$")) {
+			Boolean b = Boolean.parseBoolean(o.toString());
+			return b;
+		} else {
+			return o;
+		}
+	}
 
+	void twidPutObject(String key, Object value) {
+		if(value==null) throw new InternalError("Cowardly refusing to install null twid param " + key);
+		if(value != null && value instanceof Boolean) {
+			value = value.toString();
+		}
+		Properties p = getTwidProps();
+		synchronized(p) {
+			p.put(key, value);
+		}
+	}
+	
+	/**
+	 * Get all keys 
+	 * @return
+	 */
+	Iterable<String> twidGetKeys() {
+		Properties p = getTwidProps();
+		synchronized(p) {
+			Set<String> ts = new TreeSet<String>();
+			for(Object o : p.keySet()) {
+				ts.add(o.toString());
+			}
+			return ts;
+		}
+	}
+	
     boolean showToggleTwid(WebContext ctx, String pref, String what) {
 		String qKey = "twidb_"+pref;
 		String nVal = ctx.field(qKey);
@@ -834,21 +928,40 @@ public class SurveyMain extends HttpServlet {
         return val;
     }
 	
-	private boolean twidGetBool(String key, boolean defVal) {
-        Boolean b = (Boolean)twidHash.get(key);
-        if(b == null) {
-            return defVal;
-        } else {
-            return b.booleanValue();
+    /**
+     * Get a boolean value.
+     * @param key
+     * @param defVal
+     * @return
+     */
+	private Boolean twidGetBool(String key, Boolean defVal) {
+		Object o = twidGetObject(key);
+		Boolean oldValue = null;
+		if(o == null) {
+			oldValue = null;
+		} else if(o instanceof Boolean) {
+			oldValue = (Boolean)o;
+		} else {
+			oldValue = Boolean.valueOf(o.toString());
+		}
+        if(oldValue == null) {
+            oldValue = defVal;
         }
-	}
-
-	private boolean twidGetBool(String key) {
-        return twidGetBool(key,false);
+        return oldValue;
 	}
 	
+	private void twidPutBool(String key, Boolean val) {
+		twidPutObject(key, val);
+	}
+	
+
 	void twidPut(String key, boolean val) {
-		twidHash.put(key, new Boolean(val));
+		Boolean oldValue = twidGetBool(key, null);
+		Boolean newValue = val;
+		if(!newValue.equals(oldValue)) {
+			twidPutBool(key, newValue);
+			writeTwidProps();
+		}
 	}
 	
 
@@ -1340,7 +1453,7 @@ public class SurveyMain extends HttpServlet {
 //	            			  different++;
 	                          }
 	            			  if(doimpbulk) {
-	            				  vet.vote(loc, base_xpath_id, n, dpathId, Vetting.VET_IMPLIED);
+	            				  vet.vote(loc, base_xpath_id, n, dpathId, Vetting.VET_IMPLIED,val);
 	            				  toUpdate.add(loc);
 	            				  countReady = addAndWarnOnce(ctx, countReady, "okay","<i>Updating.</i>");
 	            			  } else {
@@ -1489,20 +1602,6 @@ public class SurveyMain extends HttpServlet {
             actionCtx.printUrlAsHiddenFields();
             actionCtx.println("<label><input type='checkbox' name='reupdate' value='reupdate'>Delete old results before update?</label><br>");
             actionCtx.println("Update just this locale: <input name='srl_vet_res' value='"+what+"'><input type='submit' value='Update'></form>");
-        } else if(action.equals("srl_twiddle")) {
-			ctx.println("<h3>Parameters. Please do not click unless you know what you are doing.</h3>");
-			
-			for(Iterator i = twidHash.keySet().iterator();i.hasNext();) {
-				String k = (String)i.next();
-				Object o = twidHash.get(k);
-				if(o instanceof Boolean) {	
-					boolean adv = showToggleTwid(actionSubCtx, k, "Boolean "+k);
-				} else {
-					actionSubCtx.println("<h4>"+k+"</h4>");
-				}
-			}
-			
-			
         } else if(action.equals("srl_vet_wash")) {
             WebContext subCtx = (WebContext)ctx.clone();
             actionCtx.addQuery("action",action);
@@ -1532,16 +1631,16 @@ public class SurveyMain extends HttpServlet {
         } else if(action.equals("srl_twiddle")) {
 			ctx.println("<h3>Parameters. Please do not click unless you know what you are doing.</h3>");
 			
-			for(Iterator i = twidHash.keySet().iterator();i.hasNext();) {
-				String k = (String)i.next();
-				Object o = twidHash.get(k);
-				if(o instanceof Boolean) {	
+			for (Object ko : this.twidGetKeys()) {
+				String k = ko.toString();
+				Object o = twidGetObject(k);
+				if(o instanceof Boolean) { /* using untyped property file.. */	
 					boolean adv = showToggleTwid(actionSubCtx, k, "Boolean "+k);
 				} else {
-					actionSubCtx.println("<h4>"+k+"</h4>");
+					actionSubCtx.println("<h4>"+k+": <i>"+o.toString()+"</i></h4>");
 				}
 			}
-			
+			ctx.println("<hr>File: "+SurveyMain.CONFIG_PROPERTIES);
 			
 		} else if(action.equals("upd_src")) {
             WebContext subCtx = (WebContext)ctx.clone();
@@ -2558,6 +2657,7 @@ public class SurveyMain extends HttpServlet {
         
         boolean newOrgOk = false;
         try {
+            new_org = Organization.canonicalize(new_org);
         	VoteResolver.Organization newOrgEnum = VoteResolver.Organization.fromString(new_org);
         	newOrgOk = true;
         } catch(IllegalArgumentException iae) {
@@ -7247,7 +7347,7 @@ public class SurveyMain extends HttpServlet {
                     if(theirReferences.equals(choice_r)) {
                         if(oldVote != item.xpathId) {
                         	dsrh.warnAcceptedAsVoteFor(p, item);
-                            return doVote(ctx, section.locale, item.xpathId) || didSomething;
+                            return doVote(ctx, section.locale, item.xpathId, item.value) || didSomething;
                         } else {
                         	dsrh.warnAlreadyVotingFor(p, item);
 							return didSomething;
@@ -7346,20 +7446,21 @@ public class SurveyMain extends HttpServlet {
             //ctx.println("updated " + n + " implied votes due to new data submission.");
             return true;
         } else if(choice.equals(CONFIRM)) {
+        	// vote for the status quo
             if(oldVote != base_xpath) {
             	dsrh.handleVote(p, oldVote, base_xpath);
-                return doVote(ctx, section.locale, base_xpath) || didSomething; // vote with xpath
+                return doVote(ctx, section.locale, base_xpath, voteForItem.value) || didSomething; // vote with xpath
             }
         } else if (choice.equals(DONTCARE)) {
             if(oldVote != -1) {
             	dsrh.handleVote(p, oldVote, -1);
-                return doVote(ctx, section.locale, -1, base_xpath) || didSomething;
+                return doVote(ctx, section.locale, -1, base_xpath, voteForItem.value) || didSomething;
             }
         } else if(voteForItem != null)  {
             DataSection.DataRow.CandidateItem item = voteForItem;
             if(oldVote != item.xpathId) {
             	dsrh.handleVote(p, oldVote, item.xpathId);
-                return doVote(ctx, section.locale, item.xpathId) || didSomething;
+                return doVote(ctx, section.locale, item.xpathId, item.value) || didSomething;
             } else {
                 return didSomething; // existing vote.
             }
@@ -7369,23 +7470,23 @@ public class SurveyMain extends HttpServlet {
         return didSomething;
     }
 
-    boolean doVote(WebContext ctx, CLDRLocale locale, int xpath) {
+    boolean doVote(WebContext ctx, CLDRLocale locale, int xpath, String value) {
         int base_xpath = xpt.xpathToBaseXpathId(xpath);
-        return doVote(ctx, locale, xpath, base_xpath);
+        return doVote(ctx, locale, xpath, base_xpath,value);
     }
 
-    boolean doVote(WebContext ctx, CLDRLocale locale, int xpath, int base_xpath) {
-        return doVote(ctx, locale, xpath, base_xpath, ctx.session.user.id);
+    boolean doVote(WebContext ctx, CLDRLocale locale, int xpath, int base_xpath, String value) {
+        return doVote(ctx, locale, xpath, base_xpath, ctx.session.user.id, value);
     }
 
-    boolean doVote(WebContext ctx, CLDRLocale locale, int xpath, int base_xpath, int id) {
-        vet.vote( locale,  base_xpath, id, xpath, Vetting.VET_EXPLICIT);
+    boolean doVote(WebContext ctx, CLDRLocale locale, int xpath, int base_xpath, int id, String value) {
+        vet.vote( locale,  base_xpath, id, xpath, Vetting.VET_EXPLICIT, value);
       //  lcr.invalidateLocale(locale); // throw out this pod next time, cause '.votes' are now wrong.
         return true;
     }
 
     boolean doAdminRemoveVote(WebContext ctx, CLDRLocale locale, int base_xpath, int id) {
-        vet.vote( locale,  base_xpath, id, -1, Vetting.VET_ADMIN);
+        vet.vote( locale,  base_xpath, id, -1, Vetting.VET_ADMIN, null);
      //   lcr.invalidateLocale(locale); // throw out this pod next time, cause '.votes' are now wrong.
         return true;
     }

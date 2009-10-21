@@ -2531,7 +2531,9 @@ public class CLDRFile implements Freezable, Iterable<String> {
     if (type.length() != 0) type = "[@type=\"" + type + "\"]";
     String path = "//ldml/characters/exemplarCharacters" + type;
     if (winningChoice == WinningChoice.WINNING) {
+   	  String oldPath = path;
       path = getWinningPath(path);
+      if(path == null) throw new IllegalArgumentException("Can't get winning path for exemplars at " + oldPath);
     }
     String v = getStringValue(path);
     if (v == null) return null;
@@ -2593,6 +2595,9 @@ public class CLDRFile implements Freezable, Iterable<String> {
     private static XPathParts distinguishingParts = new XPathParts(attributeOrdering, null);
 
     public static String getDistinguishingXPath(String xpath, String[] normalizedPath, boolean nonInheriting) {
+      if(!xpath.startsWith("/")) {
+    	  throw new IllegalArgumentException("Malformed xpath: " + xpath);
+      }
       synchronized (distinguishingMap) {
         String result = (String) distinguishingMap.get(xpath);
         if (result == null) {
@@ -2812,6 +2817,9 @@ public class CLDRFile implements Freezable, Iterable<String> {
    */
   public String getWinningValue(String path) {
     final String winningPath = getWinningPath(path);
+    if(winningPath!=null && !winningPath.startsWith("/")) {
+    	throw new IllegalArgumentException("path " + path + " .winningPath == illegal " + winningPath);
+    }
     return winningPath == null ? null : getStringValue(winningPath);
   }
 

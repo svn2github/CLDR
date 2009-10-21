@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8"
-	import="org.unicode.cldr.web.*"%>
+	import="org.unicode.cldr.web.*"%><%@ page import="org.unicode.cldr.util.VoteResolver" %>
 
 <%
 	String myorg = WebContext.decodeFieldString(request
@@ -35,7 +35,19 @@
 	</tr>
 	<tr>
 		<th><label for="new_org">Organization:</label></th>
-		<td><input name="new_org" value="<%=myorg%>" /></td>
+		<td>
+			<select name="new_org">
+				<%
+					for(VoteResolver.Organization o : VoteResolver.Organization.values()) {
+				%>
+						<option
+								<%= (o.name().equals(myorg))?"SELECTED":"" %> 
+							value="<%= o.name() %>"><%= o.name() %></option>
+				<%
+					}
+				%>
+			</select>
+		</td>
 	</tr>
 	<tr>
 		<th><label for="new_userlevel">Userlevel:</label></th>

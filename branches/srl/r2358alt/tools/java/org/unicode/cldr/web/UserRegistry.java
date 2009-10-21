@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.VoteResolver;
+import org.unicode.cldr.util.VoteResolver.Organization;
 import org.unicode.cldr.util.VoteResolver.VoterInfo;
 
 import com.ibm.icu.util.ULocale;
@@ -358,6 +359,33 @@ public class UserRegistry {
                 
                 if(!hadInterestTable) {
                     setupIntLocs();  // set up user -> interest table mapping
+                }
+                
+                // check for bad orgs
+                {
+                	Statement s = conn.createStatement();
+                	sql = "select distinct org "+sm.DB_SQL_BINCOLLATE+" from " + CLDR_USERS + ";";
+                	ResultSet ars = s.executeQuery(sql);
+                	Set<String> badOrgs = new HashSet<String>();
+                	while(ars.next()) {
+                		String current = ars.getString(1);
+                		String good = Organization.canonicalize(current);
+                		if(!current.equals(good)) {
+                			System.err.println(" Organization '"+current+"' should be '"+good+"'");
+                			badOrgs.add(current);
+                		} else {
+                			System.err.println("Good org: " + current);
+                		}
+                	}
+                	if(!badOrgs.isEmpty()) {
+                		System.err.println("Have "+badOrgs.size()+" organization names to migrate..");
+                		for(String badOrg : badOrgs) {
+                			String good = Organization.canonicalize(badOrg);
+                			sql = "update "+CLDR_USERS+" set org='"+good+"' where org='"+badOrg+"'" ;
+                			int upd = s.executeUpdate(sql);
+                			System.err.println("Migrate: "+upd+" rows: "+sql);
+                		}
+                	}
                 }
     
             }

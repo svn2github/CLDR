@@ -783,6 +783,15 @@ public class WebContext implements Cloneable {
             if((org==null) && 
                (session.user != null)) {
                 org = session.user.org;
+                for(String cand : getLocaleTypes()) {
+                	try {
+                		String cand2 = VoteResolver.Organization.canonicalize(cand);
+                		if(cand2.equals(org)) {
+                			org = cand;
+                		}
+                	} catch(Throwable t) {
+                	}
+                }
             }
             return org;
         } else {

@@ -731,6 +731,9 @@ public class CLDRDBSourceFactory {
 //        logger.severe("srcupdate: "+loc+" - "+ mySql);
         Statement s = conn.createStatement();
         int r = s.executeUpdate(mySql);
+        mySql = "UPDATE "+Vetting.CLDR_VET+" set "+Vetting.CLDR_VET+".vote_xpath=NULL where "+Vetting.CLDR_VET+".locale='"+loc+"' ";
+        int r2 = s.executeUpdate(mySql);
+        System.err.println(loc.toString()+": "+r2+" rows: "+mySql);
         //ctx.println("<br>Deleting data from src " + id + " ... " + r + " rows.<br />");
         mySql = "UPDATE "+CLDR_SRC+" set inactive=1 WHERE id="+id;
         //logger.severe("srcupdate:  "+loc+" - " + mySql);

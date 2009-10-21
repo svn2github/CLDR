@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
+import java.sql.Types;
 
 import com.ibm.icu.util.ULocale;
 
@@ -207,7 +208,8 @@ public class Vetting {
                                                         "locale VARCHAR(20) NOT NULL, " +
                                                         "submitter INT NOT NULL, " +
                                                         "base_xpath INT NOT NULL, " +
-                                                        "vote_xpath INT NOT NULL, " +
+                                                        "vote_xpath INT, " + // could be null.
+                                                        "vote_value " + sm.DB_SQL_UNICODE +", " +
                                                         "type SMALLINT NOT NULL, "+
                                                         "modtime TIMESTAMP, " +
                                                         "old_vote_xpath INT, "+
@@ -377,20 +379,20 @@ public class Vetting {
                     "("+CLDRDBSourceFactory.CLDR_DATA+".locale="+CLDR_VET+".locale) AND ("+CLDRDBSourceFactory.CLDR_DATA+".base_xpath="+CLDR_VET+".base_xpath) AND "+
                     "("+CLDRDBSourceFactory.CLDR_DATA+".submitter="+CLDR_VET+".submitter) )");
             dataByUserAndBase = prepareStatement("dataByUserAndBase",
-                "select "+CLDRDBSourceFactory.CLDR_DATA+".XPATH,"+CLDRDBSourceFactory.CLDR_DATA+".ALT_TYPE from "+CLDRDBSourceFactory.CLDR_DATA+" where submitter=? AND base_xpath=? AND locale=?");
+                "select "+CLDRDBSourceFactory.CLDR_DATA+".XPATH,"+CLDRDBSourceFactory.CLDR_DATA+".ALT_TYPE,"+CLDRDBSourceFactory.CLDR_DATA+".value from "+CLDRDBSourceFactory.CLDR_DATA+" where submitter=? AND base_xpath=? AND locale=?");
             dataByBase = prepareStatement("dataByBase", /*  1:locale, 2:base_xpath  ->  stuff */
                 "select xpath,origxpath,alt_type,value FROM "+CLDRDBSourceFactory.CLDR_DATA+" WHERE " + 
                     "(locale=?) AND (base_xpath=?)");
             insertVote = prepareStatement("insertVote",
-                "insert into "+CLDR_VET+" (locale,submitter,base_xpath,vote_xpath,type,modtime) values (?,?,?,?,?,CURRENT_TIMESTAMP)");
+                "insert into "+CLDR_VET+" (locale,submitter,base_xpath,vote_xpath,type,modtime,vote_value) values (?,?,?,?,?,CURRENT_TIMESTAMP,?)");
             queryVote = prepareStatement("queryVote",
-                "select "+CLDR_VET+".vote_xpath, "+CLDR_VET+".type from "+CLDR_VET+" where "+CLDR_VET+".locale=? AND "+CLDR_VET+".submitter=? AND "+CLDR_VET+".base_xpath=?");
+                "select "+CLDR_VET+".vote_xpath, "+CLDR_VET+".type, "+CLDR_VET+".vote_value from "+CLDR_VET+" where "+CLDR_VET+".locale=? AND "+CLDR_VET+".submitter=? AND "+CLDR_VET+".base_xpath=?");
             rmVote = prepareStatement("rmVote",
                 "delete from "+CLDR_VET+" where "+CLDR_VET+".locale=? AND "+CLDR_VET+".submitter=? AND "+CLDR_VET+".base_xpath=?");
             queryVoteId = prepareStatement("queryVoteId",
                 "select "+CLDR_VET+".id from "+CLDR_VET+" where "+CLDR_VET+".locale=? AND "+CLDR_VET+".submitter=? AND "+CLDR_VET+".base_xpath=?");
             updateVote = prepareStatement("updateVote",
-                "update "+CLDR_VET+" set vote_xpath=?, type=?, modtime=CURRENT_TIMESTAMP where id=?");
+                "update "+CLDR_VET+" set vote_xpath=?, type=?, vote_value=?, modtime=CURRENT_TIMESTAMP where id=?");
             queryVoteForXpath = prepareStatement("queryVoteForXpath",
                 "select "+CLDR_VET+".submitter from "+CLDR_VET+" where "+CLDR_VET+".locale=? AND "+CLDR_VET+".vote_xpath=?");
             queryVoteForBaseXpath = prepareStatement("queryVoteForBaseXpath",
@@ -513,13 +515,6 @@ public class Vetting {
         int count = 0;
         int updates = 0;
 
-        // we use the ICU comparator, but invert the order.
-        Map items = new TreeMap(new Comparator() {
-            public int compare(Object o1, Object o2) {
-                return myCollator.compare(o2.toString(),o1.toString());
-            }
-        });
-
         synchronized(conn) {
             try {
                 dataByUserAndBase.setString(3, locale.toString());
@@ -527,12 +522,13 @@ public class Vetting {
                 insertVote.setString(1,locale.toString());
                 insertVote.setInt(5,VET_IMPLIED);
                 ResultSet rs = missingImpliedVotes.executeQuery();
+                // loop over all implied votes (i.e. user added data but didn't vote yet)
+                // returns one result per user/base_xpath
                 while(rs.next()) {
                     count++;
                     int submitter = rs.getInt(1);
                     int base_xpath = rs.getInt(2);
                     
-                    // debug?
                     
                     //UserRegistry.User submitter_who = sm.reg.getInfo(submitter);
                     //String base_xpath_str = sm.xpt.getById(base_xpath);
@@ -544,44 +540,32 @@ public class Vetting {
                     
                     insertVote.setInt(2,submitter);
                     insertVote.setInt(3,base_xpath);
-                    ResultSet subRs = dataByUserAndBase.executeQuery();
-                    //TODO: if this is too slow, optimize for the single-entry case.
-                    items.clear();
-                    while(subRs.next()) {
-                        int xpath = subRs.getInt(1);
-                        String altType = subRs.getString(2);
                     
+                    // now, fetch the first item this user submitted under this path.
+                    ResultSet subRs = dataByUserAndBase.executeQuery();
+                    if(subRs.next()) {
+                        int xpath = subRs.getInt(1);
+                        String value = SurveyMain.getStringUTF8(subRs,3);
+                        insertVote.setInt(4,xpath);
                         
-                        //System.err.println(".. " + altType + " = " + sm.xpt.getById(xpath));
-                        if(altType == null) {
-                            altType = "";
-                        }
-                        items.put(altType, new Integer(xpath));
-                    }
-                    if(items.isEmpty()) {
-                        UserRegistry.User submitter_who1 = sm.reg.getInfo(submitter);
-                        String base_xpath_str1 = sm.xpt.getById(base_xpath);
-                        System.err.println("ERR: NO WINNER for ipath " + locale + " " + submitter_who1.email + "#"+base_xpath+" " + base_xpath_str1);
-                    } else {
-                        int winningXpath = ((Integer)items.values().iterator().next()).intValue();
-                        //System.err.println("Winner= " + items.keySet().iterator().next() + " = " + sm.xpt.getById(winningXpath));
-                        insertVote.setInt(4,winningXpath);
-                        
-                        //  "insert into CLDR_VET (locale,submitter,base_xpath,vote_xpath,type,modtime) values (?,?,?,?,?,CURRENT_TIMESTAMP)");
-                        //System.err.println(locale+","+submitter+","+base_xpath+","+winningXpath+","+VET_IMPLIED);
+                        SurveyMain.setStringUTF8(insertVote, 6, value); /* vote_value */
                         
                         int rows = insertVote.executeUpdate();
                         if(rows != 1) {
                             String complaint = "Vetter: while updating ["+locale+","+submitter+","+base_xpath+","+
-                                winningXpath+","+VET_IMPLIED+"] - expected '1' row, got " + rows;
+                                xpath+","+VET_IMPLIED+"] - expected '1' row, got " + rows;
                             logger.severe(complaint);
                             throw new RuntimeException(complaint);
                         }
-                        
                         // remove result, so a recount occurs.
                         rmResult.setString(1,locale.toString());
                         rmResult.setInt(2,base_xpath);
                         rmResult.executeUpdate();
+                    } else  {
+                    	// error
+                        UserRegistry.User submitter_who1 = sm.reg.getInfo(submitter);
+                        String base_xpath_str1 = sm.xpt.getById(base_xpath);
+                        System.err.println("ERR: NO WINNER for ipath " + locale + " " + submitter_who1.email + "#"+base_xpath+" " + base_xpath_str1);
                     }
                 }
                 
@@ -1121,7 +1105,7 @@ public class Vetting {
                     //System.err.println("Wash:"+locale+" #"+oldId+"//"+base_xpath+" -> v"+vettedValue+" but props "+ cachedProps.size()+", , p"+(ourProp==null?"NULL":ourProp.toString()));
                     if((vettedValue==-1)&&(ourProp!=null)) {
                         // cast a vote for ourProp
-                        vote(locale, base_xpath, oldSubmitter, ourProp.intValue(), VET_IMPLIED);
+                        vote(locale, base_xpath, oldSubmitter, ourProp.intValue(), VET_IMPLIED, oldValue);
                     }
                     if((vettedValue != -1) || (cachedProps.size()>0)) {
                         // just, erase it
@@ -1488,7 +1472,7 @@ public class Vetting {
      * @param type either VET_IMPLICIT or VET_EXPLICIT if this is to be recorded as an implicit or explicit vote.
      */
      
-    void vote(CLDRLocale locale, int base_xpath, int submitter, int vote_xpath, int type) {
+    void vote(CLDRLocale locale, int base_xpath, int submitter, int vote_xpath, int type, String value) {
         synchronized(conn) {
             try {
                 queryVoteId.setString(1,locale.toString());
@@ -1501,7 +1485,8 @@ public class Vetting {
                     int id = rs.getInt(1);
                     updateVote.setInt(1, vote_xpath);
                     updateVote.setInt(2, type);
-                    updateVote.setInt(3, id);
+                    SurveyMain.setStringUTF8(updateVote, 3,value);
+                    updateVote.setInt(4, id);
                     updateVote.executeUpdate();
 //                    System.err.println("updated CLDR_VET #"+id);
                 } else {
@@ -1510,6 +1495,7 @@ public class Vetting {
                     insertVote.setInt(3,base_xpath);
                     insertVote.setInt(4,vote_xpath);
                     insertVote.setInt(5,type);
+                    SurveyMain.setStringUTF8(insertVote, 6, value); /* vote_value */
                     insertVote.executeUpdate();
                 }
                 rmResult.setString(1,locale.toString());
