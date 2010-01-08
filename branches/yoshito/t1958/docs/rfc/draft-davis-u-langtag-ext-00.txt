@@ -1,0 +1,393 @@
+
+
+
+Internet Engineering Task Force                                 M. Davis
+Internet-Draft                                                    Google
+Intended status: BCP                                        AP. Phillips
+Expires: May 5, 2010                                              Lab126
+                                                              YU. Umaoka
+                                                                     IBM
+                                                        November 1, 2009
+
+
+                           BCP 47 Extension U
+                      draft-davis-u-langtag-ext-00
+
+Abstract
+
+   This document specifies an Extension to BCP 47 which provides subtags
+   that specify language and/or locale-based behavior or refinements to
+   language tags, according to work done by the Unicode Consortium.
+
+Status of this Memo
+
+   This document is an Internet-Draft and is subject to all provisions
+   of Section 3 of RFC 3667.  By submitting this Internet-Draft, each
+   author represents that any applicable patent or other IPR claims of
+   which he or she is aware have been or will be disclosed, and any of
+   which he or she become aware will be disclosed, in accordance with
+   RFC 3668.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on May 5, 2010.
+
+
+
+
+
+
+
+Davis, et al.              Expires May 5, 2010                  [Page 1]
+
+Internet-Draft       BCP 47 Unicode Locale Extension       November 2009
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+     1.1.  Requirements Language . . . . . . . . . . . . . . . . . . . 3
+   2.  BCP47 Required Information  . . . . . . . . . . . . . . . . . . 3
+     2.1.  Summary . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+     2.2.  Registration Form . . . . . . . . . . . . . . . . . . . . . 4
+   3.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 4
+   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 5
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 5
+   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+     6.1.  Normative References  . . . . . . . . . . . . . . . . . . . 5
+     6.2.  Informative References  . . . . . . . . . . . . . . . . . . 5
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . . 5
+   Intellectual Property and Copyright Statements  . . . . . . . . . . 7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Davis, et al.              Expires May 5, 2010                  [Page 2]
+
+Internet-Draft       BCP 47 Unicode Locale Extension       November 2009
+
+
+1.  Introduction
+
+   [BCP47] provides extensions identified by a single-character subtag
+   for "the generation of identifiers that contain a language component
+   and are compatible with applications that understand language tags".
+   This document defines such an extension, using the letter 'u', to
+   specify Unicode language/locale identifiers.
+
+1.1.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119.
+
+
+2.  BCP47 Required Information
+
+   Language tags, as defined by [BCP47], are useful for identifying the
+   language of content.  They are also used as locale identifiers (or
+   can be mapped to locales) in many operating environments and APIs.
+   However, most such locale identifiers also provide additional
+   "tailorings" or options for specific values within a language,
+   culture, or other regional variation.  This extension provides a
+   mechanism for using these additional tailorings within language tags
+   for general interchange.
+
+   The maintaining authority for this extension's registry is the
+   Unicode Consortium.  Unicode defines common locale data and
+   identifiers for this data:
+
+   +---------------+---------------------------------------------------+
+   | Item          | Value                                             |
+   +---------------+---------------------------------------------------+
+   | Name          | Unicode Consortium                                |
+   | Contact Email | cldr@unicode.org                                  |
+   | Discussion    | cldr-users@unicode.org                            |
+   | List Email    |                                                   |
+   | URL Location  | cldr.unicode.org                                  |
+   | Specification | Unicode Technical Standard #35 Unicode Locale     |
+   |               | Data Markup Language (LDML),                      |
+   |               | http://unicode.org/reports/tr35/                  |
+   | Section       | Section 3.2 BCP 47 Tag Conversion                 |
+   +---------------+---------------------------------------------------+
+
+   The specification of extension subtags is provided by Unicode
+   Technical Standard #35 Unicode Locale Data Markup Language, Section
+   3.2 BCP 47 Tag Conversion [LDML].  [LDML] defines the formation of
+   subtags which follow the language tag ABNF and other rules for the
+
+
+
+Davis, et al.              Expires May 5, 2010                  [Page 3]
+
+Internet-Draft       BCP 47 Unicode Locale Extension       November 2009
+
+
+   formation of language tags and subtags as defined in [BCP47].  In
+   particular, it specifies that subtags are restricted to the ASCII
+   letters and digits, that case is not significant, and that subtags
+   MUST NOT exceed eight characters in length.
+
+   [LDML] specifies a canonical representation.  LDML is available over
+   the Internet and at no cost, and is available via a royalty-free
+   license at http://unicode.org/copyright.html.  LDML is versioned, and
+   each version of LDML is numbered, dated, and stable.  Extension
+   subtags, once defined by LDML, are never retracted or change in
+   meaning in a substantial way.  LDML will include in a separate
+   section the registration form in Section 2.2.
+
+2.1.  Summary
+
+   [LDML] defines the subtags within the 'u' extension as a series of
+   key-value pairs.  Each key has a length of two characters, and each
+   value has a length of three or more characters.  Each key is followed
+   by zero or one value.  Case is not significant.  The canonical case
+   is lowercase; the canonical order of the keys is alphabetical.
+
+   The exact keys and values available, and their meanings, are defined
+   in TODO ldml-registry TODO [ldml-registry].
+
+2.2.  Registration Form
+
+   Per [RFC5646], Section 3.7:
+   %%
+   Identifier: u
+   Description: Unicode Locale
+   Comments: Subtags for the identification of language and cultural
+       variations. Used to set behavior in locale APIs.
+   Added: 2009-mm-dd
+   RFC: [TBD]
+   Authority: Unicode Consortium
+   Contact_Email: cldr@unicode.org
+   Mailing_List: cldr-users@unicode.org
+   URL: http://cldr.unicode.org
+   %%
+
+
+3.  Acknowledgements
+
+   Thanks to John Emmons and the rest of the Unicode CLDR Technical
+   Committee for their work in developing the BCP 47 subtags for LDML.
+
+
+
+
+
+
+Davis, et al.              Expires May 5, 2010                  [Page 4]
+
+Internet-Draft       BCP 47 Unicode Locale Extension       November 2009
+
+
+4.  IANA Considerations
+
+   This document will require IANA to insert the record in Section 2.2
+   into the Language Extensions Registry, according to Section 3.7.
+   Extensions and the Extensions Registry of "Tags for Identifying
+   Languages" in BCP 47.  There might be occasional maintenance of this
+   record.  This document does not require IANA to create or maintain a
+   new registry or otherwise impact IANA.
+
+
+5.  Security Considerations
+
+   The security considerations for this extension are the same as those
+   for [RFC5646] (or its successors).  See Section 6.  Security
+   Considerations of [RFC5646].
+
+
+6.  References
+
+6.1.  Normative References
+
+   [BCP47]    Davis, M., Ed., "Tags for the Identification of Language
+              (BCP47)", September 2009.
+
+   [LDML]     Davis, M., "Unicode Technical Standard #35: Locale Data
+              Markup Language (LDML)", December 2007,
+              <http://www.unicode.org/reports/tr35/>.
+
+   [RFC5646]  Phillips, A. and M. Davis, "Tags for Identifying
+              Languages", BCP 47, RFC 5646, September 2009.
+
+6.2.  Informative References
+
+   [ldml-registry]
+              "Registry for Common Locale Data Repository tag elements",
+              September 2009.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Davis, et al.              Expires May 5, 2010                  [Page 5]
+
+Internet-Draft       BCP 47 Unicode Locale Extension       November 2009
+
+
+Authors' Addresses
+
+   Mark Davis
+   Google
+   2509 Alpine Road
+   Menlo Park, California  94025
+   USA
+
+   Phone: +1 650-854-4895
+   Email: mark@macchiato.com
+
+
+   Addison Phillips
+   Lab126
+
+   Email: addison@inter-locale.com
+
+
+   Yoshito Umaoka
+   IBM
+
+   Email: yoshito_umaoka@us.ibm.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Davis, et al.              Expires May 5, 2010                  [Page 6]
+
+Internet-Draft       BCP 47 Unicode Locale Extension       November 2009
+
+
+Full Copyright Statement
+
+   Copyright (C) The IETF Trust (2009).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78 and at http://www.rfc-editor.org/copyright.html,
+   and except as set forth therein, the authors retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+
+
+
+
+
+
+
+
+
+
+Davis, et al.              Expires May 5, 2010                  [Page 7]
+
+
