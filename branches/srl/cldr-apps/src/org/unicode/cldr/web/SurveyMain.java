@@ -94,7 +94,7 @@ import com.ibm.icu.util.ULocale;
  * The main servlet class of Survey Tool
  */
 public class SurveyMain extends HttpServlet {
-	public static final String SURVEYMAIN_REVISION = "$Revision: 4757 $";
+	public static final String SURVEYMAIN_REVISION = "$Revision$";
 
     private static final String CLDR_BULK_DIR = "CLDR_BULK_DIR";
 	private static String bulkStr = null;

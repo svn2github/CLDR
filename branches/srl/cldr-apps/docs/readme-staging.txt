@@ -1,4 +1,4 @@
--- $Id: readme-staging.txt 3387 2008-05-14 19:37:55Z jakarta $
+-- $Id$
 -- 2008 March 13 - steven r. loomis
 --
 
