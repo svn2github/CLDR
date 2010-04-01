@@ -44,10 +44,6 @@
             <th>Java Servlet API</th>
             <td> <%= application.getMajorVersion() %>.<%= application.getMinorVersion() %>  </td>
         </tr>
-        <tr class="row<%= ((i++)%2) %>">
-            <th>Database</th>
-            <td><%= org.apache.derby.tools.sysinfo.getProductName() %> <%= org.apache.derby.tools.sysinfo.getVersionString() %> <br> build <%= org.apache.derby.tools.sysinfo.getBuildNumber() %>  </td>
-        </tr>
         
     </table>
 

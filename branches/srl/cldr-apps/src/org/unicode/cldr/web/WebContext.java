@@ -966,14 +966,14 @@ public class WebContext implements Cloneable {
     }
     
     public void includeFragment(String filename)  {
-        RequestDispatcher dp = request.getRequestDispatcher("/tmpl/"+filename);
+        RequestDispatcher dp = request.getRequestDispatcher("/WEB-INF/tmpl/"+filename);
         try {
             dp.include(request,response);
         } catch(Throwable t) {
             this.println("<div class='ferrorbox'><B>Error</b> while including template <tt class='code'>"+filename+"</tt>:<br>");
             this.print(t);
             this.println("</div>");
-            System.err.println("While expanding /tmpl/"+filename + ": " +t.toString());
+            System.err.println("While expanding /WEB-INF/tmpl/"+filename + ": " +t.toString());
             t.printStackTrace();
         }
     }
