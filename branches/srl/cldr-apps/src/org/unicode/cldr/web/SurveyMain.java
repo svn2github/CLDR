@@ -100,7 +100,7 @@ public class SurveyMain extends HttpServlet {
 	private static String bulkStr = null;
 	private static final String ACTION_DEL = "_del";
     private static final String ACTION_UNVOTE = "_unvote";
-    private static final String XML_CACHE_PROPERTIES = "xmlCache.properties";
+    static final String XML_CACHE_PROPERTIES = "xmlCache.properties";
     /**
      * 
      */
@@ -202,7 +202,11 @@ public class SurveyMain extends HttpServlet {
     // ========= SYSTEM PROPERTIES
     public static  String vap = System.getProperty("CLDR_VAP"); // Vet Access Password
     public static  String vetdata = System.getProperty("CLDR_VET_DATA"); // dir for vetted data
-    File vetdir = null;
+  
+    /**
+     * TODO: should not be static.
+     */
+    static File vetdir = null;
     public static  String vetweb = System.getProperty("CLDR_VET_WEB"); // dir for web data
     public static  String cldrLoad = System.getProperty("CLDR_LOAD_ALL"); // preload all locales?
     static String fileBase = null; // not static - may change lager
@@ -1216,7 +1220,7 @@ public class SurveyMain extends HttpServlet {
 	            	ctx.print("<i>trial run. press the button to accept these votes.</i>");
 	            }
 	            
-	            Set<File> files = new TreeSet<File>(Arrays.asList(getInFiles(bulkDir)));
+	            Set<File> files = new TreeSet<File>(Arrays.asList(SourceDirectory.getInFiles(bulkDir)));
 	            
 	            ctx.print("Jump to: ");
 	            for(File file : files) {
@@ -1539,19 +1543,21 @@ public class SurveyMain extends HttpServlet {
             if(what.equals("ALL")) {
                 ctx.println("<h4>Update All (delete first: "+reupdate+")</h4>");
                 
-		startupThread.addTask(new SurveyThread.SurveyTask("UpdateAll, Delete:"+reupdate) {
-		    public void run() throws Throwable {
-			ElapsedTimer et = new ElapsedTimer();
-			int n = vet.updateResults(reupdate);
-			System.err.println("Done updating "+n+" vote results in: " + et + "<br>");
-			lcr.invalidateLocale(CLDRLocale.ROOT);
-			ElapsedTimer zet = new ElapsedTimer();
-			int zn = vet.updateStatus();
-			System.err.println("Done updating "+zn+" statuses [locales] in: " + zet + "<br>");
-			
-		    }
-		    });
-		       
+                /*
+                startupThread.addTask(new SurveyThread.SurveyTask("UpdateAll, Delete:"+reupdate) {
+                	public void run() throws Throwable {
+						ElapsedTimer et = new ElapsedTimer();
+						int n = vet.updateResults(reupdate);
+						System.err.println("Done updating "+n+" vote results in: " + et + "<br>");
+						lcr.invalidateLocale(CLDRLocale.ROOT);
+						ElapsedTimer zet = new ElapsedTimer();
+						int zn = vet.updateStatus();
+						System.err.println("Done updating "+zn+" statuses [locales] in: " + zet + "<br>");
+						
+				    }
+			    });
+			    */
+					       
 		ctx.println("<h2>Task Queued.</h2>");
 		
             } else {
@@ -1701,8 +1707,9 @@ public class SurveyMain extends HttpServlet {
             }
 
 	    if(daily && !isImmediate) {
-            	startupThread.addTask(new SurveyThread.SurveyTask("daily xml output")
-            	{
+	   /*
+    	startupThread.addTask(new SurveyThread.SurveyTask("daily xml output")
+    	{
 	            	public void run() throws Throwable 
 	                {
 			    try {
@@ -1724,8 +1731,9 @@ public class SurveyMain extends HttpServlet {
 			    } finally {
 				clearProgress();
 			    }
-			}
 		    });
+		    */
+	    	
 		ctx.println("<h2>Task Queued.</h2>");
 	    } else {
 		if(daily || output.equals("xml")) {
@@ -1899,7 +1907,7 @@ public class SurveyMain extends HttpServlet {
                 actionCtx.addQuery("really_load","y");
                 ctx.println("<b>Really Load "+nrInFiles+" locales?? <a class='ferrbox' href='"+actionCtx.url()+"'>YES</a><br>");
             } else {
-            	
+            	/*
             	startupThread.addTask(new SurveyThread.SurveyTask("load all locales")
             	{
 	            	public void run() throws Throwable 
@@ -1910,6 +1918,7 @@ public class SurveyMain extends HttpServlet {
 	                    System.err.println("Done updating "+n+" statuses [locales] in: " + et + "<br>");
 	                }
             	});
+            	*/
 		ctx.println("<h2>Task Queued.</h2>");
             }
             
@@ -2308,17 +2317,18 @@ public class SurveyMain extends HttpServlet {
     }
     
     public String getProgress() {
+    	return getProgress(progressWhat, progressMax,progressCount);
+    }
+    public static String getProgress(String what, double max, double cur) {
         StringBuffer buf = new StringBuffer();
                 
-        double max = progressMax;
         if(max < 0) { // negative: assume it is a percentage
             max = 100.0;
         }
         if(max<=0) return "";
 
-        buf.append("<b>"+progressWhat+"</b> in progress:");
+        buf.append("<b>"+what+"</b> in progress:");
 
-        double cur = progressCount;
         if(cur>max) {
             cur = max;
         }
@@ -5832,31 +5842,7 @@ public class SurveyMain extends HttpServlet {
     }
     
     public synchronized String getDirectionalityFor(CLDRLocale id) {
-        final boolean DDEBUG=false;
-        if (DDEBUG) System.err.println("Checking directionality for " + id);
-        if(aliasMap==null) {
-            checkAllLocales();
-        }
-        while(id != null) {
-            // TODO use iterator
-            CLDRLocale aliasTo = isLocaleAliased(id);
-            if (DDEBUG) System.err.println("Alias -> "+aliasTo);
-            if(aliasTo != null 
-                    && !aliasTo.equals(id)) { // prevent loops
-                id = aliasTo;
-                if (DDEBUG) System.err.println(" -> "+id);
-                continue;
-            }
-            String dir = directionMap.get(id);
-            if (DDEBUG) System.err.println(" dir:"+dir);
-            if(dir!=null) {
-                return dir;
-            }
-            id = id.getParent();
-            if (DDEBUG) System.err.println(" .. -> :"+id);
-        }
-        if (DDEBUG) System.err.println("err: could not get directionality of root");
-        return "left-to-right"; //fallback
+    	return getCurrentCommonDirectory().getDirectionalityFor(id);
     }
 
     
@@ -6118,7 +6104,7 @@ public class SurveyMain extends HttpServlet {
     private synchronized void resetLocaleCaches() {
         localeTree = null;
         localeListSet = null;
-        aliasMap = null;
+        getCurrentCommonDirectory().reset();
         gBaselineFile=null;
         gBaselineHash=null;
         try {
@@ -6130,144 +6116,12 @@ public class SurveyMain extends HttpServlet {
     }
     
     
-    private static Hashtable<CLDRLocale,CLDRLocale> aliasMap = null;
-    private static Hashtable<CLDRLocale,String> directionMap = null;
-    
-    /**
-     * "Hash" a file to a string, including mod time and size
-     * @param f
-     * @return
-     */
-    private static String fileHash(File f) {
-        return("["+f.getAbsolutePath()+"|"+f.length()+"|"+f.hashCode()+"|"+f.lastModified()+"]");
-    }
-
-    private synchronized void checkAllLocales() {
-        if(aliasMap!=null) return;
-        
-        boolean useCache = isUnofficial; // NB: do NOT use the cache if we are in unofficial mode.  Parsing here doesn't take very long (about 16s), but 
-        // we want to save some time during development iterations.
-        
-        Hashtable<CLDRLocale,CLDRLocale> aliasMapNew = new Hashtable<CLDRLocale,CLDRLocale>();
-        Hashtable<CLDRLocale,String> directionMapNew = new Hashtable<CLDRLocale,String>();
-        Set<CLDRLocale> locales  = getLocalesSet();
-        ElapsedTimer et = new ElapsedTimer();
-        setProgress("Parse locales from XML", locales.size());
-        int nn=0;
-        File xmlCache = new File(vetdir, XML_CACHE_PROPERTIES);
-        File xmlCacheBack = new File(vetdir, XML_CACHE_PROPERTIES+".backup");
-        Properties xmlCacheProps = new java.util.Properties(); 
-        Properties xmlCachePropsNew = new java.util.Properties(); 
-        if(useCache && xmlCache.exists()) try {
-            java.io.FileInputStream is = new java.io.FileInputStream(xmlCache);
-            xmlCacheProps.load(is);
-            is.close();
-        } catch(java.io.IOException ioe) {
-            /*throw new UnavailableException*/
-            logger.log(java.util.logging.Level.SEVERE, "Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ",ioe);
-            busted("Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ", ioe);
-            return;
-        }
-        
-        int n=0;
-        int cachehit=0;
-        System.err.println("Parse " + locales.size() + " locales from XML to look for aliases or errors...");
-        for(CLDRLocale loc : locales) {
-            String locString = loc.toString();
-//            ULocale uloc = new ULocale(locString);
-            updateProgress(n++, loc.toString() /* + " - " + uloc.getDisplayName(uloc) */);
-            try {
-                File  f = new File(fileBase, loc.toString()+".xml");
-//                String fileName = fileBase+"/"+loc.toString()+".xml";
-                String fileHash = fileHash(f);
-                String aliasTo = null;
-                String direction = null;
-                //System.err.println(fileHash);
-                
-                String oldHash = xmlCacheProps.getProperty(locString);
-                if(useCache && oldHash != null && oldHash.equals(fileHash)) {
-                    // cache hit! load from cache
-                    aliasTo = xmlCacheProps.getProperty(locString+".a",null);
-                    direction = xmlCacheProps.getProperty(locString+".d",null);
-                    cachehit++;
-                } else {
-                    Document d = LDMLUtilities.parse(f.getAbsolutePath(), false);
-                    
-                    // look for directionality
-                    Node[] directionalityItems = 
-                        LDMLUtilities.getNodeListAsArray(d,"//ldml/layout/orientation");
-                    if(directionalityItems!=null&&directionalityItems.length>0) {
-                        direction = LDMLUtilities.getAttributeValue(directionalityItems[0], LDMLConstants.CHARACTERS);
-                        if(direction != null&& direction.length()>0) {
-                        } else {
-                            direction = null;
-                        }
-                    }
-                    
-                    
-                    Node[] aliasItems = 
-                                LDMLUtilities.getNodeListAsArray(d,"//ldml/alias");
-                                
-                    if((aliasItems==null) || (aliasItems.length==0)) {
-                        aliasTo=null;
-                    } else if(aliasItems.length>1) {
-                        throw new InternalError("found " + aliasItems + " items at " + "//ldml/alias" + " - should have only found 1");
-                    } else {
-                        aliasTo = LDMLUtilities.getAttributeValue(aliasItems[0],"source");
-                    }
-                }
-                
-                // now, set it into the new map
-                xmlCachePropsNew.put(locString, fileHash);
-                if(direction != null) {
-                    directionMapNew.put((loc), direction);
-                    xmlCachePropsNew.put(locString+".d", direction);
-                }
-                if(aliasTo!=null) {
-                    aliasMapNew.put((loc),CLDRLocale.getInstance(aliasTo));
-                    xmlCachePropsNew.put(locString+".a", aliasTo);
-                }
-            } catch (Throwable t) {
-                System.err.println("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
-                t.printStackTrace();
-                busted("isLocaleAliased: Failed load/validate on: " + loc + " - ", t);
-                throw new InternalError("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
-            }
-        }
-        
-        if(useCache) try {
-            // delete old stuff
-            if(xmlCacheBack.exists()) { 
-                xmlCacheBack.delete();
-            }
-            if(xmlCache.exists()) {
-                xmlCache.renameTo(xmlCacheBack);
-            }
-            java.io.FileOutputStream os = new java.io.FileOutputStream(xmlCache);
-            xmlCachePropsNew.store(os, "YOU MAY DELETE THIS CACHE. Cache updated at " + new Date());
-            updateProgress(nn++, "Loading configuration..");
-            os.close();
-        } catch(java.io.IOException ioe) {
-            /*throw new UnavailableException*/
-            logger.log(java.util.logging.Level.SEVERE, "Couldn't write "+xmlCache+" file from '" + cldrHome + "': ",ioe);
-            busted("Couldn't write "+xmlCache+" file from '" + cldrHome+"': ", ioe);
-            return;
-        }
-        
-        System.err.println("Finished verify+alias check of " + locales.size()+ ", " + aliasMapNew.size() + " aliased locales ("+cachehit+" in cache) found in " + et.toString());
-        aliasMap = aliasMapNew;
-        directionMap = directionMapNew;
-        clearProgress();
-    }
     
     /**
      * Is this locale fully aliased? If true, returns what it is aliased to.
      */
     public synchronized CLDRLocale isLocaleAliased(CLDRLocale id) {
-        if(aliasMap==null) {
-            checkAllLocales();
-        }
-        return aliasMap.get(id);
+    	return getCurrentCommonDirectory().isLocaleAliased(id);
     }
 
 //    public ULocale isLocaleAliased(ULocale id) {
@@ -9200,33 +9054,11 @@ public class SurveyMain extends HttpServlet {
         return null;
     }
     
-    static FileFilter getXmlFileFilter() {
-    	return new FileFilter() {
-            public boolean accept(File f) {
-                String n = f.getName();
-                return(!f.isDirectory()
-                       &&n.endsWith(".xml")
-                       &&!n.startsWith(".")
-                       &&!n.startsWith("supplementalData") // not a locale
-                       /*&&!n.startsWith("root")*/); // root is implied, will be included elsewhere.
-            }
-        };
-    }
 
     static protected File[] getInFiles() {
-    	return getInFiles(fileBase);
+    	return getCurrentCommonDirectory().getInFiles();
     }
     
-    static protected File[] getInFiles(String base) {
-        File baseDir = new File(fileBase);
-        return getInFiles(baseDir);
-    }
-    
-    static protected File[] getInFiles(File baseDir) {
-        // 1. get the list of input XML files
-        FileFilter myFilter = getXmlFileFilter();
-        return baseDir.listFiles(myFilter);
-    }
     
     static protected CLDRLocale getLocaleOf(File localeFile) {
 		String localeName = localeFile.getName();
@@ -9239,28 +9071,35 @@ public class SurveyMain extends HttpServlet {
 		return CLDRLocale.getInstance(theLocale);
     }
     
-    private static Set<CLDRLocale> localeListSet = null;
+    static SourceDirectory currentCommon = null;
+    
+    /**
+     * @return the current, COMMON data
+     */
+    public synchronized static SourceDirectory getCurrentCommonDirectory() {
+    	if(currentCommon == null) {
+    		currentCommon = new SourceDirectory(fileBase);
+    	}
+    	return currentCommon;
+    }
+    
+    
+    private Set<CLDRLocale> localeListSet = null;
 
-    static synchronized public Set<CLDRLocale> getLocalesSet() {
-        if(localeListSet == null ) {
-            File inFiles[] = getInFiles();
-            int nrInFiles = inFiles.length;
-            Set<CLDRLocale> s = new HashSet<CLDRLocale>();
-            for(int i=0;i<nrInFiles;i++) {
-                String fileName = inFiles[i].getName();
-                int dot = fileName.indexOf('.');
-                if(dot !=  -1) {
-                    String locale = fileName.substring(0,dot);
-                    s.add(CLDRLocale.getInstance(locale));
-                }
-            }
-            localeListSet = s;
-        }
-        return localeListSet;
+    /**
+     * TODO: make non static
+     * @return
+     */
+    synchronized public static Set<CLDRLocale> getLocalesSet() {
+    	return getCurrentCommonDirectory().getLocalesSet();
     }
 
-    static public CLDRLocale[] getLocales() {
-        return (CLDRLocale[])getLocalesSet().toArray(new CLDRLocale[0]);
+    /**
+     * TODO: make non static
+     * @return
+     */
+    public static CLDRLocale[] getLocales() {
+    	return getCurrentCommonDirectory().getLocales();
     }
 
     /**
