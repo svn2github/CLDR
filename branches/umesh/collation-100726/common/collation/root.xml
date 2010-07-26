@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "../../common/dtd/ldml.dtd">
+<ldml>
+	<identity>
+		<version number="$Revision$"/>
+		<generation date="$Date$"/>
+		<language type="root" /> 
+	</identity>
+		<collations validSubLocales="en en_AU en_BE en_BW en_CA en_GB en_HK en_IE en_IN en_MT en_NZ en_PH en_SG en_US en_US_POSIX en_VI en_ZA en_ZW ga ga_IE id id_ID it it_CH it_IT ka ka_GE ms ms_BN ms_MY nl nl_BE nl_NL pt pt_BR pt_PT st st_LS st_ZA xh xh_ZA zu zu_ZA">
+			<default type="standard"/>
+			<collation type="standard" >
+			</collation  >
+			<collation type="search" >
+				<settings normalization="on" />
+				<suppress_contractions>[เ-ไ ເ-ໄ]</suppress_contractions>
+				<rules>
+					<reset>ا</reset>
+						<s>آ</s>
+						<s>أ</s>
+						<s>إ</s>
+					<reset>و</reset>
+						<s>ؤ</s>
+					<reset>ي</reset>
+						<s>ئ</s>
+						<s>ى</s>
+					<reset>ه</reset>
+						<s>ة</s>
+					<reset><last_primary_ignorable/></reset>
+						<s>׳</s>
+						<s>״</s>
+						<s>ـ</s>
+						<s>ٌ</s>
+						<s>ٍ</s>
+						<s>َ</s>
+						<s>ُ</s>
+						<s>ِ</s>
+						<s>ّ</s>
+						<s>ْ</s>
+						<s>ฺ</s>
+				</rules>
+			</collation  >
+		</collations>
+    <!-- for UCA rules please see: http://www.unicode.org/reports/tr10/ -->
+</ldml>
+
+
