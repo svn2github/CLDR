@@ -577,6 +577,12 @@ public class LDML2ICUConverter extends CLDRConverterTool {
         return xpathList;
     }
 
+    private void addSpaceForDebug(StringBuilder sb) {
+        if (DEBUG) {
+            sb.append(" ");
+        }
+    }
+
     private static void dumpXPathList(List<String> xpathList, String msg, String fname) {
         if (DEBUG) {
             try {
@@ -4763,9 +4769,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
             if (name.equals(LDMLConstants.PC) || name.equals(LDMLConstants.SC) || name.equals(LDMLConstants.TC) || name.equals(LDMLConstants.QC) || name.equals(LDMLConstants.IC)) {
                 Node lastVariable = LDMLUtilities.getNode(node, LDMLConstants.LAST_VARIABLE, null, null);
                 if (lastVariable != null) {
-                    if (DEBUG) {
-                        rules.append(" ");
-                    }
+                    addSpaceForDebug(rules);
                     rules.append(collationMap.get(lastVariable.getNodeName()));
                 } else {
                     String data = getData(node, name);
@@ -4774,9 +4778,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
             } else if (name.equals(LDMLConstants.P) || name.equals(LDMLConstants.S) || name.equals(LDMLConstants.T) || name.equals(LDMLConstants.Q) || name.equals(LDMLConstants.I)) {
                 Node lastVariable = LDMLUtilities.getNode(node, LDMLConstants.LAST_VARIABLE, null, null);
                 if (lastVariable != null) {
-                    if (DEBUG) {
-                        rules.append(" ");
-                    }
+                    addSpaceForDebug(rules);
                     rules.append(collationMap.get(lastVariable.getNodeName()));
                 } else {
                     String data = getData(node, name);
@@ -4849,13 +4851,9 @@ public class LDML2ICUConverter extends CLDRConverterTool {
                 String name = node.getNodeName();
                 if (name.equals(LDMLConstants.CP)) {
                     String hex = LDMLUtilities.getAttributeValue(node, LDMLConstants.HEX);
-                    if (DEBUG) {
-                        data.append(" ");
-                    }
+                    addSpaceForDebug(data);
                     data.append(getStrengthSymbol(strength));
-                    if (DEBUG) {
-                        data.append(" ");
-                    }
+                    addSpaceForDebug(data);
                     String cp = UTF16.valueOf(Integer.parseInt(hex, 16));
                     data.append(quoteOperand(cp));
                 }
@@ -4864,17 +4862,14 @@ public class LDML2ICUConverter extends CLDRConverterTool {
             if (node.getNodeType() == Node.TEXT_NODE) {
                 String val = node.getNodeValue();
                 if (val != null) {
-                    if (strength.equals(LDMLConstants.PC) || strength.equals(LDMLConstants.SC) || strength.equals(LDMLConstants.TC) || strength.equals(LDMLConstants.QC)
-                        || strength.equals(LDMLConstants.IC)) {
+                    if (strength.equals(LDMLConstants.PC) || strength.equals(LDMLConstants.SC) ||
+                        strength.equals(LDMLConstants.TC) || strength.equals(LDMLConstants.QC) ||
+                        strength.equals(LDMLConstants.IC)) {
                         data.append(getExpandedRules(val, strength));
                     } else {
-                        if (DEBUG) {
-                            data.append(" ");
-                        }
+                        addSpaceForDebug(data);
                         data.append(getStrengthSymbol(strength));
-                        if (DEBUG) {
-                            data.append(" ");
-                        }
+                        addSpaceForDebug(data);
                         data.append(quoteOperand(val));
                     }
                 }
@@ -4938,19 +4933,13 @@ public class LDML2ICUConverter extends CLDRConverterTool {
          */
         StringBuilder ret = new StringBuilder();
 
-        if (DEBUG) {
-            ret.append(" ");
-        }
+        addSpaceForDebug(ret);
         ret.append("&");
-        if (DEBUG) {
-            ret.append(" ");
-        }
+        addSpaceForDebug(ret);
 
         String val = LDMLUtilities.getAttributeValue(root, LDMLConstants.BEFORE);
         if (val != null) {
-            if (DEBUG) {
-                ret.append(" ");
-            }
+            addSpaceForDebug(ret);
             ret.append("[before ");
             ret.append(getStrength(val));
             ret.append("]");
@@ -4960,9 +4949,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
             short type = node.getNodeType();
             if (type == Node.ELEMENT_NODE) {
                 String key = node.getNodeName();
-                if (DEBUG) {
-                    ret.append(" ");
-                }
+                addSpaceForDebug(ret);
                 ret.append(collationMap.get(key));
             }
             if (type == Node.TEXT_NODE) {
@@ -4973,78 +4960,124 @@ public class LDML2ICUConverter extends CLDRConverterTool {
         return ret;
     }
 
+    /**
+     * Expand rules to include compact collation syntax to produce an equivalent
+     * but possibly more compact rule string.
+     *
+     * This function is called when one of the <pc></pc>, <sc></sc>, <tc></tc>,
+     * <qc></qc>, <ic></ic> rules are evaluated.  These rules contain a list of
+     * characters to which the given strength operator need to be applied
+     * consecutively. Rather than applying a series of consecutive operators
+     * (For example '<' for <pc></pc>), this function introduces two new syntax
+     * characters:
+     *
+     *  <li> A '*' after an operator signifies a list: For example, "&a<*hrbk"
+     *  means "&a<h<r<b<k".
+     *
+     *  <li> A '-' indicates a range of consecutive (codepointwise) characters.
+     *  For example, "&a<*dh-ls" means "&a<*dhijkls" or "&a<d<h<i<j<k<l<s".
+     *
+     * This is done in such a way that the resulting string is not longer than
+     * the original string.
+     */
     private StringBuilder getExpandedRules(String data, String name) {
         UCharacterIterator iter = UCharacterIterator.getInstance(data);
         StringBuilder ret = new StringBuilder();
+
+        // The strength symbol with an extra '*' added at the end.
         String strengthSymbol = getStrengthSymbol(name);
+
+        // The strength symbol without the extra '*'.
         String nonExpandedStrengthSymbol = strengthSymbol.substring(0, strengthSymbol.length()-1);
-        int ch;
+
+        // This flag keeps track of whether we are at the beginning of an
+        // expanded rule.  The expansion breaks when non-nfd_inert character or
+        // a syntax character is encountered.
         boolean restartExpandedRules = true;
+
+        // The set on which the expansion works.  It consists of all nfd_inert
+        // characters minus the syntax characters.
+        // TODO(umesh):  Remove the distinction for nfd_inert.
         UnicodeSet inertSet = new UnicodeSet("[:nfd_inert:]");
         inertSet.remove("-<=");
-        int consecutiveCount = 1;
-        boolean firstChar = true;
-        while ((ch = iter.nextCodePoint()) != UCharacterIterator.DONE) {
-            if (firstChar) {
-                firstChar = false;
-                startOfRange = lastOfRange = ch;
-            }
-            if (inertSet.contains(ch)) {
-                 if (restartExpandedRules){
-                     if (DEBUG) {
-                        ret.append(" ");
-                    }
 
-                    // And then add the strength symbol, with a star.
+        // If startOfRange == lastOfRange, the writePendingRange() function will
+        // skip appending characters.  This is necessary so that the rule starts
+        // with a non-nfd_inert character, it will not be confused.
+        startOfRange = lastOfRange = 0;
+
+        int ch;
+        while ((ch = iter.nextCodePoint()) != UCharacterIterator.DONE) {
+            if (inertSet.contains(ch)) {  // The character is nfd_inert.
+                 if (restartExpandedRules){
+                     addSpaceForDebug(ret);
+
+                    // This is the start of an expanded rule.  Add the strength
+                    // symbol, with a star, and then the first character.
                     ret.append(strengthSymbol);
                     ret.append(quoteOperand(UTF16.valueOf(ch)));
                     startOfRange = lastOfRange = ch;
                  } else {
+                    // This character, in the middle of a rule, may or may not
+                    // be added, depending on whether it belongs to a range or
+                    // not.  So, leave it to the checking function.
                     checkAndProcessRange(ret, ch);
                  }
                  restartExpandedRules = false;
-            } else {
-                // This is a character which is not NFD inert.
-                if (DEBUG) {
-                    ret.append(" ");
-                }
+            } else {  // The character is not nfd_inert.
+                addSpaceForDebug(ret);
 
                 // Process any pending range.
-                writeRange(ret);
+                writePendingRange(ret);
+
+                // This character is not NFD inert.
+                // Treat it without compact collation syntax.
                 ret.append(nonExpandedStrengthSymbol);
                 ret.append(quoteOperand(UTF16.valueOf(ch)));
 
+                // Restart expanded rules so that if there are more characters, they will
+                // use compact collation syntax.
                 restartExpandedRules = true;
                 startOfRange = lastOfRange = ch;
             }
-            if (DEBUG) {
-                ret.append(" ");
-            }
+            addSpaceForDebug(ret);
         }
 
         // Process any pending range
-        if (lastOfRange > startOfRange) {
-            writeRange(ret);
-        }
+        writePendingRange(ret);
+
         return ret;
     }
 
 
+    /**
+     * Checks whether a character belongs to a range and output accordingly.
+     */
     private void checkAndProcessRange(StringBuilder ret, int ch) {
         if (ch == startOfRange) {
+            // This happens when a character is repeated more than once.  In
+            // this case, we need to output (repeat) the character.
             ret.append(quoteOperand(UTF16.valueOf(ch)));
         } else if (ch == lastOfRange + 1) {
             // Wait till the range is finished
             lastOfRange = ch;
         } else {
-            // Print the range starting from startOfRange (exclusing) till lastOfRange (including)
-            writeRange(ret);
+            // Print the pending range starting from startOfRange (exclusing)
+            // till lastOfRange (including)
+            writePendingRange(ret);
+
+            // Then write the current character.  This will take care of the
+            // repeating character as well.
             ret.append(quoteOperand(UTF16.valueOf(ch)));
+
             startOfRange = lastOfRange = ch;
         }
     }
 
-    private void writeRange(StringBuilder ret) {
+    /**
+     * Writes a range from startOfRange (exclusive) to lastOfRange (inclusive).
+     */
+    private void writePendingRange(StringBuilder ret) {
         if (lastOfRange < startOfRange) {
             // This should not happen.  Should be an error.
             // Just returning for the time being.
@@ -5068,13 +5101,16 @@ public class LDML2ICUConverter extends CLDRConverterTool {
         // the hyphen.
 
         if (lastOfRange > startOfRange + 1) {
-            if (lastOfRange == startOfRange + 2 &&
+           if (lastOfRange == startOfRange + 2 &&
                   !Character.isSupplementaryCodePoint(startOfRange + 1)) {
                 // There are three characters, and the middle one is not a supplementary character.
                 // It is better to put "xyz" rather than "x-z" because both
                 // take the same space but the former will be more efficient
                 // when parsed by ICU.
-                ret.append(quoteOperand(UTF16.valueOf(startOfRange + 1)));
+
+               // TODO(umesh): Remove this distinction.  Let all three-letter
+               // sequences result in a range.
+               ret.append(quoteOperand(UTF16.valueOf(startOfRange + 1)));
             } else {
                 ret.append("-");
             }
@@ -5082,7 +5118,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
 
         // Add last character.
         ret.append(quoteOperand(UTF16.valueOf(lastOfRange)));
-    }
+     }
 
     private StringBuilder parseExtension(Node root) {
         /*
@@ -5137,34 +5173,22 @@ public class LDML2ICUConverter extends CLDRConverterTool {
             extend = LDMLUtilities.getNodeValue(extendNode);
         }
 
-        if (DEBUG) {
-            rules.append(" ");
-        }
+        addSpaceForDebug(rules);
         rules.append(strength);
-        if (DEBUG) {
-            rules.append(" ");
-        }
+        addSpaceForDebug(rules);
 
         if (context != null) {
             rules.append(quoteOperand(context));
-            if (DEBUG) {
-                rules.append(" ");
-            }
+            addSpaceForDebug(rules);
             rules.append("|");
-            if (DEBUG) {
-                rules.append(" ");
-            }
+            addSpaceForDebug(rules);
         }
         rules.append(string);
 
         if (extend != null) {
-            if (DEBUG) {
-                rules.append(" ");
-            }
+            addSpaceForDebug(rules);
             rules.append("/");
-            if (DEBUG) {
-                rules.append(" ");
-            }
+            addSpaceForDebug(rules);
             rules.append(quoteOperand(extend));
         }
 
