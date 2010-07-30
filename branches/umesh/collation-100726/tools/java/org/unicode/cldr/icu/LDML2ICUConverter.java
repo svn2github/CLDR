@@ -4994,51 +4994,24 @@ public class LDML2ICUConverter extends CLDRConverterTool {
         // expanded rule.  The expansion breaks when non-nfd_inert character or
         // a syntax character is encountered.
         boolean restartExpandedRules = true;
-
-        // The set on which the expansion works.  It consists of all nfd_inert
-        // characters minus the syntax characters.
-        // TODO(umesh):  Remove the distinction for nfd_inert.
-        UnicodeSet inertSet = new UnicodeSet("[:nfd_inert:]");
-        inertSet.remove("-<=");
-
-        // If startOfRange == lastOfRange, the writePendingRange() function will
-        // skip appending characters.  This is necessary so that the rule starts
-        // with a non-nfd_inert character, it will not be confused.
         startOfRange = lastOfRange = 0;
 
         int ch;
         while ((ch = iter.nextCodePoint()) != UCharacterIterator.DONE) {
-            if (inertSet.contains(ch)) {  // The character is nfd_inert.
-                 if (restartExpandedRules){
-                     addSpaceForDebug(ret);
-
-                    // This is the start of an expanded rule.  Add the strength
-                    // symbol, with a star, and then the first character.
-                    ret.append(strengthSymbol);
-                    ret.append(quoteOperand(UTF16.valueOf(ch)));
-                    startOfRange = lastOfRange = ch;
-                 } else {
-                    // This character, in the middle of a rule, may or may not
-                    // be added, depending on whether it belongs to a range or
-                    // not.  So, leave it to the checking function.
-                    checkAndProcessRange(ret, ch);
-                 }
-                 restartExpandedRules = false;
-            } else {  // The character is not nfd_inert.
+            if (restartExpandedRules){
                 addSpaceForDebug(ret);
 
-                // Process any pending range.
-                writePendingRange(ret);
-
-                // This character is not NFD inert.
-                // Treat it without compact collation syntax.
-                ret.append(nonExpandedStrengthSymbol);
+                // This is the start of an expanded rule.  Add the strength
+                // symbol, with a star, and then the first character.
+                ret.append(strengthSymbol);
                 ret.append(quoteOperand(UTF16.valueOf(ch)));
-
-                // Restart expanded rules so that if there are more characters, they will
-                // use compact collation syntax.
-                restartExpandedRules = true;
                 startOfRange = lastOfRange = ch;
+                restartExpandedRules = false;
+            } else {
+                // This character, in the middle of a rule, may or may not
+                // be added, depending on whether it belongs to a range or
+                // not.  So, leave it to the checking function.
+                checkAndProcessRange(ret, ch);
             }
             addSpaceForDebug(ret);
         }
@@ -5093,27 +5066,9 @@ public class LDML2ICUConverter extends CLDRConverterTool {
         // The first character is already input, so skip it.
         // ret.DO_NOT_append(quoteOperand(UTF16.valueOf(startOfRange)));
 
-        // Add hyphen if three or more characters are there.  If there are
-        // exactly three characters, like "a b c", we can write "abc" or "a-c",
-        // both taking the same number of characters in almost all cases.  The
-        // second form is used here.  This is because the character in between
-        // may be a supplemental character, and may take one more character than
-        // the hyphen.
-
+        // Add hyphen if three or more characters are there.
         if (lastOfRange > startOfRange + 1) {
-           if (lastOfRange == startOfRange + 2 &&
-                  !Character.isSupplementaryCodePoint(startOfRange + 1)) {
-                // There are three characters, and the middle one is not a supplementary character.
-                // It is better to put "xyz" rather than "x-z" because both
-                // take the same space but the former will be more efficient
-                // when parsed by ICU.
-
-               // TODO(umesh): Remove this distinction.  Let all three-letter
-               // sequences result in a range.
-               ret.append(quoteOperand(UTF16.valueOf(startOfRange + 1)));
-            } else {
-                ret.append("-");
-            }
+            ret.append("-");
         }
 
         // Add last character.
