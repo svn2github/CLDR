@@ -126,6 +126,8 @@ public class LDML2ICUConverter extends CLDRConverterTool {
     private boolean writeDraft;
     private boolean writeBinary;
     private boolean asciiNumbers;
+    private int startOfRange;   // First character of a potential range.
+    private int lastOfRange;    // The (so far) last character of a potential range.
 
     /**
      * Add comments on the item to indicate where fallbacks came from. Good for information, bad for diffs.
@@ -4981,29 +4983,105 @@ public class LDML2ICUConverter extends CLDRConverterTool {
         UnicodeSet inertSet = new UnicodeSet("[:nfd_inert:]");
         inertSet.remove("-<=");
         int consecutiveCount = 1;
+        boolean firstChar = true;
         while ((ch = iter.nextCodePoint()) != UCharacterIterator.DONE) {
+            if (firstChar) {
+                firstChar = false;
+                startOfRange = lastOfRange = ch;
+            }
             if (inertSet.contains(ch)) {
-                if (restartExpandedRules){
-                    if (DEBUG) {
+                 if (restartExpandedRules){
+                     if (DEBUG) {
                         ret.append(" ");
                     }
+
+                    // And then add the strength symbol, with a star.
                     ret.append(strengthSymbol);
-                }
-                restartExpandedRules = false;
+                    ret.append(quoteOperand(UTF16.valueOf(ch)));
+                    startOfRange = lastOfRange = ch;
+                 } else {
+                    checkAndProcessRange(ret, ch);
+                 }
+                 restartExpandedRules = false;
             } else {
+                // This is a character which is not NFD inert.
                 if (DEBUG) {
                     ret.append(" ");
                 }
+
+                // Process any pending range.
+                writeRange(ret);
                 ret.append(nonExpandedStrengthSymbol);
+                ret.append(quoteOperand(UTF16.valueOf(ch)));
+
                 restartExpandedRules = true;
+                startOfRange = lastOfRange = ch;
             }
             if (DEBUG) {
                 ret.append(" ");
             }
-            ret.append(quoteOperand(UTF16.valueOf(ch)));
         }
 
+        // Process any pending range
+        if (lastOfRange > startOfRange) {
+            writeRange(ret);
+        }
         return ret;
+    }
+
+
+    private void checkAndProcessRange(StringBuilder ret, int ch) {
+        if (ch == startOfRange) {
+            ret.append(quoteOperand(UTF16.valueOf(ch)));
+        } else if (ch == lastOfRange + 1) {
+            // Wait till the range is finished
+            lastOfRange = ch;
+        } else {
+            // Print the range starting from startOfRange (exclusing) till lastOfRange (including)
+            writeRange(ret);
+            ret.append(quoteOperand(UTF16.valueOf(ch)));
+            startOfRange = lastOfRange = ch;
+        }
+    }
+
+    private void writeRange(StringBuilder ret) {
+        if (lastOfRange < startOfRange) {
+            // This should not happen.  Should be an error.
+            // Just returning for the time being.
+            return;
+        }
+
+        if (lastOfRange == startOfRange) {
+            // These variables are initialized and have not changed.
+            // Since we don't process the first character in this function, skip.
+            return;
+        }
+
+        // The first character is already input, so skip it.
+        // ret.DO_NOT_append(quoteOperand(UTF16.valueOf(startOfRange)));
+
+        // Add hyphen if three or more characters are there.  If there are
+        // exactly three characters, like "a b c", we can write "abc" or "a-c",
+        // both taking the same number of characters in almost all cases.  The
+        // second form is used here.  This is because the character in between
+        // may be a supplemental character, and may take one more character than
+        // the hyphen.
+
+        if (lastOfRange > startOfRange + 1) {
+            if (lastOfRange == startOfRange + 2 &&
+                  !Character.isSupplementaryCodePoint(startOfRange + 1)) {
+                // There are three characters, and the middle one is not a supplementary character.
+                // It is better to put "xyz" rather than "x-z" because both
+                // take the same space but the former will be more efficient
+                // when parsed by ICU.
+                ret.append(quoteOperand(UTF16.valueOf(startOfRange + 1)));
+            } else {
+                ret.append("-");
+            }
+        }
+
+        // Add last character.
+        ret.append(quoteOperand(UTF16.valueOf(lastOfRange)));
     }
 
     private StringBuilder parseExtension(Node root) {
