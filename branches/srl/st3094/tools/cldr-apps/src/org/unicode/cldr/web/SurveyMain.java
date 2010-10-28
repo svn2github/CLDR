@@ -454,8 +454,6 @@ public class SurveyMain extends HttpServlet {
                 out.println(SHOWHIDE_SCRIPT);
                 WebContext.includeFragment(request,response,SurveyAjax.AJAX_STATUS_SCRIPT);
                 out.println("<script type=\"text/javascript\">timerSpeed = 60080;</script>"); // don't flood server if busted- check every minute.
-                out.println("</head>");
-                out.println("<body>");
                 out.print("<div id='st_err'><!-- for ajax errs --></div><span id='progress'>");
                 out.print(getTopBox());
                 out.println("</span>");
@@ -2343,11 +2341,23 @@ public class SurveyMain extends HttpServlet {
      * @return
      */
     public String getTopBox() {
+    	return getTopBox(true);
+    }
+    /**
+     * Return the entire top 'box' including progress bars, busted notices, etc.
+     * @return
+     */
+    public String getTopBox(boolean shorten) {
         StringBuffer out = new StringBuffer();
         if(isBusted!=null) {
             out.append("<h1>The CLDR Survey Tool is offline</h1>");
             out.append("<div class='ferrbox'><pre>" + isBusted +"</pre><hr>");
-            out.append(getShortened((SurveyForum.HTMLSafe(isBustedStack).replaceAll("\t", "&nbsp;&nbsp;&nbsp;").replaceAll("\n", "<br>"))));
+            String stack = SurveyForum.HTMLSafe(isBustedStack).replaceAll("\t", "&nbsp;&nbsp;&nbsp;").replaceAll("\n", "<br>");
+            if(shorten) {
+            	out.append(getShortened(stack));
+            } else {
+            	out.append(stack);
+            }
             out.append("</div><br>");
         }
         if(lockOut != null) {
@@ -8994,10 +9004,10 @@ public class SurveyMain extends HttpServlet {
             pw.println();
             pw.println("## Special message shown to users as to why survey tool is down.");
             pw.println("## Comment out for normal start-up.");
-            pw.println("CLDR_MESSAGE=Welcome to SurveyTool@"+localhost()+". Please edit "+homeFile.getAbsolutePath()+"/cldr.properties. Comment out CLDR_MESSAGE to continue normal startup.");
+            pw.println("CLDR_MESSAGE=Welcome to SurveyTool@"+localhost()+". Please edit "+propsFile.getAbsolutePath()+". Comment out CLDR_MESSAGE to continue normal startup.");
             pw.println();
             pw.println("## Special message shown to users.");
-            pw.println("CLDR_HEADER=Welcome to SurveyTool@"+localhost()+". Please edit "+homeFile.getAbsolutePath()+"/cldr.properties to change CLDR_HEADER (to change this message), or comment it out entirely.");
+            pw.println("CLDR_HEADER=Welcome to SurveyTool@"+localhost()+". Please edit "+propsFile.getAbsolutePath()+" to change CLDR_HEADER (to change this message), or comment it out entirely.");
             pw.println();
             pw.println("## Current SurveyTool phase ");
             pw.println("CLDR_PHASE="+Phase.BETA.name());
@@ -9739,8 +9749,8 @@ public class SurveyMain extends HttpServlet {
         } else {
             System.err.println("WARNING: Don't know what kind of database is "+db_protocol+" - might be interesting!");
         }
-        CLDR_DB_U   =cldrprops.getProperty("CLDR_DB_U","cldr_user");
-        CLDR_DB_P   =cldrprops.getProperty("CLDR_DB_P","cldr_pass");
+        CLDR_DB_U   =cldrprops.getProperty("CLDR_DB_U",null);
+        CLDR_DB_P   =cldrprops.getProperty("CLDR_DB_P",null);
         CLDR_DB     =cldrprops.getProperty("CLDR_DB","cldrdb");
         dbDir = new File(cldrHome,CLDR_DB);
         cldrdb      =cldrprops.getProperty("CLDR_DB_LOCATION", dbDir.getAbsolutePath());
@@ -9790,8 +9800,10 @@ public class SurveyMain extends HttpServlet {
 //                throw new InternalError("too many..");
 //            }
             Properties props = new Properties();
-            props.put("user", CLDR_DB_U);
-            props.put("password", CLDR_DB_P);
+            if(CLDR_DB_U != null) {
+            	props.put("user", CLDR_DB_U);
+            	props.put("password", CLDR_DB_P);
+            }
             Connection nc =  DriverManager.getConnection(db_protocol +
                                                          cldrdb + options, props);
             nc.setAutoCommit(false);
@@ -9954,17 +9966,19 @@ public class SurveyMain extends HttpServlet {
 
     public static final String unchainSqlException(SQLException e) {
         String echain = "SQL exception: \n ";
+        SQLException laste =null;
         while(e!=null) {
+        	laste = e;
             echain = echain + " -\n " + e.toString();
             e = e.getNextException();
         }
         String stackStr = "\n unknown Stack";
         try {
             StringWriter asString = new StringWriter();
-            e.printStackTrace(new PrintWriter(asString));
+            laste.printStackTrace(new PrintWriter(asString));
             stackStr = "\n Stack: \n " + asString.toString();
         } catch ( Throwable tt ) {
-            // ...
+        	stackStr  = "\n unknown stack ("+tt.toString()+")";
         }
         return echain + stackStr;
     }

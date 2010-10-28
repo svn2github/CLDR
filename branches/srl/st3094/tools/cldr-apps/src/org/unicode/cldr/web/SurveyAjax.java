@@ -55,6 +55,7 @@ public class SurveyAjax extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    request.setCharacterEncoding("UTF-8");
 	    response.setCharacterEncoding("UTF-8");
+	    response.setContentType("application/json");
 	    SurveyMain sm = SurveyMain.getInstance(request);
 	    PrintWriter out = response.getWriter();
 	    String what = request.getParameter(REQ_WHAT);
@@ -76,7 +77,7 @@ public class SurveyAjax extends HttpServlet {
         r.put("isBusted", (sm.isBusted!=null)?"1":"0");
         r.put("visitors", sm.getGuestsAndUsers());
         r.put("uptime", sm.uptime.toString());
-        r.put("progress", sm.getTopBox());
+        r.put("progress", sm.getTopBox(false));
 //        StringBuffer progress = new StringBuffer(sm.getProgress());
 //        String threadInfo = sm.startupThread.htmlStatus();
 //        if(threadInfo!=null) {

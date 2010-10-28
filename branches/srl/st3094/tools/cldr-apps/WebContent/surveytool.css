@@ -413,10 +413,9 @@ tr.headingb th {
 
 tt.codebox {
 	border: 1px solid gray;
-/
-
-* padding: 1px; 
-  margin-top:0px;
+/*
+		padding: 1px; 
+  	margin-top:0px;
   */
 }
 
@@ -645,11 +644,13 @@ table.sqlbox form {
 	margin-right: 1px;
 	color: #d00;
 	font-weight: bold;
-	/
-
-* border: 1px solid red; margin: 1em; padding: 1em;	 */
     white-space: nowrap;
 }
+
+/*
+deletebox: 
+ border: 1px solid red; margin: 1em; padding: 1em;	
+*/
 
 .unvotebox {
 	font-size: small;
@@ -658,11 +659,11 @@ table.sqlbox form {
 	margin-bottom: 2px;
 	color: #00989e;
 	font-weight: bold;
+    white-space: nowrap;
+}
 	/*
 
 border: 1px solid red; margin: 1em; padding: 1em;	 */
-    white-space: nowrap;
-}
 
 .fnotebox {
 	background-color: #ddd;

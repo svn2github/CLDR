@@ -319,7 +319,7 @@ private static final String INTERNAL = "INTERNAL";
                                                             "locales varchar(1024) , " +
                                                             "prefs varchar(1024) , " +
                                                             "intlocs varchar(1024) , " + // added apr 2006: ALTER table CLDR_USERS ADD COLUMN intlocs VARCHAR(1024)
-                                                            "lastlogin DATETIME " + // added may 2006:  alter table CLDR_USERS ADD COLUMN lastlogin TIMESTAMP
+                                                            "lastlogin " + sm.DB_SQL_TIMESTAMP0 + // added may 2006:  alter table CLDR_USERS ADD COLUMN lastlogin TIMESTAMP
                                                             (sm.db_Mysql?"":",primary key(id)")+
                                                                 ")"); 
                     s.execute(sql);
@@ -335,7 +335,7 @@ private static final String INTERNAL = "INTERNAL";
                     
                     s.close();
                     conn.commit();
-                } else {
+                } else if(!sm.db_Derby) {
                     /* update table to DATETIME instead of TIMESTAMP */
                     Statement s = conn.createStatement();
                     sql = "alter table cldr_users change lastlogin lastlogin DATETIME";

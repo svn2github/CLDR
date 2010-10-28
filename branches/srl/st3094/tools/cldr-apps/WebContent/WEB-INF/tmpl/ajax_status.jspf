@@ -1,4 +1,4 @@
-<script type="text/javascript" src="dojoroot/dojo/dojo.js"
+<script type="text/javascript" src="../dojoroot/dojo/dojo.js"
     djConfig="parseOnLoad: true, isDebug: false">
 </script>
 <script type="text/javascript">
@@ -18,7 +18,7 @@ var clickContinue = null;
 
 function updateStatus() {
     dojo.xhrGet({
-        url:"SurveyAjax?what=status",
+        url:"../SurveyAjax?what=status",
         handleAs:"json",
         load: function(json){
             if(json.isBusted == 1) {
@@ -54,7 +54,7 @@ function updateStatus() {
             var st_err =  document.getElementById('st_err');
             wasBusted = true;
             st_err.className = "ferrbox";
-            st_err.innerHTML="Disconnected from Survey Tool: "+err;
+            st_err.innerHTML="Disconnected from Survey Tool: "+err.name + " <br> " + err.message;
             updateIf('progress','<hr><i>(disconnected from Survey Tool)</i></hr>');
             updateIf('uptime','down');
             updateIf('visitors','nobody');
