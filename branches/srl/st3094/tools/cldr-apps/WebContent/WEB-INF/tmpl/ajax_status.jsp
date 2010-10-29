@@ -1,6 +1,5 @@
-<script type="text/javascript" src="../dojoroot/dojo/dojo.js"
-    djConfig="parseOnLoad: true, isDebug: false">
-</script>
+<script type='text/javascript' src='<%= request.getContextPath()+"/dojoroot/dojo/dojo.js" %>'
+    djConfig='parseOnLoad: true, isDebug: false'></script>
 <script type="text/javascript">
 var timerID = -1;
 
@@ -18,7 +17,7 @@ var clickContinue = null;
 
 function updateStatus() {
     dojo.xhrGet({
-        url:"../SurveyAjax?what=status",
+        url:"<%= request.getContextPath() %>/SurveyAjax?what=status",
         handleAs:"json",
         load: function(json){
             if(json.isBusted == 1) {

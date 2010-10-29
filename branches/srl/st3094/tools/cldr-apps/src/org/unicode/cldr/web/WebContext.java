@@ -12,6 +12,7 @@ import java.io.*;
 import java.util.*;
 
 import org.unicode.cldr.util.*;
+import org.unicode.cldr.web.SurveyAjax.AjaxType;
 import org.unicode.cldr.web.Vetting.DataSubmissionResultHandler;
 import org.unicode.cldr.web.WebContext.HTMLDirection;
 import org.unicode.cldr.test.*;
@@ -1472,4 +1473,17 @@ public class WebContext implements Cloneable {
 		if(canModify==null) throw new InternalError("zoomedIn()- not set.");
 		return zoomedIn;
 	}
+
+
+    public void includeAjaxScript(AjaxType type)  {
+        try {
+            SurveyAjax.includeAjaxScript(request, response, type);
+        } catch(Throwable t) {
+            this.println("<div class='ferrorbox'><B>Error</b> while including template :<br>");
+            this.print(t);
+            this.println("</div>");
+            System.err.println("While expanding ajax: " +t.toString());
+            t.printStackTrace();
+        }
+    }
 }

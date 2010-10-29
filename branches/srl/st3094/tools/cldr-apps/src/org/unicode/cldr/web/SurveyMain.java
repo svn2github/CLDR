@@ -76,6 +76,7 @@ import org.unicode.cldr.util.XPathParts;
 import org.unicode.cldr.web.CLDRDBSourceFactory.CLDRDBSource;
 import org.unicode.cldr.web.DataSection.DataRow;
 import org.unicode.cldr.web.DataSection.DataRow.CandidateItem;
+import org.unicode.cldr.web.SurveyAjax.AjaxType;
 import org.unicode.cldr.web.SurveyThread.SurveyTask;
 import org.unicode.cldr.web.UserRegistry.User;
 import org.unicode.cldr.web.Vetting.DataSubmissionResultHandler;
@@ -232,7 +233,7 @@ public class SurveyMain extends HttpServlet {
     static final String QUERY_PASSWORD = "pw";
     static final String QUERY_PASSWORD_ALT = "uid";
     static final String QUERY_EMAIL = "email";
-    static final String QUERY_SESSION = "s";
+    public static final String QUERY_SESSION = "s";
     public static final String QUERY_LOCALE = "_";
     public static final String QUERY_SECTION = "x";
     static final String QUERY_EXAMPLE = "e";
@@ -452,7 +453,7 @@ public class SurveyMain extends HttpServlet {
                 out.println("<title>CLDR Survey Tool offline</title>");
                 out.println("<link rel='stylesheet' type='text/css' href='"+ request.getContextPath() + "/" + "surveytool.css" + "'>");
                 out.println(SHOWHIDE_SCRIPT);
-                WebContext.includeFragment(request,response,SurveyAjax.AJAX_STATUS_SCRIPT);
+                SurveyAjax.includeAjaxScript(request, response, SurveyAjax.AjaxType.STATUS);
                 out.println("<script type=\"text/javascript\">timerSpeed = 60080;</script>"); // don't flood server if busted- check every minute.
                 out.print("<div id='st_err'><!-- for ajax errs --></div><span id='progress'>");
                 out.print(getTopBox());
@@ -570,7 +571,7 @@ public class SurveyMain extends HttpServlet {
             PrintWriter out = response.getWriter();
             out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head>");
             out.println("<title>"+sysmsg("startup_title")+"</title>");
-            WebContext.includeFragment(request, response, SurveyAjax.AJAX_STATUS_SCRIPT);
+            SurveyAjax.includeAjaxScript(request, response, SurveyAjax.AjaxType.STATUS);
 	    if(isUnofficial) {
             	out.println("<script type=\"text/javascript\">timerSpeed = 2500;</script>");
             } else {
@@ -2224,7 +2225,7 @@ public class SurveyMain extends HttpServlet {
         ctx.println("<meta name=\"gigabot\" content=\"noarchive\">");
         ctx.println("<meta name=\"gigabot\" content=\"nofollow\">");
 
-        ctx.includeFragment(SurveyAjax.AJAX_STATUS_SCRIPT);
+        ctx.includeAjaxScript(AjaxType.STATUS);
         ctx.println("<link rel='stylesheet' type='text/css' href='"+ ctx.schemeHostPort()  + ctx.context("surveytool.css") + "'>");
         ctx.println("<title>CLDR Vetting | ");
         if(ctx.getLocale() != null) {
@@ -5911,6 +5912,8 @@ public class SurveyMain extends HttpServlet {
 
 	public static final String DATAROW_JSP_DEFAULT = "datarow_short.jsp";
 
+	public static final String QUERY_VALUE_SUFFIX = "_v";
+
     public synchronized String baselineFileGetStringValue(String xpath) {
         String res = gBaselineHash.get(xpath);
         if(res == null) {
@@ -5974,7 +5977,7 @@ public class SurveyMain extends HttpServlet {
      * @return the map
      * @see org.unicode.cldr.test.CheckCoverage#check(String, String, String, Map, List)
      */
-    public Map basicOptionsMap() {
+    public static Map basicOptionsMap() {
         Map options = new HashMap();
         
         // the following is highly suspicious. But, CheckCoverage seems to require it.
@@ -6155,7 +6158,7 @@ public class SurveyMain extends HttpServlet {
 
     //private CLDRFileCache cldrFileCache = null; // LOCAL to UserFile.
     
-    synchronized CLDRFileCache getCLDRFileCache() {
+    public synchronized CLDRFileCache getCLDRFileCache() {
 //        if(cldrFileCache == null) {
 //        
 //            Connection conn = getDBConnection();
@@ -7205,7 +7208,7 @@ public class SurveyMain extends HttpServlet {
                 }
             }            
             if(oldSection.xpathPrefix.indexOf("references")!=-1) {
-                String newRef = ctx.field(MKREFERENCE+"_v");
+                String newRef = ctx.field(MKREFERENCE+QUERY_VALUE_SUFFIX);
                 String uri = ctx.field(MKREFERENCE+"_u");
                 if(newRef.length()>0) {
                     String dup = null;
@@ -7273,7 +7276,7 @@ public class SurveyMain extends HttpServlet {
         int base_xpath = xpt.xpathToBaseXpathId(fullPathFull);
         int oldVote = vet.queryVote(section.locale, ctx.session.user.id, base_xpath);
         // do modification here. 
-        String choice_v = ctx.field(fieldHash+"_v"); // choice + value
+        String choice_v = ctx.field(fieldHash+QUERY_VALUE_SUFFIX); // choice + value
         String choice_r = ctx.field(fieldHash+"_r"); // choice + value
         String choice_refDisplay = ""; // display value for ref
         boolean canSubmit = UserRegistry.userCanSubmitAnyLocale(ctx.session.user) || p.hasProps || p.hasErrors;
@@ -7499,7 +7502,7 @@ public class SurveyMain extends HttpServlet {
         
         if(choice.equals(CHANGETO)&& !choiceNotEmptyOrAllowedEmpty(choice_v, fullPathFull)) {
         	dsrh.handleEmptyChangeto(p);
-            ctx.temporaryStuff.put(fieldHash+"_v", choice_v);  // mark it for "this item not accepted"
+            ctx.temporaryStuff.put(fieldHash+QUERY_VALUE_SUFFIX, choice_v);  // mark it for "this item not accepted"
         } else if( (choice.equals(CHANGETO) && choiceNotEmptyOrAllowedEmpty(choice_v, fullPathFull)) ||
              (HAVE_REMOVE&&choice.equals(REMOVE)) ) {
             if(!canSubmit) {
@@ -7994,7 +7997,7 @@ public class SurveyMain extends HttpServlet {
             
             
             if(areShowingInputBox) {
-                String oldValue = (String)ctx.temporaryStuff.get(fieldHash+"_v");
+                String oldValue = (String)ctx.temporaryStuff.get(fieldHash+QUERY_VALUE_SUFFIX);
                 String fClass = "inputbox";
                 if(oldValue==null) {
                     oldValue="";
@@ -9234,8 +9237,9 @@ public class SurveyMain extends HttpServlet {
             
             
             doStartupDB(); // will take over progress 50-60
-	} catch(Throwable t) {
-	    busted("Error on startup: ", t);
+        } catch(Throwable t) {
+	        t.printStackTrace();
+	        busted("Error on startup: ", t);
         } finally {
             clearProgress(); // at least clear the progress bar.
         }
@@ -9584,6 +9588,8 @@ public class SurveyMain extends HttpServlet {
     static final int LARGER_MAX_CHARS = 256;
     static final String SHORT_A = "(Click to show entire message.)";
     static final String SHORT_B = "(hide.)";
+
+    public static final String QUERY_FIELDHASH = "fhash";
     private static void printShortened(WebContext ctx, String str) {
         ctx.println(getShortened(str));
     }
@@ -9776,12 +9782,13 @@ public class SurveyMain extends HttpServlet {
             try {
                 aconn.close();
             } catch (SQLException e) {
-                // TODO Auto-generated catch block
                 System.err.println(SurveyMain.unchainSqlException(e));
                 e.printStackTrace();
             }
             db_number_cons--;
-            System.err.println("SQL -conns: " + db_number_cons);
+            if(isUnofficial) {
+                System.err.println("SQL -conns: " + db_number_cons);
+            }
         }
     }
     private Connection getDBConnection(String options)
@@ -9791,11 +9798,14 @@ public class SurveyMain extends HttpServlet {
             
             if(datasource != null) {
                 db_number_pool_cons++;
-                System.err.println("SQL  +conns: " + db_number_cons+" Pconns: " + db_number_pool_cons);
+                if(this.isUnofficial) {
+                    System.err.println("SQL  +conns: " + db_number_cons+" Pconns: " + db_number_pool_cons);
+                }
                 return datasource.getConnection();
             }
-            
-            System.err.println("SQL +conns: " + db_number_cons);
+            if(this.isUnofficial) {
+                System.err.println("SQL +conns: " + db_number_cons);
+            }
 //            if(db_number_cons >= 12) {
 //                throw new InternalError("too many..");
 //            }
