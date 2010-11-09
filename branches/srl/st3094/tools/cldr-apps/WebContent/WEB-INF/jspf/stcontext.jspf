@@ -3,6 +3,8 @@
 <%@ page import="org.unicode.cldr.web.*" %>
 <%@ page import="org.unicode.cldr.util.*" %>
 <%@ page import="java.util.*" %>
+<%@ page import="com.ibm.icu.text.*" %>
+<%@ page import="com.ibm.icu.util.*" %>
 
 <% 
 	JspWebContext ctx = WebContext.fromRequest(request,response,out);

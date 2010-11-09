@@ -709,7 +709,7 @@ public class WebContext implements Cloneable {
      * @param s line to print
      * @see PrintWriter#println(String)
      */
-    final void println(String s) {
+    public final void println(String s) {
         pw.println(s);
     }
     
