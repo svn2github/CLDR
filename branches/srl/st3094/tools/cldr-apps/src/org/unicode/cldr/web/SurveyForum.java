@@ -1250,7 +1250,7 @@ public class SurveyForum {
         ULocale u = new ULocale(locale);
         return ctx.base()+"?_="+locale+"&"+F_FORUM+"="+u.getLanguage()+"&"+F_XPATH+"="+xpath;
     }
-    static String forumUrl(WebContext ctx, String forum) {
+    static public String forumUrl(WebContext ctx, String forum) {
         return (ctx.base()+"?"+F_FORUM+"="+forum);
     }
     String returnText(WebContext ctx, int base_xpath) {
@@ -1476,7 +1476,7 @@ public boolean doFeed(HttpServletRequest request, HttpServletResponse response)
     
     
     
-    String forumFeedIcon(WebContext ctx, String forum) {
+    public static String forumFeedIcon(WebContext ctx, String forum) {
         if(ctx.session == null ||
            ctx.session.user == null ||
            !UserRegistry.userIsStreet(ctx.session.user)) {

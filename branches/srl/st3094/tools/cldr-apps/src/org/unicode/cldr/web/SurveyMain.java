@@ -290,8 +290,8 @@ public class SurveyMain extends HttpServlet {
     public static final String GREGORIAN_CALENDAR = "gregorian calendar";
     public static final String OTHER_CALENDARS = "other calendars";
     // 
-    public String CALENDARS_ITEMS[];
-    public String METAZONES_ITEMS[];
+    public static String CALENDARS_ITEMS[] = PathUtilities.getCalendarsItems();
+    public static String METAZONES_ITEMS[] = getMetazonesItems();
 
     public static final String OTHERROOTS_ITEMS[] = {
         LDMLConstants.CHARACTERS,
@@ -2248,22 +2248,22 @@ public class SurveyMain extends HttpServlet {
         ctx.println("</head>");
         ctx.println("<body onload='this.focus(); top.focus(); top.parent.focus(); setTimerOn();'>");
         ctx.print("<div class='topnotices'>");
-        if(/*!isUnofficial && */ 
-            ((ctx.session!=null && ctx.session.user!=null && UserRegistry.userIsAdmin(ctx.session.user))||
-                false)) {
-            ctx.print("<p class='admin' title='You're an admin!'>");
-            ctx.printHelpLink("/Admin",ctx.iconHtml("stop","Admin!")+"Be careful, you are an administrator!");
-            ctx.println("</p>");
-        }
+//        if(/*!isUnofficial && */ 
+//            ((ctx.session!=null && ctx.session.user!=null && UserRegistry.userIsAdmin(ctx.session.user))||
+//                false)) {
+//            ctx.print("<span class='admin' title='You're an admin!'>");
+//            ctx.printHelpLink("/Admin",ctx.iconHtml("warn","Admin!")+"Administrator");
+//            ctx.println("</span>");
+//        }
         if(isUnofficial) {
-            ctx.print("<p class='unofficial' title='Not an official SurveyTool' >");
+            ctx.print("<div class='unofficial' title='Not an official SurveyTool' >");
             ctx.printHelpLink("/Unofficial",ctx.iconHtml("warn","Unofficial Site")+"Unofficial");
-            ctx.println("</p>");
+            ctx.println("</div>");
         }
         if(isPhaseBeta()) {
-            ctx.print("<p class='beta' title='Survey Tool is in Beta' >");
+            ctx.print("<div class='beta' title='Survey Tool is in Beta' >");
             ctx.printHelpLink("/Beta",ctx.iconHtml("warn","beta")+"SurveyTool is in Beta. Any data added here will NOT go into CLDR.");
-            ctx.println("</p>");
+            ctx.println("</div>");
         }
         ctx.print("</div>");
         ctx.print("<div id='st_err'><!-- for ajax errs --></div><span id='progress'>");
@@ -2500,7 +2500,7 @@ public class SurveyMain extends HttpServlet {
                 }
                 u=u+"|"+k+"="+v;
             }
-            ctx.println("| <a href='" + bugFeedbackUrl("Feedback on URL ?" + u)+"'>Report Problem in Tool</a>");
+            ctx.println("| <a " + (isUnofficial?"title":"href") + "='" + bugFeedbackUrl("Feedback on URL ?" + u)+"'>Report Problem in Tool</a>");
         } catch (Throwable t) {
             System.err.println(t.toString());
             t.printStackTrace();
@@ -2765,7 +2765,7 @@ public class SurveyMain extends HttpServlet {
             //ctx.println(" | <a class='deactivated' _href='"+ctx.url()+ctx.urlConnector()+"do=mylocs"+"'>My locales</a>");
             ctx.println("<br/>");
             if(UserRegistry.userIsAdmin(ctx.session.user)) {
-                ctx.println("<b>You are an Admin:</b> ");
+                ctx.println("<b class='admin'>You are an Admin:</b> ");
                 ctx.println("<a href='" + ctx.base() + "?dump=" + vap + "'>[Admin]</a>");
                 if(ctx.session.user.id == 1) {
                     ctx.println("<a href='" + ctx.base() + "?sql=" + vap + "'>[Raw SQL]</a>");
@@ -4649,7 +4649,7 @@ public class SurveyMain extends HttpServlet {
      * @param which the ID of "this" item
      * @param menu the ID of the current item
      */
-    protected void printMenu(WebContext ctx, String which, String menu) {
+    public void printMenu(WebContext ctx, String which, String menu) {
         printMenu(ctx,which,menu,menu, QUERY_SECTION);
     }
     /**
@@ -4848,73 +4848,84 @@ public class SurveyMain extends HttpServlet {
             getLocaleStatus(ctx.getLocale(), ctx.getLocale().getDisplayName(ctx.displayLocale)+(canModifyL?modifyThing(ctx):""), "") );
         ctx.print("</span>");
         ctx.println("<br/>");
-        ctx.println("</td><td style='padding-left: 1em;'>");
+        ctx.println("</td>");
         
-        subCtx.println("<p class='hang'> Code Lists: ");
-        for(n =0 ; n < PathUtilities.LOCALEDISPLAYNAMES_ITEMS.length; n++) {        
-            if(n>0) {
-                ctx.print(" | ");
-            }
-            printMenu(subCtx, which, PathUtilities.LOCALEDISPLAYNAMES_ITEMS[n]);
-        }
-        subCtx.println("<p class='hang'> Calendars: ");
-        if ( CALENDARS_ITEMS == null )
-           CALENDARS_ITEMS = PathUtilities.getCalendarsItems();
-        for(n =0 ; n < CALENDARS_ITEMS.length; n++) {        
-            if(n>0) {
-                ctx.print(" | ");
-            }
-            printMenu(subCtx, which, CALENDARS_ITEMS[n]);
-        }
-
-        subCtx.println("<p class='hang'> Metazones: ");
-        if ( METAZONES_ITEMS == null )
-	    METAZONES_ITEMS = getMetazonesItems(); // idempotent
-        for(n =0 ; n < METAZONES_ITEMS.length; n++) {        
-            if(n>0) {
-                ctx.print(" | ");
-            }
-            printMenu(subCtx, which, METAZONES_ITEMS[n]);
-        }
-
-        subCtx.println("</p> <p class='hang'>Other Items: ");
         
-        for(n =0 ; n < OTHERROOTS_ITEMS.length; n++) {        
-            if(!(OTHERROOTS_ITEMS[n].equals("references")&&  // don't show the 'references' tag if not in a lang locale.
-                 !ctx.getLocale().getLanguage().equals(ctx.getLocale().toString()))) 
-            {
+        ctx.println("<td style='padding-left: 1em;'>");
+        
+        boolean canModify = UserRegistry.userCanModifyLocale(subCtx.session.user, subCtx.getLocale());
+        if(!ctx.prefBool(PREF_NOJAVASCRIPT)) {
+            subCtx.put("which", which);
+            subCtx.put(WebContext.CAN_MODIFY, canModify);
+            subCtx.includeFragment("menu_top.jsp"); // ' code lists .. ' etc
+        } else {
+            subCtx.println("<p class='hang'> Code Lists: ");
+            for(n =0 ; n < PathUtilities.LOCALEDISPLAYNAMES_ITEMS.length; n++) {        
                 if(n>0) {
                     ctx.print(" | ");
                 }
-                printMenu(subCtx, which, OTHERROOTS_ITEMS[n]);
-                ctx.print(" ");
+                printMenu(subCtx, which, PathUtilities.LOCALEDISPLAYNAMES_ITEMS[n]);
+            }
+            subCtx.println("<p class='hang'> Calendars: ");
+            if ( CALENDARS_ITEMS == null )
+               CALENDARS_ITEMS = PathUtilities.getCalendarsItems();
+            for(n =0 ; n < CALENDARS_ITEMS.length; n++) {        
+                if(n>0) {
+                    ctx.print(" | ");
+                }
+                printMenu(subCtx, which, CALENDARS_ITEMS[n]);
+            }
+
+            subCtx.println("<p class='hang'> Metazones: ");
+            if ( METAZONES_ITEMS == null )
+            METAZONES_ITEMS = getMetazonesItems(); // idempotent
+            for(n =0 ; n < METAZONES_ITEMS.length; n++) {        
+                if(n>0) {
+                    ctx.print(" | ");
+                }
+                printMenu(subCtx, which, METAZONES_ITEMS[n]);
+            }
+
+            subCtx.println("</p> <p class='hang'>Other Items: ");
+            
+            for(n =0 ; n < OTHERROOTS_ITEMS.length; n++) {        
+                if(!(OTHERROOTS_ITEMS[n].equals("references")&&  // don't show the 'references' tag if not in a lang locale.
+                     !ctx.getLocale().getLanguage().equals(ctx.getLocale().toString()))) 
+                {
+                    if(n>0) {
+                        ctx.print(" | ");
+                    }
+                    printMenu(subCtx, which, OTHERROOTS_ITEMS[n]);
+                    ctx.print(" ");
+                }
+            }
+            ctx.println("| <a " + ctx.atarget("st:supplemental") + " class='notselected' href='http://unicode.org/cldr/data/charts/supplemental/language_territory_information.html#"+
+                ctx.getLocale().getLanguage()+"'>supplemental</a>");
+            
+            ctx.print("</p>");
+            
+            ctx.includeFragment("report_menu.jsp");
+            
+            if(canModify) {
+                subCtx.println("<p class='hang'>Forum: ");
+                String forum = ctx.getLocale().getLanguage();
+                subCtx.println("<strong><a href='"+SurveyForum.forumUrl(subCtx, forum)+"'>Forum: "+forum+"</a></strong>");
+                subCtx.println(" <br> " + fora.forumFeedIcon(subCtx, forum));
+                subCtx.println("</p>");
             }
         }
-        ctx.println("| <a " + ctx.atarget("st:supplemental") + " class='notselected' href='http://unicode.org/cldr/data/charts/supplemental/language_territory_information.html#"+
-            ctx.getLocale().getLanguage()+"'>supplemental</a>");
-        
-        ctx.print("</p>");
-        
-        ctx.includeFragment("report_menu.jsp");
-        
-        boolean canModify = UserRegistry.userCanModifyLocale(subCtx.session.user, subCtx.getLocale());
-        if(canModify) {
-            subCtx.println("<p class='hang'>Forum: ");
-            String forum = ctx.getLocale().getLanguage();
-            subCtx.println("<strong><a href='"+fora.forumUrl(subCtx, forum)+"'>Forum: "+forum+"</a></strong>");
-            subCtx.println(" <br> " + fora.forumFeedIcon(subCtx, forum));
-            subCtx.println("</p>");
-        }
+        // not in the jsp- advanced idems.
         if(ctx.prefBool(PREF_ADV)) {
             subCtx.println("<p class='hang'>Advanced Items: ");
 //                printMenu(subCtx, which, TEST_MENU_ITEM);
             printMenu(subCtx, which, RAW_MENU_ITEM);
             subCtx.println("</p>");
         }
+
         subCtx.println("</td></tr></table>");
     }
     
-    public String[] getMetazonesItems()
+    private static String[] getMetazonesItems()
     {
         String defaultMetazonesItems= "Africa America Antarctica Asia Australia Europe Atlantic Indian Pacific";
         return ( defaultMetazonesItems.split(" ") );

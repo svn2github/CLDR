@@ -763,10 +763,21 @@ div.topnotices p.unofficial {
 	background-color: goldenrod;
 }
 
+div.topnotices div.unofficial {
+    background-color: goldenrod;
+	float: right;
+	padding: 3px;
+}
+
 div.topnotices p.beta {
 	background-color: yellow;
 }
-
+div.topnotices div.beta {}
+    background-color: yellow;
+	padding: 3px;
+	float: right;
+	font-size: smaller;
+}
 form.adduser table {
 	border-collapse: collapse;
 	background-color: #cdd;

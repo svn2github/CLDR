@@ -459,7 +459,7 @@ public class WebContext implements Cloneable {
      * @param target the target name to use
      * @return the 'target=...' string - may be blank if the user has requested no popups
      */
-    String atarget(String target) {
+    public String atarget(String target) {
         if(prefBool(SurveyMain.PREF_NOPOPUPS)) {
             return "";
         } else {
@@ -472,7 +472,7 @@ public class WebContext implements Cloneable {
      * @param k key
      * @param v value
      */
-    void addQuery(String k, String v) {
+    public void addQuery(String k, String v) {
         outQueryMap.put(k,v);
         if(outQuery == null) {
             outQuery = k + "=" + v;
