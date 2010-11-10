@@ -10,6 +10,15 @@ static String METAZONES_ITEMS[] = SurveyMain.METAZONES_ITEMS;
         String forum = ctx.getLocale().getLanguage();
         subCtx.addQuery(SurveyMain.QUERY_LOCALE,ctx.getLocale().toString());
 %>
+
+
+<%
+//if(!ctx.prefBool(SurveyMain.PREF_NOJAVASCRIPT)) { 
+if(false) {
+%>
+<% } else  {
+    /* NON JAVASCRIPT VERSION */
+    %>
 <p class='hang'> Code Lists: 
 <%
         for(n =0 ; n < PathUtilities.LOCALEDISPLAYNAMES_ITEMS.length; n++) {        
@@ -60,5 +69,8 @@ static String METAZONES_ITEMS[] = SurveyMain.METAZONES_ITEMS;
                 <strong><a href='<%= SurveyForum.forumUrl(subCtx, forum) %>'>Forum: <%= forum %></a></strong>
              <br> <%= SurveyForum.forumFeedIcon(subCtx, forum) %>
             </p>
-        <% }  %>
+        <% }  %><%
+/* END NON JAVASCRIPT */
+}
+ %>
 <!--  menu_top.jspf end -->

@@ -96,7 +96,11 @@ import com.ibm.icu.util.ULocale;
  * The main servlet class of Survey Tool
  */
 public class SurveyMain extends HttpServlet {
-	public static final String SURVEYMAIN_REVISION = "$Revision$";
+	private static final String REPORT_PREFIX = "r_";
+
+    private static final String R_STEPS = REPORT_PREFIX+ "steps";
+
+    public static final String SURVEYMAIN_REVISION = "$Revision$";
 
     private static final String CLDR_BULK_DIR = "CLDR_BULK_DIR";
 	private static String bulkStr = null;
@@ -257,7 +261,7 @@ public class SurveyMain extends HttpServlet {
 //	static final String PREF_SHOW_VOTING_ALTS = "p_vetting_details";
     static final String PREF_NOSHOWDELETE = "p_nodelete";
     static final String PREF_DELETEZOOMOUT = "p_deletezoomout";
-    static final String PREF_NOJAVASCRIPT = "p_nojavascript";
+    public static final String PREF_NOJAVASCRIPT = "p_nojavascript";
     static final String PREF_JAVASCRIPT = PREF_NOJAVASCRIPT;
     static final String PREF_ADV = "p_adv"; // show advanced prefs?
     static final String PREF_XPATHS = "p_xpaths"; // show xpaths?
@@ -4300,7 +4304,7 @@ public class SurveyMain extends HttpServlet {
         
 
         // print 'shopping cart'
-        if(!ctx.hasField(QUERY_EXAMPLE))  {
+        if(!shortHeader(ctx))  {
             
             if((which.length()==0) && (ctx.getLocale()!=null)) {
                 which = xMAIN;
@@ -4339,7 +4343,7 @@ public class SurveyMain extends HttpServlet {
         }
         
         if((ctx.getLocale() != null) && 
-            (!ctx.hasField(QUERY_EXAMPLE)) ) { // don't show these warnings for example pages.
+            (!shortHeader(ctx)) ) { // don't show these warnings for example/easy steps pages.
             CLDRLocale dcParent = CLDRLocale.getInstance(supplemental.defaultContentToParent(ctx.getLocale().toString()));
             String dcChild = supplemental.defaultContentToChild(ctx.getLocale().toString());
             if(dcParent != null) {
@@ -4395,6 +4399,11 @@ public class SurveyMain extends HttpServlet {
         doLocale(ctx, baseContext, which);
     }
     
+    private static boolean shortHeader(WebContext ctx) {
+        // TODO Auto-generated method stub
+        return ctx.hasField(QUERY_EXAMPLE) || R_STEPS.equals(ctx.field(SurveyMain.QUERY_SECTION));
+    }
+
     LocaleTree localeTree = null;
 //    protected Map<String,CLDRLocale> getLocaleListMap()
 //    {
@@ -4854,66 +4863,10 @@ public class SurveyMain extends HttpServlet {
         ctx.println("<td style='padding-left: 1em;'>");
         
         boolean canModify = UserRegistry.userCanModifyLocale(subCtx.session.user, subCtx.getLocale());
-        if(!ctx.prefBool(PREF_NOJAVASCRIPT)) {
-            subCtx.put("which", which);
-            subCtx.put(WebContext.CAN_MODIFY, canModify);
-            subCtx.includeFragment("menu_top.jsp"); // ' code lists .. ' etc
-        } else {
-            subCtx.println("<p class='hang'> Code Lists: ");
-            for(n =0 ; n < PathUtilities.LOCALEDISPLAYNAMES_ITEMS.length; n++) {        
-                if(n>0) {
-                    ctx.print(" | ");
-                }
-                printMenu(subCtx, which, PathUtilities.LOCALEDISPLAYNAMES_ITEMS[n]);
-            }
-            subCtx.println("<p class='hang'> Calendars: ");
-            if ( CALENDARS_ITEMS == null )
-               CALENDARS_ITEMS = PathUtilities.getCalendarsItems();
-            for(n =0 ; n < CALENDARS_ITEMS.length; n++) {        
-                if(n>0) {
-                    ctx.print(" | ");
-                }
-                printMenu(subCtx, which, CALENDARS_ITEMS[n]);
-            }
+        subCtx.put("which", which);
+        subCtx.put(WebContext.CAN_MODIFY, canModify);
+        subCtx.includeFragment("menu_top.jsp"); // ' code lists .. ' etc
 
-            subCtx.println("<p class='hang'> Metazones: ");
-            if ( METAZONES_ITEMS == null )
-            METAZONES_ITEMS = getMetazonesItems(); // idempotent
-            for(n =0 ; n < METAZONES_ITEMS.length; n++) {        
-                if(n>0) {
-                    ctx.print(" | ");
-                }
-                printMenu(subCtx, which, METAZONES_ITEMS[n]);
-            }
-
-            subCtx.println("</p> <p class='hang'>Other Items: ");
-            
-            for(n =0 ; n < OTHERROOTS_ITEMS.length; n++) {        
-                if(!(OTHERROOTS_ITEMS[n].equals("references")&&  // don't show the 'references' tag if not in a lang locale.
-                     !ctx.getLocale().getLanguage().equals(ctx.getLocale().toString()))) 
-                {
-                    if(n>0) {
-                        ctx.print(" | ");
-                    }
-                    printMenu(subCtx, which, OTHERROOTS_ITEMS[n]);
-                    ctx.print(" ");
-                }
-            }
-            ctx.println("| <a " + ctx.atarget("st:supplemental") + " class='notselected' href='http://unicode.org/cldr/data/charts/supplemental/language_territory_information.html#"+
-                ctx.getLocale().getLanguage()+"'>supplemental</a>");
-            
-            ctx.print("</p>");
-            
-            ctx.includeFragment("report_menu.jsp");
-            
-            if(canModify) {
-                subCtx.println("<p class='hang'>Forum: ");
-                String forum = ctx.getLocale().getLanguage();
-                subCtx.println("<strong><a href='"+SurveyForum.forumUrl(subCtx, forum)+"'>Forum: "+forum+"</a></strong>");
-                subCtx.println(" <br> " + fora.forumFeedIcon(subCtx, forum));
-                subCtx.println("</p>");
-            }
-        }
         // not in the jsp- advanced idems.
         if(ctx.prefBool(PREF_ADV)) {
             subCtx.println("<p class='hang'>Advanced Items: ");
@@ -4966,10 +4919,13 @@ public class SurveyMain extends HttpServlet {
             
             
 
-            if(!ctx.hasField(QUERY_EXAMPLE)) {
-                printLocaleTreeMenu(ctx, which);
-            } else { // end in-locale nav
+            if(ctx.hasField(QUERY_EXAMPLE)) {
                 ctx.println("<h3>"+ctx.getLocale()+" "+ctx.getLocale().getDisplayName(ctx.displayLocale)+" / " + which + " Example</h3>");
+            } else if(which.equals(R_STEPS)) {
+                // short menu.
+                ctx.includeFragment("stepsmenu_top.jsp");
+            } else {
+                printLocaleTreeMenu(ctx, which);
             }
             
             // check for errors
@@ -5064,7 +5020,7 @@ public class SurveyMain extends HttpServlet {
             // fall through if wasn't one of the other roots
             if(RAW_MENU_ITEM.equals(which)) {
                 doRaw(subCtx);
-            } else if(which.startsWith("r_")) {
+            } else if(which.startsWith(REPORT_PREFIX)) {
                 doReport(subCtx, which);
             } else {
                 doMain(subCtx);

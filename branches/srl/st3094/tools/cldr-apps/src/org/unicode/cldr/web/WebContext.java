@@ -356,7 +356,7 @@ public class WebContext implements Cloneable {
      * @param x pref name
      * @return preference value (or false)
      */
-    boolean prefBool(String x) {
+    public boolean prefBool(String x) {
         return prefBool(x,false);
     }
 
@@ -542,7 +542,7 @@ public class WebContext implements Cloneable {
      * Return the output URL 
      * @return the output URL
      */
-    String url() {
+    public String url() {
         if(outQuery == null) {
             return base();
         } else {
