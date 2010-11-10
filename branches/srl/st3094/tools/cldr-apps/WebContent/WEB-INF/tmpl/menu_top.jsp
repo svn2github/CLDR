@@ -10,13 +10,42 @@ static String METAZONES_ITEMS[] = SurveyMain.METAZONES_ITEMS;
         String forum = ctx.getLocale().getLanguage();
         subCtx.addQuery(SurveyMain.QUERY_LOCALE,ctx.getLocale().toString());
 %>
-
-
-<%
-//if(!ctx.prefBool(SurveyMain.PREF_NOJAVASCRIPT)) { 
-if(false) {
+<%!
+  static void writeMenu(JspWriter jout, WebContext wCtx, String title, String items[]) throws java.io.IOException {
+      jout.println("<label>"+title);
+      
+      String which = (String)wCtx.get("which");
+      boolean any = false;
+      for(int i=0;!any && (i<items.length);i++) {
+          if(items[i].equals(which)) any = true;
+      }
+      jout.println("<select onchange='window.location=this.value'>");
+      if(!any) {
+          jout.println("<option disabled>Jump to&#x2026;</option>");
+      }
+      for(int i=0;i<items.length;i++) {
+          WebContext ssc = new WebContext(wCtx);
+          ssc.setQuery(SurveyMain.QUERY_SECTION, items[i]);
+          jout.print("<option ");
+          if(items[i].equals(which)) {
+              jout.print(" selected ");
+          } else {
+              jout.print("value=\""+ssc.url()+"\" ");
+          }
+          jout.print(">"+items[i]);
+          jout.println("</option>");
+      }
+      jout.println("</select>");
+      jout.println("</label>");
+   }
 %>
-<% } else  {
+<%
+if(!ctx.prefBool(SurveyMain.PREF_NOJAVASCRIPT)) { 
+    writeMenu(out, ctx, "Code Lists", PathUtilities.LOCALEDISPLAYNAMES_ITEMS);
+    writeMenu(out, ctx, "Calendars", CALENDARS_ITEMS);
+    writeMenu(out, ctx, "Metazones", METAZONES_ITEMS);
+    writeMenu(out, ctx, "Other Items", SurveyMain.OTHERROOTS_ITEMS);
+ } else  {
     /* NON JAVASCRIPT VERSION */
     %>
 <p class='hang'> Code Lists: 

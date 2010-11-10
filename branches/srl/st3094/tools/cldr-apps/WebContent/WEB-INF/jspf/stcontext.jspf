@@ -5,6 +5,7 @@
 <%@ page import="java.util.*" %>
 <%@ page import="com.ibm.icu.text.*" %>
 <%@ page import="com.ibm.icu.util.*" %>
+<%@ taglib prefix="st" tagdir="/WEB-INF/tags/st" %> 
 
 <% 
 	JspWebContext ctx = WebContext.fromRequest(request,response,out);

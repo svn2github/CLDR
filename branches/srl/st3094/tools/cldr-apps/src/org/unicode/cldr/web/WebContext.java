@@ -717,7 +717,7 @@ public class WebContext implements Cloneable {
      * @param s
      * @see PrintWriter#print(String)
      */
-    final void print(String s) {
+    public final void print(String s) {
         pw.print(s);
     }
     

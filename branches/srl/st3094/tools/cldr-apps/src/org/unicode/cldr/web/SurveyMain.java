@@ -582,6 +582,7 @@ public class SurveyMain extends HttpServlet {
                 out.println("<script type=\"text/javascript\">timerSpeed = 10000;</script>");
 	    }
             out.println("<link rel='stylesheet' type='text/css' href='"+base+"/../surveytool.css'>");
+            // todo: include st_top.jsp instead
             out.println("</head><body>");
             if(isUnofficial) {
                 out.print("<div class='topnotices'><p class='unofficial' title='Not an official SurveyTool' >");
@@ -959,7 +960,7 @@ public class SurveyMain extends HttpServlet {
     private void doAdminPanel(WebContext ctx)
     {
         String action = ctx.field("action");
-        printHeader(ctx, "ST Admin@"+localhost() + " | " + action);
+        printHeader(ctx, "Admin@"+localhost() + " | " + action);
         ctx.println("<script type=\"text/javascript\">timerSpeed = 6000;</script>");
         printAdminMenu(ctx, "/AdminDump");
         ctx.println("<h1>SurveyTool Administration</h1>");
@@ -2231,7 +2232,7 @@ public class SurveyMain extends HttpServlet {
 
         ctx.includeAjaxScript(AjaxType.STATUS);
         ctx.println("<link rel='stylesheet' type='text/css' href='"+ ctx.schemeHostPort()  + ctx.context("surveytool.css") + "'>");
-        ctx.println("<title>CLDR Vetting | ");
+        ctx.println("<title>Survey Tool | ");
         if(ctx.getLocale() != null) {
             ctx.print(ctx.getLocale().getDisplayName(ctx.displayLocale) + " | ");
         }
@@ -2249,32 +2250,8 @@ public class SurveyMain extends HttpServlet {
             }
         }
         
-        ctx.println("</head>");
-        ctx.println("<body onload='this.focus(); top.focus(); top.parent.focus(); setTimerOn();'>");
-        ctx.print("<div class='topnotices'>");
-//        if(/*!isUnofficial && */ 
-//            ((ctx.session!=null && ctx.session.user!=null && UserRegistry.userIsAdmin(ctx.session.user))||
-//                false)) {
-//            ctx.print("<span class='admin' title='You're an admin!'>");
-//            ctx.printHelpLink("/Admin",ctx.iconHtml("warn","Admin!")+"Administrator");
-//            ctx.println("</span>");
-//        }
-        if(isUnofficial) {
-            ctx.print("<div class='unofficial' title='Not an official SurveyTool' >");
-            ctx.printHelpLink("/Unofficial",ctx.iconHtml("warn","Unofficial Site")+"Unofficial");
-            ctx.println("</div>");
-        }
-        if(isPhaseBeta()) {
-            ctx.print("<div class='beta' title='Survey Tool is in Beta' >");
-            ctx.printHelpLink("/Beta",ctx.iconHtml("warn","beta")+"SurveyTool is in Beta. Any data added here will NOT go into CLDR.");
-            ctx.println("</div>");
-        }
-        ctx.print("</div>");
-        ctx.print("<div id='st_err'><!-- for ajax errs --></div><span id='progress'>");
-        showSpecialHeader(ctx);
-        ctx.print("</span>");
-        ctx.println(SHOWHIDE_SCRIPT);
-        
+        ctx.put("TITLE", title);
+        ctx.includeFragment("st_top.jsp");
     }
     
     void showSpecialHeader(WebContext ctx) {
@@ -2616,7 +2593,7 @@ public class SurveyMain extends HttpServlet {
                 if(null == CookieSession.retrieve(mySession.id)) {
                     mySession = null; // don't allow dead sessions to show up via the user list.
                 } else {
-                    message = "<i>Reconnecting to your previous session.</i>";
+//                    message = "<i>Reconnecting to your previous session.</i>";
                     myNum = mySession.id;
                 }
             }
@@ -2745,20 +2722,20 @@ public class SurveyMain extends HttpServlet {
     public void printUserMenu(WebContext ctx) {
         String doWhat = ctx.field(QUERY_DO);
         
-        ctx.println("The SurveyTool is in phase <b><span title='"+phase().name()+"'>"+phase().toString()+"</span></b> for version <b>"+getNewVersion()+"</b><br>" );
+//        ctx.println("The SurveyTool is in phase <b><span title='"+phase().name()+"'>"+phase().toString()+"</span></b> for version <b>"+getNewVersion()+"</b><br>" );
         
         if(ctx.session.user == null)  {
-            ctx.println("You are a <b>Visitor</b>. <a class='notselected' href='" + ctx.jspLink("login.jsp") +"'>Login</a><br>");
+            ctx.println("<a class='notselected' href='" + ctx.jspLink("login.jsp") +"'>Login</a>");
             
 //            if(this.phase()==Phase.VETTING || this.phase() == Phase.SUBMIT) {
 //                printMenu(ctx, doWhat, "disputed", "Disputed", QUERY_DO);
 //                ctx.print(" | ");
 //            }
+            ctx.print(" | ");
             printMenu(ctx, doWhat, "options", "My Options", QUERY_DO);
-            ctx.println("<br>");
         } else {
-            ctx.println("<b>Welcome " + ctx.session.user.name + " (" + ctx.session.user.org + ") !</b>");
-            ctx.println("<a class='notselected' href='" + ctx.base() + "?do=logout'>Logout</a><br>");
+            ctx.println(ctx.session.user.name + " (" + ctx.session.user.org + ") | ");
+            ctx.println("<a class='notselected' href='" + ctx.base() + "?do=logout'>Logout</a> | ");
 //            if(this.phase()==Phase.VETTING || this.phase() == Phase.SUBMIT || isPhaseVettingClosed()) {
 //                printMenu(ctx, doWhat, "disputed", "Disputed", QUERY_DO);
 //                ctx.print(" | ");
@@ -2767,52 +2744,42 @@ public class SurveyMain extends HttpServlet {
             ctx.print(" | ");
             printMenu(ctx, doWhat, "listu", "My Account", QUERY_DO);
             //ctx.println(" | <a class='deactivated' _href='"+ctx.url()+ctx.urlConnector()+"do=mylocs"+"'>My locales</a>");
-            ctx.println("<br/>");
             if(UserRegistry.userIsAdmin(ctx.session.user)) {
-                ctx.println("<b class='admin'>You are an Admin:</b> ");
-                ctx.println("<a href='" + ctx.base() + "?dump=" + vap + "'>[Admin]</a>");
+                ctx.println("| <a href='" + ctx.base() + "?dump=" + vap + "'>[Admin Panel]</a>");
                 if(ctx.session.user.id == 1) {
-                    ctx.println("<a href='" + ctx.base() + "?sql=" + vap + "'>[Raw SQL]</a>");
+                    ctx.println(" | <a href='" + ctx.base() + "?sql=" + vap + "'>[Raw SQL]</a>");
                 }
-                ctx.println("<br/>");
             }
             if(UserRegistry.userIsTC(ctx.session.user)) {
-                ctx.println("You are: <b>A CLDR TC Member:</b> ");
+                ctx.print(" | ");
                 printMenu(ctx, doWhat, "list", "Manage " + ctx.session.user.org + " Users", QUERY_DO);
                 ctx.print(" | ");
                 printMenu(ctx, doWhat, "coverage", "Coverage", QUERY_DO);    
                 ctx.print(" | ");
 //              if(this.phase()==Phase.VETTING || this.phase() == Phase.SUBMIT) {
                 printMenu(ctx, doWhat, "disputed", "Disputed (Approximate)", QUERY_DO);
-//              ctx.print(" | ");
             } else {
                 if(UserRegistry.userIsVetter(ctx.session.user)) {
-                    if(UserRegistry.userIsExpert(ctx.session.user)) {
-                        ctx.print("You are an: <b>Expert Vetter:</b> ");
-                    } else {
-                        ctx.println("You are a: <b>Vetter:</b> ");
-                    }
+                    ctx.print(" | ");
                     printMenu(ctx, doWhat, "list", "List " + ctx.session.user.org + " Users", QUERY_DO);
                     ctx.print(" | ");
                     printMenu(ctx, doWhat, "coverage", "Coverage", QUERY_DO);                    
-                } else if(UserRegistry.userIsStreet(ctx.session.user)) {
-                    ctx.println("You are a: <b>Guest Contributor</b> ");
                 } else if(UserRegistry.userIsLocked(ctx.session.user)) {
                     ctx.println("<b>LOCKED: Note: your account is currently locked. Please contact " + ctx.session.user.org + "'s CLDR Technical Committee member.</b> ");
                 }
             }
             if(SurveyMain.isPhaseReadonly()) {
-				ctx.println("(The SurveyTool is in a read-only state, no changes may be made.)");
+				ctx.println("<br>(The SurveyTool is in a read-only state, no changes may be made.)");
 			} else if(SurveyMain.isPhaseVetting() 
                 && UserRegistry.userIsStreet(ctx.session.user)
                 && !UserRegistry.userIsExpert(ctx.session.user)) {
-                ctx.println(" (Note: in the Vetting phase, you may not submit new data.) ");
+                ctx.println("<br> (Note: in the Vetting phase, you may not submit new data.) ");
             } else if(SurveyMain.isPhaseClosed() && !UserRegistry.userIsTC(ctx.session.user)) {
-                ctx.println("(SurveyTool is closed to vetting and data submissions.)");
+                ctx.println("<br>(SurveyTool is closed to vetting and data submissions.)");
             }
             ctx.println("<br/>");
             if((ctx.session != null) && (ctx.session.user != null) && (SurveyMain.isPhaseVettingClosed() && ctx.session.user.userIsSpecialForCLDR15(null))) {
-                ctx.println("<b class='selected'>"+ctx.session.user.name+", you have been granted extended privileges for the CLDR "+getNewVersion()+" vetting period.</b><br>");
+                ctx.println("<b class='selected'> you have been granted extended privileges for the CLDR "+getNewVersion()+" vetting period.</b><br>");
             }
         }
     }
@@ -4294,6 +4261,14 @@ public class SurveyMain extends HttpServlet {
         String title = " " + which;
         if(ctx.hasField(QUERY_EXAMPLE))  {
             title = title + " Example"; 
+        } else if(which==null || which.isEmpty()){
+            if(ctx.getLocale() == null) {
+                title = "Locales";
+            } else {
+                title = " general";
+            }
+        } else if(which.equals(R_STEPS)) {
+            title = " Basic Locale Information";
         }
         printHeader(ctx, title);
         if(sessionMessage != null) {
@@ -4353,7 +4328,7 @@ public class SurveyMain extends HttpServlet {
                     getLocaleLink(ctx,dcParent,null)+
                     "</b>; thus editing and viewing is disabled. Please view and/or propose changes in <b>"+
                     getLocaleLink(ctx,dcParent,null)+
-                    "</b> instead. <br>");
+                    "</b> instead.  ");
                 ctx.printHelpLink("/DefaultContent","Help with Default Content");
                 ctx.print("</div>");
                 
@@ -4367,7 +4342,7 @@ public class SurveyMain extends HttpServlet {
                     dcChildDisplay+
                     "</b>. Please make sure that all the changes that you make here are appropriate for <b>"+
                     dcChildDisplay+
-                    "</b>. If you add any changes that are inappropriate for other sublocales, be sure to override their values.<br>");
+                    "</b>. If you add any changes that are inappropriate for other sublocales, be sure to override their values. ");
                 ctx.printHelpLink("/DefaultContent","Help with Default Content");
                 ctx.print("</div>");
             }
@@ -4715,7 +4690,7 @@ public class SurveyMain extends HttpServlet {
     }
 
     
-    public String getMenu(WebContext ctx, String which, String menu, String title, String key, String anchor) {
+    public static String getMenu(WebContext ctx, String which, String menu, String title, String key, String anchor) {
         StringBuffer buf = new StringBuffer();
         if(menu.equals(which)) {
             buf.append("<b class='selected'>");
