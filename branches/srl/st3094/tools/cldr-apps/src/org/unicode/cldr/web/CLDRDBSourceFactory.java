@@ -31,6 +31,7 @@ import org.unicode.cldr.util.*;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.XPathParts.Comments;
 import org.unicode.cldr.web.CLDRFileCache.CacheableXMLSource;
+import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.SurveyThread.SurveyTask;
 import org.unicode.cldr.icu.LDMLConstants;
 
@@ -304,12 +305,13 @@ public class CLDRDBSourceFactory {
      */
     public int update(SurveyTask surveyTask) {
         int n = 0;
+        CLDRProgressTask progress = null;
+        if(surveyTask!=null) progress = surveyTask.openProgress("DeferredUpdates", needUpdate.size());
         try {
             synchronized(sm.vet.conn) {
-                if(surveyTask!=null) surveyTask.setProgress("DeferredUpdates", needUpdate.size());
                 for(CLDRLocale l : needUpdate) {
                     n++;
-                    if(surveyTask!=null) surveyTask.updateProgress(n);
+                    if(progress!=null) progress.update(n);
                     System.err.println("CLDRDBSRCFAC: executing deferred update of " + l +"("+needUpdate.size()+" on queue)");
                     sm.vet.updateResults(l);
                     synchronized(this) {
@@ -323,8 +325,8 @@ public class CLDRDBSourceFactory {
                 needUpdate.clear();
             }
         } finally {
-            if(surveyTask!=null) {
-                surveyTask.clearProgress();
+            if(progress!=null) {
+                progress.close();
             }
         }
         return n;

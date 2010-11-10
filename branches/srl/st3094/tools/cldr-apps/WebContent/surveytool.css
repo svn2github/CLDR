@@ -7,6 +7,7 @@
 	http://nestor.local:8080/cldr-apps/surveytool.css
 	http://unicode.org/cldr/apps/surveytool.css
 	http://kwanyin.unicode.org/cldr-apps/surveytool.css
+	http://localhost:8080/cldr-apps/surveytool.css
 */
 
 td {
@@ -66,6 +67,8 @@ A.nodraft:visited {
 .missing a:active {
 	color: #f00
 }
+
+
 
 .missing a:hover {
 	color: #fDD
@@ -627,8 +630,19 @@ table.sqlbox form {
 .ferrbox {
 	background-color: #ddd;
 	border: 1px solid red;
-	margin: 1em;
-	padding: 1em;
+	margin: .4em;
+	padding: .2em;
+}
+
+h4#toptitle {
+	margin-top: 0;
+	border-bottom: 3px solid green;
+	background-color: whitesmoke;
+	font: normal 1.2em Georgia, "Times New Roman", Times, serif;
+}
+
+h4#toptitle b{
+	
 }
 
 .sterrmsg {
@@ -765,18 +779,30 @@ div.topnotices p.unofficial {
 
 div.topnotices div.unofficial {
     background-color: goldenrod;
-	float: right;
 	padding: 3px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	opacity: 0.8;
+	width:  100%;
+	text-align: center;
 }
 
 div.topnotices p.beta {
 	background-color: yellow;
 }
-div.topnotices div.beta {}
+
+div.topnotices div.beta {
     background-color: yellow;
 	padding: 3px;
 	float: right;
 	font-size: smaller;
+	clear: right;
+	position: absolute;
+	top: 0;
+	right: 0;
+	opacity:  .8;
+	z-index: 0;
 }
 form.adduser table {
 	border-collapse: collapse;
@@ -819,6 +845,28 @@ form.adduser tr.submit td {
 
 form.adduser tr.submit input {
 	font-size: x-large;
+}
+span.elapsedtime {
+	font-size: smaller;
+}
+
+ table.progress-list {
+	border-collapse: collapse;
+	border:  none;
+}
+
+ table.progress-list tbody tr td {
+	background-color: #bbb;
+	opacity: .6;
+	border-left:  3px dashed gray;
+	padding-left:  1em;
+}
+
+table.progress-list tbody tr td:first-child {
+	opacity: 1.0;
+	background-color: whitesmoke;
+	border-left:  none;
+	padding-left:  0;
 }
 
 table.stprogress {

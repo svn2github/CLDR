@@ -216,10 +216,6 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     static String specialHeader = System.getProperty("CLDR_HEADER"); //  static - may change later
     public static String lockOut = System.getProperty("CLDR_LOCKOUT"); //  static - may change later
     static long specialTimer = 0; // 0 means off.  Nonzero:  expiry time of countdown.
-    static int progressMax = 0;  // "an operation is in progress"
-    static int progressCount = 0;
-    static String progressSub = null; 
-    static String progressWhat = null;
     
     public static java.util.Properties survprops = null;
     public static String cldrHome = null;
@@ -1224,11 +1220,11 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 
                 startupThread.addTask(new SurveyThread.SurveyTask("Updating All Data") {
                     public void run() throws Throwable {
-
+                        CLDRProgressTask progress = openProgress("Data Update");
                         try {
                             String baseName = this.name;
                             int cnt = 0;
-                            this.name = baseName + ": #"+(++cnt)+" reset caches and update all";
+                            progress.update(" reset caches and update all");
                             try {
                                 //                CLDRDBSource mySrc = makeDBSource(conn, null, CLDRLocale.ROOT);
                                 resetLocaleCaches();
@@ -1237,30 +1233,30 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                                 //                SurveyMain.closeDBConnection(conn);
                             }
                             // 2: load all locales
-                            this.name = baseName + ": #"+(++cnt)+" load all locales";
+                            progress.update("load all locales");
                             loadAllLocales(fakeContext, this);
                             // 3: update impl votes
-                            this.name = baseName + ": #"+(++cnt)+" Update implied votes";
+                            progress.update("Update implied votes");
                             ElapsedTimer et = new ElapsedTimer();
                             int n = vet.updateImpliedVotes();
                             //ctx.println("Done updating "+n+" implied votes in: " + et + "<br>");
                             // 4: UpdateAll
                             //ctx.println("<h4>Update All</h4>");
-                            this.name = baseName + ": #"+(++cnt)+" Update All";
+                            progress.update("Update All");
 
                             et = new ElapsedTimer();
                             n = vet.updateResults(false); // don't RE update.
                             //ctx.println("Done updating "+n+" vote results in: " + et + "<br>");
-                            this.name = baseName + ": #"+(++cnt)+" Invalidate ROOT";
+                            progress.update(" Invalidate ROOT");
                             lcr.invalidateLocale(CLDRLocale.ROOT);
                             // 5: update status
-                            this.name = baseName + ": #"+(++cnt)+" Update Status";
+                            progress.update(" Update Status");
                             et = new ElapsedTimer();
                             n = vet.updateStatus();
                             System.err.println("Done updating "+n+" statuses [locales] in: " + et + "<br>");
                             SurveyMain.specialHeader = "Data update done! Please log off. Administrator: Please restart your Survey Tool.";
                         } finally {
-                            clearProgress();
+                            progress.close();
                         }
                     }
                 });
@@ -1800,29 +1796,29 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	    if(daily && !isImmediate) {
             	startupThread.addTask(new SurveyThread.SurveyTask("daily xml output")
             	{
-	            	public void run() throws Throwable 
-	                {
-			    try {
-				String dailyList[] = {
-				    "xml",
-				    "vxml",
-				    "users",
-				    "usersa",
-				    "translators"
-				};			
-				
-				String origName = name;
-				for(int i=0;running()&&(i<dailyList.length);i++) {
-				    String what = dailyList[i];
-				    setName(origName+"["+(i+1)+"/"+(dailyList.length)+"]:"+what);
-				    
-				    doOutput(what);
-				}
-			    } finally {
-				clearProgress();
-			    }
-			}
-		    });
+                    final String dailyList[] = {
+                            "xml",
+                            "vxml",
+                            "users",
+                            "usersa",
+                            "translators"
+                    };          
+            	    public void run() throws Throwable 
+            	    {
+            	        CLDRProgressTask progress = openProgress("xml output", dailyList.length);
+            	        try {
+
+            	            String origName = name;
+            	            for(int i=0;running()&&(i<dailyList.length);i++) {
+            	                String what = dailyList[i];
+            	                progress.update(i,what);
+            	                doOutput(what);
+            	            }
+            	        } finally {
+            	            progress.close();
+            	        }
+            	    }
+            	});
 		ctx.println("<h2>Task Queued.</h2>");
 	    } else {
 		if(daily || output.equals("xml")) {
@@ -2167,8 +2163,9 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	    logger.info("Loading all..");            
 	    //        Connection connx = null;
 	    int ti = 0;
+	    CLDRProgressTask progress = null;
 	    if(surveyTask!=null&&surveyTask.running()) {
-	        setProgress("Loading All Locales",nrInFiles);
+	        progress = surveyTask.openProgress("Loading All Locales", nrInFiles);
 	    }
 	    try {
 	        for(int i=0;(null==this.isBusted)&&i<nrInFiles&&(surveyTask==null||surveyTask.running());i++) {
@@ -2176,8 +2173,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	            int dot = localeName.indexOf('.');
 	            if(dot !=  -1) {
 	                localeName = localeName.substring(0,dot);
-	                if(surveyTask!=null&&surveyTask.running()) {
-	                    updateProgress(i,localeName);
+	                if(progress!=null) {
+	                    progress.update(i,localeName);
 	                }
 	                if((i>0)&&((i%50)==0)) {
 	                    logger.info("   "+ i + "/" + nrInFiles + ". " + usedK() + "K mem used");
@@ -2196,28 +2193,26 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	                } catch(Throwable t) {
 	                    t.printStackTrace();
 	                    String complaint = ("Error loading: " + localeName + " - " + t.toString() + " ...");
-                        logger.severe("loading all: " + complaint);
-                        throw new InternalError("loading all: " + complaint);
+	                    logger.severe("loading all: " + complaint);
+	                    throw new InternalError("loading all: " + complaint);
 	                }
 	            }
 	        }
 	        if(surveyTask!=null&&!surveyTask.running()) {
-	            clearProgress();
 	            System.err.println("LoadAll: no longer running!\n");
 	        }
 	        if(surveyTask != null && surveyTask.running()) {
-	            clearProgress();
 	        }
 	        //        closeDBConnection(connx);
 	        logger.info("Loaded all. " + allTime);
-//	        if(ctx!=null) ctx.println("Loaded all." + allTime + "<br>");
+	        //	        if(ctx!=null) ctx.println("Loaded all." + allTime + "<br>");
 	        int n = dbsrcfac.update(surveyTask);
 	        logger.info("Updated "+n+". " + allTime);
-//	        if(ctx!=null) ctx.println("Updated "+n+"." + allTime + "<br>");
+	        //	        if(ctx!=null) ctx.println("Updated "+n+"." + allTime + "<br>");
 	    } finally {
-	        if(surveyTask!=null && surveyTask.running()) {
-	            clearProgress();
-	        }
+	       if(progress != null) {
+	           progress.close();
+	       }
 	    }
 	}
     
@@ -2321,21 +2316,14 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             if(threadInfo!=null) {
             	out.append("<b>Processing:"+threadInfo+"</b><br>");
             }
-            if(progressWhat != null) {
-                out.append(getProgress());
-            } else {
-            }
+            out.append(getProgress());
             out.append("</div><br>");
         } else {
             String threadInfo = startupThread.htmlStatus();
             if(threadInfo!=null) {
             	out.append("<b>Processing:"+threadInfo+"</b><br>");
             }
-            if(progressWhat != null) {
-                out.append("<div class='specialHeader'>SurveyTool may be busy: <br>");
-                out.append(getProgress());
-                out.append("</div><br>");
-            }
+            out.append(getProgress());
         }
         return out.toString();
     }
@@ -2375,51 +2363,21 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         
     
     /* (non-Javadoc)
-     * @see org.unicode.cldr.web.CLDRProgressIndicator#clearProgress()
+     * @see org.unicode.cldr.web.CLDRProgressIndicator#openProgress(java.lang.String)
      */
     @Override
-    public void clearProgress() {
-        progressWhat = null;
-        progressMax = 0;
-        progressCount = 0;
-        progressSub = null;
+    public CLDRProgressTask openProgress(String what) {
+        return openProgress(what, -100);
     }
     
     /* (non-Javadoc)
-     * @see org.unicode.cldr.web.CLDRProgressIndicator#setProgress(java.lang.String)
+     * @see org.unicode.cldr.web.CLDRProgressIndicator#openProgress(java.lang.String, int)
      */
     @Override
-    public void setProgress(String what) {
-        setProgress(what, -100);
+    public CLDRProgressTask openProgress(String what, int max) {
+        return progressManager.openProgress(what,max);
     }
     
-    /* (non-Javadoc)
-     * @see org.unicode.cldr.web.CLDRProgressIndicator#setProgress(java.lang.String, int)
-     */
-    @Override
-    public void setProgress(String what, int max) {
-            progressWhat = what;
-            progressMax = max;
-            progressCount = 0;
-            progressSub = null;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.unicode.cldr.web.CLDRProgressIndicator#updateProgress(int)
-     */
-    @Override
-    public void updateProgress(int count) {
-        progressCount = count;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.unicode.cldr.web.CLDRProgressIndicator#updateProgress(int, java.lang.String)
-     */
-    @Override
-    public void updateProgress(int count, String what) {
-        progressCount = count;
-        progressSub = what;
-    }
     
     /**
      * Print out the progress
@@ -2434,49 +2392,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
      * @return
      */
     public String getProgress() {
-        StringBuffer buf = new StringBuffer();
-                
-        double max = progressMax;
-        if(max < 0) { // negative: assume it is a percentage
-            max = 100.0;
-        }
-        if(max<=0) return "";
-
-        buf.append("<b>"+progressWhat+"</b> in progress:");
-
-        double cur = progressCount;
-        if(cur>max) {
-            cur = max;
-        }
-        if(cur<0) {
-            cur = 0;
-        }
-        double pct = (cur/max);
-        
-        double barWid = (cur/max)*(double)PROGRESS_WID;
-        
-        int barX = (int)barWid;
-        int remainX = PROGRESS_WID-barX;
-        
-        buf.append("<table class='stprogress' border=0 ><tr height='12'>");
-        if(barX > 0) {
-            buf.append("<td class='bar' width='"+barX+"' >");
-            buf.append("</td>");
-        }
-        if(remainX >0) {
-            buf.append("<td class='remain' width='"+remainX+"'>");
-            buf.append("</td>");
-        }
-        buf.append("</table>");
-        NumberFormat pctFmt=  NumberFormat.getPercentInstance();
-        if(progressMax>=0) { //  only show the actual number if >0
-            buf.append(progressCount+" of "+progressMax+" &mdash; ");
-        }
-        buf.append( pctFmt.format(pct));
-        if(progressSub != null) {
-            buf.append(" &mdash; "+progressSub);
-        }
-        return buf.toString();
+        return progressManager.getProgress();
     }
     
     public void printFooter(WebContext ctx)
@@ -2755,8 +2671,10 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 //        ctx.println("The SurveyTool is in phase <b><span title='"+phase().name()+"'>"+phase().toString()+"</span></b> for version <b>"+getNewVersion()+"</b><br>" );
         
         if(ctx.session.user == null)  {
-            ctx.println("<a class='notselected' href='" + ctx.jspLink("login.jsp") +"'>Login</a>");
-            
+            //ctx.println("<a class='notselected' href='" + ctx.jspLink("login.jsp") +"'>Login</a>");
+            ctx.println("<form id='login' method='POST' action='"+ctx.base()+"'>");
+            ctx.includeFragment("small_login.jsp");
+            ctx.println("</form>");
 //            if(this.phase()==Phase.VETTING || this.phase() == Phase.SUBMIT) {
 //                printMenu(ctx, doWhat, "disputed", "Disputed", QUERY_DO);
 //                ctx.print(" | ");
@@ -5354,19 +5272,18 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             }
             nrOutFiles++;
         } else {
+            File inFiles[] = getInFiles();
+            int nrInFiles = inFiles.length;
+            CLDRProgressTask progress = openProgress("writing " + kind, nrInFiles+1);
             try {
-                File inFiles[] = getInFiles();
-                int nrInFiles = inFiles.length;
-                progressWhat = "writing " +kind;
-                progressMax = nrInFiles+1;
                 //Set<Integer> xpathSet = new TreeSet<Integer>();
                 boolean xpathSet[] = new boolean[0];
                 Connection conn = getDBConnection();
                 for(int i=0;(i<nrInFiles) && !SurveyThread.shouldStop();i++) {
-                    progressCount = i;
                     String fileName = inFiles[i].getName();
                     int dot = fileName.indexOf('.');
                     String localeName = fileName.substring(0,dot);
+                    progress.update(i,localeName);
                     lastfile = fileName;
                     File outFile = new File(outdir, fileName);
                     
@@ -5435,7 +5352,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 }
                 SurveyMain.closeDBConnection(conn);
 
-                progressWhat = "writing " +"xpathTable";
+                progress.update(nrInFiles, "writing " +"xpathTable");
                 lastfile = "xpathTable.xml" + " - xpath table";
                 // write voteFile
                 File xpathFile = new File(voteDir,"xpathTable.xml");
@@ -5460,7 +5377,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 
                 
             } finally {
-                progressWhat = null;
+                progress.close();
             }
         }
         System.err.println("output: " + kind + " - DONE, files: " + nrOutFiles);
@@ -6233,120 +6150,122 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 
     private synchronized void checkAllLocales() {
         if(aliasMap!=null) return;
-        
+
         boolean useCache = isUnofficial; // NB: do NOT use the cache if we are in unofficial mode.  Parsing here doesn't take very long (about 16s), but 
         // we want to save some time during development iterations.
-        
+
         Hashtable<CLDRLocale,CLDRLocale> aliasMapNew = new Hashtable<CLDRLocale,CLDRLocale>();
         Hashtable<CLDRLocale,String> directionMapNew = new Hashtable<CLDRLocale,String>();
         Set<CLDRLocale> locales  = getLocalesSet();
         ElapsedTimer et = new ElapsedTimer();
-        setProgress("Parse locales from XML", locales.size());
-        int nn=0;
-        File xmlCache = new File(vetdir, XML_CACHE_PROPERTIES);
-        File xmlCacheBack = new File(vetdir, XML_CACHE_PROPERTIES+".backup");
-        Properties xmlCacheProps = new java.util.Properties(); 
-        Properties xmlCachePropsNew = new java.util.Properties(); 
-        if(useCache && xmlCache.exists()) try {
-            java.io.FileInputStream is = new java.io.FileInputStream(xmlCache);
-            xmlCacheProps.load(is);
-            is.close();
-        } catch(java.io.IOException ioe) {
-            /*throw new UnavailableException*/
-            logger.log(java.util.logging.Level.SEVERE, "Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ",ioe);
-            busted("Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ", ioe);
-            return;
-        }
-        
-        int n=0;
-        int cachehit=0;
-        System.err.println("Parse " + locales.size() + " locales from XML to look for aliases or errors...");
-        for(CLDRLocale loc : locales) {
-            String locString = loc.toString();
-//            ULocale uloc = new ULocale(locString);
-            updateProgress(n++, loc.toString() /* + " - " + uloc.getDisplayName(uloc) */);
-            try {
-                File  f = new File(fileBase, loc.toString()+".xml");
-//                String fileName = fileBase+"/"+loc.toString()+".xml";
-                String fileHash = fileHash(f);
-                String aliasTo = null;
-                String direction = null;
-                //System.err.println(fileHash);
-                
-                String oldHash = xmlCacheProps.getProperty(locString);
-                if(useCache && oldHash != null && oldHash.equals(fileHash)) {
-                    // cache hit! load from cache
-                    aliasTo = xmlCacheProps.getProperty(locString+".a",null);
-                    direction = xmlCacheProps.getProperty(locString+".d",null);
-                    cachehit++;
-                } else {
-                    Document d = LDMLUtilities.parse(f.getAbsolutePath(), false);
-                    
-                    // look for directionality
-                    Node[] directionalityItems = 
-                        LDMLUtilities.getNodeListAsArray(d,"//ldml/layout/orientation");
-                    if(directionalityItems!=null&&directionalityItems.length>0) {
-                        direction = LDMLUtilities.getAttributeValue(directionalityItems[0], LDMLConstants.CHARACTERS);
-                        if(direction != null&& direction.length()>0) {
+        CLDRProgressTask progress = openProgress("Parse locales from XML", locales.size());
+        try {
+            File xmlCache = new File(vetdir, XML_CACHE_PROPERTIES);
+            File xmlCacheBack = new File(vetdir, XML_CACHE_PROPERTIES+".backup");
+            Properties xmlCacheProps = new java.util.Properties(); 
+            Properties xmlCachePropsNew = new java.util.Properties(); 
+            if(useCache && xmlCache.exists()) try {
+                java.io.FileInputStream is = new java.io.FileInputStream(xmlCache);
+                xmlCacheProps.load(is);
+                is.close();
+            } catch(java.io.IOException ioe) {
+                /*throw new UnavailableException*/
+                logger.log(java.util.logging.Level.SEVERE, "Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ",ioe);
+                busted("Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ", ioe);
+                return;
+            }
+
+            int n=0;
+            int cachehit=0;
+            System.err.println("Parse " + locales.size() + " locales from XML to look for aliases or errors...");
+            for(CLDRLocale loc : locales) {
+                String locString = loc.toString();
+                //            ULocale uloc = new ULocale(locString);
+                progress.update(n++, loc.toString() /* + " - " + uloc.getDisplayName(uloc) */);
+                try {
+                    File  f = new File(fileBase, loc.toString()+".xml");
+                    //                String fileName = fileBase+"/"+loc.toString()+".xml";
+                    String fileHash = fileHash(f);
+                    String aliasTo = null;
+                    String direction = null;
+                    //System.err.println(fileHash);
+
+                    String oldHash = xmlCacheProps.getProperty(locString);
+                    if(useCache && oldHash != null && oldHash.equals(fileHash)) {
+                        // cache hit! load from cache
+                        aliasTo = xmlCacheProps.getProperty(locString+".a",null);
+                        direction = xmlCacheProps.getProperty(locString+".d",null);
+                        cachehit++;
+                    } else {
+                        Document d = LDMLUtilities.parse(f.getAbsolutePath(), false);
+
+                        // look for directionality
+                        Node[] directionalityItems = 
+                            LDMLUtilities.getNodeListAsArray(d,"//ldml/layout/orientation");
+                        if(directionalityItems!=null&&directionalityItems.length>0) {
+                            direction = LDMLUtilities.getAttributeValue(directionalityItems[0], LDMLConstants.CHARACTERS);
+                            if(direction != null&& direction.length()>0) {
+                            } else {
+                                direction = null;
+                            }
+                        }
+
+
+                        Node[] aliasItems = 
+                            LDMLUtilities.getNodeListAsArray(d,"//ldml/alias");
+
+                        if((aliasItems==null) || (aliasItems.length==0)) {
+                            aliasTo=null;
+                        } else if(aliasItems.length>1) {
+                            throw new InternalError("found " + aliasItems + " items at " + "//ldml/alias" + " - should have only found 1");
                         } else {
-                            direction = null;
+                            aliasTo = LDMLUtilities.getAttributeValue(aliasItems[0],"source");
                         }
                     }
-                    
-                    
-                    Node[] aliasItems = 
-                                LDMLUtilities.getNodeListAsArray(d,"//ldml/alias");
-                                
-                    if((aliasItems==null) || (aliasItems.length==0)) {
-                        aliasTo=null;
-                    } else if(aliasItems.length>1) {
-                        throw new InternalError("found " + aliasItems + " items at " + "//ldml/alias" + " - should have only found 1");
-                    } else {
-                        aliasTo = LDMLUtilities.getAttributeValue(aliasItems[0],"source");
+
+                    // now, set it into the new map
+                    xmlCachePropsNew.put(locString, fileHash);
+                    if(direction != null) {
+                        directionMapNew.put((loc), direction);
+                        xmlCachePropsNew.put(locString+".d", direction);
                     }
+                    if(aliasTo!=null) {
+                        aliasMapNew.put((loc),CLDRLocale.getInstance(aliasTo));
+                        xmlCachePropsNew.put(locString+".a", aliasTo);
+                    }
+                } catch (Throwable t) {
+                    System.err.println("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
+                    t.printStackTrace();
+                    busted("isLocaleAliased: Failed load/validate on: " + loc + " - ", t);
+                    throw new InternalError("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
                 }
-                
-                // now, set it into the new map
-                xmlCachePropsNew.put(locString, fileHash);
-                if(direction != null) {
-                    directionMapNew.put((loc), direction);
-                    xmlCachePropsNew.put(locString+".d", direction);
-                }
-                if(aliasTo!=null) {
-                    aliasMapNew.put((loc),CLDRLocale.getInstance(aliasTo));
-                    xmlCachePropsNew.put(locString+".a", aliasTo);
-                }
-            } catch (Throwable t) {
-                System.err.println("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
-                t.printStackTrace();
-                busted("isLocaleAliased: Failed load/validate on: " + loc + " - ", t);
-                throw new InternalError("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
             }
+
+            if(useCache) try {
+                // delete old stuff
+                if(xmlCacheBack.exists()) { 
+                    xmlCacheBack.delete();
+                }
+                if(xmlCache.exists()) {
+                    xmlCache.renameTo(xmlCacheBack);
+                }
+                java.io.FileOutputStream os = new java.io.FileOutputStream(xmlCache);
+                xmlCachePropsNew.store(os, "YOU MAY DELETE THIS CACHE. Cache updated at " + new Date());
+                progress.update(n++, "Loading configuration..");
+                os.close();
+            } catch(java.io.IOException ioe) {
+                /*throw new UnavailableException*/
+                logger.log(java.util.logging.Level.SEVERE, "Couldn't write "+xmlCache+" file from '" + cldrHome + "': ",ioe);
+                busted("Couldn't write "+xmlCache+" file from '" + cldrHome+"': ", ioe);
+                return;
+            }
+
+            System.err.println("Finished verify+alias check of " + locales.size()+ ", " + aliasMapNew.size() + " aliased locales ("+cachehit+" in cache) found in " + et.toString());
+            aliasMap = aliasMapNew;
+            directionMap = directionMapNew;
+        } finally {
+            progress.close();
         }
-        
-        if(useCache) try {
-            // delete old stuff
-            if(xmlCacheBack.exists()) { 
-                xmlCacheBack.delete();
-            }
-            if(xmlCache.exists()) {
-                xmlCache.renameTo(xmlCacheBack);
-            }
-            java.io.FileOutputStream os = new java.io.FileOutputStream(xmlCache);
-            xmlCachePropsNew.store(os, "YOU MAY DELETE THIS CACHE. Cache updated at " + new Date());
-            updateProgress(nn++, "Loading configuration..");
-            os.close();
-        } catch(java.io.IOException ioe) {
-            /*throw new UnavailableException*/
-            logger.log(java.util.logging.Level.SEVERE, "Couldn't write "+xmlCache+" file from '" + cldrHome + "': ",ioe);
-            busted("Couldn't write "+xmlCache+" file from '" + cldrHome+"': ", ioe);
-            return;
-        }
-        
-        System.err.println("Finished verify+alias check of " + locales.size()+ ", " + aliasMapNew.size() + " aliased locales ("+cachehit+" in cache) found in " + et.toString());
-        aliasMap = aliasMapNew;
-        directionMap = directionMapNew;
-        clearProgress();
     }
     
     /**
@@ -9019,7 +8938,12 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
      * Class to startup ST in background and perform background operations.
      */
     SurveyThread startupThread = new SurveyThread(this);
-    
+
+    /**
+     * Progress bar manager
+     */
+    SurveyProgressManager progressManager = new SurveyProgressManager();
+
 
     /**
      * Startup function. Called from another thread.
@@ -9031,16 +8955,12 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         }
         
         ElapsedTimer setupTime = new ElapsedTimer();
-
+        CLDRProgressTask progress = openProgress("Main Startup");
         try {
-            setProgress("Main Startup");
             // set up CheckCLDR
             //CheckCLDR.SHOW_TIMES=true;
     
-            updateProgress(0);
-            int nn = progressCount;
-            
-            updateProgress(nn++, "Initializing..");
+            progress.update("Initializing Properties");
             
             survprops = new java.util.Properties(); 
     
@@ -9065,12 +8985,12 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             }
     
             logger.info("SurveyTool starting up. root=" + new File(cldrHome).getAbsolutePath());
-            updateProgress(nn++, "Loading configuration");
+            progress.update("Loading configurations");
     
             try {
                 java.io.FileInputStream is = new java.io.FileInputStream(new java.io.File(cldrHome, "cldr.properties"));
                 survprops.load(is);
-                updateProgress(nn++, "Loading configuration..");
+                progress.update("Loading configuration..");
                 is.close();
             } catch(java.io.IOException ioe) {
                 /*throw new UnavailableException*/
@@ -9079,10 +8999,10 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 return;
             }
             
-            updateProgress(nn++, "Setup DB config");
+            progress.update("Setup DB config");
             // set up DB properties
             setupDBProperties(survprops);
-            updateProgress(nn++, "Setup phase..");
+            progress.update("Setup phase..");
             
             // phase
             {
@@ -9103,12 +9023,12 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                     busted("Could not parse CLDR_PHASE - should be one of ( "+allValues+") but instead got "+phaseString);
                 }
             }
-            updateProgress(nn++, "Setup props..");
+            progress.update("Setup props..");
             newVersion=survprops.getProperty("CLDR_NEWVERSION","CLDR_NEWVERSION");
             oldVersion=survprops.getProperty("CLDR_OLDVERSION","CLDR_OLDVERSION");
     
             vetdata = survprops.getProperty("CLDR_VET_DATA", cldrHome+"/vetdata"); // dir for vetted data
-            updateProgress(nn++, "Setup dirs.."); 
+            progress.update("Setup dirs.."); 
             vetdir = new File(vetdata);
             if(!vetdir.isDirectory()) {
                 vetdir.mkdir();
@@ -9130,7 +9050,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     //            }
     //        }
     
-            updateProgress(nn++, "Setup vap and message..");
+            progress.update("Setup vap and message..");
             vap = survprops.getProperty("CLDR_VAP"); // Vet Access Password
             if((vap==null)||(vap.length()==0)) {
                 /*throw new UnavailableException*/
@@ -9158,14 +9078,14 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 busted("CLDR_VET_WEB isn't a directory: " + vetweb);
                 return;
             }
-            updateProgress(nn++, "Setup cache..");
+            progress.update("Setup cache..");
     
             File cacheDir = new File(cldrHome, "cache");
        //     logger.info("Cache Dir: " + cacheDir.getAbsolutePath() + " - creating and emptying..");
             CachingEntityResolver.setCacheDir(cacheDir.getAbsolutePath());
             CachingEntityResolver.createAndEmptyCacheDir();
 
-            updateProgress(nn++, "Setup supplemental..");
+            progress.update("Setup supplemental..");
 
             supplemental = new SupplementalData(fileBase + "/../supplemental/");
 	    supplementalDataInfo = SupplementalDataInfo.getInstance(fileBase + "/../supplemental/");
@@ -9189,23 +9109,23 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                  return;
              }
              */
-            updateProgress(nn++, "Setup warnings..");
+            progress.update("Setup warnings..");
             if(!readWarnings()) {
                 // already busted
                 return;
             }
             
-            updateProgress(nn++, "Setup baseline file..");
+            progress.update("Setup baseline file..");
             
             // load baseline file
             getBaselineFile();
             
-            updateProgress(nn++, "Setup baseline example..");
+            progress.update("Setup baseline example..");
             
             // and example
             getBaselineExample();
 
-            updateProgress(nn++, "Wake up the database..");
+            progress.update("Wake up the database..");
             
             
             doStartupDB(); // will take over progress 50-60
@@ -9213,7 +9133,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	        t.printStackTrace();
 	        busted("Error on startup: ", t);
         } finally {
-            clearProgress(); // at least clear the progress bar.
+            progress.close();
         }
         
         /** 
@@ -9228,13 +9148,21 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     }
 
     public void destroy() {
-        logger.warning("SurveyTool shutting down..");
-        if(startupThread!=null) {
-        	startupThread.attemptCleanShutdown();
+        CLDRProgressTask progress = openProgress("shutting down");
+        try {
+            logger.warning("SurveyTool shutting down..");
+            if(startupThread!=null) {
+                progress.update("Attempting clean shutdown...");
+            	startupThread.attemptCleanShutdown();
+            }
+            progress.update("Shutting down database...");
+            doShutdownDB();
+            progress.update("Destroying servlet...");
+            if(isBusted!=null) isBusted="servlet destroyed";
+            super.destroy();
+        } finally {
+            progress.close();
         }
-        doShutdownDB();
-        if(isBusted!=null) isBusted="servlet destroyed";
-        super.destroy();
     }
 
     protected void startCell(WebContext ctx, String background) {
@@ -9821,118 +9749,121 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 
     private void doStartupDB()
     {
-        int nn = progressCount; // save
-        setProgress("Database Setup");
-        updateProgress(nn += 5, "begin.."); // restore
-        //dbDir_u = new File(cldrHome,CLDR_DB_U);
-        //boolean doesExist = dbDir.isDirectory();
-    ///*U*/	    boolean doesExist_u = dbDir_u.isDirectory();
-        
-    //    logger.info("SurveyTool setting up database.. " + dbDir.getAbsolutePath());
-        try
-        { 
-            if(false) { // pooling listener disabled by default
-               updateProgress(nn++, "Load pool "+STPoolingListener.ST_ATTRIBUTE); // restore
-               datasource = (DataSource) getServletContext().getAttribute(STPoolingListener.ST_ATTRIBUTE);
+        CLDRProgressTask progress = openProgress("Database Setup");
+        try {
+            progress.update("begin.."); // restore
+            //dbDir_u = new File(cldrHome,CLDR_DB_U);
+            //boolean doesExist = dbDir.isDirectory();
+            ///*U*/	    boolean doesExist_u = dbDir_u.isDirectory();
+
+            //    logger.info("SurveyTool setting up database.. " + dbDir.getAbsolutePath());
+            try
+            { 
+                if(false) { // pooling listener disabled by default
+                    progress.update( "Load pool "+STPoolingListener.ST_ATTRIBUTE); // restore
+                    datasource = (DataSource) getServletContext().getAttribute(STPoolingListener.ST_ATTRIBUTE);
+                }
+                progress.update( "Load "+db_driver); // restore
+                Object o = Class.forName(db_driver).newInstance();
+                try {
+                    java.sql.Driver drv = (java.sql.Driver)o;
+                    progress.update("Check "+db_driver); // restore
+                    dbInfo = "v"+drv.getMajorVersion()+"."+drv.getMinorVersion();
+                    //   dbInfo = dbInfo + " " +org.apache.derby.tools.sysinfo.getProductName()+" " +org.apache.derby.tools.sysinfo.getVersionString();
+                } catch(Throwable t) {
+                    dbInfo = "unknown";
+                }
+                logger.info("loaded "+db_driver+" driver " + o + " - " + dbInfo);
+                progress.update( "Create DB"); // restore
+                Connection conn = getDBConnection(CLDR_DB_CREATESUFFIX);
+                //        logger.info("Connected to database " + cldrdb);
+                ///*U*/        Connection conn_u = getU_DBConnection(";create=true");
+                //        logger.info("Connected to user database " + cldrdb_u);
+
+                // set up our main tables.
+                progress.update("Commit DB"); // restore
+                conn.commit();        
+                conn.close(); 
+
+                ///*U*/        conn_u.commit();
+                ///*U*/        conn_u.close();
             }
-            updateProgress(nn++, "Load "+db_driver); // restore
-            Object o = Class.forName(db_driver).newInstance();
+            catch (SQLException e)
+            {
+                busted("On database startup", e);
+                return;
+            }
+            catch (Throwable t)
+            {
+                busted("Other error on database startup",t);
+                t.printStackTrace();
+                return;
+            }
+            // now other tables..
+            progress.update("Setup databases "); // restore
             try {
-                java.sql.Driver drv = (java.sql.Driver)o;
-                updateProgress(nn++, "Check "+db_driver); // restore
-                dbInfo = "v"+drv.getMajorVersion()+"."+drv.getMinorVersion();
-             //   dbInfo = dbInfo + " " +org.apache.derby.tools.sysinfo.getProductName()+" " +org.apache.derby.tools.sysinfo.getVersionString();
-            } catch(Throwable t) {
-                dbInfo = "unknown";
+                progress.update("Setup  "+UserRegistry.CLDR_USERS); // restore
+                Connection uConn = getDBConnection(); ///*U*/ was:  getU_DBConnection
+                boolean doesExist_u = hasTable(uConn, UserRegistry.CLDR_USERS);
+                progress.update("Create UserRegistry  "+UserRegistry.CLDR_USERS); // restore
+                reg = UserRegistry.createRegistry(logger, uConn, this);
+                if(!doesExist_u) { // only import users on first run through..
+                    progress.update( "Import old users"); // restore
+                    reg.importOldUsers(vetdata);
+                }
+
+                //            String doMigrate = survprops.getProperty("CLDR_MIGRATE");
+                //            if((doMigrate!=null) && (doMigrate.length()>0)) {
+                //                System.err.println("** User DB migrate");
+                //                reg.migrateFrom(getU_DBConnection());
+                //            }
+
+            } catch (SQLException e) {
+                busted("On UserRegistry startup", e);
+                return;
             }
-            logger.info("loaded "+db_driver+" driver " + o + " - " + dbInfo);
-            updateProgress(nn++, "Create DB"); // restore
-            Connection conn = getDBConnection(CLDR_DB_CREATESUFFIX);
-    //        logger.info("Connected to database " + cldrdb);
-    ///*U*/        Connection conn_u = getU_DBConnection(";create=true");
-    //        logger.info("Connected to user database " + cldrdb_u);
-            
-            // set up our main tables.
-            updateProgress(nn++, "Commit DB"); // restore
-            conn.commit();        
-            conn.close(); 
-            
-    ///*U*/        conn_u.commit();
-    ///*U*/        conn_u.close();
-        }
-        catch (SQLException e)
-        {
-            busted("On database startup", e);
-            return;
-        }
-        catch (Throwable t)
-        {
-            busted("Other error on database startup",t);
-            t.printStackTrace();
-            return;
-        }
-        // now other tables..
-        updateProgress(nn++, "Setup databases "); // restore
-        try {
-            updateProgress(nn++, "Setup  "+UserRegistry.CLDR_USERS); // restore
-            Connection uConn = getDBConnection(); ///*U*/ was:  getU_DBConnection
-            boolean doesExist_u = hasTable(uConn, UserRegistry.CLDR_USERS);
-            updateProgress(nn++, "Create UserRegistry  "+UserRegistry.CLDR_USERS); // restore
-            reg = UserRegistry.createRegistry(logger, uConn, this);
-            if(!doesExist_u) { // only import users on first run through..
-                updateProgress(nn++, "Import old users"); // restore
-                reg.importOldUsers(vetdata);
+            progress.update( "Create XPT"); // restore
+            try {
+                xpt = XPathTable.createTable(logger, getDBConnection(), this);
+            } catch (SQLException e) {
+                busted("On XPathTable startup", e);
+                return;
             }
-            
-//            String doMigrate = survprops.getProperty("CLDR_MIGRATE");
-//            if((doMigrate!=null) && (doMigrate.length()>0)) {
-//                System.err.println("** User DB migrate");
-//                reg.migrateFrom(getU_DBConnection());
-//            }
-            
-        } catch (SQLException e) {
-            busted("On UserRegistry startup", e);
-            return;
+            // note: make xpt before CLDRDBSource..
+            progress.update("Create CLDR_DATA"); // restore
+            try {
+                dbsrcfac = new CLDRDBSourceFactory(this, fileBase, logger, new File(homeFile, "vxpt"));
+            } catch (SQLException e) {
+                busted("On CLDRDBSource startup", e);
+                return;
+            }
+            progress.update( "Create Vetting"); // restore
+            try {
+                vet = Vetting.createTable(logger, getDBConnection(), this);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                busted("On Vetting startup", e);
+                return;
+            }
+            progress.update("Tell DBFac the Vetter is Ready"); // restore
+            try {
+                dbsrcfac.vetterReady();
+            } catch (Throwable e) {
+                e.printStackTrace();
+                busted("On Tell DBFac the Vetter is Ready startup", e);
+                return;
+            }
+            progress.update("Create fora"); // restore
+            try {
+                fora = SurveyForum.createTable(logger, getDBConnection(), this);
+            } catch (SQLException e) {
+                busted("On Fora startup", e);
+                return;
+            }
+            progress.update(" DB setup complete."); // restore
+        } finally {
+            progress.close();
         }
-        updateProgress(nn++, "Create XPT"); // restore
-        try {
-            xpt = XPathTable.createTable(logger, getDBConnection(), this);
-        } catch (SQLException e) {
-            busted("On XPathTable startup", e);
-            return;
-        }
-        // note: make xpt before CLDRDBSource..
-        updateProgress(nn++, "Create CLDR_DATA"); // restore
-        try {
-            dbsrcfac = new CLDRDBSourceFactory(this, fileBase, logger, new File(homeFile, "vxpt"));
-        } catch (SQLException e) {
-            busted("On CLDRDBSource startup", e);
-            return;
-        }
-        updateProgress(nn++, "Create Vetting"); // restore
-        try {
-            vet = Vetting.createTable(logger, getDBConnection(), this);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            busted("On Vetting startup", e);
-            return;
-        }
-        updateProgress(nn++, "Tell DBFac the Vetter is Ready"); // restore
-        try {
-            dbsrcfac.vetterReady();
-        } catch (Throwable e) {
-            e.printStackTrace();
-            busted("On Tell DBFac the Vetter is Ready startup", e);
-            return;
-        }
-        updateProgress(nn++, "Create fora"); // restore
-        try {
-            fora = SurveyForum.createTable(logger, getDBConnection(), this);
-        } catch (SQLException e) {
-            busted("On Fora startup", e);
-            return;
-        }
-        updateProgress(nn++, " DB setup complete."); // restore
     }    
     
     public static final String getThrowableStack(Throwable t) {

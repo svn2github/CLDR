@@ -29,6 +29,7 @@ import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.icu.LDMLConstants;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.web.CLDRDBSourceFactory.CLDRDBSource;
+import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.DataSection.DataRow;
 import org.unicode.cldr.web.DataSection.DataRow.CandidateItem;
 import org.unicode.cldr.web.UserRegistry.User;
@@ -706,24 +707,23 @@ public class Vetting {
      */
     public int updateResults(boolean removeFirst) {
         stopUpdating = false;
+        File inFiles[] = sm.getInFiles();
+        int nrInFiles = inFiles.length;
+        CLDRProgressTask progress = sm.openProgress("vetting update", nrInFiles);
         try {
-            sm.progressWhat = "vetting update";
             ElapsedTimer et = new ElapsedTimer();
             System.err.println("updating results... ***********************************");
-            File inFiles[] = sm.getInFiles();
             int tcount = 0;
             int lcount = 0;
             int types[] = new int[1];
-            int nrInFiles = inFiles.length;
-            sm.progressMax = nrInFiles;
             for(int i=0;i<nrInFiles;i++) {
-                sm.progressCount = i;
 
                 // TODO: need a function for this.
                 String fileName = inFiles[i].getName();
                 int dot = fileName.indexOf('.');
                 String localeString= fileName.substring(0,dot);
                 CLDRLocale localeName = CLDRLocale.getInstance(localeString);
+                progress.update(i, localeString);
                 //System.err.println(localeName + " - "+i+"/"+nrInFiles);
                 ElapsedTimer et2 = new ElapsedTimer();
                 types[0]=0;
@@ -747,7 +747,7 @@ public class Vetting {
             System.err.println("******************** NOTE: updateResults() doesn't send notifications yet.");
             return tcount;
         } finally {
-            sm.progressWhat = null; // clean up counter.
+            progress.close();
         }
     }
     
@@ -1593,9 +1593,7 @@ public class Vetting {
      * @return bitwise OR of good, disputed, etc.
      */
     int status(CLDRLocale locale) {
-        synchronized(conn) {
             return getCachedLocaleData(locale).getStatus();
-        }
     }
     public int getWinningXPath(int xpath, CLDRLocale locale) {
         return getCachedLocaleData(locale).getWinningXPath(xpath, null);

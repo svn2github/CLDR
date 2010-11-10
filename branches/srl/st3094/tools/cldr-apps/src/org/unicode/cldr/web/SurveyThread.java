@@ -137,28 +137,15 @@ public class SurveyThread extends Thread {
 
 		// ----- CLDRProgressIndicator overrides. For now, delegate to theThread.sm
         @Override
-        public void clearProgress() {
-            if(running()) theThread.sm.clearProgress();
+        public CLDRProgressTask openProgress(String what) {
+            if(running()) return theThread.sm.openProgress(what);
+            return null;
         }
 
         @Override
-        public void setProgress(String what) {
-            if(running()) theThread.sm.setProgress(what);
-        }
-
-        @Override
-        public void setProgress(String what, int max) {
-            if(running()) theThread.sm.setProgress(what,max);
-        }
-
-        @Override
-        public void updateProgress(int count) {
-            if(running()) theThread.sm.updateProgress(count);
-        }
-
-        @Override
-        public void updateProgress(int count, String what) {
-            if(running()) theThread.sm.updateProgress(count,what);
+        public CLDRProgressTask openProgress(String what, int max) {
+            if(running()) return theThread.sm.openProgress(what,max);
+            return null;
         }
 	}
 	

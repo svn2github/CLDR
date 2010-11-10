@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jspf/stcontext.jspf" %><%
    String title = (String)ctx.get("TITLE");
 %>
-    <h4>Survey Tool <%= ctx.sm.phase().toString() %> <%= ctx.sm.getNewVersion() %>: <b><%
+    <h4 id="toptitle">Survey Tool <%= ctx.sm.phase().toString() %> <%= ctx.sm.getNewVersion() %>: <b><%
 	    if(ctx.getLocale() != null) {
 	        %><%= ctx.getLocale().getDisplayName(ctx.displayLocale) + " | " %><%
 	    }
