@@ -95,7 +95,7 @@ import com.ibm.icu.util.ULocale;
 /**
  * The main servlet class of Survey Tool
  */
-public class SurveyMain extends HttpServlet {
+public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	private static final String REPORT_PREFIX = "r_";
 
     private static final String R_STEPS = REPORT_PREFIX+ "steps";
@@ -1217,35 +1217,58 @@ public class SurveyMain extends HttpServlet {
             actionCtx.addQuery("action",action);
             ctx.println("<h2>1-click vetting update</h2>");
             // 1: update all sources
-            ctx.println("<h3>1. update all sources</h3>");
-//            Connection conn = this.getDBConnection();
+
             try {
-//                CLDRDBSource mySrc = makeDBSource(conn, null, CLDRLocale.ROOT);
-                resetLocaleCaches();
-                ctx.println("Update count: " + dbsrcfac.manageSourceUpdates(actionCtx, this, true)); // do a quiet 'update all'
-                ctx.println("<hr>");
-            } finally {
-//                SurveyMain.closeDBConnection(conn);
+                final WebContext fakeContext = new WebContext(true);
+                fakeContext.sm = this;
+
+                startupThread.addTask(new SurveyThread.SurveyTask("Updating All Data") {
+                    public void run() throws Throwable {
+
+                        try {
+                            String baseName = this.name;
+                            int cnt = 0;
+                            this.name = baseName + ": #"+(++cnt)+" reset caches and update all";
+                            try {
+                                //                CLDRDBSource mySrc = makeDBSource(conn, null, CLDRLocale.ROOT);
+                                resetLocaleCaches();
+                                System.out.println("Update count: " + dbsrcfac.manageSourceUpdates(fakeContext, fakeContext.sm, true)); // do a quiet 'update all'
+                            } finally {
+                                //                SurveyMain.closeDBConnection(conn);
+                            }
+                            // 2: load all locales
+                            this.name = baseName + ": #"+(++cnt)+" load all locales";
+                            loadAllLocales(fakeContext, this);
+                            // 3: update impl votes
+                            this.name = baseName + ": #"+(++cnt)+" Update implied votes";
+                            ElapsedTimer et = new ElapsedTimer();
+                            int n = vet.updateImpliedVotes();
+                            //ctx.println("Done updating "+n+" implied votes in: " + et + "<br>");
+                            // 4: UpdateAll
+                            //ctx.println("<h4>Update All</h4>");
+                            this.name = baseName + ": #"+(++cnt)+" Update All";
+
+                            et = new ElapsedTimer();
+                            n = vet.updateResults(false); // don't RE update.
+                            //ctx.println("Done updating "+n+" vote results in: " + et + "<br>");
+                            this.name = baseName + ": #"+(++cnt)+" Invalidate ROOT";
+                            lcr.invalidateLocale(CLDRLocale.ROOT);
+                            // 5: update status
+                            this.name = baseName + ": #"+(++cnt)+" Update Status";
+                            et = new ElapsedTimer();
+                            n = vet.updateStatus();
+                            System.err.println("Done updating "+n+" statuses [locales] in: " + et + "<br>");
+                            SurveyMain.specialHeader = "Data update done! Please log off. Administrator: Please restart your Survey Tool.";
+                        } finally {
+                            clearProgress();
+                        }
+                    }
+                });
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                throw new InternalError("Couldn't create fakeContext for administration.");
             }
-            // 2: load all locales
-            loadAllLocales(ctx, null);
-            // 3: update impl votes
-            ctx.println("<br>");
-            ElapsedTimer et = new ElapsedTimer();
-            int n = vet.updateImpliedVotes();
-            ctx.println("Done updating "+n+" implied votes in: " + et + "<br>");
-            // 4: UpdateAll
-            ctx.println("<h4>Update All</h4>");
-            
-            et = new ElapsedTimer();
-            n = vet.updateResults(false); // don't RE update.
-            ctx.println("Done updating "+n+" vote results in: " + et + "<br>");
-            lcr.invalidateLocale(CLDRLocale.ROOT);
-            // 5: update status
-            et = new ElapsedTimer();
-            n = vet.updateStatus();
-            ctx.println("Done updating "+n+" statuses [locales] in: " + et + "<br>");
-            ctx.println("<hr><h1>Data update done! Restart may be needed if 'root' or '"+this.BASELINE_ID+"' was involved.</h1>");
         } else if(action.equals("bulk_submit")) {
             WebContext subCtx = (WebContext)ctx.clone();
             actionCtx.addQuery("action",action);
@@ -2137,67 +2160,66 @@ public class SurveyMain extends HttpServlet {
             throw new InternalError("Bad locale: "+test0);
         }
     }
-    private void loadAllLocales(WebContext ctx, SurveyTask surveyTask) {
-        File[] inFiles = getInFiles();
-        int nrInFiles = inFiles.length;
-        com.ibm.icu.dev.test.util.ElapsedTimer allTime = new com.ibm.icu.dev.test.util.ElapsedTimer("Time to load all: {0}");
-        logger.info("Loading all..");            
-//        Connection connx = null;
-        int ti = 0;
-        for(int i=0;(null==this.isBusted)&&i<nrInFiles&&(surveyTask==null||surveyTask.running());i++) {
-            String localeName = inFiles[i].getName();
-            int dot = localeName.indexOf('.');
-            if(dot !=  -1) {
-                localeName = localeName.substring(0,dot);
-                if((i>0)&&((i%50)==0)) {
-                    logger.info("   "+ i + "/" + nrInFiles + ". " + usedK() + "K mem used");
-                   if(ctx!=null) ctx.println("   "+ i + "/" + nrInFiles + ". " + usedK() + "K mem used<br>");
-                }
-                try {
-//                    if(connx == null) {
-//                        connx = this.getDBConnection();
-//                    }
-       
-                    	CLDRLocale locale = CLDRLocale.getInstance(localeName);
-			synchronized( this.vet.conn) {  /* make sure no-one else is in a locale. */
-                    		dbsrcfac.getInstance(locale);
-			}
-                    //                        WebContext xctx = new WebContext(false);
-                    //                        xctx.setLocale(locale);
-                    //makeCLDRFile(makeDBSource(connx, null, locale));  // orphan result
-                } catch(Throwable t) {
-                    t.printStackTrace();
-                    String complaint = ("Error loading: " + localeName + " - " + t.toString() + " ...");
-                    logger.severe("loading all: " + complaint);
-                    if(ctx!=null) {
-                    		ctx.println(complaint + "<br>" + "<pre>");
-                    		ctx.print(t);
-                    		ctx.println("</pre>");
-                    }
-//                    try {
-//                    	closeDBConnection(connx);
-//                    } catch(Throwable t2) {
-//                        t2.printStackTrace();
-//                        String complaint2 = ("Error closing down connection: " + localeName + " - " + t2.toString() + " ...");
-//                        logger.severe("closing conn: " + complaint2);
-//                        ctx.println(complaint2 + "<br>" + "<pre>");
-//                        ctx.print(t2);
-//                        ctx.println("</pre>");
-//                    }
-//                    connx=null;
-                }
-            }
-        }
-        if(surveyTask!=null&&!surveyTask.running()) {
-        	System.err.println("LoadAll: no longer running!\n");
-        }
-//        closeDBConnection(connx);
-        logger.info("Loaded all. " + allTime);
-        if(ctx!=null) ctx.println("Loaded all." + allTime + "<br>");
-        int n = dbsrcfac.update();
-        logger.info("Updated "+n+". " + allTime);
-        if(ctx!=null) ctx.println("Updated "+n+"." + allTime + "<br>");
-    }
+	private void loadAllLocales(WebContext ctx, SurveyTask surveyTask) {
+	    File[] inFiles = getInFiles();
+	    int nrInFiles = inFiles.length;
+	    com.ibm.icu.dev.test.util.ElapsedTimer allTime = new com.ibm.icu.dev.test.util.ElapsedTimer("Time to load all: {0}");
+	    logger.info("Loading all..");            
+	    //        Connection connx = null;
+	    int ti = 0;
+	    if(surveyTask!=null&&surveyTask.running()) {
+	        setProgress("Loading All Locales",nrInFiles);
+	    }
+	    try {
+	        for(int i=0;(null==this.isBusted)&&i<nrInFiles&&(surveyTask==null||surveyTask.running());i++) {
+	            String localeName = inFiles[i].getName();
+	            int dot = localeName.indexOf('.');
+	            if(dot !=  -1) {
+	                localeName = localeName.substring(0,dot);
+	                if(surveyTask!=null&&surveyTask.running()) {
+	                    updateProgress(i,localeName);
+	                }
+	                if((i>0)&&((i%50)==0)) {
+	                    logger.info("   "+ i + "/" + nrInFiles + ". " + usedK() + "K mem used");
+	                    //if(ctx!=null) ctx.println("   "+ i + "/" + nrInFiles + ". " + usedK() + "K mem used<br>");
+	                }
+	                try {
+	                    //                    if(connx == null) {
+	                    //                        connx = this.getDBConnection();
+	                    //                    }
+
+	                    CLDRLocale locale = CLDRLocale.getInstance(localeName);
+	                    dbsrcfac.getInstance(locale);
+	                    //                        WebContext xctx = new WebContext(false);
+	                    //                        xctx.setLocale(locale);
+	                    //makeCLDRFile(makeDBSource(connx, null, locale));  // orphan result
+	                } catch(Throwable t) {
+	                    t.printStackTrace();
+	                    String complaint = ("Error loading: " + localeName + " - " + t.toString() + " ...");
+                        logger.severe("loading all: " + complaint);
+                        throw new InternalError("loading all: " + complaint);
+	                }
+	            }
+	        }
+	        if(surveyTask!=null&&!surveyTask.running()) {
+	            clearProgress();
+	            System.err.println("LoadAll: no longer running!\n");
+	        }
+	        if(surveyTask != null && surveyTask.running()) {
+	            clearProgress();
+	        }
+	        //        closeDBConnection(connx);
+	        logger.info("Loaded all. " + allTime);
+//	        if(ctx!=null) ctx.println("Loaded all." + allTime + "<br>");
+	        int n = dbsrcfac.update(surveyTask);
+	        logger.info("Updated "+n+". " + allTime);
+//	        if(ctx!=null) ctx.println("Updated "+n+"." + allTime + "<br>");
+	    } finally {
+	        if(surveyTask!=null && surveyTask.running()) {
+	            clearProgress();
+	        }
+	    }
+	}
     
     /* 
      * print menu of stuff to 'work with' a live user session..
@@ -2352,9 +2374,10 @@ public class SurveyMain extends HttpServlet {
     public static final int PROGRESS_WID=100; /** Progress bar width **/
         
     
-    /**
-     * Done with progress, reset to nothing.
+    /* (non-Javadoc)
+     * @see org.unicode.cldr.web.CLDRProgressIndicator#clearProgress()
      */
+    @Override
     public void clearProgress() {
         progressWhat = null;
         progressMax = 0;
@@ -2362,19 +2385,18 @@ public class SurveyMain extends HttpServlet {
         progressSub = null;
     }
     
-    /**
-     * Initialize a progress that will not show the actual count, but treat the count as a number from 0-100
-     * @param what the user-visible string
+    /* (non-Javadoc)
+     * @see org.unicode.cldr.web.CLDRProgressIndicator#setProgress(java.lang.String)
      */
+    @Override
     public void setProgress(String what) {
         setProgress(what, -100);
     }
     
-    /**
-     * Initialize a Progress. 
-     * @param what what is progressing
-     * @param max the max count, or <0 if it is an un-numbered percentage (0-100 without specific numbers)
+    /* (non-Javadoc)
+     * @see org.unicode.cldr.web.CLDRProgressIndicator#setProgress(java.lang.String, int)
      */
+    @Override
     public void setProgress(String what, int max) {
             progressWhat = what;
             progressMax = max;
@@ -2382,14 +2404,18 @@ public class SurveyMain extends HttpServlet {
             progressSub = null;
     }
     
-    /**
-     * Update on the progress
-     * @param count current count - up to Max
+    /* (non-Javadoc)
+     * @see org.unicode.cldr.web.CLDRProgressIndicator#updateProgress(int)
      */
+    @Override
     public void updateProgress(int count) {
         progressCount = count;
     }
     
+    /* (non-Javadoc)
+     * @see org.unicode.cldr.web.CLDRProgressIndicator#updateProgress(int, java.lang.String)
+     */
+    @Override
     public void updateProgress(int count, String what) {
         progressCount = count;
         progressSub = what;
@@ -2403,6 +2429,10 @@ public class SurveyMain extends HttpServlet {
         ctx.print(getProgress());
     }
     
+    /**
+     * Return the current progress indicator.
+     * @return
+     */
     public String getProgress() {
         StringBuffer buf = new StringBuffer();
                 

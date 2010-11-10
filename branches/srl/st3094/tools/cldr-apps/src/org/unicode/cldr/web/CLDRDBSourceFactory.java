@@ -31,6 +31,7 @@ import org.unicode.cldr.util.*;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.XPathParts.Comments;
 import org.unicode.cldr.web.CLDRFileCache.CacheableXMLSource;
+import org.unicode.cldr.web.SurveyThread.SurveyTask;
 import org.unicode.cldr.icu.LDMLConstants;
 
 // ICU
@@ -301,23 +302,31 @@ public class CLDRDBSourceFactory {
     /**
      * Execute deferred updates. Call this at a high level when all updates are complete.
      */
-    public int update() {
-    	int n = 0;
-        synchronized(sm.vet.conn) {
-            for(CLDRLocale l : needUpdate) {
-            	n++;
-                System.err.println("CLDRDBSRCFAC: executing deferred update of " + l +"("+needUpdate.size()+" on queue)");
-                sm.vet.updateResults(l);
-                synchronized(this) {
-	                XMLSource inst = getInstance(l,false);
-	                // TODO: fix broken layering
-	                XMLSource cached = ((MuxedSource)inst).cachedSource;
-	                ((CacheableXMLSource)cached).reloadWinning(((MuxedSource)inst).dbSource);
-	                ((CacheableXMLSource)cached).save();
+    public int update(SurveyTask surveyTask) {
+        int n = 0;
+        try {
+            synchronized(sm.vet.conn) {
+                if(surveyTask!=null) surveyTask.setProgress("DeferredUpdates", needUpdate.size());
+                for(CLDRLocale l : needUpdate) {
+                    n++;
+                    if(surveyTask!=null) surveyTask.updateProgress(n);
+                    System.err.println("CLDRDBSRCFAC: executing deferred update of " + l +"("+needUpdate.size()+" on queue)");
+                    sm.vet.updateResults(l);
+                    synchronized(this) {
+                        XMLSource inst = getInstance(l,false);
+                        // TODO: fix broken layering
+                        XMLSource cached = ((MuxedSource)inst).cachedSource;
+                        ((CacheableXMLSource)cached).reloadWinning(((MuxedSource)inst).dbSource);
+                        ((CacheableXMLSource)cached).save();
+                    }
                 }
+                needUpdate.clear();
             }
-            needUpdate.clear();
-         }
+        } finally {
+            if(surveyTask!=null) {
+                surveyTask.clearProgress();
+            }
+        }
         return n;
     }
 
@@ -616,14 +625,12 @@ public class CLDRDBSourceFactory {
     public int getSourceId(String tree, String locale) {
         String key = tree + "_" + locale;
         
-        synchronized (srcHash) {
             // first, is it in the hashtable?
             Integer r = null;
             r = (Integer) srcHash.get(key);
             if(r != null) {
                 return r.intValue(); // quick check
             }
-            synchronized(xpt) {
                 synchronized (conn) {
                     try {
                         stmts.querySource.setString(1,locale);
@@ -648,8 +655,6 @@ public class CLDRDBSourceFactory {
                         logger.severe("CLDRDBSource: Failed to find source ("+tree + "/" + locale +"): " + SurveyMain.unchainSqlException(se));
                         return -1;
                     }
-                }
-            }
         }
     }
     
@@ -663,7 +668,6 @@ public class CLDRDBSourceFactory {
         }
         String rev = null;
         synchronized (conn) {
-            synchronized (xpt) {
                 try {
                     stmts.querySourceInfo.setInt(1, id);
                     ResultSet rs = stmts.querySourceInfo.executeQuery();
@@ -681,7 +685,6 @@ public class CLDRDBSourceFactory {
                     throw new InternalError(what);
                 }
             }
-        }
     }
     
     /**
@@ -693,7 +696,6 @@ public class CLDRDBSourceFactory {
      */
     private int setSourceId(String tree, String locale, String rev) {
         synchronized (conn) {
-            synchronized(xpt) {
                 try {
                     stmts.insertSource.setString(1,locale);
                     stmts.insertSource.setString(2,tree);
@@ -711,7 +713,6 @@ public class CLDRDBSourceFactory {
                     throw new InternalError("CLDRDBSource: Failed to set source ("+tree + "/" + locale +"): " + SurveyMain.unchainSqlException(se));
 //                    return -1;
                 }
-            }
         }
     }
 
@@ -2359,6 +2360,10 @@ public class CLDRDBSourceFactory {
             System.err.println("CLDRDBSourceFactory: Note: instead of CLDRDBSource.putValueAtDPath() and CLDRDBSource.putFullPathAtDPath(), use CLDRDBSource.putValueAtPath().");
         }
         return;
+    }
+
+    public int update() {
+        return update(null);
     }
 
 }
