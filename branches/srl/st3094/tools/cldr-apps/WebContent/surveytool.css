@@ -656,7 +656,7 @@ h4#toptitle b{
 	font-size: small;
 	margin-left: 1px;
 	margin-right: 1px;
-	color: #d00;
+	color: #d00
 	font-weight: bold;
     white-space: nowrap;
 }
@@ -890,4 +890,16 @@ table.stprogress td.remain {
 	border-left: none;
 	border-right: 2px solid black;
 	background: #ddd url(bar1.png) repeat;
+}
+
+label.menutop-active {
+	border: 2px solid green;
+	background-color: navy;
+	color: white;
+}
+
+select.menutop-active {
+}
+
+select.menutop-other {
 }

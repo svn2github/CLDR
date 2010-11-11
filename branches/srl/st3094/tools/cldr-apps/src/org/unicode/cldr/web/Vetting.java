@@ -483,22 +483,28 @@ public class Vetting {
         int tcount = 0;
         int lcount = 0;
         int nrInFiles = inFiles.length;
-        for(int i=0;i<nrInFiles;i++) {
-            String fileName = inFiles[i].getName();
-            int dot = fileName.indexOf('.');
-            String localeName = fileName.substring(0,dot);
-            if((i%100)==0) {
-                System.err.println(localeName + " - "+i+"/"+nrInFiles);
-            }
-            ElapsedTimer et2 = new ElapsedTimer();
-            int count = updateImpliedVotes(CLDRLocale.getInstance(localeName));
-            tcount += count;
-            if(count>0) {
-                lcount++;
-                System.err.println("updateImpliedVotes("+localeName+") took " + et2.toString());
-            } else {
-                // no reason to print it.
-            }
+        CLDRProgressTask progress = sm.openProgress("update implied votes");
+        try {
+	        for(int i=0;i<nrInFiles;i++) {
+	            String fileName = inFiles[i].getName();
+	            int dot = fileName.indexOf('.');
+	            String localeName = fileName.substring(0,dot);
+	            progress.update(i,localeName);
+	            if((i%100)==0) {
+	                System.err.println(localeName + " - "+i+"/"+nrInFiles);
+	            }
+	            ElapsedTimer et2 = new ElapsedTimer();
+	            int count = updateImpliedVotes(CLDRLocale.getInstance(localeName));
+	            tcount += count;
+	            if(count>0) {
+	                lcount++;
+	                System.err.println("updateImpliedVotes("+localeName+") took " + et2.toString());
+	            } else {
+	                // no reason to print it.
+	            }
+	        }
+        } finally {
+        	progress.close();
         }
         System.err.println("Done updating "+tcount+" implied votes ("+lcount + " locales). Elapsed:" + et.toString());
         return tcount;
