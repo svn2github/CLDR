@@ -43,8 +43,11 @@ static String METAZONES_ITEMS[] = SurveyMain.METAZONES_ITEMS;
 if(!ctx.prefBool(SurveyMain.PREF_NOJAVASCRIPT)) { 
     writeMenu(out, ctx, "Code Lists", PathUtilities.LOCALEDISPLAYNAMES_ITEMS);
     writeMenu(out, ctx, "Calendars", CALENDARS_ITEMS);
-    writeMenu(out, ctx, "Metazones", METAZONES_ITEMS);
+    writeMenu(out, ctx, "Time Zones", METAZONES_ITEMS);
     writeMenu(out, ctx, "Other Items", SurveyMain.OTHERROOTS_ITEMS);
+    out.flush(); ctx.flush();
+    ctx.includeFragment("report_menu.jsp"); /* don't use JSP include, because of variables */ %>
+   <%
  } else  {
     /* NON JAVASCRIPT VERSION */
     %>
