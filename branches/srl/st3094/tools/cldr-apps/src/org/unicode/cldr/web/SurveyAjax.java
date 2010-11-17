@@ -99,7 +99,7 @@ public class SurveyAjax extends HttpServlet {
 		Reader r = request.getReader();
 		int ch;
 		while((ch = r.read())>-1) {
-			System.err.println(" >> " + Integer.toHexString(ch));
+//			System.err.println(" >> " + Integer.toHexString(ch));
 			sb.append((char)ch);
 		}		
 		processRequest(request, response, sb.toString());
@@ -120,9 +120,9 @@ public class SurveyAjax extends HttpServlet {
 	}
 
 	private void processRequest(HttpServletRequest request, HttpServletResponse response, String val)  throws ServletException, IOException  {
-		if(val != null) {
-			System.err.println("val="+val);
-		}
+//		if(val != null) {
+//			System.err.println("val="+val);
+//		}
 		SurveyMain sm = SurveyMain.getInstance(request);
 		PrintWriter out = response.getWriter();
 		String what = request.getParameter(REQ_WHAT);
