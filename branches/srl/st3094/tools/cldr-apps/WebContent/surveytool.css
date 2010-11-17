@@ -804,6 +804,14 @@ div.topnotices div.beta {
 	opacity:  .8;
 	z-index: 0;
 }
+
+div.debugJsp {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	border: 1px solid gray; margin: 0.5em;
+}
+
 form.adduser table {
 	border-collapse: collapse;
 	background-color: #cdd;
@@ -902,4 +910,26 @@ select.menutop-active {
 }
 
 select.menutop-other {
+}
+
+/* classes for ajax form responses */
+tr.tr_checking {
+	background-color: goldenrod;
+}
+tr.tr_warn {
+	background-color: yellow;
+}
+tr.tr_err {
+	background-color: red;
+}
+/*
+  ready to submit
+  */
+tr.tr_submit {
+	background-color: #dfd;
+}
+/*
+ Unknown status
+*/
+tr.tr_unknown {
 }

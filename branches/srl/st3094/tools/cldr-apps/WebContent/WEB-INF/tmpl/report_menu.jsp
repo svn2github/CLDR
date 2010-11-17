@@ -14,11 +14,4 @@ subCtx.setQuery(SurveyMain.QUERY_LOCALE,ctx.localeString());
 <%
 	/* } */   // uncomment to restrict to logged in users
 
-	{
-		// Show the 'JSP debug' menu when on a jsp section.
-		String section=subCtx.field(SurveyMain.QUERY_SECTION);
-		if(section!=null&&section.startsWith("r_")) {
-			%><%@ include file="/WEB-INF/jspf/debug_jsp.jspf" %><%
-		}
-	}
 %>

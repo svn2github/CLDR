@@ -1076,6 +1076,7 @@ public class CLDRDBSourceFactory {
         CLDRLocale updateNeeded = null;
 
         System.err.println("@sl&v: "+locale+"/"+srcId);
+		CLDRProgressTask progress = sm.openProgress("Loading " + locale);
         try {
         	synchronized(conn) {  // Synchronize on the conn to ensure that no other state is changing under us..
         		// double check..
@@ -1100,6 +1101,7 @@ public class CLDRDBSourceFactory {
         			System.err.println("Couldn't load CLDRFile for " + locale);
         			return false ;
         		}
+        		
 
         		System.err.println("loading rev: " + rev + " for " + dir + ":" + srcId +"/"+locale+".xml"); // LOG that a new item is loaded.
         		int rowCount=0;
@@ -1129,6 +1131,7 @@ public class CLDRDBSourceFactory {
 
         			int xpid = xpt.getByXpath(xpath);       // the numeric ID of the xpath
         			int oxpid = xpt.getByXpath(oxpath);     // the numeric ID of the orig-xpath
+        			progress.update("x#"+xpid);
 
         			String value = file.getStringValue(xpath); // data value from XML
 
@@ -1193,6 +1196,7 @@ public class CLDRDBSourceFactory {
         		//   }
         	} // end: synch(xpt)
         } finally {
+        	progress.close();
         	if(updateNeeded != null) {
         		needUpdate(updateNeeded);
         	}
@@ -1376,6 +1380,7 @@ public class CLDRDBSourceFactory {
         if(SHOW_TIMES) {
                t0 = System.currentTimeMillis();
         }
+        //System.out.println("srl: hv@dp[f="+(finalData)+"] " + path);
         if(finalData) {
             boolean rv =  (getValueAtDPath(path) != null); // TODO: optimize this
             if(SHOW_TIMES) System.err.println("hasValueAtDPath:final "+locale + ":" + path + " " + (System.currentTimeMillis()-t0));
@@ -1453,7 +1458,7 @@ public class CLDRDBSourceFactory {
 	    
 	        String locale = getLocaleID();
 	        int xpath = xpt.getByXpath(path);
-	        if(SHOW_TIMES) System.err.println("hasValueAtDPath:>> "+locale + ":" + xpath + " " + (System.currentTimeMillis()-t0));
+	        if(SHOW_TIMES) System.err.println("getValueAtDPath:>> "+locale + ":" + xpath + " " + (System.currentTimeMillis()-t0));
 	
 	        ///*srl*/        boolean showDebug = (path.indexOf("dak")!=-1);
 	//        try {
@@ -1475,7 +1480,7 @@ public class CLDRDBSourceFactory {
 	            }
 	            String rv;
 	            if(!rs.next()) {
-	                if(SHOW_TIMES) System.err.println("hasValueAtDPath:0 "+locale + ":" + path + " " + (System.currentTimeMillis()-t0));
+	                if(SHOW_TIMES) System.err.println("getValueAtDPath:0 "+locale + ":" + path + " " + (System.currentTimeMillis()-t0));
 	                if(!finalData) {
 	                    rs.close();                    
 	                    if(SHOW_DEBUG) System.err.println("Nonfinal - no match for "+locale+":"+xpath + "");
@@ -1498,7 +1503,7 @@ public class CLDRDBSourceFactory {
 	                }                      
 	            }
 	            rv = SurveyMain.getStringUTF8(rs, 1); //            rv = rs.getString(1); // unicode
-	            if(SHOW_TIMES) System.err.println("hasValueAtDPath:+ "+locale + ":" + path + " " + (System.currentTimeMillis()-t0));
+	            if(SHOW_TIMES) System.err.println("getValueAtDPath:+ "+locale + ":" + path + " " + (System.currentTimeMillis()-t0));
 	            if(rs.next()) {
 	                String complaint = "warning: multi return: " + locale + ":" + path + " #"+xpath;
 	                logger.severe(complaint);

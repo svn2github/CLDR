@@ -589,7 +589,15 @@ public class WebContext implements Cloneable {
      * @return the context path for the specified resource
      */
     public String context(String s) { 
-        return context() + "/" + s;
+        return context(request,s);
+    }
+    /**
+     * Get the context path for a certain resource
+     * @param s resource URL
+     * @return the context path for the specified resource
+     */
+    public static String context(HttpServletRequest request, String s) { 
+        return request.getContextPath() + "/" + s;
     }
     
     /**
@@ -1332,10 +1340,14 @@ public class WebContext implements Cloneable {
      * @return the HTML for the icon and message
      */
     public String iconHtml(String icon, String message) {
+        return iconHtml(request, icon, message);
+    }
+    
+    public static String iconHtml(HttpServletRequest request, String icon, String message) {
         if(message==null) {
             message = "[" + icon +"]";
         }
-        return "<img border='0' alt='["+icon+"]' style='width: 16px; height: 16px;' src='"+context(icon+".png")+"' title='"+message+"' />";
+        return "<img border='0' alt='["+icon+"]' style='width: 16px; height: 16px;' src='"+context(request, icon+".png")+"' title='"+message+"' />";
     }
     
     /**
@@ -1485,5 +1497,12 @@ public class WebContext implements Cloneable {
             System.err.println("While expanding ajax: " +t.toString());
             t.printStackTrace();
         }
+    }
+    
+    public SurveyMain.UserLocaleStuff getUserFile() {
+    	return sm.getUserFile(session, getLocale());
+    }
+    public CLDRFile getCLDRFile() {
+    	return getUserFile().cldrfile;
     }
 }

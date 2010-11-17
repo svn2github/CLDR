@@ -96,6 +96,8 @@ import com.ibm.icu.util.ULocale;
  * The main servlet class of Survey Tool
  */
 public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
+	private static final String STEPSMENU_TOP_JSP = "stepsmenu_top.jsp";
+
 	private static final String REPORT_PREFIX = "r_";
 
     private static final String R_STEPS = REPORT_PREFIX+ "steps";
@@ -191,7 +193,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     public static final String DRAFT = "draft";
     public static final String UNKNOWNCHANGE = "Click to suggest replacement";
     public static final String DONTCARE = "abstain";
-    public static final boolean HAVE_REMOVE = false;
+    public static final boolean HAVE_REMOVE = false; /**< Experimental support for 'remove' */
     public static final String REMOVE = "remove";
     public static final String CONFIRM = "confirm";
     public static final String INHERITED_VALUE = "inherited-value";
@@ -1874,7 +1876,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 				int dot = localeName.indexOf('.');
 				theLocale = localeName.substring(0,dot);
 				System.err.println("#vx "+theLocale);
-				XMLSource dbSource = makeDBSource(ctx, null, CLDRLocale.getInstance(theLocale), true);
+				XMLSource dbSource = makeDBSource(CLDRLocale.getInstance(theLocale), true);
 				CLDRFile file = makeCLDRFile(dbSource);
 				  OutputStream files = new FileOutputStream(new File(outdir,localeName),false); // Append
 //				  PrintWriter pw = new PrintWriter(files);
@@ -4096,10 +4098,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
      * @see showPathList
      * @see printPathListClose
      */
-    void printPathListOpen(WebContext ctx) {
-        if(ctx.session.user != null) {
-            ctx.println("<form name='"+STFORM+"' method=POST action='" + ctx.base() + "'>");
-        }
+    public void printPathListOpen(WebContext ctx) {
+        	ctx.println("<form name='"+STFORM+"' method=POST action='" + ctx.base() + "'>");
     }
     
     /**
@@ -4107,10 +4107,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
      * @see showPathList
      * @see printPathListOpen
      */
-    void printPathListClose(WebContext ctx) {
-        if(ctx.session.user != null) {
-            ctx.println("</form>");
-        }
+    public void printPathListClose(WebContext ctx) {
+        	ctx.println("</form>");
     }
     
     public void doSession(WebContext ctx) throws IOException
@@ -4564,14 +4562,18 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         if(ctx.getLocale() != null) {
             locale = ctx.getLocale().toString();
         }
-        printPathListOpen(ctx);
+        if(!shortHeader(ctx))  {
+        	printPathListOpen(ctx);
+        }
         if((locale==null)||(locale.length()<=0)) {
             doLocaleList(ctx, baseContext);            
             ctx.println("<br/>");
         } else {
             showLocale(ctx, which);
         }
-        printPathListClose(ctx);
+        if(!shortHeader(ctx))  {
+            printPathListClose(ctx);
+        }
         printFooter(ctx);
     }
     
@@ -4822,7 +4824,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             return;
         }
         synchronized (ctx.session) { // session sync
-            UserLocaleStuff uf = getUserFile(ctx, (ctx.session.user==null)?null:ctx.session.user, ctx.getLocale());
+            UserLocaleStuff uf = getUserFile(ctx.session, ctx.getLocale());
             CLDRFile cf = uf.cldrfile;
             if(cf == null) {
                 throw new InternalError("CLDRFile is null!");
@@ -4846,7 +4848,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 ctx.println("<h3>"+ctx.getLocale()+" "+ctx.getLocale().getDisplayName(ctx.displayLocale)+" / " + which + " Example</h3>");
             } else if(which.equals(R_STEPS)) {
                 // short menu.
-                ctx.includeFragment("stepsmenu_top.jsp");
+                ctx.includeFragment(STEPSMENU_TOP_JSP);
             } else {
                 printLocaleTreeMenu(ctx, which);
             }
@@ -5287,7 +5289,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                     lastfile = fileName;
                     File outFile = new File(outdir, fileName);
                     
-                    XMLSource dbSource = makeDBSource(conn, null, CLDRLocale.getInstance(localeName), vetted);
+                    XMLSource dbSource = makeDBSource( CLDRLocale.getInstance(localeName), vetted);
                     CLDRFile file;
                     
                     if(resolved == false) {
@@ -5975,8 +5977,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             setValid();
         }
         
-        public CheckCLDR getCheck(WebContext ctx) {
-            CheckCLDR checkCldr = (CheckCLDR)hash.get(CHECKCLDR+ctx.defaultPtype());
+        public CheckCLDR getCheck(String ptype, Map<String,String> options) {
+            CheckCLDR checkCldr = (CheckCLDR)hash.get(CHECKCLDR+ptype);
             if (checkCldr == null)  {
                 List checkCldrResult = new ArrayList();
                 
@@ -5996,16 +5998,19 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                     throw new InternalError("cldrfile was null.");
                 }
                 //long t0 = System.currentTimeMillis();
-                checkCldr.setCldrFileToCheck(fileForChecks, ctx.getOptionsMap(basicOptionsMap()), checkCldrResult);
+                checkCldr.setCldrFileToCheck(fileForChecks, options, checkCldrResult);
              //   logger.info("fileToCheck set . . . on "+ checkCldr.toString());
-                hash.put(CHECKCLDR+ctx.defaultPtype(), checkCldr);
+                hash.put(CHECKCLDR+ptype, checkCldr);
                 if(!checkCldrResult.isEmpty()) {
-                    hash.put(CHECKCLDR_RES+ctx.defaultPtype(), checkCldrResult);
+                    hash.put(CHECKCLDR_RES+ptype, checkCldrResult);
                 }
                 //long t2 = System.currentTimeMillis();
                 //logger.info("Time to init tests: " + (t2-t0));
             }
             return checkCldr;
+        }
+        public CheckCLDR getCheck(WebContext ctx) {
+        	return getCheck(ctx.defaultPtype(), ctx.getOptionsMap(basicOptionsMap()));
         }
         
         
@@ -6024,11 +6029,11 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
          * @param user
          * @param locale
          */
-        public void complete(WebContext ctx, User user, CLDRLocale locale) {
+        public void complete(CLDRLocale locale) {
             // TODO: refactor.
             UserLocaleStuff uf = this;
             if(uf.cldrfile == null) {
-                uf.dbSource = makeDBSource(ctx, user, locale); // use context's connection.
+                uf.dbSource = makeDBSource( locale); // use context's connection.
                 uf.cldrfile = makeCLDRFile(uf.dbSource);
                 uf.cachedCldrFile = uf.makeCachedCLDRFile(uf.dbSource);
             }
@@ -6040,8 +6045,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
      * @param ctx
      * @return
      */
-    UserLocaleStuff getOldUserFile(WebContext ctx) {
-        UserLocaleStuff uf = (UserLocaleStuff)ctx.getByLocale(USER_FILE_KEY);
+    UserLocaleStuff getOldUserFile(CookieSession session, CLDRLocale locale) {
+        UserLocaleStuff uf = (UserLocaleStuff)session.getByLocale(USER_FILE_KEY, locale.toString());
         return uf;
     }
 
@@ -6060,6 +6065,14 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 //        return dbsrcfac.getCLDRFileCache();
     }
 
+	public CLDRFile getCLDRFile(CookieSession session, CLDRLocale locale) {
+        synchronized (session) { // session sync
+            UserLocaleStuff uf = getUserFile( session, locale);
+            CLDRFile cf = uf.cldrfile;
+            return cf;
+        }
+	}
+
     /**
      * Return the UserLocaleStuff for the current context.
      * Any user of this should be within session sync (ctx.session)
@@ -6067,13 +6080,13 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
      * @param user
      * @param locale
      */
-    public UserLocaleStuff getUserFile(WebContext ctx, UserRegistry.User user, CLDRLocale locale) {
+    public UserLocaleStuff getUserFile(CookieSession session,  CLDRLocale locale) {
         // has this locale been invalidated?
-        UserLocaleStuff uf = getOldUserFile(ctx);
+        UserLocaleStuff uf = getOldUserFile(session, locale);
         //UserLocaleStuff uf = null;
         if(uf == null) {
             uf = new UserLocaleStuff(locale);
-            ctx.putByLocale(USER_FILE_KEY, uf);
+            session.putByLocale(USER_FILE_KEY, locale.toString(),uf);
             uf.register(); // register with lcr
         } else if(!uf.isValid()) {
     //        System.err.println("Invalid, clearing: "+ uf.toString());
@@ -6081,31 +6094,13 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             uf.register(); // reregister
         }
         
-        uf.complete(ctx, user, locale);
+        uf.complete( locale);
         int n = dbsrcfac.update();
         if(n>0) System.err.println("getUserFile() updated " + n + " locales.");
         return uf;
     }
-    XMLSource makeDBSource(WebContext ctx, UserRegistry.User user, CLDRLocale locale) {
-        return makeDBSource(ctx.session.db(this), user, locale);
-    }
-    XMLSource makeDBSource(WebContext ctx, UserRegistry.User user, CLDRLocale locale, boolean finalData) {
-        return makeDBSource(ctx.session.db(this), user, locale, finalData);
-    }
-    XMLSource makeDBSource(Connection conn, UserRegistry.User user, CLDRLocale locale) {
+    XMLSource makeDBSource(CLDRLocale locale) {
         XMLSource dbSource = dbsrcfac.getInstance(locale);
-        return dbSource;
-    }
-    /**
-     * @deprecated  drop the conn/user
-     * @param conn
-     * @param user
-     * @param locale
-     * @param finalData
-     * @return
-     */
-    XMLSource makeDBSource(Connection conn, UserRegistry.User user, CLDRLocale locale, boolean finalData) {
-        XMLSource dbSource = dbsrcfac.getInstance(locale, finalData);
         return dbSource;
     }
     XMLSource makeDBSource(CLDRLocale locale, boolean finalData) {
@@ -6170,8 +6165,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 is.close();
             } catch(java.io.IOException ioe) {
                 /*throw new UnavailableException*/
-                logger.log(java.util.logging.Level.SEVERE, "Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ",ioe);
-                busted("Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ", ioe);
+                logger.log(java.util.logging.Level.SEVERE, "Couldn't load XML Cache file from '" + cldrHome + "/" + XML_CACHE_PROPERTIES + ": ",ioe);
+                busted("Couldn't load XML Cache file from '" + cldrHome + "/" + XML_CACHE_PROPERTIES + ": ", ioe);
                 return;
             }
 
@@ -6404,7 +6399,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         String current = null;
         XPathParts parts = new XPathParts(null, null);
         synchronized(ctx.session) { // TODO: redundant sync?
-            SurveyMain.UserLocaleStuff uf = sm.getUserFile(ctx, (ctx.session.user==null)?null:ctx.session.user, ctx.getLocale());
+            SurveyMain.UserLocaleStuff uf = ctx.getUserFile();
             //CLDRFile cf = uf.cldrfile;
             CLDRFile resolvedFile = new CLDRFile(uf.dbSource,true);
             //CLDRFile engFile = ctx.sm.getBaselineFile();
@@ -6485,6 +6480,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 
 
         printPathListOpen(ctx);
+        
+        
         ctx.println("<input type='hidden' name='_' value='"+ctx.getLocale().toString()+"'>");
         ctx.println("<input type='hidden' name='x' value='timezones'>");
         ctx.println("<input type='hidden' name='zone' value='"+zone+"'>");
@@ -6623,7 +6620,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         simple = true;
         
         synchronized(ctx.session) {
-            UserLocaleStuff uf = getUserFile(ctx, ctx.session.user, ctx.getLocale());
+            UserLocaleStuff uf = getUserFile(ctx.session, ctx.getLocale());
             XMLSource ourSrc = uf.dbSource;
             CLDRFile cf =  uf.cldrfile;
             String fullThing = xpath + "/" + lastElement;
@@ -6859,7 +6856,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         //       total = mySet.count();
         //        boolean sortAlpha = (sortMode.equals(PREF_SORTMODE_ALPHA));
         synchronized(ctx.session) {
-            UserLocaleStuff uf = getUserFile(ctx, ctx.session.user, ctx.getLocale());
+            UserLocaleStuff uf = getUserFile(ctx.session, ctx.getLocale());
             CLDRFile cf = uf.cldrfile;
                 //    CLDRFile engf = getBaselineFile();
             XMLSource ourSrc = uf.dbSource; // TODO: remove. debuggin'
@@ -7460,7 +7457,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             {
                 /* cribbed from elsewhere */
                 // The enclosion function already holds session sync
-                UserLocaleStuff uf = getUserFile(ctx, (ctx.session.user==null)?null:ctx.session.user, ctx.getLocale());
+                UserLocaleStuff uf = getUserFile(ctx.session, ctx.getLocale());
                 // Set up checks
                 CheckCLDR checkCldr = (CheckCLDR)uf.getCheck(ctx); //make it happen
                 List checkCldrResult = new ArrayList();

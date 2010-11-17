@@ -167,6 +167,7 @@ public class SurveyProgressManager implements CLDRProgressIndicator {
         for(SurveyProgressTask t : orderedTasks) {
             if(buf.length()==0) { // initial
                 buf.append("<table border=0 class='progress-list'><tr>");
+                buf.append("<th><h3>Busy:</h3></th>");
             }
             buf.append("<td>");
             buf.append(t.toString());

@@ -36,4 +36,3 @@
     <%= ctx.sm.getSpecialHeader(ctx) %>
 </span>
 <%= SurveyMain.SHOWHIDE_SCRIPT %>
-

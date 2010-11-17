@@ -267,7 +267,7 @@ public class Vetting {
                 logger.info("Vetting DB: setting up " + theTable);
                 Statement s = conn.createStatement();
                 s.execute("create table " + theTable + " " +
-                        "(org varchar(256) not null, " +
+                        "(org varchar(100) not null, " +
                         "locale VARCHAR(20) not null, " +
                 "base_xpath INT not null, unique(org,locale,base_xpath))");
                 s.execute("CREATE UNIQUE INDEX "+theTable+"_U on " + theTable +" (org,locale,base_xpath)");
@@ -1063,7 +1063,7 @@ public class Vetting {
                     CLDRLocale ulocale = (locale);
                     //                        WebContext xctx = new WebContext(false);
                     //                        xctx.setLocale(locale);
-                    sm.makeCLDRFile(sm.makeDBSource(sm.getDBConnection(),  null, ulocale));
+                    sm.makeCLDRFile(sm.makeDBSource( ulocale));
                 } catch(Throwable t) {
                     t.printStackTrace();
                     String complaint = ("Error loading: " + locale + " - " + t.toString() + " ...");
@@ -2494,7 +2494,7 @@ if(true == true)    throw new InternalError("removed from use.");
             
 //            System.err.println("PPC["+podBase+"] - ges-> " + oldSection);
             
-            SurveyMain.UserLocaleStuff uf = sm.getUserFile(ctx, (ctx.session.user==null)?null:ctx.session.user, ctx.getLocale());
+            SurveyMain.UserLocaleStuff uf = sm.getUserFile(ctx.session, ctx.getLocale());
             CLDRFile cf = uf.cldrfile;
             if(cf == null) {
                 throw new InternalError("CLDRFile is null!");
@@ -2563,7 +2563,7 @@ if(true == true)    throw new InternalError("removed from use.");
         
         void reset() {
 //            System.err.println("vetting::checker reset " + locale);
-            XMLSource dbSource = sm.makeDBSource(conn, null, locale);
+            XMLSource dbSource = sm.makeDBSource( locale);
 //            CLDRDBSourceFactory.vettingMode(sm.vet);
             //if(resolved == false) {
                 file = sm.makeCLDRFile(dbSource);

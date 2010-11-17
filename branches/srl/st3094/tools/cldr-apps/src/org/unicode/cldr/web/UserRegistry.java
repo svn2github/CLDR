@@ -312,7 +312,7 @@ private static final String INTERNAL = "INTERNAL";
                     sql = ("create table " + CLDR_USERS + "(id INT NOT NULL "+sm.DB_SQL_IDENTITY+", " +
                                                             "userlevel int not null, " +
                                                             "name "+sm.DB_SQL_UNICODE+" not null, " +
-                                                            "email varchar(256) not null UNIQUE, " +
+                                                            "email varchar(128) not null UNIQUE, " +
                                                             "org varchar(256) not null, " +
                                                             "password varchar(100) not null, " +
                                                             "audit varchar(1024) , " +

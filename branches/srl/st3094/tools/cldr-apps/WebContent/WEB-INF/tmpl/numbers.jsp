@@ -32,7 +32,7 @@
     <select name="name" dojoType="dijit.form.FilteringSelect">
     <script type="dojo/method" event="onChange">
       dojo.xhrPost({
-         url: 'SampleNumber.jsp',
+         url: '<%= request.getContextPath() %>/SampleNumber.jsp',
          load: helloCallback,
          error: helloError,
          form: 'myForm'
