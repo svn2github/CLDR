@@ -160,6 +160,7 @@ public class WebContext implements Cloneable {
     public WebContext(boolean fake)throws IOException  {
         dontCloseMe=false;
         out=openUTF8Writer(System.out);
+        pw = new PrintWriter(out);
     }
     
     /**

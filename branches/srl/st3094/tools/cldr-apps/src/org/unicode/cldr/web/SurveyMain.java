@@ -9087,7 +9087,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             supplemental = new SupplementalData(fileBase + "/../supplemental/");
 	    supplementalDataInfo = SupplementalDataInfo.getInstance(fileBase + "/../supplemental/");
     
-    
+	    	progress.update("Checking if startup completed..");
     
           //  int status = 0;
         //    logger.info(" ------------------ " + new Date().toString() + " ---------------");
@@ -9126,6 +9126,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             
             
             doStartupDB(); // will take over progress 50-60
+            
+            progress.update("Making your Survey Tool happy..");
         } catch(Throwable t) {
 	        t.printStackTrace();
 	        busted("Error on startup: ", t);

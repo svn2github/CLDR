@@ -861,6 +861,16 @@ span.elapsedtime {
  table.progress-list {
 	border-collapse: collapse;
 	border:  none;
+	float: right;
+}
+
+table.progress-list tr th {
+	vertical-align: top;
+
+	background-color: #eee;
+	opacity: .6;
+	padding-left:  1em;
+	font-color: red;
 }
 
  table.progress-list tbody tr td {
