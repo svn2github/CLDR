@@ -9085,8 +9085,15 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
             progress.update("Setup supplemental..");
 
             supplemental = new SupplementalData(fileBase + "/../supplemental/");
-	    supplementalDataInfo = SupplementalDataInfo.getInstance(fileBase + "/../supplemental/");
+            supplementalDataInfo = SupplementalDataInfo.getInstance(fileBase + "/../supplemental/");
     
+            try {
+            	supplemental.defaultContentToParent("mt_MT");
+            } catch(InternalError ie) {
+            	System.err.println("can't do SupplementalData.defaultContentToParent() - " + ie);
+            	ie.printStackTrace();
+            	busted("can't do SupplementalData.defaultContentToParent() - " + ie, ie);
+            }
 	    	progress.update("Checking if startup completed..");
     
           //  int status = 0;

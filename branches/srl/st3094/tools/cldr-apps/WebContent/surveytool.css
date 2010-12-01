@@ -861,7 +861,9 @@ span.elapsedtime {
  table.progress-list {
 	border-collapse: collapse;
 	border:  none;
-	float: right;
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 table.progress-list tr th {
