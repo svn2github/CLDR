@@ -5,6 +5,7 @@ package org.unicode.cldr.web;
 import java.util.Comparator;
 
 import org.unicode.cldr.web.DataSection.DataRow;
+import org.unicode.cldr.web.Partition.Membership;
 
 /**
  * This class represents a mode of sorting: i.e., by code, etc.
@@ -73,4 +74,43 @@ public abstract class SortMode {
 	 * @return
 	 */
 	abstract Comparator<DataRow> createComparator();
+
+	public String getDisplayName(DataRow p) {
+		if(p==null) {
+			return "(null)";
+		} else if(p.displayName != null) {
+			return p.displayName;
+		} else {
+			return p.type;
+		}
+	}
+
+	enum SortKeyType { SORTKEY_INTEREST, SORTKEY_CALENDAR };
+	
+	public static final int[] reserveForSort() {
+		int[] x =  new int[SortKeyType.values().length];
+		for(int i=0;i<x.length;i++) {
+			x[i]=-1;
+		}
+		return x;
+	}
+
+	protected static int compareMembers(DataRow p1, DataRow p2,
+			Membership[] memberships, int ourKey) {
+		if(p1.reservedForSort[ourKey]==-1) {
+			p1.reservedForSort[ourKey] = categorizeDataRow(p1, memberships);
+		}
+		if(p2.reservedForSort[ourKey]==-1) {
+			p2.reservedForSort[ourKey] = categorizeDataRow(p2, memberships);
+		}
+
+		if(p1.reservedForSort[ourKey] < p2.reservedForSort[ourKey]) {
+			return -1;
+		} else if(p1.reservedForSort[ourKey] > p2.reservedForSort[ourKey]) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
 }

@@ -7,6 +7,7 @@ package org.unicode.cldr.web;
 import java.util.Comparator;
 
 import org.unicode.cldr.web.DataSection.DataRow;
+import org.unicode.cldr.web.Partition.Membership;
 
 /**
  * @author srl
@@ -202,6 +203,7 @@ public class CalendarSortMode extends SortMode {
 	
 	public static
 	Comparator<DataRow> comparator() {
+		final int ourKey = SortMode.SortKeyType.SORTKEY_CALENDAR.ordinal();
 		final Comparator<DataRow> codeComparator = CodeSortMode.comparator();
 		return new Comparator<DataRow>() {
 			public int compare(DataRow p1, DataRow p2){
@@ -210,24 +212,17 @@ public class CalendarSortMode extends SortMode {
 				}
 
 				int rv = 0; // neg:  a < b.  pos: a> b
-
-				if(p1.reservedForSort==-1) {
-					p1.reservedForSort = categorizeDataRow(p1, memberships);
-				}
-				if(p2.reservedForSort==-1) {
-					p2.reservedForSort = categorizeDataRow(p2, memberships);
+				
+				rv = compareMembers(p1,p2,memberships, ourKey);
+				if(rv != 0) {
+					return rv;
 				}
 
-				if(rv == 0) {
-					if(p1.reservedForSort < p2.reservedForSort) {
-						return -1;
-					} else if(p1.reservedForSort > p2.reservedForSort) {
-						return 1;
-					}
-				}
 				return codeComparator.compare(p1,p2); // fall back to code
 
 			}
 		};
 	}
+
+
 }

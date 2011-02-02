@@ -44,6 +44,8 @@ public class InterestSort extends SortMode {
 	}
 	
 	static Comparator<DataRow> comparator() {
+		final int ourKey = SortMode.SortKeyType.SORTKEY_INTEREST.ordinal();
+		
 		final Comparator<DataRow> nameComparator = NameSort.comparator();
 	    return new Comparator<DataRow>() {
 
@@ -54,21 +56,12 @@ public class InterestSort extends SortMode {
 
 	        int rv = 0; // neg:  a < b.  pos: a> b
 
-	        if(p1.reservedForSort==-1) {
-	          p1.reservedForSort = categorizeDataRow(p1, memberships);
-	        }
-	        if(p2.reservedForSort==-1) {
-	          p2.reservedForSort = categorizeDataRow(p2, memberships);
-	        }
+			rv = compareMembers(p1,p2,memberships, ourKey);
+			if(rv != 0) {
+				return rv;
+			}
 
-	        if(rv == 0) {
-	          if(p1.reservedForSort < p2.reservedForSort) {
-	            return -1;
-	          } else if(p1.reservedForSort > p2.reservedForSort) {
-	            return 1;
-	          }
-	        }
-	        final boolean p1IsName = p1.isName();
+			final boolean p1IsName = p1.isName();
 	        final boolean p2IsName = p2.isName();
 	        if (p1IsName != p2IsName) { // do this for transitivity, so that names sort first if there are mixtures
 	          return p1IsName ? -1 : 1;

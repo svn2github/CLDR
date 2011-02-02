@@ -46,15 +46,15 @@ public class Partition {
     }
 
 	public static Partition[] createPartitions(Membership[] memberships,
-			List<DataRow> rows) {
+			DataRow rows[]) {
         Vector<Partition> v = new Vector<Partition>();
         if(memberships != null) { // something with partitions
         	Partition testPartitions[] = createPartitions(memberships);
         	
             // find the starts
             int lastGood = 0;
-            for(int i=0;i<rows.size();i++) {
-                DataRow p = rows.get(i);
+            for(int i=0;i<rows.length;i++) {
+                DataRow p = rows[i];
                                     
                 for(int j=lastGood;j<testPartitions.length;j++) {
                     if(testPartitions[j].pm.isMember(p)) {
@@ -75,7 +75,7 @@ public class Partition {
             // catch the last item
             if((testPartitions[lastGood].start != -1) &&
                 (testPartitions[lastGood].limit == -1)) {
-                testPartitions[lastGood].limit = rows.size(); // limit = off the end.
+                testPartitions[lastGood].limit = rows.length; // limit = off the end.
             }
                 
             for(int j=0;j<testPartitions.length;j++) {
@@ -88,7 +88,7 @@ public class Partition {
             }
         } else {
             // default partition - e'erthing.
-            v.add(new Partition(null, 0, rows.size()));
+            v.add(new Partition(null, 0, rows.length));
         }
         return (Partition[])v.toArray(new Partition[0]); // fold it up
 	}

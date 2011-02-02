@@ -35,6 +35,7 @@ import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
+import org.unicode.cldr.web.DataSection.DataRow;
 import org.unicode.cldr.web.UserRegistry.User;
 
 import com.ibm.icu.text.Collator;
@@ -235,7 +236,7 @@ public class DataSection extends Registerable {
         boolean hasInherited = false; // True if has inherited value
         public int allVoteType = 0; // bitmask of all voting types included
         public int voteType = 0; // status of THIS item
-        public int reservedForSort = -1; // ordering for use in collator.
+        public int reservedForSort[] = SortMode.reserveForSort(); // ordering for use in collator.
         
 //        String inheritFrom = null;
 //        String pathWhereFound = null;
@@ -795,13 +796,12 @@ public class DataSection extends Registerable {
      */
     public class DisplaySet {
         public int size() {
-            return rows.size();
+            return rows.length;
         }
         SortMode sortMode = null;
         public boolean canName = true; // can use the 'name' view?
         public boolean isCalendar = false;
-        public List<DataRow> rows; // list of peas in sorted order
-        public List<DataRow> displayRows; // list of Strings suitable for display
+        DataRow rows[]; // list of peas in sorted order
         /**
          * Partitions divide up the peas into sets, such as 'proposed', 'normal', etc.
          * The 'limit' is one more than the index number of the last item.
@@ -816,11 +816,10 @@ public class DataSection extends Registerable {
          * @param myDisplayRows the rows in display order (?)
          * @param sortMode the sort mode to use
          */
-        public DisplaySet(List<DataRow> myRows, List<DataRow> myDisplayRows, SortMode sortMode) {
+        public DisplaySet(DataRow[] myRows, SortMode sortMode) {
             this.sortMode = sortMode;
             
             rows = myRows;
-            displayRows = myDisplayRows;
 
             /*
             if(matcher != null) {
@@ -857,81 +856,25 @@ public class DataSection extends Registerable {
 	public static String TENTATIVELY_APPROVED = "Tentatively Approved";
 	public static String STATUS_QUO = "Status Quo";
     
+	/**
+	 * @deprecated
+	 */
     public static final String VETTING_PROBLEMS_LIST[] = { 
         PARTITION_ERRORS,
         CHANGES_DISPUTED,
         PARTITION_UNCONFIRMED };
 
-
-      
-
-    private Hashtable displayHash = new Hashtable();
     
-    public DisplaySet getDisplaySet(String sortMode, Pattern matcher) {
-        return createDisplaySet(sortMode, matcher); // don't cache.
-    }
-
-    public DisplaySet getDisplaySet(String sortMode) {
-        DisplaySet aDisplaySet = (DisplaySet)displayHash.get(sortMode);
-        if(aDisplaySet == null)  {
-            aDisplaySet = createDisplaySet(sortMode, null);
-            displayHash.put(sortMode, aDisplaySet);
-        }
-        return aDisplaySet;
-    }
-    
-    /**
-     * 
-     * @param sortMode
-     * @param matcher
-     * @return
-     * @deprecated use a SortMode
-     */
-    private DisplaySet createDisplaySet(String sortMode, Pattern matcher) {
-    	return createDisplaySet(SortMode.getInstance(sortMode), matcher);
-    }
-    
-    private DisplaySet createDisplaySet(SortMode sortMode, Pattern matcher) {
-        DisplaySet aDisplaySet = new DisplaySet(getList(sortMode, matcher), getDisplayList(sortMode.getName(), matcher), sortMode);
+    DisplaySet createDisplaySet(SortMode sortMode, XPathMatcher matcher) {
+        DisplaySet aDisplaySet = new DisplaySet(createSortedList(sortMode,matcher), sortMode);
         aDisplaySet.canName = canName;
         aDisplaySet.isCalendar = isCalendar;
         return aDisplaySet;
     }
-    
-    private Hashtable<String, List<DataRow>> listHash = new Hashtable<String, List<DataRow>>();  // hash of sortMode->pea
-    
-    /**
-     * get a List of peas, in sorted order 
-     */
-    public List<DataRow> getList(String sortMode) {
-        List<DataRow> aList = (List<DataRow>)listHash.get(sortMode);
-        if(aList == null) {
-            aList = getList(sortMode, null);
-        }
-        listHash.put(sortMode, aList);
-        return aList;
-    }
         
-    /**
-     * 
-     * @param sortMode
-     * @param matcher
-     * @return
-     * @deprecated - provide a SortMode
-     */
-    public List getList(String sortMode, Pattern matcher) {
-    	return getList(SortMode.getInstance(sortMode), matcher);
-    }
     
-    public List getList(SortMode sortMode, Pattern matcher) {
-    //        final boolean canName = canName;
+    private DataRow[] createSortedList(SortMode sortMode, XPathMatcher matcher) {
         Set<DataRow> newSet;
-        
-    //                final com.ibm.icu.text.RuleBasedCollator rbc = 
-    //                    ((com.ibm.icu.text.RuleBasedCollator)com.ibm.icu.text.Collator.getInstance());
-    //                rbc.setNumericCollation(true);
-
-        // TODO: take from SortMode. 
         
         newSet = new TreeSet<DataRow>(sortMode.createComparator());
         
@@ -943,77 +886,16 @@ public class DataSection extends Registerable {
                                 
 ///*srl*/         /*if(p.type.indexOf("Australia")!=-1)*/ {  System.err.println("xp: "+p.xpathSuffix+":"+p.type+"- match: "+(matcher.matcher(p.type).matches())); }
 
-                if(matcher.matcher(p.type).matches()) {
-                    newSet.add(p);
+                if(matcher!=null && !matcher.matches(p.xpath(), p.base_xpath)) {
+                	continue;
+                } else {
+                	newSet.add(p);
                 }
             }
         }
-        
-        ArrayList aList = new ArrayList(); // list it (waste here??)
-        aList.addAll(newSet);
-        if(matcher != null) {
-///*srl*/ System.err.println("Pruned match of " + aList.size() + " items from " + peasHash.size());
-        }
-
-        return aList;
+        return newSet.toArray(new DataRow[newSet.size()]);
     }
     
-    
-
-
-
-    
-    /** Returns a list parallel to that of getList() but of Strings suitable for display. 
-    (Alternate idea: just make toString() do so on Row.. advantage here is we can adjust for sort mode.)
-    * @deprecated
-    *  **/
-    public List getDisplayList(String sortMode) {
-        return getDisplayList(sortMode, getList(sortMode));
-    }
-    /**
-     * Returns a list parallel to that of getList, but of Strings suitable for display
-     * @param sortMode the mode such as SurveyMain.PREF_SORTMODE_CODE
-     * @param matcher regex to determine matching rows
-     * @return the new list
-     * @deprecated use a SortMode
-     */
-    public List getDisplayList(String sortMode, Pattern matcher) {
-        return getDisplayList(sortMode, getList(sortMode, matcher));
-    }
-    
-    /**
-     * 
-     * @param sortMode
-     * @param inRows
-     * @return
-     * @deprecated just bad.
-     */
-    public List getDisplayList(String sortMode, List inRows) {
-        final List myPeas = inRows;
-        if(sortMode.equals(SurveyMain.PREF_SORTMODE_CODE)) {
-            return new AbstractList() {
-                private List ps = myPeas;
-                public Object get(int n) {
-                  return ((DataRow)ps.get(n)).type; // always code
-                }
-                public int size() { return ps.size(); }
-            };
-        } else {
-            return new AbstractList() {
-                private List ps = myPeas;
-                public Object get(int n) {
-                  DataRow p = (DataRow)ps.get(n);
-                  if(p.displayName != null) {
-                    return p.displayName;
-                  } else {
-                    return p.type;
-                  } 
-                  //return ((Pea)ps.get(n)).type;
-                }
-                public int size() { return ps.size(); }
-            };
-        }
-    }
 
 	/**
 	 * Create, populate, and complete a DataSection given the specified locale and prefix

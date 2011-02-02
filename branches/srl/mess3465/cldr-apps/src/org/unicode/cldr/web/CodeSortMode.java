@@ -57,4 +57,10 @@ public class CodeSortMode extends SortMode {
         rbc.setNumericCollation(true);
         return rbc;
     }
+
+    @Override
+	public String getDisplayName(DataRow p) {
+    	return p.type; // always code.
+    }
+
 }
