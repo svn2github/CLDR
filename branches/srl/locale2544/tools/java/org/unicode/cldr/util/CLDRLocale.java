@@ -5,6 +5,8 @@ package org.unicode.cldr.util;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import com.ibm.icu.impl.LocaleDisplayNamesImpl;
+import com.ibm.icu.text.LocaleDisplayNames.DialectHandling;
 import com.ibm.icu.util.ULocale;
 
 /**
@@ -221,6 +223,51 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
    
     public String getDisplayName(ULocale displayLocale) {
         return toULocale().getDisplayName(displayLocale);
+    }
+    
+    public String getDisplayName(CLDRFile displayLocale) {
+        final CLDRFile theFile = displayLocale;
+        return new LocaleDisplayNamesImpl(new ULocale(displayLocale.getLocaleID()), DialectHandling.STANDARD_NAMES) {
+            public String languageDisplayName(String lang) {
+                return super.languageDisplayName(lang)+"-ish";
+            }
+            private String localeIdName(String lang) {
+                return super.languageDisplayName(lang)+"-ish";
+            }
+            //localeIdName
+//            public String regionDisplayName(String lang) {
+//                return super.regionDisplayName(lang)+"-ville";
+//            }
+            
+            public String localeDisplayName(ULocale loc) {
+                String ret = super.localeDisplayName(loc);
+                if(ret.equals(loc.toString())) {
+                    if(!loc.toString().contains("_")) {
+                        ret = theFile.getStringValue("//ldml/localeDisplayNames/languages/language[@type=\""+loc.toString()+"\"]");
+                        if(ret!=null) return ret+"(!)";
+                        return loc.toString();
+                    } else {
+                        return ret;
+                    }
+                } else {
+                    return ret;
+                }
+            }
+        }.localeDisplayName(toULocale());
+    }
+
+    public String getDisplayCountry(CLDRFile base) {
+        String str = "_"+this.getCountry();
+        return CLDRLocale.getInstance(str).getDisplayName(base);
+    }
+
+    public String getDisplayVariant(CLDRFile base) {
+        String str = "__"+this.getVariant();
+        return CLDRLocale.getInstance(str).getDisplayName(base);
+    }
+    public String getDisplayLanguage(CLDRFile base) {
+        String str = this.getLanguage();
+        return CLDRLocale.getInstance(str).getDisplayName(base);
     }
 
     public String getLanguage() {
