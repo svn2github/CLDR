@@ -51,8 +51,9 @@ WebContext topCtx = (WebContext) request.getAttribute(WebContext.CLDR_WEBCONTEXT
 topCtx.setQuery(SurveyMain.QUERY_SECTION, subCtx.field(SurveyMain.QUERY_SECTION));
 topCtx.setQuery(SurveyMain.QUERY_LOCALE, subCtx.field(SurveyMain.QUERY_LOCALE));
 
-
-VettingViewer<VoteResolver.Organization> viewer = subCtx.sm.getVettingViewer(topCtx);
+CLDRDBSourceFactory.DBFactoryEntry factory = subCtx.sm.dbsrcfac.getFactoryEntry();
+try {
+VettingViewer<VoteResolver.Organization> viewer = subCtx.sm.getVettingViewer(topCtx, factory);
 EnumSet <VettingViewer.Choice> choiceSet = EnumSet.allOf(VettingViewer.Choice.class);
 Level usersLevel = Level.get(ctx.getEffectiveCoverageLevel());
 final com.ibm.icu.dev.test.util.ElapsedTimer t = new com.ibm.icu.dev.test.util.ElapsedTimer();
@@ -98,8 +99,10 @@ if(subCtx.userId() == UserRegistry.NO_USER) {
 {
     viewer.generateHtmlErrorTables(subCtx.getOut(), choiceSet, ctx.getLocale().getBaseName(), VoteResolver.Organization.fromString(ctx.session.user.voterOrg()), usersLevel);
 }
-
+	subCtx.getOut().flush();
     subCtx.flush();
+	if(factory!=null) factory.close();
+	factory = null;
 
 %>
 <script type="text/javascript">
@@ -110,5 +113,19 @@ document.getElementById('LoadingMessage').style.display = 'none';
 
 <hr/>
 Loaded Vetting view in <%= t %><br/>
+
+<%
+} finally { 
+	if(factory!=null) {
+		try {
+			factory.close();
+		} catch(Throwable t) {
+			t.printStackTrace();
+			out.println("(err on factory close: " + t + ")<br/>");
+		}
+		factory  = null;
+	}
+}
+%>
 
 <form> <!--  re-open the ST form (not used) -->

@@ -77,7 +77,6 @@ public class CLDRFileCache {
 	/**
 	 * Implementation of XMLSource representing an entry into the cache.
 	 * 
-	 * @deprecated
 	 * @author srl
 	 * 
 	 */
@@ -592,6 +591,7 @@ public class CLDRFileCache {
 		}
 
 		public void deleteInvalid() {
+			invalid();
 			File f = getCacheFile();
 			if(DEBUG_INSANE) System.err.println("## delete-invalid: " + f.getAbsolutePath());
 			f.delete();
@@ -763,29 +763,35 @@ public class CLDRFileCache {
 
 	private HashMap<String, CacheableXMLSource> sources = new HashMap<String, CacheableXMLSource>();
 
-	public synchronized CacheableXMLSource getSource(CLDRLocale locale,
+	public CacheableXMLSource getSource(CLDRLocale locale,
 			boolean isVetted) {
 		String key = (isVetted ? "w." : "")
 				+ (locale != null ? locale : "null");
 		CacheableXMLSource src = null;
 		
 		src = sources.get(key);
-		if (src != null && src.invalid()) {
-			src.deleteInvalid();
-			if(DEBUG_INSANE) System.err.println("## " + serno + " / invalid: " + key);
-			src = null;
-		}
-		if (src == null) {
-				src = makeXMLSource(locale, isVetted);
-				sources.put(key, src);
-				if(DEBUG_INSANE) System.err.println("## " + serno + " / + " + key);
+		if (src == null || src.invalid()) {
+			synchronized(this) {
+				src = sources.get(key);
+				if(src!=null && src.invalid()) { 
+					src.deleteInvalid();
+					src = null;
+				}
+				if(src==null) {
+					src = makeXMLSource(locale, isVetted);
+					sources.put(key, src);
+					if(DEBUG_INSANE) System.err.println("## " + serno + " / + " + key);
+				} else {
+					// re-use, someone beat us to it.
+				}
+			}
 		} else {
 			// System.err.println("## " + serno + " / reuse " + key);
 		}
 		return src;
 	}
 
-	private synchronized CacheableXMLSource makeXMLSource(CLDRLocale locale,
+	private CacheableXMLSource makeXMLSource(CLDRLocale locale,
 			boolean isVetted) {
 		CacheableXMLSource wxs;
 		if (!isVetted) {

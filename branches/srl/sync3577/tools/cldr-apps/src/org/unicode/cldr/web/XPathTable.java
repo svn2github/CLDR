@@ -67,7 +67,7 @@ public class XPathTable {
     	Connection conn = null;
     	try {
     		conn = sm.dbUtils.getDBConnection();
-    		logger.info("XPathTable DB: initializing... conn: "+conn+", db:"+CLDR_XPATHS+", id:"+DBUtils.DB_SQL_IDENTITY);
+    		if(logger!=null) logger.info("XPathTable DB: initializing... conn: "+conn+", db:"+CLDR_XPATHS+", id:"+DBUtils.DB_SQL_IDENTITY);
     		Statement s = conn.createStatement();
     		if(s==null) {
     			throw new InternalError("S is null");

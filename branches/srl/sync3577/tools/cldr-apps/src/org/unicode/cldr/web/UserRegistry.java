@@ -277,7 +277,10 @@ public class UserRegistry {
          */
         public String voterOrg() {
             if(voterOrg==null) {
-                voterOrg=voterInfo().getOrganization().name();
+            	VoterInfo x = voterInfo();
+            	Organization y = x.getOrganization();
+            	String z = y.name();
+            	voterOrg = z;
             }
             return voterOrg;
         }
@@ -348,9 +351,9 @@ public class UserRegistry {
         Connection conn = sm.dbUtils.getDBConnection();
         try{
             synchronized(conn) {
-    //            logger.info("UserRegistry DB: initializing...");
                 boolean hadUserTable = DBUtils.hasTable(conn,CLDR_USERS);
                 if(!hadUserTable) {
+                	System.err.println("UserRegistry DB: initializing...");
                     Statement s = conn.createStatement();
                 
                     sql = ("create table " + CLDR_USERS + "(id INT NOT NULL "+DBUtils.DB_SQL_IDENTITY+", " +
@@ -366,15 +369,15 @@ public class UserRegistry {
                                                             "lastlogin " + DBUtils.DB_SQL_TIMESTAMP0 + // added may 2006:  alter table CLDR_USERS ADD COLUMN lastlogin TIMESTAMP
                                                             (!DBUtils.db_Mysql?",primary key(id)":"") +  ")"); 
                     s.execute(sql);
-                    sql=("INSERT INTO " + CLDR_USERS + "(userlevel,name,org,email,password) " +
-                                                            "VALUES(" + ADMIN +"," + 
+                    sql=("INSERT INTO " + CLDR_USERS + "(id,userlevel,name,org,email,password) " +
+                                                            "VALUES(0," + ADMIN +"," + 
                                                             "'admin'," + 
                                                             "'SurveyTool'," +
                                                             "'admin@'," +
                                                             "'" + sm.vap +"')");
                     s.execute(sql);
                     sql = null;
-                    logger.info("DB: added user Admin");
+                    System.err.println("DB: added user #0 Admin");
                     
                     s.close();
                     conn.commit();
@@ -499,7 +502,11 @@ public class UserRegistry {
                     // First, try to query it back from the DB.
                     rs = pstmt.executeQuery();                
                     if(!rs.next()) {
-//                        System.err.println("Unknown user#:" + id);
+                        if((id == 0) && sm.isUnofficial) {
+                        	User uu = getFallbackAdmin0();
+                        	return uu;
+                        }
+                        System.err.println("Unknown user#:" + id);
                         return null;
                     }
                     User u = new UserRegistry.User(id);                    
@@ -550,7 +557,17 @@ public class UserRegistry {
         } // end synch array
     }
 
-    public final UserRegistry.User get(String pass, String email, String ip) {
+    private User getFallbackAdmin0() {
+
+    	User uu = new UserRegistry.User(0);
+    	uu.name="Fallback User Admin";
+    	uu.org="SurveyTool";
+    	uu.email="admin@";
+    	uu.password=sm.vap;
+    	uu.userlevel=ADMIN;
+    	return uu;
+    }
+	public final UserRegistry.User get(String pass, String email, String ip) {
         return get(pass, email, ip, false);
     }
     
@@ -637,7 +654,7 @@ public class UserRegistry {
                     logger.severe("Duplicate user for " + email + " - ids " + u.id + " and " + rs.getInt(1));
                     return null;
                 }
-                if(!ip.startsWith("RSS@") && !ip.equals(INTERNAL)) {
+                if(!ip.startsWith("RSS@") && !ip.equals(INTERNAL) && false) {
                     logger.info("Login: " + email + " @ " + ip);
                 }
                 
@@ -1506,7 +1523,11 @@ public class UserRegistry {
     }
     
     public VoterInfo getVoterToInfo(int userid) {
-        return getVoterToInfo().get(userid);
+        VoterInfo y = getVoterToInfo().get(userid);
+        if(y == null) {
+        	throw new InternalError("No voterInfo for user: " + userid);
+        }
+        return y;
     }
     
     // Interface for VoteResolver interface
@@ -1555,6 +1576,15 @@ public class UserRegistry {
                     /*logger.severe*/System.err.println(/*java.util.logging.Level.SEVERE,*/ "UserRegistry: SQL error trying to close resultset for: VI "  + " - " + DBUtils.unchainSqlException(se)/*,se*/);
                 }
             } // end try
+        }
+        if(voterInfo.isEmpty()) {
+        	System.err.println("Warning: voterToInfo is empty");
+        	if(sm.isUnofficial) {
+        		User uu = getFallbackAdmin0();
+        		voterInfo.put(uu.id, uu.createVoterInfo());
+        	} else {
+        		sm.busted("No voterToInfo.");
+        	}
         }
         return voterInfo;
     }

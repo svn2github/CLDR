@@ -40,14 +40,81 @@ import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
 import org.unicode.cldr.util.XPathParts.Comments;
+import org.unicode.cldr.web.CLDRDBSourceFactory.DBFactoryEntry;
 import org.unicode.cldr.web.CLDRFileCache.CacheableXMLSource;
 import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.SurveyThread.SurveyTask;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-public class CLDRDBSourceFactory extends Factory {
-    private static final boolean DEBUG = false;
+public class CLDRDBSourceFactory {
+    /**
+	 * @author srl
+	 *
+	 */
+	public class DBFactoryEntry extends Factory {
+
+		MyStatements stmts = null;
+		/**
+		 * 
+		 */
+		public DBFactoryEntry() {
+			//System.err.println("== new factory for " + Thread.currentThread().getId());
+		}
+
+
+	    @Override
+	    public String getSourceDirectory() {
+	        throw new NotImplementedException();
+	    }
+
+	    @Override
+	    protected CLDRFile handleMake(String localeID, boolean resolved,
+	            DraftStatus madeWithMinimalDraftStatus) {
+	    	XMLSource theSource = getInstance(CLDRLocale.getInstance(localeID),true);
+	    	if(theSource instanceof CLDRDBSource) {
+	    		((CLDRDBSource)theSource).setFactory(this);
+	    	}
+	        return new CLDRFile(theSource, resolved);
+	    }
+
+	    @Override
+	    protected DraftStatus getMinimalDraftStatus() {
+	        // TODO Auto-generated method stub
+	        return DraftStatus.unconfirmed;
+	    }
+
+	    @SuppressWarnings("unchecked")
+	    @Override
+	    protected Set<String> handleGetAvailable() {
+	        return (Set<String>)rootDbSource.getAvailableLocales();
+	    }
+
+	    /**
+	     * Close this factory entry, releasing its statmeents/connections
+	     */
+	    public void close() {
+	    	if(stmts!=null) {
+	    		stmts.setCloseLock(false);
+	    		stmts.closeOrThrow();
+	    		stmts = null;
+	    	}
+	    }
+
+		public MyStatements openStatements() {
+			return createStatements();
+//			if(stmts==null) {
+//				stmts = createStatements();
+//				stmts.setCloseLock(true);
+//				//System.err.println("=== opening");
+//			}
+//			//System.err.println("=== opening entry @ " + Thread.currentThread().getId());
+//			stmts.openEntry();
+//			return stmts;
+		}
+	}
+
+	private static final boolean DEBUG = true;
 	/**
 	 * @author srl
 	 *
@@ -179,8 +246,8 @@ public class CLDRDBSourceFactory extends Factory {
 		}
 
 		public String putValueAtPath(String x, String v) {
-			cachedSource.putValueAtPath(x, v);
-			return dbSource.putValueAtPath(x, v);
+			dbSource.putValueAtPath(x, v);
+			return cachedSource.putValueAtPath(x, v);
 		}
 
 		/* (non-Javadoc)
@@ -260,7 +327,7 @@ public class CLDRDBSourceFactory extends Factory {
 	/**
 	 * A referece back to the main SurveyMain. (for xpt, etc)
 	 */
-	static SurveyMain sm = null;
+	public static SurveyMain sm = null;
 
 	protected XMLSource rootDbSource = null;
 	protected XMLSource rootDbSourceV = null;
@@ -268,7 +335,7 @@ public class CLDRDBSourceFactory extends Factory {
 	File cacheDir = null;
 	boolean vetterReady = false;
 
-	CLDRDBSourceFactory(SurveyMain sm, String theDir, Logger xlogger, File cacheDir) throws SQLException {
+	public CLDRDBSourceFactory(SurveyMain sm, String theDir, Logger xlogger, File cacheDir) throws SQLException {
 		this.xpt = sm.xpt;
 		this.dir = theDir;
 		Connection sconn = sm.dbUtils.getDBConnection();
@@ -281,17 +348,21 @@ public class CLDRDBSourceFactory extends Factory {
 	}
 
 	public void vetterReady() {
+		vetterReady(null);
+	}
+
+	public void vetterReady(CLDRProgressIndicator theTask) {
 		if(DEBUG) System.err.println("DBSRCFAC: processing vetterReady()... initializing connection");
 //		Connection sconn = sm.dbUtils.getDBConnection();
 		CLDRFile.Factory afactory = CLDRFile.SimpleFactory.make(this.dir,".*");
 		this.initConn(afactory);
-		if(DEBUG) System.err.println("DBSRCFAC: processing vetterReady()...");
+		if(DEBUG) System.err.println("DBSRCFAC: processing vetterReady()... newing up sources");
 		rootDbSourceV = new CLDRDBSource(CLDRLocale.ROOT, true);
 		rootDbSource = new CLDRDBSource(CLDRLocale.ROOT, false);
 		cache= new CLDRFileCache(rootDbSource, rootDbSourceV, cacheDir, sm);
 
 		vetterReady = true;
-		update();
+		update(theTask);
 	}
 
 	/**
@@ -311,7 +382,7 @@ public class CLDRDBSourceFactory extends Factory {
 	/**
 	 * Execute deferred updates. Call this at a high level when all updates are complete.
 	 */
-	public int update(SurveyTask surveyTask) {
+	public int update(CLDRProgressIndicator surveyTask) {
 		int n = 0;
 		CLDRProgressTask progress = null;
 		if(surveyTask!=null) progress = surveyTask.openProgress("DeferredUpdates", needUpdate.size());
@@ -438,7 +509,7 @@ public class CLDRDBSourceFactory extends Factory {
 			// System.out.println(sql);
 			s.execute(sql);
 			// s.execute("CREATE UNIQUE INDEX unique_xpath on " + CLDR_DATA +"(xpath)");
-			s.execute("CREATE INDEX "+CLDR_DATA+"_qxpath on " + CLDR_DATA + "(locale,xpath)");
+			s.execute("CREATE UNIQUE INDEX "+CLDR_DATA+"_qxpath on " + CLDR_DATA + "(locale,xpath)");
 			// New for April 2006.
 			s.execute("create INDEX "+CLDR_DATA+"_qbxpath on "+CLDR_DATA+"(locale,base_xpath)");
 			s.execute("CREATE INDEX "+CLDR_SRC+"_src on " + CLDR_SRC + "(locale,tree)");
@@ -449,7 +520,7 @@ public class CLDRDBSourceFactory extends Factory {
 		logger.info("CLDRDBSource DB: done.");
 	}
 
-	private MyStatements  openStatements() {
+	private MyStatements  createStatements() {
 		Connection conn = sm.dbUtils.getDBConnection();
 		return new MyStatements(conn);
 	}
@@ -463,28 +534,28 @@ public class CLDRDBSourceFactory extends Factory {
 	 **/
 	public static class MyStatements { 
 		public Connection conn = null;
-		public PreparedStatement insert = null;
+		private PreparedStatement insert = null;
+		private PreparedStatement queryValue = null;
+		private PreparedStatement queryXpathTypes = null;
+		private PreparedStatement queryTypeValues = null;
+		private PreparedStatement queryXpathPrefixes = null;
+		private PreparedStatement keySet = null;
+		private PreparedStatement keyASet = null;
+		private PreparedStatement keyVettingSet = null;
+		private PreparedStatement oxpathFromVetXpath = null;
+		private PreparedStatement keyUnconfirmedSet = null;
+		private PreparedStatement queryVetValue = null;
+		private PreparedStatement queryVetXpath = null;
+		private PreparedStatement querySource = null;
+		private PreparedStatement querySourceInfo = null;
+		private PreparedStatement querySourceActives = null;
+		private PreparedStatement insertSource = null;
+		private PreparedStatement oxpathFromXpath = null;
+		private PreparedStatement keyNoVotesSet = null;
+		private PreparedStatement removeItem = null;
+		private PreparedStatement getSubmitterId = null;
 //		public PreparedStatement queryStmt = null;
-		public PreparedStatement queryValue = null;
-		public PreparedStatement queryXpathTypes = null;
-		public PreparedStatement queryTypeValues = null;
-		public PreparedStatement queryXpathPrefixes = null;
-		public PreparedStatement keySet = null;
-		public PreparedStatement keyASet = null;
-		public PreparedStatement keyVettingSet = null;
-		public PreparedStatement oxpathFromVetXpath = null;
-		public PreparedStatement keyUnconfirmedSet = null;
-		public PreparedStatement queryVetValue = null;
-		public PreparedStatement queryVetXpath = null;
 //		public PreparedStatement queryIdStmt = null;
-		public PreparedStatement querySource = null;
-		public PreparedStatement querySourceInfo = null;
-		public PreparedStatement querySourceActives = null;
-		public PreparedStatement insertSource = null;
-		public PreparedStatement oxpathFromXpath = null;
-		public PreparedStatement keyNoVotesSet = null;
-		public PreparedStatement removeItem = null;
-		public PreparedStatement getSubmitterId = null;
 
 		/**
 		 * called to initialize one of the preparedstatement fields
@@ -503,140 +574,68 @@ public class CLDRDBSourceFactory extends Factory {
 			}
 			return ps;
 		}
+		
+		int entryCount=0;
+
+		public synchronized void openEntry() {
+			if((++entryCount)>3) {
+				try {
+					throw new InternalError("Entry Depth: " + entryCount);
+				} catch(InternalError e) {
+					System.err.println(e.toString());
+					e.printStackTrace();
+				}
+			}
+		}
 
 		/** 
 		 * Constructor for the MyStatements 
 		 */
 		MyStatements(Connection conn) {
 			this.conn = conn;
-			insert = prepareStatement("insert",
-					"INSERT INTO " + CLDR_DATA +
-					" (xpath,locale,source,origxpath,value,type,alt_type,txpath,submitter,base_xpath,modtime) " +
-			"VALUES (?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)");
-
 			// xpath - contains type, no draft
 			// origxpath - original xpath (full) - 
 			// txpath - tiny xpath  (no TYPE)
-
-			queryXpathPrefixes = prepareStatement("queryXpathPrefixes",
-					"select "+XPathTable.CLDR_XPATHS+".id from "+
-					XPathTable.CLDR_XPATHS+","+CLDR_DATA+" where "+CLDR_DATA+".xpath="+
-					XPathTable.CLDR_XPATHS+".id AND "+XPathTable.CLDR_XPATHS+".xpath like ? AND "+CLDR_DATA+".locale=?");
-
-			queryXpathTypes = prepareStatement("queryXpathTypes",
-					"select " +CLDR_DATA+".type from "+
-					CLDR_DATA+","+XPathTable.CLDR_XPATHS+" where "+CLDR_DATA+".xpath="+
-					XPathTable.CLDR_XPATHS+".id AND "+XPathTable.CLDR_XPATHS+".xpath like ?");
-
-			oxpathFromXpath = prepareStatement("oxpathFromXpath",
-					"select " +CLDR_DATA+".origxpath from "+CLDR_DATA+" where "+CLDR_DATA+".xpath=? AND "+CLDR_DATA+".locale=?");
-
-			queryTypeValues = prepareStatement("queryTypeValues",
-					"select "+CLDR_DATA+".value,"+CLDR_DATA+".alt_type,"+CLDR_DATA+".alt_proposed,"+CLDR_DATA+".submitter,"+CLDR_DATA+".xpath,"+CLDR_DATA+".origxpath " +
-					" from "+
-					CLDR_DATA+" where "+CLDR_DATA+".txpath=? AND "+CLDR_DATA+".locale=? AND "+CLDR_DATA+".type=?");
-
-			queryValue = prepareStatement("queryValue",
-					"SELECT value FROM " + CLDR_DATA +
-			" WHERE locale=? AND xpath=?"); 
-
-
-			queryVetValue = prepareStatement("queryVetValue",
-					"SELECT "+CLDR_DATA+".value FROM "+Vetting.CLDR_OUTPUT+"," + CLDR_DATA +
-					" WHERE "+Vetting.CLDR_OUTPUT+".locale=? AND "+Vetting.CLDR_OUTPUT+".output_xpath=? AND "
-					+" ("+Vetting.CLDR_OUTPUT+".locale="+CLDR_DATA+".locale) AND ("+Vetting.CLDR_OUTPUT+".data_xpath="+CLDR_DATA+".xpath)"); 
-
-			oxpathFromVetXpath = prepareStatement("oxpathFromVetXpath",
-					"SELECT "+Vetting.CLDR_OUTPUT+".output_full_xpath FROM "+Vetting.CLDR_OUTPUT+" " +
-					" WHERE "+Vetting.CLDR_OUTPUT+".locale=? AND "+Vetting.CLDR_OUTPUT+".output_xpath=? "); 
-
-			queryVetXpath = prepareStatement("queryVetXpath",
-					"SELECT "+Vetting.CLDR_RESULT+".result_xpath FROM "+Vetting.CLDR_RESULT+" " +
-					" WHERE "+Vetting.CLDR_RESULT+".locale=? AND "+Vetting.CLDR_RESULT+".base_xpath=? "); 
-
-			//keyVettingSet = prepareStatement("keyVettingSet",
-			//                               "SELECT output_xpath from "+Vetting.CLDR_OUTPUT+" where locale=?" ); // wow, that is pretty straightforward...
-			keyVettingSet = prepareStatement("keyVettingSet",
-					"SELECT "+Vetting.CLDR_OUTPUT+".output_xpath from "+Vetting.CLDR_OUTPUT+" where "+Vetting.CLDR_OUTPUT+".locale=? AND EXISTS "+
-					" ( SELECT * from "+CLDR_DATA+" where "+CLDR_DATA+".locale="+Vetting.CLDR_OUTPUT+".locale AND "+CLDR_DATA+".xpath="+Vetting.CLDR_OUTPUT+".data_xpath )");
-
-			keyASet = prepareStatement("keyASet",
-					/*
-                                        "SELECT "+CLDR_DATA+".xpath from "+
-                                        XPathTable.CLDR_XPATHS+","+CLDR_DATA+" where "+CLDR_DATA+".xpath="+
-                                        XPathTable.CLDR_XPATHS+".id AND "+XPathTable.CLDR_XPATHS+".xpath like ? AND "+CLDR_DATA+".locale=?"
-					 */
-					//    "SELECT "+CLDR_DATA+".xpath from CLDR_XPATHS,CLDR_DATA where CLDR_DATA.xpath=CLDR_XPATHS.id AND CLDR_XPATHS.xpath like '%/alias%' AND CLDR_DATA.locale=?"
-					"SELECT "+CLDR_DATA+".origxpath from "+XPathTable.CLDR_XPATHS+","+CLDR_DATA+" where "+CLDR_DATA+".origxpath="+XPathTable.CLDR_XPATHS+".id AND "+XPathTable.CLDR_XPATHS+".xpath like '%/alias%' AND "+CLDR_DATA+".locale=?"
-			);
-
-
-			keySet = prepareStatement("keySet",
-					"SELECT " + "xpath FROM " + CLDR_DATA + // was origxpath
-			" WHERE locale=?"); 
-			keyUnconfirmedSet = prepareStatement("keyUnconfirmedSet",
-					"select distinct "+Vetting.CLDR_VET+".vote_xpath from "+Vetting.CLDR_VET+" where "+
-					Vetting.CLDR_VET+".vote_xpath!=-1 AND "+Vetting.CLDR_VET+
-					".locale=? AND NOT EXISTS ( SELECT "+Vetting.CLDR_RESULT+
-					".result_xpath from "+Vetting.CLDR_RESULT+" where "+
-					Vetting.CLDR_RESULT+".result_xpath="+Vetting.CLDR_VET+".vote_xpath and "+
-					Vetting.CLDR_RESULT+".locale="+Vetting.CLDR_VET+".locale AND "+
-					Vetting.CLDR_RESULT+".type>="+Vetting.RES_ADMIN+") AND NOT EXISTS ( SELECT "+
-					Vetting.CLDR_RESULT+".base_xpath from "+Vetting.CLDR_RESULT+" where "+
-					Vetting.CLDR_RESULT+".base_xpath=CLDR_VET.base_xpath and "+
-					Vetting.CLDR_RESULT+".locale="+Vetting.CLDR_VET+".locale AND "+Vetting.CLDR_RESULT+".type="+
-					Vetting.RES_ADMIN+") AND EXISTS (select * from "+CLDR_DATA+" where "+
-					CLDR_DATA+".locale="+
-					Vetting.CLDR_VET+".locale AND "+CLDR_DATA+".xpath="+
-					Vetting.CLDR_VET+".vote_xpath and "+CLDR_DATA+".value != '')");
-			keyNoVotesSet = prepareStatement("keyUnconfirmedSet",
-					"select distinct "+CLDR_DATA+".xpath from "+CLDR_DATA+","+Vetting.CLDR_RESULT+" where "+CLDR_DATA+".locale=? AND "+CLDR_DATA+".locale="+Vetting.CLDR_RESULT+".locale AND "+CLDR_DATA+".xpath="+Vetting.CLDR_RESULT+".base_xpath AND "+Vetting.CLDR_RESULT+".type="+Vetting.RES_NO_VOTES);
-			querySource = prepareStatement("querySource",
-					"SELECT id,rev FROM " + CLDR_SRC + " where locale=? AND tree=? AND inactive IS NULL");
-
-			querySourceInfo = prepareStatement("querySourceInfo",
-					"SELECT rev FROM " + CLDR_SRC + " where id=?");
-
-			querySourceActives = prepareStatement("querySourceActives",
-					"SELECT id,locale,rev FROM " + CLDR_SRC + " where inactive IS NULL");
-
-			insertSource = prepareStatement("insertSource",
-					"INSERT INTO " + CLDR_SRC + " (locale,tree,rev,inactive) VALUES (?,?,?,null)");
-
-			getSubmitterId = prepareStatement("getSubmitterId",
-					"SELECT submitter from " + CLDR_DATA + " where locale=? AND xpath=? AND ( submitter is not null )"); // don't return anything if the submitter isn't set.
-
-			removeItem = prepareStatement("removeItem",
-					"DELETE FROM " + CLDR_DATA + " where locale=? AND xpath=?");
 		}
+		
+		boolean closeLock = false;
+		boolean everLocked = false;
+		int closeAttemptCount=0;
 
+		/**
+		 * Set whether closing is inhibited
+		 * @param lock  true = do not allow closing
+		 */
+		public void setCloseLock(boolean lock) { 
+//			if(lock==false) throw new RuntimeException("Unlock here\n");
+			closeLock = lock; 
+			everLocked = true; 
+		}
+		
+		String closeStack = null;
+		/**
+		 * Close (if close lock is false )
+		 * @throws SQLException
+		 */
 		public void close() throws SQLException {
+			if(closeLock) { entryCount--; closeAttemptCount++; return; }
+			if(everLocked && closeAttemptCount==-1) {
+				throw new InternalError("Closing an already closed MyStatements.. previous close: " + closeStack);
+			}
+			if(everLocked && closeStack==null) {
+				closeStack = StackTracker.currentStack();
+			}
 			Connection conn2 = conn;
 			conn = null; // just in case;
 			DBUtils.close(
-					insert,
-//					queryStmt,
-					queryValue,
-					queryXpathTypes,
-					queryTypeValues,
-					queryXpathPrefixes,
-					keySet,
-					keyASet,
-					keyVettingSet,
-					oxpathFromVetXpath,
-					keyUnconfirmedSet,
-					queryVetValue,
-					queryVetXpath,
-//					queryIdStmt,
-					querySource,
-					querySourceInfo,
-					querySourceActives,
-					insertSource,
-					oxpathFromXpath,
-					keyNoVotesSet,
-					removeItem,
-					getSubmitterId,
+					insert, queryValue, queryXpathTypes, queryTypeValues, queryXpathPrefixes, keySet, keyASet, keyVettingSet,
+					oxpathFromVetXpath, keyUnconfirmedSet, queryVetValue, queryVetXpath, querySource, querySourceInfo, querySourceActives, insertSource,
+					oxpathFromXpath,keyNoVotesSet,removeItem, getSubmitterId,
 					conn2);
+			if(DEBUG && closeAttemptCount>0) {
+				System.err.println("Avoided " + closeAttemptCount + " closes.");
+			}
+			closeAttemptCount=-1;
 		}
 		public void closeOrThrow() {
 			try {
@@ -646,6 +645,257 @@ public class CLDRDBSourceFactory extends Factory {
 				System.err.println(complaint);
 				throw new InternalError(complaint);
 			}
+		}
+
+		/**
+		 * @return the insert
+		 */
+		public PreparedStatement getInsert() {
+			if(insert==null) {
+				if(sm.dbUtils.db_Mysql) {
+					insert = (prepareStatement("insert",
+							"INSERT INTO " + CLDR_DATA +
+							" (xpath,locale,source,origxpath,value,type,alt_type,txpath,submitter,base_xpath,modtime) " +
+					"VALUES (?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)"+
+						" ON DUPLICATE KEY UPDATE value=values(value),modtime=CURRENT_TIMESTAMP"));
+				} else {
+				insert = (prepareStatement("insert",
+						"INSERT INTO " + CLDR_DATA +
+						" (xpath,locale,source,origxpath,value,type,alt_type,txpath,submitter,base_xpath,modtime) " +
+				"VALUES (?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)"));
+				}
+			}
+			return insert;
+		}
+
+		/**
+		 * @return the queryValue
+		 */
+		public PreparedStatement getQueryValue() {
+			if(queryValue==null) 
+				queryValue = (prepareStatement("queryValue",
+						"SELECT value FROM " + CLDR_DATA +
+				" WHERE locale=? AND xpath=?")); 
+			return queryValue;
+		}
+
+		/**
+		 * @return the queryXpathTypes
+		 */
+		public PreparedStatement getQueryXpathTypes() {
+			if(queryXpathTypes==null) 
+				queryXpathTypes = (prepareStatement("queryXpathTypes",
+					"select " +CLDR_DATA+".type from "+
+					CLDR_DATA+","+XPathTable.CLDR_XPATHS+" where "+CLDR_DATA+".xpath="+
+					XPathTable.CLDR_XPATHS+".id AND "+XPathTable.CLDR_XPATHS+".xpath like ?"));
+			return queryXpathTypes;
+		}
+
+		/**
+		 * @return the queryTypeValues
+		 */
+		public PreparedStatement getQueryTypeValues() {
+			if(queryTypeValues==null) 
+				queryTypeValues=prepareStatement("queryTypeValues",
+						"select "+CLDR_DATA+".value,"+CLDR_DATA+".alt_type,"+CLDR_DATA+".alt_proposed,"+CLDR_DATA+".submitter,"+CLDR_DATA+".xpath,"+CLDR_DATA+".origxpath " +
+						" from "+
+						CLDR_DATA+" where "+CLDR_DATA+".txpath=? AND "+CLDR_DATA+".locale=? AND "+CLDR_DATA+".type=?");
+			return queryTypeValues;
+		}
+
+		/**
+		 * @return the queryXpathPrefixes
+		 */
+		public PreparedStatement getQueryXpathPrefixes() {
+			if(queryXpathPrefixes==null)
+				queryXpathPrefixes = (prepareStatement("queryXpathPrefixes",
+					"select "+XPathTable.CLDR_XPATHS+".id from "+
+					XPathTable.CLDR_XPATHS+","+CLDR_DATA+" where "+CLDR_DATA+".xpath="+
+					XPathTable.CLDR_XPATHS+".id AND "+XPathTable.CLDR_XPATHS+".xpath like ? AND "+CLDR_DATA+".locale=?"));
+			return queryXpathPrefixes;
+		}
+
+		/**
+		 * @return the keySet
+		 */
+		public PreparedStatement getKeySet() {
+			if(keySet==null) keySet=
+				(prepareStatement("keySet",
+						"SELECT " + "xpath FROM " + CLDR_DATA + // was origxpath
+				" WHERE locale=?")); 
+
+			return keySet;
+		}
+
+		/**
+		 * @return the keyASet
+		 */
+		public PreparedStatement getKeyASet() {
+			if(keyASet==null) 
+				keyASet = (prepareStatement("keyASet",
+						//
+//						                                        "SELECT "+CLDR_DATA+".xpath from "+
+//						                                        XPathTable.CLDR_XPATHS+","+CLDR_DATA+" where "+CLDR_DATA+".xpath="+
+//						                                        XPathTable.CLDR_XPATHS+".id AND "+XPathTable.CLDR_XPATHS+".xpath like ? AND "+CLDR_DATA+".locale=?"
+											//    "SELECT "+CLDR_DATA+".xpath from CLDR_XPATHS,CLDR_DATA where CLDR_DATA.xpath=CLDR_XPATHS.id AND CLDR_XPATHS.xpath like '%/alias%' AND CLDR_DATA.locale=?"
+											"SELECT "+CLDR_DATA+".origxpath from "+XPathTable.CLDR_XPATHS+","+CLDR_DATA+" where "+CLDR_DATA+".origxpath="+XPathTable.CLDR_XPATHS+".id AND "+XPathTable.CLDR_XPATHS+".xpath like '%/alias%' AND "+CLDR_DATA+".locale=?"
+									));
+			return keyASet;
+		}
+
+		/**
+		 * @return the keyVettingSet
+		 */
+		public PreparedStatement getKeyVettingSet() {
+			if(keyVettingSet==null) 
+				keyVettingSet = (prepareStatement("keyVettingSet",
+						"SELECT "+Vetting.CLDR_OUTPUT+".output_xpath from "+Vetting.CLDR_OUTPUT+" where "+Vetting.CLDR_OUTPUT+".locale=? AND EXISTS "+
+						" ( SELECT * from "+CLDR_DATA+" where "+CLDR_DATA+".locale="+Vetting.CLDR_OUTPUT+".locale AND "+CLDR_DATA+".xpath="+Vetting.CLDR_OUTPUT+".data_xpath )"));
+
+			return keyVettingSet;
+		}
+
+		/**
+		 * @return the oxpathFromVetXpath
+		 */
+		public PreparedStatement getOxpathFromVetXpath() {
+			if(oxpathFromVetXpath==null)
+				oxpathFromVetXpath = (prepareStatement("oxpathFromVetXpath",
+						"SELECT "+Vetting.CLDR_OUTPUT+".output_full_xpath FROM "+Vetting.CLDR_OUTPUT+" " +
+						" WHERE "+Vetting.CLDR_OUTPUT+".locale=? AND "+Vetting.CLDR_OUTPUT+".output_xpath=? ")); 
+			return oxpathFromVetXpath;
+		}
+
+		/**
+		 * @return the keyUnconfirmedSet
+		 */
+		public PreparedStatement getKeyUnconfirmedSet() {
+			if(keyUnconfirmedSet==null) 
+				keyUnconfirmedSet=	(prepareStatement("keyUnconfirmedSet",
+						"select distinct "+Vetting.CLDR_VET+".vote_xpath from "+Vetting.CLDR_VET+" where "+
+						Vetting.CLDR_VET+".vote_xpath!=-1 AND "+Vetting.CLDR_VET+
+						".locale=? AND NOT EXISTS ( SELECT "+Vetting.CLDR_RESULT+
+						".result_xpath from "+Vetting.CLDR_RESULT+" where "+
+						Vetting.CLDR_RESULT+".result_xpath="+Vetting.CLDR_VET+".vote_xpath and "+
+						Vetting.CLDR_RESULT+".locale="+Vetting.CLDR_VET+".locale AND "+
+						Vetting.CLDR_RESULT+".type>="+Vetting.RES_ADMIN+") AND NOT EXISTS ( SELECT "+
+						Vetting.CLDR_RESULT+".base_xpath from "+Vetting.CLDR_RESULT+" where "+
+						Vetting.CLDR_RESULT+".base_xpath=CLDR_VET.base_xpath and "+
+						Vetting.CLDR_RESULT+".locale="+Vetting.CLDR_VET+".locale AND "+Vetting.CLDR_RESULT+".type="+
+						Vetting.RES_ADMIN+") AND EXISTS (select * from "+CLDR_DATA+" where "+
+						CLDR_DATA+".locale="+
+						Vetting.CLDR_VET+".locale AND "+CLDR_DATA+".xpath="+
+						Vetting.CLDR_VET+".vote_xpath and "+CLDR_DATA+".value != '')"));
+
+			return keyUnconfirmedSet;
+		}
+
+		/**
+		 * @return the queryVetValue
+		 */
+		public PreparedStatement getQueryVetValue() {
+			if(queryVetValue==null) 
+				queryVetValue = (prepareStatement("queryVetValue",
+						"SELECT "+CLDR_DATA+".value FROM "+Vetting.CLDR_OUTPUT+"," + CLDR_DATA +
+						" WHERE "+Vetting.CLDR_OUTPUT+".locale=? AND "+Vetting.CLDR_OUTPUT+".output_xpath=? AND "
+						+" ("+Vetting.CLDR_OUTPUT+".locale="+CLDR_DATA+".locale) AND ("+Vetting.CLDR_OUTPUT+".data_xpath="+CLDR_DATA+".xpath)")); 
+			return queryVetValue;
+		}
+
+		/**
+		 * @return the queryVetXpath
+		 */
+		public PreparedStatement getQueryVetXpath() {
+			if(queryVetXpath == null)
+				queryVetXpath = (prepareStatement("queryVetXpath",
+						"SELECT "+Vetting.CLDR_RESULT+".result_xpath FROM "+Vetting.CLDR_RESULT+" " +
+						" WHERE "+Vetting.CLDR_RESULT+".locale=? AND "+Vetting.CLDR_RESULT+".base_xpath=? ")); 
+
+			return queryVetXpath;
+		}
+
+		/**
+		 * @return the querySource
+		 */
+		public PreparedStatement getQuerySource() {
+			if(querySource==null) 
+				querySource = (prepareStatement("querySource",
+						"SELECT id,rev FROM " + CLDR_SRC + " where locale=? AND tree=? AND inactive IS NULL"));
+			return querySource;
+		}
+
+		/**
+		 * @return the querySourceInfo
+		 */
+		public PreparedStatement getQuerySourceInfo() {
+			if(querySourceInfo==null) 
+				querySourceInfo = (prepareStatement("querySourceInfo",
+						"SELECT rev FROM " + CLDR_SRC + " where id=?"));
+			return querySourceInfo;
+		}
+
+		/**
+		 * @return the querySourceActives
+		 */
+		public PreparedStatement getQuerySourceActives() {
+			if(querySourceActives == null)
+				querySourceActives =  (prepareStatement("querySourceActives",
+						"SELECT id,locale,rev FROM " + CLDR_SRC + " where inactive IS NULL"));
+
+			return querySourceActives;
+		}
+
+		/**
+		 * @return the insertSource
+		 */
+		public PreparedStatement getInsertSource() {
+			if(insertSource==null) 
+				insertSource=			(prepareStatement("insertSource",
+						"INSERT INTO " + CLDR_SRC + " (locale,tree,rev,inactive) VALUES (?,?,?,null)"));
+
+			return insertSource;
+		}
+
+		/**
+		 * @return the oxpathFromXpath
+		 */
+		public PreparedStatement getOxpathFromXpath() {
+			if(oxpathFromXpath == null) 
+				oxpathFromXpath = (prepareStatement("oxpathFromXpath",
+					"select " +CLDR_DATA+".origxpath from "+CLDR_DATA+" where "+CLDR_DATA+".xpath=? AND "+CLDR_DATA+".locale=?"));
+
+			return oxpathFromXpath;
+		}
+
+		/**
+		 * @return the keyNoVotesSet
+		 */
+		public PreparedStatement getKeyNoVotesSet() {
+			if(keyNoVotesSet == null)
+				keyNoVotesSet = (prepareStatement("keyUnconfirmedSet",
+						"select distinct "+CLDR_DATA+".xpath from "+CLDR_DATA+","+Vetting.CLDR_RESULT+" where "+CLDR_DATA+".locale=? AND "+CLDR_DATA+".locale="+Vetting.CLDR_RESULT+".locale AND "+CLDR_DATA+".xpath="+Vetting.CLDR_RESULT+".base_xpath AND "+Vetting.CLDR_RESULT+".type="+Vetting.RES_NO_VOTES));
+			return keyNoVotesSet;
+		}
+
+		/**
+		 * @return the removeItem
+		 */
+		public PreparedStatement getRemoveItem() {
+			if (removeItem == null)
+				removeItem = (prepareStatement("removeItem", "DELETE FROM "
+						+ CLDR_DATA + " where locale=? AND xpath=?"));
+
+			return removeItem;
+		}
+
+		/**
+		 * @return the getSubmitterId
+		 */
+		public PreparedStatement getGetSubmitterId() {
+			if(getSubmitterId==null) getSubmitterId=(prepareStatement("getSubmitterId",
+					"SELECT submitter from " + CLDR_DATA + " where locale=? AND xpath=? AND ( submitter is not null )")); // don't return anything if the submitter isn't set.
+
+			return getSubmitterId;
 		}
 
 	}
@@ -703,11 +953,11 @@ public class CLDRDBSourceFactory extends Factory {
 		MyStatements stmts2 = null;
 		try {
 			if(stmts==null) {
-				stmts2=stmts=openStatements();
+				stmts2=stmts=createStatements();
 			}
-			stmts.querySource.setString(1,locale);
-			stmts.querySource.setString(2,tree);
-			ResultSet rs = stmts.querySource.executeQuery();
+			stmts.getQuerySource().setString(1,locale);
+			stmts.getQuerySource().setString(2,tree);
+			ResultSet rs = stmts.getQuerySource().executeQuery();
 			if(!rs.next()) {
 				rs.close();
 				return -1;
@@ -734,6 +984,7 @@ public class CLDRDBSourceFactory extends Factory {
 	}
 
 
+
 	/**
 	 * given a source ID, return the CVS revision # from the DB
 	 */
@@ -744,9 +995,9 @@ public class CLDRDBSourceFactory extends Factory {
 		String rev = null;
 		MyStatements stmts = null;
 		try {
-			stmts = openStatements();
-			stmts.querySourceInfo.setInt(1, id);
-			ResultSet rs = stmts.querySourceInfo.executeQuery();
+			stmts = createStatements();
+			stmts.getQuerySourceInfo().setInt(1, id);
+			ResultSet rs = stmts.getQuerySourceInfo().executeQuery();
 			if(rs.next()) {
 				rev = rs.getString(1); // rev
 				if(rs.next()) {
@@ -775,11 +1026,11 @@ public class CLDRDBSourceFactory extends Factory {
 		//    	MyStatements stmts = null;
 		try {
 			//    		stmts = openStatements();
-			stmts.insertSource.setString(1,locale);
-			stmts.insertSource.setString(2,tree);
-			stmts.insertSource.setString(3,rev);
+			stmts.getInsertSource().setString(1,locale);
+			stmts.getInsertSource().setString(2,tree);
+			stmts.getInsertSource().setString(3,rev);
 
-			if(!stmts.insertSource.execute()) {
+			if(!stmts.getInsertSource().execute()) {
 				stmts.conn.commit();
 				return getSourceId(tree, locale, stmts); // adds to hash
 			} else {
@@ -839,9 +1090,9 @@ public class CLDRDBSourceFactory extends Factory {
 		MyStatements stmts=null;
 		synchronized (sm.vet) {
 			try {
-				stmts=openStatements();
+				stmts=createStatements();
 				boolean hadDiffs = false; // were there any differences? (used for 'update all')
-				ResultSet rs = stmts.querySourceActives.executeQuery();
+				ResultSet rs = stmts.getQuerySourceActives().executeQuery();
 				if(!quietUpdateAll) {
 					ctx.println("<table border='1'>");
 					ctx.println("<tr><th>#</th><th>loc</th><th>DB Version</th><th>CVS/Disk</th><th>update</th></tr>");
@@ -985,10 +1236,10 @@ public class CLDRDBSourceFactory extends Factory {
 			MyStatements stmts = null;
 			try {
 				ResultSet rs;
-				stmts = openStatements();
-				stmts.getSubmitterId.setString(1,locale.toString());
-				stmts.getSubmitterId.setInt(2,xpath);
-				rs = stmts.getSubmitterId.executeQuery();
+				stmts = createStatements();
+				stmts.getGetSubmitterId().setString(1,locale.toString());
+				stmts.getGetSubmitterId().setInt(2,xpath);
+				rs = stmts.getGetSubmitterId().executeQuery();
 				if(!rs.next()) {
 					///*srl*/     System.err.println("GSI[-1]: " + locale+":"+xpath);
 					return -1;
@@ -1127,7 +1378,18 @@ public class CLDRDBSourceFactory extends Factory {
 		 * source ID of this CLDRDBSource. 
 		 * @see #getSourceId
 		 */
-		public int srcId = -1; 
+		public int srcId = -1;
+
+		private DBFactoryEntry ourFactory; 
+		
+		private MyStatements openStatements() {
+			if(ourFactory!=null) {
+				return ourFactory.openStatements();
+			} else {
+				return createStatements();
+			}
+		}
+
 
 		/**
 		 * load and validate the item, if not already in the DB. Sets srcId and other state.
@@ -1223,18 +1485,18 @@ public class CLDRDBSourceFactory extends Factory {
 
 		            // insert it into the DB
 		            try {
-		                stmts.insert.setInt(1,xpid); // full
-		                stmts.insert.setString(2,locale);
-		                stmts.insert.setInt(3,srcId);
-		                stmts.insert.setInt(4,oxpid); // Note: assumes XPIX = orig XPID! TODO: fix
-		                DBUtils.setStringUTF8(stmts.insert, 5, value); // stmts.insert.setString(5,value);
-		                stmts.insert.setString(6,eType);
-		                stmts.insert.setString(7,eAlt);
-		                stmts.insert.setInt(8,txpid); // tiny
-		                stmts.insert.setNull(9, java.sql.Types.INTEGER); // Null integer for Submitter. NB: we do NOT ever consider data coming from XML as 'submitter' data.
-		                stmts.insert.setInt(10, base_xpid);
+		                stmts.getInsert().setInt(1,xpid); // full
+		                stmts.getInsert().setString(2,locale);
+		                stmts.getInsert().setInt(3,srcId);
+		                stmts.getInsert().setInt(4,oxpid); // Note: assumes XPIX = orig XPID! TODO: fix
+		                DBUtils.setStringUTF8(stmts.getInsert(), 5, value); // stmts.insert.setString(5,value);
+		                stmts.getInsert().setString(6,eType);
+		                stmts.getInsert().setString(7,eAlt);
+		                stmts.getInsert().setInt(8,txpid); // tiny
+		                stmts.getInsert().setNull(9, java.sql.Types.INTEGER); // Null integer for Submitter. NB: we do NOT ever consider data coming from XML as 'submitter' data.
+		                stmts.getInsert().setInt(10, base_xpid);
 
-		                stmts.insert.execute();
+		                stmts.getInsert().execute();
 
 		            } catch(SQLException se) {
 		                String complaint = 
@@ -1268,6 +1530,11 @@ public class CLDRDBSourceFactory extends Factory {
 		        }
 		    }
 		    }
+		}
+
+
+		public void setFactory(DBFactoryEntry theFactory) {
+			ourFactory = theFactory;
 		}
 
 
@@ -1357,23 +1624,23 @@ public class CLDRDBSourceFactory extends Factory {
 			MyStatements stmts = null;
 			try {
 				stmts = openStatements(); // TODO: pefrormance here !!
-				stmts.insert.setInt(1, xpid); // / dpath
-				stmts.insert.setString(2, loc);
-				stmts.insert.setInt(3, srcId);
-				stmts.insert.setInt(4, oxpid); // origxpath = full (original)
+				stmts.getInsert().setInt(1, xpid); // / dpath
+				stmts.getInsert().setString(2, loc);
+				stmts.getInsert().setInt(3, srcId);
+				stmts.getInsert().setInt(4, oxpid); // origxpath = full (original)
 				// xpath
-				DBUtils.setStringUTF8(stmts.insert, 5, value); // stmts.insert.setString(5,value);
-				stmts.insert.setString(6, eType);
-				stmts.insert.setString(7, eAlt);
-				stmts.insert.setInt(8, txpid); // tiny xpath
+				DBUtils.setStringUTF8(stmts.getInsert(), 5, value); // stmts.insert.setString(5,value);
+				stmts.getInsert().setString(6, eType);
+				stmts.getInsert().setString(7, eAlt);
+				stmts.getInsert().setInt(8, txpid); // tiny xpath
 				if (submitter == -1) {
-					stmts.insert.setNull(9, java.sql.Types.INTEGER); // getId(alt...)
+					stmts.getInsert().setNull(9, java.sql.Types.INTEGER); // getId(alt...)
 				} else {
-					stmts.insert.setInt(9, submitter);
+					stmts.getInsert().setInt(9, submitter);
 				}
-				stmts.insert.setInt(10, base_xpid);
+				stmts.getInsert().setInt(10, base_xpid);
 
-				stmts.insert.execute();
+				stmts.getInsert().execute();
 
 				if(DEBUG) System.err.println("Inserted: " + xpath);
 				stmts.conn.commit();
@@ -1426,10 +1693,10 @@ public class CLDRDBSourceFactory extends Factory {
 			MyStatements stmts = null;
 			try {
 				stmts = openStatements();
-				stmts.removeItem.setString(1, locale.toString());
-				stmts.removeItem.setInt(2, xpathId); // base xpath
+				stmts.getRemoveItem().setString(1, locale.toString());
+				stmts.getRemoveItem().setInt(2, xpathId); // base xpath
 				//           stmts.removeItem.setInt(3, submitter);
-				int n = stmts.removeItem.executeUpdate();
+				int n = stmts.getRemoveItem().executeUpdate();
 				if(n != 1) {
 					throw new InternalError("Trying to remove "+locale+":"+xpathId+"@" + " and the path wasn't found.");
 				}
@@ -1475,9 +1742,9 @@ public class CLDRDBSourceFactory extends Factory {
 			MyStatements stmts = null;
 			try {
 				stmts = openStatements(); // TODO: perf.
-				stmts.queryValue.setString(1, locale);
-				stmts.queryValue.setInt(2, pathInt);
-				ResultSet rs = stmts.queryValue.executeQuery();
+				stmts.getQueryValue().setString(1, locale);
+				stmts.getQueryValue().setInt(2, pathInt);
+				ResultSet rs = stmts.getQueryValue().executeQuery();
 				if (rs.next()) {
 					if (SHOW_TIMES)
 						System.err.println("hasValueAtDPath:T " + locale + ":"
@@ -1551,13 +1818,13 @@ public class CLDRDBSourceFactory extends Factory {
                 try {
                     stmts = openStatements(); // TODO: perf!
                     if(finalData) {
-                        stmts.queryVetValue.setString(1,locale);
-                        stmts.queryVetValue.setInt(2,xpath); 
-                        rs = stmts.queryVetValue.executeQuery();
+                        stmts.getQueryVetValue().setString(1,locale);
+                        stmts.getQueryVetValue().setInt(2,xpath); 
+                        rs = stmts.getQueryVetValue().executeQuery();
                     } else {
-                        stmts.queryValue.setString(1,locale);
-                        stmts.queryValue.setInt(2,xpath);
-                        rs = stmts.queryValue.executeQuery();
+                        stmts.getQueryValue().setString(1,locale);
+                        stmts.getQueryValue().setInt(2,xpath);
+                        rs = stmts.getQueryValue().executeQuery();
                     }
                     String rv;
                     if(!rs.next()) {
@@ -1599,7 +1866,8 @@ public class CLDRDBSourceFactory extends Factory {
             } catch(SQLException se) {
 				se.printStackTrace();
 				logger.severe("CLDRDBSource: Failed to query data ("+tree + "/" + locale + ":" + path + "): " + DBUtils.unchainSqlException(se));
-				return null;
+				throw new RuntimeException(se);
+				//return null;
 			}
 		}
 
@@ -1695,13 +1963,13 @@ public class CLDRDBSourceFactory extends Factory {
 				ResultSet rs;
 
 				if(!useFinalData) {
-					stmts.oxpathFromXpath.setInt(1,pathid);
-					stmts.oxpathFromXpath.setString(2,locale);
-					rs = stmts.oxpathFromXpath.executeQuery();
+					stmts.getOxpathFromXpath().setInt(1,pathid);
+					stmts.getOxpathFromXpath().setString(2,locale);
+					rs = stmts.getOxpathFromXpath().executeQuery();
 				} else {
-					stmts.oxpathFromVetXpath.setString(1, locale);
-					stmts.oxpathFromVetXpath.setInt(2, pathid);
-					rs = stmts.oxpathFromVetXpath.executeQuery();
+					stmts.getOxpathFromVetXpath().setString(1, locale);
+					stmts.getOxpathFromVetXpath().setInt(2, pathid);
+					rs = stmts.getOxpathFromVetXpath().executeQuery();
 				}
 
 				if(!rs.next()) {
@@ -1832,33 +2100,37 @@ public class CLDRDBSourceFactory extends Factory {
 			try {
 				ResultSet rs;
 				if(finalData==false) {
-					stmts.keySet.setString(1,locale);
-					rs = stmts.keySet.executeQuery();
+					stmts.getKeySet().setString(1,locale);
+					rs = stmts.getKeySet().executeQuery();
 				} else {
-					//System.err.println("@@ begin KS of "+locale);
-					stmts.keyVettingSet.setString(1,locale);
-					rs = stmts.keyVettingSet.executeQuery();
+					stmts.getKeyVettingSet().setString(1,locale);
+					rs = stmts.getKeyVettingSet().executeQuery();
 				}
+//				if(rs.isClosed()) {
+//					throw new RuntimeException("RS already closed! (!)");
+//				}
+				//if(true) System.err.println("@@ begin KS of "+locale+ ": FD="+finalData);
 				// TODO: is there a better way to map a ResultSet into a Set?
 				Set<String> s = new HashSet<String>();
 				while(rs.next()) {
 					int xpathid = rs.getInt(1);
-					// if(finalData) { System.err.println("v|"+locale+":"+xpathid); }
+					if(false) { System.err.println("v|"+locale+":"+xpathid); }
 
 					String xpath = (xpt.getById(xpathid));
 					if(finalData==true) {
 
 						//                       System.err.println("Path: " +xpath);
 						if(xpathThatNeedsOrig(xpath)) {
-							//                            System.err.println("@@ munging xpath:"+xpath+" ("+xpathid+")");
+							//if(DEBUG) System.err.println("@@ munging xpath:"+xpath+" ("+xpathid+")");
 							xpath = getOrigXpathFromCache(xpathid);
 							//                            System.err.println("-> "+xpath);
 						}
-
-
 					}
 					s.add(xpath); // xpath
 					//rs.getString(2); // origXpath
+					if(rs.isClosed()) {
+						throw new RuntimeException("RS already closed! (!)");
+					}
 				}
 				rs.close();
 				// if(finalData) System.err.println("@@ end KS of "+locale);
@@ -1987,8 +2259,8 @@ public class CLDRDBSourceFactory extends Factory {
 					try {
 						stmts = openStatements();
 						//  stmts.keyASet.setString(1,"%/alias");
-						stmts.keyASet.setString(1,locale);
-						ResultSet rs = stmts.keyASet.executeQuery();
+						stmts.getKeyASet().setString(1,locale);
+						ResultSet rs = stmts.getKeyASet().executeQuery();
 
 						// TODO: is there a better way to map a ResultSet into a Set?
 //						Set s = new HashSet();
@@ -2016,7 +2288,7 @@ public class CLDRDBSourceFactory extends Factory {
 			}
 		}
 
-		Hashtable<String, XMLSource> makeHash = new Hashtable<String, XMLSource>();
+		Hashtable<String, XMLSource> makeHash = null; // new Hashtable<String, XMLSource>();
 
 		/**
 		 * @deprecated
@@ -2148,6 +2420,8 @@ public class CLDRDBSourceFactory extends Factory {
 				result.finalData = finalData;
 				//            result.vetting = vetting;
 				result.makeHash = makeHash;
+				
+				result.ourFactory = ourFactory;
 				// do something here?
 				return result;
 			} catch (CloneNotSupportedException e) {
@@ -2175,9 +2449,9 @@ public class CLDRDBSourceFactory extends Factory {
 			MyStatements stmts = null;
 			try {
 				stmts = openStatements();
-				stmts.queryXpathPrefixes.setString(1,prefix+"%");
-				stmts.queryXpathPrefixes.setString(2,locale);
-				rs = stmts.queryXpathPrefixes.executeQuery();
+				stmts.getQueryXpathPrefixes().setString(1,prefix+"%");
+				stmts.getQueryXpathPrefixes().setString(2,locale);
+				rs = stmts.getQueryXpathPrefixes().executeQuery();
 			} catch(SQLException se) {
 				logger.severe("CLDRDBSource: Failed to getPrefixKeySet ("+tree + "/" + locale +"): " + DBUtils.unchainSqlException(se));
 				return null;
@@ -2210,28 +2484,9 @@ public class CLDRDBSourceFactory extends Factory {
 	public int update() {
 		return update(null);
 	}
-
-    @Override
-    public String getSourceDirectory() {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    protected CLDRFile handleMake(String localeID, boolean resolved,
-            DraftStatus madeWithMinimalDraftStatus) {
-        return new CLDRFile(getInstance(CLDRLocale.getInstance(localeID), true),resolved);
-    }
-
-    @Override
-    protected DraftStatus getMinimalDraftStatus() {
-        // TODO Auto-generated method stub
-        return DraftStatus.unconfirmed;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected Set<String> handleGetAvailable() {
-        return (Set<String>)rootDbSource.getAvailableLocales();
-    }
+	
+	public DBFactoryEntry getFactoryEntry() {
+		return new DBFactoryEntry();
+	}
 
 }

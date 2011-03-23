@@ -1116,10 +1116,8 @@ public class Vetting {
     			        racesToUpdate.add(r);
     			        
     					// make the Race update itself ( we don't do this if it's just investigatory)
-                        synchronized (this) {
-                            int rc = r.updateDB(conn);
-                            updates |= rc;
-                        }
+                        int rc = r.updateDB(conn);
+                        updates |= rc;
     				}
     			}
     			//                System.err.println("Missing results "+ncount+" for " + locale + " updated in " + et_m.toString());
@@ -1744,7 +1742,7 @@ public class Vetting {
      * @param type either VET_IMPLICIT or VET_EXPLICIT if this is to be recorded as an implicit or explicit vote.
      */
      
-    void vote(CLDRLocale locale, int base_xpath, int submitter, int vote_xpath, int type) {
+    public void vote(CLDRLocale locale, int base_xpath, int submitter, int vote_xpath, int type) {
     	try {
     		Connection conn = null;
     		PreparedStatement queryVoteId = null;
@@ -2365,23 +2363,19 @@ if(true == true)    throw new InternalError("removed from use.");
     
     Map<CLDRLocale,CachedVettingData> cachedData = new HashMap<CLDRLocale,CachedVettingData>();
     private CachedVettingData getCachedLocaleData(CLDRLocale locale) {
-        synchronized(this) {
-            CachedVettingData vd = cachedData.get(locale);
-            if(vd == null || !vd.isValid()) {
-                if(vd!=null) // reduce noise first time thru
-                      System.err.println(((vd==null)?"":"Re-")+"loading vet cache for " + locale);
-                vd = new CachedVettingData(locale);
-                cachedData.put(locale, vd);
-            }
-            return vd;
+        CachedVettingData vd = cachedData.get(locale);
+        if(vd == null || !vd.isValid()) {
+            if(vd!=null) // reduce noise first time thru
+                  System.err.println(((vd==null)?"":"Re-")+"loading vet cache for " + locale);
+            vd = new CachedVettingData(locale);
+            cachedData.put(locale, vd);
         }
+        return vd;
     }
     public void deleteCachedLocaleData(CLDRLocale locale) {
-        synchronized(this) {
-            CachedVettingData vd = cachedData.get(locale);
-            if(vd!=null && !vd.isValid()) {
-            	cachedData.remove(locale);
-            }
+        CachedVettingData vd = cachedData.get(locale);
+        if(vd!=null && !vd.isValid()) {
+        	cachedData.remove(locale);
         }
     }
     

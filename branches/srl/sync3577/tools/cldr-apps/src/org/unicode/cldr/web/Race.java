@@ -28,6 +28,7 @@ import org.unicode.cldr.web.Vetting.Status;
  * for now, we calculate two things in parallel.
  */
 public class Race {
+    public static final boolean DEBUG = false;
     
     private VoteResolver<Integer> resolver; // allocate new with locale = new VoteResolver<Integer>();
 
@@ -402,6 +403,8 @@ public class Race {
     }
 
     private void vote(UserRegistry.User user, int vote_xpath, int full_xpath, String value) {
+		if(DEBUG) System.err.println("Race Gather: vote " + user + " for " + vote_xpath + " / full " + full_xpath + " == " + value);
+		
         // add this vote to the chads, or create one if not present
         Chad c = getChad(vote_xpath, full_xpath, value);
 
@@ -474,6 +477,7 @@ public class Race {
     		rs = queryValue.executeQuery();
     		if (rs.next()) {
     			String itemValue = DBUtils.getStringUTF8(rs, 1);
+    			
     			int origXpath = rs.getInt(2);
     			existingVote(base_xpath, origXpath, itemValue);
 
@@ -491,6 +495,7 @@ public class Race {
     		} else {
     			// 'last release' is missing
     			resolver.setLastRelease(base_xpath, VoteResolver.Status.missing );
+    			if(DEBUG) System.err.println("Race Gather: Collect for " + locale + ":" + base_xpath + " -MISSING");
     		}
 
     		// Now, fetch all votes for this path.
@@ -505,6 +510,8 @@ public class Race {
     				continue; // abstention
     			}
 
+    			if(DEBUG) System.err.println("Race Gather: Collect Votes for " + locale + ":" + base_xpath + " = " + vote_xpath + " form " + submitter);
+
     			queryValue.setInt(2, vote_xpath);
     			ResultSet crs = queryValue.executeQuery();
     			int orig_xpath = vote_xpath;
@@ -515,6 +522,9 @@ public class Race {
 
 
     				UserRegistry.User u = vet.sm.reg.getInfo(submitter);
+    				if(u==null && vet.sm.isUnofficial) {
+    					vet.sm.busted("Error: user " + submitter + " not found.");
+    				}
     				vote(u, vote_xpath, orig_xpath, itemValue);
     			}
     		}
@@ -550,6 +560,7 @@ public class Race {
     			String value = DBUtils.getStringUTF8(rs, 4);
     			Chad c = getChad(xpath, origXpath, value);
     			possibles.put(c,xpath);
+    			if(DEBUG) System.err.println("Race Gather: DataByBase Collect for " + locale + ":" + base_xpath + "/"+origXpath+ " = #" + xpath + ": " + value);
     			//	            if(c.xpath != xpath) {
     			//	            	throw new InternalError("Chad has xpath " + c.xpath+" but supposed to be + " + xpath);
     			//	            }

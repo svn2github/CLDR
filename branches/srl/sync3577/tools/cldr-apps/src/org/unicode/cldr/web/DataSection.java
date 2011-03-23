@@ -10,7 +10,6 @@
 //  class to get a list of displayable items?
 
 package org.unicode.cldr.web;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -35,11 +34,9 @@ import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
-import org.unicode.cldr.web.DataSection.DataRow;
 import org.unicode.cldr.web.UserRegistry.User;
 
 import com.ibm.icu.text.Collator;
-import com.ibm.icu.text.RuleBasedCollator;
 
 /** A data section represents a group of related data that will be displayed to users in a list
  * such as, "all of the language display names contained in the en_US locale".
@@ -872,7 +869,7 @@ public class DataSection extends Registerable {
         SortMode sortMode = null;
         public boolean canName = true; // can use the 'name' view?
         public boolean isCalendar = false;
-        DataRow rows[]; // list of peas in sorted order
+        public DataRow rows[]; // list of peas in sorted order
         /**
          * Partitions divide up the peas into sets, such as 'proposed', 'normal', etc.
          * The 'limit' is one more than the index number of the last item.
@@ -936,7 +933,7 @@ public class DataSection extends Registerable {
         PARTITION_UNCONFIRMED };
 
     
-    DisplaySet createDisplaySet(SortMode sortMode, XPathMatcher matcher) {
+    public DisplaySet createDisplaySet(SortMode sortMode, XPathMatcher matcher) {
         DisplaySet aDisplaySet = new DisplaySet(createSortedList(sortMode,matcher), sortMode);
         aDisplaySet.canName = canName;
         aDisplaySet.isCalendar = isCalendar;
@@ -973,7 +970,9 @@ public class DataSection extends Registerable {
         return newSet.toArray(new DataRow[newSet.size()]);
     }
     
-
+	public static DataSection make(WebContext ctx, CLDRLocale locale, String prefix, boolean simple) {
+		return make(ctx,locale,prefix,simple,ctx.getEffectiveCoverageLevel());
+	}
 	/**
 	 * Create, populate, and complete a DataSection given the specified locale and prefix
 	 * @param ctx context to use (contains CLDRDBSource, etc.)

@@ -12,8 +12,16 @@ public class StackTracker {
      * @param o
      */
     public void add(Object o) {
-        String stack = stackToString(Thread.currentThread().getStackTrace(),2);
+        String stack = currentStack();
         stacks.put(o, stack);
+    }
+    
+    /**
+     * The current stack as a string.
+     * @return
+     */
+    public static String currentStack() {
+    	 return stackToString(Thread.currentThread().getStackTrace(),2);
     }
     
     /**

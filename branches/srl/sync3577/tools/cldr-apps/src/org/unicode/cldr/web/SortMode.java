@@ -27,7 +27,7 @@ public abstract class SortMode {
 	}
 	
 	
-	static SortMode getInstance(String mode) {
+	public static SortMode getInstance(String mode) {
 		if(mode.equals(CodeSortMode.name)) {
 			return new CodeSortMode();
 		} else if(mode.equals(CalendarSortMode.name)) {
