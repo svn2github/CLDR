@@ -2871,7 +2871,10 @@ o	            		}*/
             ctx.session.user.ip = ctx.userIP();
         } else {
             if( (email !=null) && (email.length()>0)) {
-                message = "<strong id='sessionMessage'>"+(ctx.iconHtml("stop", "failed login")+"login failed.</strong><br>");
+                message = "<strong id='sessionMessage'>"+(ctx.iconHtml("stop", "failed login")+"login failed. " + 
+                		"<a href='" +ctx.jspUrl("reset.jsp","email",email) +
+                		"'>Click here to recover your password.</a>" +
+                		"</strong><br>");
             }
         }
         CookieSession.reap();

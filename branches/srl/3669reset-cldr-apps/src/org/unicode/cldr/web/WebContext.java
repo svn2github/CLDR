@@ -628,6 +628,30 @@ public class WebContext implements Cloneable, Appendable {
                 ((session!=null)?("&s="+session.id):"")
             );
      }
+    /**
+     * Get a link (Text URL) to  a JSP
+     * @param s resource to link to
+     * @param args An even number of k=v,k=v,k=v pairs to the URL
+     * @return the URL suitable for Text
+     */
+    public String jspUrl(String s, Object... args) {
+    	if((args.length%2)!=0) {
+    		throw new IllegalArgumentException("Must call with an even number of strings");
+    	}
+    	StringBuilder sb = new StringBuilder(
+    				context(s)+"?a=" + base() +
+            ((outQuery!=null)?("&amp;" + outQuery):
+                ((session!=null)?("&amp;s="+session.id):"")
+            ));
+    	for(int i=0;i<args.length;i+=2) {
+    		sb.append("&amp;");
+    		sb.append(args[i+0]); // k
+    		sb.append('=');
+    		sb.append(args[i+1]); // k
+    	}
+    	sb.append("#0");
+    	return sb.toString();
+     }
     
     /**
      * Output the full current output URL in hidden field format.
