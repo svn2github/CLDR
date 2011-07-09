@@ -1,4 +1,4 @@
-package org.unicode.cldr.tool.partialresolver;
+package org.unicode.cldr.tool.resolver;
 
 import com.ibm.icu.dev.tool.UOption;
 
@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Class designed for the partial resolution of CLDR XML Files (i.e., removing
+ * Class designed for the resolution of CLDR XML Files (e.g., removing
  * aliases but leaving the inheritance structure intact).
  * 
  * Instances of this class are not thread-safe. Any attempts to use an object of
@@ -25,7 +25,7 @@ import java.util.Set;
  * @author ryanmentley@google.com (Ryan Mentley)
  * 
  */
-class CldrPartialResolver {
+class CldrResolver {
   /**
    * Output level from 0-5. 0 is nothing, 1 is errors, 2-3 is pretty sane, 5
    * will flood your terminal.
@@ -85,8 +85,8 @@ class CldrPartialResolver {
 
   public static void main(String[] args) {
     debugPrintln("Working directory is: " + System.getProperty("user.dir") + "\n", 2);
-    CldrPartialResolver resolver =
-        new CldrPartialResolver("/usr/local/google/users/ryanmentley/cldr-git-svn/trunk/common/main");
+    CldrResolver resolver =
+        new CldrResolver("/usr/local/google/users/ryanmentley/cldr-git-svn/trunk/common/main");
     resolver.resolve("de.*", "/usr/local/google/users/ryanmentley/cldrtest", true);
     debugPrintln("Execution complete.", 3);
   }
@@ -99,7 +99,7 @@ class CldrPartialResolver {
    *        CLDR distribution. Note: this still requires the CLDR_DIR
    *        environment variable to be set.
    */
-  public CldrPartialResolver(String cldrDirectory) {
+  public CldrResolver(String cldrDirectory) {
     debugPrintln("Making factory...", 3);
     /*
      * We don't do the regex filter here so that we can still resolve parent
