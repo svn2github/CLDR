@@ -46,13 +46,15 @@ class CldrResolver {
   private static final int DESTDIR = 1;
   private static final int FULLY_RESOLVE = 2;
   private static final int SOURCEDIR = 3;
+  private static final int NO_CODE_FALLBACK = 4;
 
   /* And then the UOptions themselves, along with a storage container. */
   private static final UOption LOCALE_OPTION = UOption.create("locale", 'l', UOption.REQUIRES_ARG);
   private static final UOption DESTDIR_OPTION = UOption.DESTDIR();
   private static final UOption FULLY_RESOLVE_OPTION = UOption.create("full", 'f', UOption.NO_ARG);
   private static final UOption SOURCEDIR_OPTION = UOption.SOURCEDIR();
-  private static final UOption[] options = {LOCALE_OPTION, DESTDIR_OPTION, FULLY_RESOLVE_OPTION, SOURCEDIR_OPTION};
+  private static final UOption NO_CODE_FALLBACK_OPTION = UOption.create("nocodefallback", 'c', UOption.NO_ARG);
+  private static final UOption[] options = {LOCALE_OPTION, DESTDIR_OPTION, FULLY_RESOLVE_OPTION, SOURCEDIR_OPTION, NO_CODE_FALLBACK_OPTION};
   
   /**
    * This list is not used for anything practical, just for test cases for weird ones.
@@ -85,9 +87,19 @@ class CldrResolver {
 
   public static void main(String[] args) {
     debugPrintln("Working directory is: " + System.getProperty("user.dir") + "\n", 2);
+    UOption.parseArgs(args, options);
+    
+    // Defaults
+    boolean fullyResolve;
+    
+    if (FULLY_RESOLVE_OPTION.doesOccur) {
+      fullyResolve = true;
+    } else {
+      fullyResolve = false;
+    }
     CldrResolver resolver =
         new CldrResolver("/usr/local/google/users/ryanmentley/cldr-git-svn/trunk/common/main");
-    resolver.resolve("de.*", "/usr/local/google/users/ryanmentley/cldrtest", true);
+    resolver.resolve("de.*", "/usr/local/google/users/ryanmentley/cldrtest", fullyResolve);
     debugPrintln("Execution complete.", 3);
   }
 
