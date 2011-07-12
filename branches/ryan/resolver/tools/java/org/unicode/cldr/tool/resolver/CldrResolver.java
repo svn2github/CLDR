@@ -148,9 +148,9 @@ public class CldrResolver {
     // Iterate through all the locales
     locales: for (Iterator<String> localeIter = locales.iterator(); localeIter.hasNext();) {
       String locale = localeIter.next();
-      if (!weirdCases.contains(locale)) {
-        continue locales;
-      }
+//      if (!weirdCases.contains(locale)) {
+//        continue locales;
+//      }
 //      if (!locale.equals("ku_Latn")) {
 //        continue locales;
 //      }
@@ -172,7 +172,7 @@ public class CldrResolver {
         debugPrintln("Locale is root.", 3);
 
         // Remove aliases from root.
-        CLDRFile rootWithoutAliases = removeAliases(base);
+        CLDRFile rootWithoutAliases = removeAliases(base, resolutionType == ResolutionType.NO_CODE_FALLBACK);
         printToFile(rootWithoutAliases, outputDir);
       } else {
         // Make parent file
@@ -229,7 +229,7 @@ public class CldrResolver {
            * the values aren't equal, add it to the resolved file.
            */
           if (resolutionType == ResolutionType.FULL ||
-              (resolutionType == ResolutionType.NO_CODE_FALLBACK && base.getSourceLocaleID(path, null).equals(CODE_FALLBACK)) ||
+              (resolutionType == ResolutionType.NO_CODE_FALLBACK && !base.getSourceLocaleID(path, null).equals(CODE_FALLBACK)) ||
               !areEqual(parentValue, baseValue)) {
             debugPrintln("  Adding to resolved file.", 5);
             resolved.add(path, baseValue);
@@ -326,13 +326,14 @@ public class CldrResolver {
    * through for other locales.
    * 
    * @param cldrFile the CLDRFile whose aliases to remove
+   * @param suppressCodeFallback if true, entries from code-fallback will be suppressed as well
    * @return a copy of cldrFile with aliases removed
    */
-  private static CLDRFile removeAliases(CLDRFile cldrFile) {
+  private static CLDRFile removeAliases(CLDRFile cldrFile, boolean suppressCodeFallback) {
     // False/unresolved because it needs to be mutable
     CLDRFile partiallyResolved =
         new CLDRFile(new CLDRFile.SimpleXMLSource(null, cldrFile.getLocaleID()), false);
-    debugPrintln("Removing aliases...", 2);
+    debugPrintln("Removing aliases" + (suppressCodeFallback ? " and code-fallback" : "") + "...", 2);
     // Go through the XPaths, filter out aliases, then copy to the new CLDRFile
     String path = null;
     paths: for (Iterator<String> fileIter = cldrFile.iterator("", CLDRFile.ldmlComparator); fileIter
@@ -341,6 +342,9 @@ public class CldrResolver {
       debugPrintln("Path: " + path, 5);
       if (path.endsWith("/alias")) {
         debugPrintln("  This path is an alias.  Dropping...", 5);
+        continue paths;
+      } else if (suppressCodeFallback && cldrFile.getSourceLocaleID(path, null).equals(CODE_FALLBACK)) {
+        debugPrintln("  This path is in code-fallback.  Dropping...", 5);
         continue paths;
       } else {
         String value = cldrFile.getStringValue(path);
