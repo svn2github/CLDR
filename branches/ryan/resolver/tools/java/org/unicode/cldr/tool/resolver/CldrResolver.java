@@ -102,7 +102,7 @@ public class CldrResolver {
     }
     
     CldrResolver resolver =
-        new CldrResolver("/usr/local/google/users/ryanmentley/cldr-git-svn/trunk/common/main");
+        new CldrResolver("/usr/local/google/users/ryanmentley/cldr/trunk/common/main");
     resolver.resolve(localeRegex, "/usr/local/google/users/ryanmentley/cldrtest", resolutionType);
     debugPrintln("Execution complete.", 3);
   }
@@ -191,29 +191,32 @@ public class CldrResolver {
 
         // Go through the XPaths, filter out aliases and inherited values,
         // then copy to the new CLDRFile.
-        debugPrintln("Filtering against parent locale " + parentLocale + " (real parent: " + realParent + ")...", 2);
+        debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: " + realParent + ")...", 2);
         Set<String> basePaths = new HashSet<String>();
-        String path = null;
+        String distinguishedPath = null;
+        String fullPath = null;
         paths: for (Iterator<String> baseIter = base.iterator("", CLDRFile.ldmlComparator); baseIter
             .hasNext();) {
-          path = baseIter.next();
-          basePaths.add(path);
-          debugPrintln("Path: " + path, 5);
-          if (path.equals("//ldml/alias")) {
+          distinguishedPath = baseIter.next();
+          fullPath = base.getFullXPath(distinguishedPath);
+          basePaths.add(distinguishedPath);
+          debugPrintln("Distinguished path: " + distinguishedPath, 5);
+          debugPrintln("Full path: " + fullPath, 5);
+          if (distinguishedPath.equals("//ldml/alias")) {
             // If the entire locale is an alias, we don't output a file. Such
             // locales have an element at the XPath //ldml/alias
             // This appears to be obsolete with CLDR 2.0
             debugPrintln("Entire-locale alias found.  Skipping...\n", 2);
             continue locales;
-          } else if (path.endsWith("/alias")) {
+          } else if (distinguishedPath.endsWith("/alias")) {
             // Ignore any aliases.
             debugPrintln("This path is an alias.  Dropping...", 5);
             continue paths;
           }
 
-          String parentValue = truncationParent.getStringValue(path);
+          String parentValue = truncationParent.getStringValue(distinguishedPath);
           debugPrintln("    Parent [" + parentLocale + "] value : " + strRep(parentValue), 5);
-          String baseValue = base.getStringValue(path);
+          String baseValue = base.getStringValue(distinguishedPath);
           debugPrintln("    Base [" + locale + "] value: " + strRep(baseValue), 5);
           if (baseValue == null && parentValue != null) {
             // This catches (and ignores) weirdness caused by aliases in older
@@ -229,18 +232,22 @@ public class CldrResolver {
            * the values aren't equal, add it to the resolved file.
            */
           if (resolutionType == ResolutionType.FULL ||
-              (resolutionType == ResolutionType.NO_CODE_FALLBACK && !base.getSourceLocaleID(path, null).equals(CODE_FALLBACK)) ||
+              (resolutionType == ResolutionType.NO_CODE_FALLBACK && !base.getSourceLocaleID(distinguishedPath, null).equals(CODE_FALLBACK)) ||
               !areEqual(parentValue, baseValue)) {
             debugPrintln("  Adding to resolved file.", 5);
-            resolved.add(path, baseValue);
+            resolved.add(fullPath, baseValue);
           }
         }
+        // Add undefined values for anything in the parent but not the child
         debugPrintln("Checking values in " + base.getLocaleID(), 3);
         for (Iterator<String> parentIter = truncationParent.iterator("", CLDRFile.ldmlComparator); parentIter
             .hasNext();) {
-          path = parentIter.next();
-          if (!basePaths.contains(path)) {
-            resolved.add(path, UNDEFINED);
+          distinguishedPath = parentIter.next();
+          // Do the comparison with distinguished paths to prevent errors
+          // resulting from duplicate full paths but the same distinguished path
+          if (!basePaths.contains(distinguishedPath)) {
+            // Then add the full path
+            resolved.add(fullPath, UNDEFINED);
           }
         }
 
@@ -348,7 +355,8 @@ public class CldrResolver {
         continue paths;
       } else {
         String value = cldrFile.getStringValue(path);
-        partiallyResolved.add(path, value);
+        String fullPath = cldrFile.getFullXPath(path);
+        partiallyResolved.add(fullPath, value);
       }
     }
     return partiallyResolved;

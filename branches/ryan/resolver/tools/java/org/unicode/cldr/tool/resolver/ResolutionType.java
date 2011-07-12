@@ -33,8 +33,8 @@ public enum ResolutionType {
   private static final List<String> FULLY_RESOLVED = Arrays.asList(FULLY_RESOLVED_ARR);
 
   /* Fully-resolved inheritance model with code-fallback suppressed names */
-  private static final String[] FULLY_RESOLVED_WITHOUT_CODE_FALLBACK_ARR = {"n", "nocodefallback",
-      "nocode", "no-code", "no-code-fallback"};
+  private static final String[] FULLY_RESOLVED_WITHOUT_CODE_FALLBACK_ARR = {"n", "nc",
+      "nocodefallback", "nocode", "no-code", "no-code-fallback"};
   /**
    * A list of resolve types that will result in the fully-resolved inheritance
    * model with code-fallback suppressed
