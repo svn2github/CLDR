@@ -16,8 +16,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Class designed for the resolution of CLDR XML Files (e.g., removing
- * aliases but leaving the inheritance structure intact).
+ * Class designed for the resolution of CLDR XML Files (e.g., removing aliases
+ * but leaving the inheritance structure intact).
  * 
  * Instances of this class are not thread-safe. Any attempts to use an object of
  * this class in multiple threads must be externally synchronized.
@@ -31,13 +31,13 @@ public class CldrResolver {
    * will flood your terminal.
    */
   private static final int VERBOSITY = 2;
-  
+
   /**
    * The value that denotes a non-existant value in the child that exists in the
    * truncation parent
    */
   private static final String UNDEFINED = "\uFFFDNO_VALUE\uFFFD";
-  
+
   /**
    * The name of the code-fallback locale
    */
@@ -47,34 +47,27 @@ public class CldrResolver {
   private static final UOption LOCALE = UOption.create("locale", 'l', UOption.REQUIRES_ARG);
   private static final UOption DESTDIR = UOption.DESTDIR();
   private static final UOption SOURCEDIR = UOption.SOURCEDIR();
-  private static final UOption RESOLUTION_TYPE = UOption.create("resolutiontype", 'r', UOption.REQUIRES_ARG);
+  private static final UOption RESOLUTION_TYPE = UOption.create("resolutiontype", 'r',
+      UOption.REQUIRES_ARG);
   private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE};
-  
+
   /**
-   * This list is not used for anything practical, just for test cases for weird ones.
+   * This list is not used for anything practical, just for test cases for weird
+   * ones.
    */
   private static final String[] weirdCasesArray = { // Parent is root
-                                               "az_Cyrl", "ha_Arab", "ku_Latn",
-                                               "mn_Mong", "pa_Arab", "shi_Tfng",
-                                               "sr_Latn", "uz_Arab", "uz_Latn",
-                                               "vai_Latn", "zh_Hant",
-                                               // Parent is es_419
-                                               "es_AR", "es_BO", "es_CL",
-                                               "es_CO", "es_CR", "es_DO",
-                                               "es_EC", "es_GT", "es_HN",
-                                               "es_MX", "es_NI", "es_PA",
-                                               "es_PE", "es_PR", "es_PY",
-                                               "es_SV", "es_US", "es_UY",
-                                               "es_VE",
-                                               // Parent is pt_PT
-                                               "pt_AO", "pt_GW", "pt_MZ",
-                                               "pt_ST",
-                                               // Things I need
-                                               "root", "az",
-                                               // Non-weird cases
-                                               "en", "en_AU", "de_DE", "de", "de_AT"
-  };
-  private static final java.util.List<String> weirdCases = Arrays.asList(weirdCasesArray); 
+      "az_Cyrl", "ha_Arab", "ku_Latn", "mn_Mong", "pa_Arab", "shi_Tfng", "sr_Latn", "uz_Arab",
+          "uz_Latn", "vai_Latn", "zh_Hant",
+          // Parent is es_419
+          "es_AR", "es_BO", "es_CL", "es_CO", "es_CR", "es_DO", "es_EC", "es_GT", "es_HN", "es_MX",
+          "es_NI", "es_PA", "es_PE", "es_PR", "es_PY", "es_SV", "es_US", "es_UY", "es_VE",
+          // Parent is pt_PT
+          "pt_AO", "pt_GW", "pt_MZ", "pt_ST",
+          // Things I need
+          "root", "az",
+          // Non-weird cases
+          "en", "en_AU", "de_DE", "de", "de_AT"};
+  private static final java.util.List<String> weirdCases = Arrays.asList(weirdCasesArray);
 
   /* Private instance variables */
   Factory cldrFactory;
@@ -82,11 +75,11 @@ public class CldrResolver {
   public static void main(String[] args) {
     debugPrintln("Working directory is: " + System.getProperty("user.dir") + "\n", 2);
     UOption.parseArgs(args, options);
-    
+
     // Defaults
     ResolutionType resolutionType = ResolutionType.SIMPLE;
     String localeRegex = ".*";
-    
+
     // Parse the options
     if (RESOLUTION_TYPE.doesOccur) {
       try {
@@ -96,11 +89,11 @@ public class CldrResolver {
         System.out.println("Using default resolution type " + resolutionType.toString());
       }
     }
-    
+
     if (LOCALE.doesOccur) {
       localeRegex = LOCALE.value;
     }
-    
+
     CldrResolver resolver =
         new CldrResolver("/usr/local/google/users/ryanmentley/cldr/trunk/common/main");
     resolver.resolve(localeRegex, "/usr/local/google/users/ryanmentley/cldrtest", resolutionType);
@@ -126,14 +119,14 @@ public class CldrResolver {
   }
 
   /**
-   * Resolves all locales that match the given regular expression and
-   * outputs their XML files to the given directory.
+   * Resolves all locales that match the given regular expression and outputs
+   * their XML files to the given directory.
    * 
    * @param localeRegex a regular expression that will be matched against the
    *        names of locales
    * @param outputDir the directory to which to output the partially-resolved
    *        XML files
-   * @param resolutionType the type of resolution to perform 
+   * @param resolutionType the type of resolution to perform
    * @throws IllegalArgumentException if outputDir is not a directory
    */
   public void resolve(String localeRegex, File outputDir, ResolutionType resolutionType) {
@@ -148,12 +141,12 @@ public class CldrResolver {
     // Iterate through all the locales
     locales: for (Iterator<String> localeIter = locales.iterator(); localeIter.hasNext();) {
       String locale = localeIter.next();
-//      if (!weirdCases.contains(locale)) {
-//        continue locales;
-//      }
-//      if (!locale.equals("ku_Latn")) {
-//        continue locales;
-//      }
+      // if (!weirdCases.contains(locale)) {
+      // continue locales;
+      // }
+      // if (!locale.equals("ku_Latn")) {
+      // continue locales;
+      // }
       // Check if the locale name matches the regex
       if (!locale.matches(localeRegex)) {
         debugPrintln("Locale " + locale + "does not match the pattern.  Skipping...\n", 4);
@@ -172,7 +165,8 @@ public class CldrResolver {
         debugPrintln("Locale is root.", 3);
 
         // Remove aliases from root.
-        CLDRFile rootWithoutAliases = removeAliases(base, resolutionType == ResolutionType.NO_CODE_FALLBACK);
+        CLDRFile rootWithoutAliases =
+            removeAliases(base, resolutionType == ResolutionType.NO_CODE_FALLBACK);
         printToFile(rootWithoutAliases, outputDir);
       } else {
         // Make parent file
@@ -180,18 +174,18 @@ public class CldrResolver {
         String parentLocale = LanguageTagParser.getParent(locale);
         CLDRFile truncationParent = cldrFactory.make(parentLocale, true);
         String realParent = CLDRFile.getParent(locale);
-        
-        
+
+
         // Create empty file to hold (partially or fully) resolved data
         debugPrint("Creating empty CLDR file to store resolved data...", 3);
         // False/unresolved because it needs to be mutable.
-        CLDRFile resolved =
-            new CLDRFile(new CLDRFile.SimpleXMLSource(null, locale), false);
+        CLDRFile resolved = new CLDRFile(new CLDRFile.SimpleXMLSource(null, locale), false);
         debugPrintln("done.", 3);
 
         // Go through the XPaths, filter out aliases and inherited values,
         // then copy to the new CLDRFile.
-        debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: " + realParent + ")...", 2);
+        debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: "
+            + realParent + ")...", 2);
         Set<String> basePaths = new HashSet<String>();
         String distinguishedPath = null;
         String fullPath = null;
@@ -231,9 +225,10 @@ public class CldrResolver {
            * suppression is enabled, if the value is not from code-fallback) or
            * the values aren't equal, add it to the resolved file.
            */
-          if (resolutionType == ResolutionType.FULL ||
-              (resolutionType == ResolutionType.NO_CODE_FALLBACK && !base.getSourceLocaleID(distinguishedPath, null).equals(CODE_FALLBACK)) ||
-              !areEqual(parentValue, baseValue)) {
+          if (resolutionType == ResolutionType.FULL
+              || (resolutionType == ResolutionType.NO_CODE_FALLBACK && !base.getSourceLocaleID(
+                  distinguishedPath, null).equals(CODE_FALLBACK))
+              || !areEqual(parentValue, baseValue)) {
             debugPrintln("  Adding to resolved file.", 5);
             resolved.add(fullPath, baseValue);
           }
@@ -273,8 +268,8 @@ public class CldrResolver {
   }
 
   /**
-   * Resolves all locales that match the given regular expression and
-   * outputs their XML files to the given directory.
+   * Resolves all locales that match the given regular expression and outputs
+   * their XML files to the given directory.
    * 
    * @param localeRegex a regular expression that will be matched against the
    *        names of locales
@@ -286,7 +281,7 @@ public class CldrResolver {
   public void resolve(String localeRegex, String outputDir, ResolutionType resolutionType) {
     resolve(localeRegex, new File(outputDir), resolutionType);
   }
-  
+
   /**
    * Resolves (using the simple inheritance model) all locales that match the
    * given regular expression and outputs their XML files to the given
@@ -301,7 +296,7 @@ public class CldrResolver {
   public void resolve(String localeRegex, File outputDir) {
     resolve(localeRegex, outputDir, ResolutionType.SIMPLE);
   }
-  
+
   /**
    * Writes out the given CLDRFile in XML form to the given directory
    * 
@@ -311,7 +306,8 @@ public class CldrResolver {
   private static void printToFile(CLDRFile cldrFile, File directory) {
     debugPrint("Printing file...", 2);
     try {
-      PrintWriter pw = new PrintWriter(new File(directory, cldrFile.getLocaleID() + ".xml"), "UTF-8");
+      PrintWriter pw =
+          new PrintWriter(new File(directory, cldrFile.getLocaleID() + ".xml"), "UTF-8");
       cldrFile.write(pw);
       pw.close();
       debugPrintln("done.\n", 2);
@@ -333,7 +329,8 @@ public class CldrResolver {
    * through for other locales.
    * 
    * @param cldrFile the CLDRFile whose aliases to remove
-   * @param suppressCodeFallback if true, entries from code-fallback will be suppressed as well
+   * @param suppressCodeFallback if true, entries from code-fallback will be
+   *        suppressed as well
    * @return a copy of cldrFile with aliases removed
    */
   private static CLDRFile removeAliases(CLDRFile cldrFile, boolean suppressCodeFallback) {
@@ -350,7 +347,8 @@ public class CldrResolver {
       if (path.endsWith("/alias")) {
         debugPrintln("  This path is an alias.  Dropping...", 5);
         continue paths;
-      } else if (suppressCodeFallback && cldrFile.getSourceLocaleID(path, null).equals(CODE_FALLBACK)) {
+      } else if (suppressCodeFallback
+          && cldrFile.getSourceLocaleID(path, null).equals(CODE_FALLBACK)) {
         debugPrintln("  This path is in code-fallback.  Dropping...", 5);
         continue paths;
       } else {
