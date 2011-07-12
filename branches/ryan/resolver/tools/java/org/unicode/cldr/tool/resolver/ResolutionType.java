@@ -59,7 +59,7 @@ public enum ResolutionType {
     } else if (FULLY_RESOLVED_WITHOUT_CODE_FALLBACK.contains(str)) {
       return NO_CODE_FALLBACK;
     } else {
-      throw new IllegalArgumentException("\"" + str + " is not a known type of resolution.");
+      throw new IllegalArgumentException("\"" + str + "\" is not a known type of resolution.");
     }
   }
 }
