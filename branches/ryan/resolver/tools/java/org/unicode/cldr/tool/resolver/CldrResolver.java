@@ -25,7 +25,7 @@ import java.util.Set;
  * @author ryanmentley@google.com (Ryan Mentley)
  * 
  */
-class CldrResolver {
+public class CldrResolver {
   /**
    * Output level from 0-5. 0 is nothing, 1 is errors, 2-3 is pretty sane, 5
    * will flood your terminal.
@@ -37,24 +37,18 @@ class CldrResolver {
    * truncation parent
    */
   private static final String UNDEFINED = "\uFFFDNO_VALUE\uFFFD";
-
-  /*
-   * Constants to sanely identify UOptions. Unfortunately there's not really a
-   * "good" way of doing this.
+  
+  /**
+   * The name of the code-fallback locale
    */
-  private static final int LOCALE = 0;
-  private static final int DESTDIR = 1;
-  private static final int FULLY_RESOLVE = 2;
-  private static final int SOURCEDIR = 3;
-  private static final int NO_CODE_FALLBACK = 4;
+  private static final String CODE_FALLBACK = "code-fallback";
 
-  /* And then the UOptions themselves, along with a storage container. */
-  private static final UOption LOCALE_OPTION = UOption.create("locale", 'l', UOption.REQUIRES_ARG);
-  private static final UOption DESTDIR_OPTION = UOption.DESTDIR();
-  private static final UOption FULLY_RESOLVE_OPTION = UOption.create("full", 'f', UOption.NO_ARG);
-  private static final UOption SOURCEDIR_OPTION = UOption.SOURCEDIR();
-  private static final UOption NO_CODE_FALLBACK_OPTION = UOption.create("nocodefallback", 'c', UOption.NO_ARG);
-  private static final UOption[] options = {LOCALE_OPTION, DESTDIR_OPTION, FULLY_RESOLVE_OPTION, SOURCEDIR_OPTION, NO_CODE_FALLBACK_OPTION};
+  /* The command-line UOptions, along with a storage container. */
+  private static final UOption LOCALE = UOption.create("locale", 'l', UOption.REQUIRES_ARG);
+  private static final UOption DESTDIR = UOption.DESTDIR();
+  private static final UOption SOURCEDIR = UOption.SOURCEDIR();
+  private static final UOption RESOLUTION_TYPE = UOption.create("resolutiontype", 'r', UOption.REQUIRES_ARG);
+  private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE};
   
   /**
    * This list is not used for anything practical, just for test cases for weird ones.
@@ -90,16 +84,26 @@ class CldrResolver {
     UOption.parseArgs(args, options);
     
     // Defaults
-    boolean fullyResolve;
+    ResolutionType resolutionType = ResolutionType.SIMPLE;
+    String localeRegex = ".*";
     
-    if (FULLY_RESOLVE_OPTION.doesOccur) {
-      fullyResolve = true;
-    } else {
-      fullyResolve = false;
+    // Parse the options
+    if (RESOLUTION_TYPE.doesOccur) {
+      try {
+        resolutionType = ResolutionType.forString(RESOLUTION_TYPE.value);
+      } catch (IllegalArgumentException e) {
+        System.out.println("Error: " + e.getMessage());
+        System.out.println("Using default resolution type " + resolutionType.toString());
+      }
     }
+    
+    if (LOCALE.doesOccur) {
+      localeRegex = LOCALE.value;
+    }
+    
     CldrResolver resolver =
         new CldrResolver("/usr/local/google/users/ryanmentley/cldr-git-svn/trunk/common/main");
-    resolver.resolve("de.*", "/usr/local/google/users/ryanmentley/cldrtest", fullyResolve);
+    resolver.resolve(localeRegex, "/usr/local/google/users/ryanmentley/cldrtest", resolutionType);
     debugPrintln("Execution complete.", 3);
   }
 
@@ -122,17 +126,17 @@ class CldrResolver {
   }
 
   /**
-   * Partially resolves all locales that match the given regular expression and
+   * Resolves all locales that match the given regular expression and
    * outputs their XML files to the given directory.
    * 
    * @param localeRegex a regular expression that will be matched against the
    *        names of locales
    * @param outputDir the directory to which to output the partially-resolved
    *        XML files
-   * @param fullyResolved false to partially resolve; true to fully resolve 
+   * @param resolutionType the type of resolution to perform 
    * @throws IllegalArgumentException if outputDir is not a directory
    */
-  public void resolve(String localeRegex, File outputDir, boolean fullyResolved) {
+  public void resolve(String localeRegex, File outputDir, ResolutionType resolutionType) {
     if (!outputDir.isDirectory()) {
       throw new IllegalArgumentException(outputDir.getPath() + " is not a directory");
     }
@@ -219,9 +223,14 @@ class CldrResolver {
                 + " of CLDR 2.0.0 or newer, this is cause for concern.", 1);
             continue paths;
           }
-          // If we're fully resolving the locale or the values aren't equal, add it to the resolved
-          // file.
-          if (fullyResolved || !areEqual(parentValue, baseValue)) {
+          /*
+           * If we're fully resolving the locale (and, if code-fallback
+           * suppression is enabled, if the value is not from code-fallback) or
+           * the values aren't equal, add it to the resolved file.
+           */
+          if (resolutionType == ResolutionType.FULL ||
+              (resolutionType == ResolutionType.NO_CODE_FALLBACK && base.getSourceLocaleID(path, null).equals(CODE_FALLBACK)) ||
+              !areEqual(parentValue, baseValue)) {
             debugPrintln("  Adding to resolved file.", 5);
             resolved.add(path, baseValue);
           }
@@ -231,11 +240,6 @@ class CldrResolver {
             .hasNext();) {
           path = parentIter.next();
           if (!basePaths.contains(path)) {
-//            String baseValue = base.getStringValue(path);
-//            if (baseValue != null) {
-//              debugPrintln("That dun work either: " + path + " - " + strRep(baseValue), 1);
-//              debugPrintln("Found in: " + base.getSourceLocaleID(path, null), 1);
-//            }
             resolved.add(path, UNDEFINED);
           }
         }
@@ -247,8 +251,9 @@ class CldrResolver {
   }
 
   /**
-   * Partially resolves all locales that match the given regular expression and
-   * outputs their XML files to the given directory.
+   * Resolves (using the simple inheritance model) all locales that match the
+   * given regular expression and outputs their XML files to the given
+   * directory.
    * 
    * @param localeRegex a regular expression that will be matched against the
    *        names of locales
@@ -257,27 +262,28 @@ class CldrResolver {
    * @throws IllegalArgumentException if outputDir is not a directory
    */
   public void resolve(String localeRegex, String outputDir) {
-    resolve(localeRegex, outputDir, false);
+    resolve(localeRegex, outputDir, ResolutionType.SIMPLE);
   }
 
   /**
-   * Partially resolves all locales that match the given regular expression and
+   * Resolves all locales that match the given regular expression and
    * outputs their XML files to the given directory.
    * 
    * @param localeRegex a regular expression that will be matched against the
    *        names of locales
    * @param outputDir the directory to which to output the partially-resolved
    *        XML files
-   * @param fullyResolved false to partially resolve; true to fully resolve
+   * @param resolutionType the type of resolution to perform
    * @throws IllegalArgumentException if outputDir is not a directory
    */
-  public void resolve(String localeRegex, String outputDir, boolean fullyResolved) {
-    resolve(localeRegex, new File(outputDir), fullyResolved);
+  public void resolve(String localeRegex, String outputDir, ResolutionType resolutionType) {
+    resolve(localeRegex, new File(outputDir), resolutionType);
   }
   
   /**
-   * Partially resolves all locales that match the given regular expression and
-   * outputs their XML files to the given directory.
+   * Resolves (using the simple inheritance model) all locales that match the
+   * given regular expression and outputs their XML files to the given
+   * directory.
    * 
    * @param localeRegex a regular expression that will be matched against the
    *        names of locales
@@ -286,10 +292,15 @@ class CldrResolver {
    * @throws IllegalArgumentException if outputDir is not a directory
    */
   public void resolve(String localeRegex, File outputDir) {
-    resolve(localeRegex, outputDir, false);
+    resolve(localeRegex, outputDir, ResolutionType.SIMPLE);
   }
   
-  
+  /**
+   * Writes out the given CLDRFile in XML form to the given directory
+   * 
+   * @param cldrFile the CLDRFile to print to XML
+   * @param directory the directory to which to add the file
+   */
   private static void printToFile(CLDRFile cldrFile, File directory) {
     debugPrint("Printing file...", 2);
     try {
