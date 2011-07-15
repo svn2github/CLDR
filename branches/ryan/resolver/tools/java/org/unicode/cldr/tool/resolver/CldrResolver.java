@@ -3,6 +3,7 @@ package org.unicode.cldr.tool.resolver;
 import com.ibm.icu.dev.tool.UOption;
 
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
 
@@ -79,6 +80,9 @@ public class CldrResolver {
     // Defaults
     ResolutionType resolutionType = ResolutionType.SIMPLE;
     String localeRegex = ".*";
+    // TODO(ryanmentley): Make these not the defaults
+    String srcDir = "/usr/local/google/users/ryanmentley/cldr/trunk/common/main";
+    String destDir = "/usr/local/google/users/ryanmentley/cldrtest";
 
     // Parse the options
     if (RESOLUTION_TYPE.doesOccur) {
@@ -93,10 +97,18 @@ public class CldrResolver {
     if (LOCALE.doesOccur) {
       localeRegex = LOCALE.value;
     }
+    
+    if (SOURCEDIR.doesOccur) {
+      srcDir = SOURCEDIR.value;
+    }
+    
+    if (DESTDIR.doesOccur) {
+      destDir = DESTDIR.value;
+    }
 
     CldrResolver resolver =
-        new CldrResolver("/usr/local/google/users/ryanmentley/cldr/trunk/common/main");
-    resolver.resolve(localeRegex, "/usr/local/google/users/ryanmentley/cldrtest", resolutionType);
+        new CldrResolver(srcDir);
+    resolver.resolve(localeRegex, destDir, resolutionType);
     debugPrintln("Execution complete.", 3);
   }
 
@@ -115,6 +127,16 @@ public class CldrResolver {
      * files that don't match the regex
      */
     cldrFactory = Factory.make(cldrDirectory, ".*");
+    debugPrintln("Factory made.\n", 3);
+  }
+  
+  public CldrResolver(String cldrDirectory, DraftStatus minimumDraftStatus) {
+    debugPrintln("Making factory with minimum draft status " + minimumDraftStatus.toString() + "...", 3);
+    /*
+     * We don't do the regex filter here so that we can still resolve parent
+     * files that don't match the regex
+     */
+    cldrFactory = Factory.make(cldrDirectory, ".*", minimumDraftStatus);
     debugPrintln("Factory made.\n", 3);
   }
 
