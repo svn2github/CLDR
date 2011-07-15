@@ -51,7 +51,8 @@ public class CldrResolver {
   private static final UOption SOURCEDIR = UOption.SOURCEDIR();
   private static final UOption RESOLUTION_TYPE = UOption.create("resolutiontype", 'r',
       UOption.REQUIRES_ARG);
-  private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE};
+  private static final UOption DRAFT_STATUS = UOption.create("mindraftstatus", 'd', UOption.REQUIRES_ARG);
+  private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE, DRAFT_STATUS};
 
   /**
    * This list is not used for anything practical, just for test cases for weird
@@ -90,7 +91,7 @@ public class CldrResolver {
       try {
         resolutionType = ResolutionType.forString(RESOLUTION_TYPE.value);
       } catch (IllegalArgumentException e) {
-        System.out.println("Error: " + e.getMessage());
+        System.out.println("Warning: " + e.getMessage());
         System.out.println("Using default resolution type " + resolutionType.toString());
       }
     }
@@ -107,8 +108,24 @@ public class CldrResolver {
       destDir = DESTDIR.value;
     }
 
-    CldrResolver resolver =
-        new CldrResolver(srcDir);
+    CldrResolver resolver = null;
+    if (DRAFT_STATUS.doesOccur) {
+      DraftStatus minDraftStatus = draftStatusFromString(DRAFT_STATUS.value);
+      if (minDraftStatus == null) {
+        // TODO(ryanmentley): List recognized draft statuses?
+        System.out.println("Warning: " + DRAFT_STATUS.value + " is not a recognized draft status.");
+        
+        // This default is defined in the internals of CLDRFile, so we don't output it here
+        System.out.println("Using default draft status");
+      } else {
+        resolver = new CldrResolver(srcDir, minDraftStatus);
+      }
+    }
+    
+    if (resolver == null) {
+      resolver = new CldrResolver(srcDir);
+    }
+    
     resolver.resolve(localeRegex, destDir, resolutionType);
     debugPrintln("Execution complete.", 3);
   }
@@ -384,19 +401,25 @@ public class CldrResolver {
   }
   
   /**
-   * Resolves a string to a draft status enum object, or null if the 
+   * Resolves a string to a draft status enum object. The resolution is
+   * performed by selecting a value from the DraftStatus enum that starts with
+   * or is equivalent to the given string (case-insensitive), as long as it is
+   * the only DraftStatus that does so.
    * 
    * @param str the string to resolve
-   * @return an object of type CLDRFile.DraftStatus, or null if the string cannot be unambiguously
-   * resolved to a DraftStatus
+   * @return an object of type CLDRFile.DraftStatus, or null if the string
+   *         cannot be unambiguously resolved to a DraftStatus
    */
   private static DraftStatus draftStatusFromString(String str) {
     DraftStatus value = null;
+    str = str.toLowerCase(Locale.ENGLISH);
     for (DraftStatus status : DraftStatus.values()) {
       if (status.toString().toLowerCase(Locale.ENGLISH).startsWith(str)) {
         if (value == null) {
+          // This is the first time we've found a DraftStatus that matches
           value = status;
         } else {
+          // This string is ambiguous - two DraftStatus names start with it 
           value = null;
           break;
         }
