@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -380,6 +381,28 @@ public class CldrResolver {
       }
     }
     return partiallyResolved;
+  }
+  
+  /**
+   * Resolves a string to a draft status enum object, or null if the 
+   * 
+   * @param str the string to resolve
+   * @return an object of type CLDRFile.DraftStatus, or null if the string cannot be unambiguously
+   * resolved to a DraftStatus
+   */
+  private static DraftStatus draftStatusFromString(String str) {
+    DraftStatus value = null;
+    for (DraftStatus status : DraftStatus.values()) {
+      if (status.toString().toLowerCase(Locale.ENGLISH).startsWith(str)) {
+        if (value == null) {
+          value = status;
+        } else {
+          value = null;
+          break;
+        }
+      }
+    }
+    return value;
   }
 
   /**
