@@ -206,7 +206,7 @@ public class CldrResolver {
 
         // Remove aliases from root.
         CLDRFile rootWithoutAliases =
-            removeAliases(base, resolutionType == ResolutionType.NO_CODE_FALLBACK);
+            removeAliases(base, resolutionType);
         printToFile(rootWithoutAliases, outputDir);
       } else {
         // Make parent file
@@ -270,19 +270,23 @@ public class CldrResolver {
                   distinguishedPath, null).equals(CODE_FALLBACK))
               || !areEqual(parentValue, baseValue)) {
             debugPrintln("  Adding to resolved file.", 5);
-            resolved.add(fullPath, baseValue);
+            // Suppress non-distinguishing attributes in simple inheritance 
+            resolved.add((resolutionType == ResolutionType.SIMPLE ? distinguishedPath : fullPath), baseValue);
           }
         }
-        // Add undefined values for anything in the parent but not the child
-        debugPrintln("Checking values in " + base.getLocaleID(), 3);
-        for (Iterator<String> parentIter = truncationParent.iterator("", CLDRFile.ldmlComparator); parentIter
-            .hasNext();) {
-          distinguishedPath = parentIter.next();
-          // Do the comparison with distinguished paths to prevent errors
-          // resulting from duplicate full paths but the same distinguished path
-          if (!basePaths.contains(distinguishedPath)) {
-            // Then add the full path
-            resolved.add(fullPath, UNDEFINED);
+        
+        // The undefined value is only needed for the simple inheritance resolution
+        if (resolutionType == ResolutionType.SIMPLE) {
+          // Add undefined values for anything in the parent but not the child
+          debugPrintln("Checking values in " + base.getLocaleID(), 3);
+          for (Iterator<String> parentIter = truncationParent.iterator("", CLDRFile.ldmlComparator); parentIter
+              .hasNext();) {
+            distinguishedPath = parentIter.next();
+            // Do the comparison with distinguished paths to prevent errors
+            // resulting from duplicate full paths but the same distinguished path
+            if (!basePaths.contains(distinguishedPath)) {
+              resolved.add(distinguishedPath, UNDEFINED);
+            }
           }
         }
 
@@ -369,32 +373,37 @@ public class CldrResolver {
    * through for other locales.
    * 
    * @param cldrFile the CLDRFile whose aliases to remove
-   * @param suppressCodeFallback if true, entries from code-fallback will be
-   *        suppressed as well
+   * @param resolutionType the type of resolution to use when processing the file
    * @return a copy of cldrFile with aliases removed
    */
-  private static CLDRFile removeAliases(CLDRFile cldrFile, boolean suppressCodeFallback) {
+  private static CLDRFile removeAliases(CLDRFile cldrFile, ResolutionType resolutionType) {
     // False/unresolved because it needs to be mutable
     CLDRFile partiallyResolved =
         new CLDRFile(new CLDRFile.SimpleXMLSource(null, cldrFile.getLocaleID()), false);
-    debugPrintln("Removing aliases" + (suppressCodeFallback ? " and code-fallback" : "") + "...", 2);
+    debugPrintln("Removing aliases" + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "") + "...", 2);
     // Go through the XPaths, filter out aliases, then copy to the new CLDRFile
-    String path = null;
+    String distinguishedPath = null;
     paths: for (Iterator<String> fileIter = cldrFile.iterator("", CLDRFile.ldmlComparator); fileIter
         .hasNext();) {
-      path = fileIter.next();
-      debugPrintln("Path: " + path, 5);
-      if (path.endsWith("/alias")) {
+      distinguishedPath = fileIter.next();
+      debugPrintln("Path: " + distinguishedPath, 5);
+      if (distinguishedPath.endsWith("/alias")) {
         debugPrintln("  This path is an alias.  Dropping...", 5);
         continue paths;
-      } else if (suppressCodeFallback
-          && cldrFile.getSourceLocaleID(path, null).equals(CODE_FALLBACK)) {
+      } else if (resolutionType == ResolutionType.NO_CODE_FALLBACK
+          && cldrFile.getSourceLocaleID(distinguishedPath, null).equals(CODE_FALLBACK)) {
         debugPrintln("  This path is in code-fallback.  Dropping...", 5);
         continue paths;
       } else {
-        String value = cldrFile.getStringValue(path);
-        String fullPath = cldrFile.getFullXPath(path);
-        partiallyResolved.add(fullPath, value);
+        String value = cldrFile.getStringValue(distinguishedPath);
+        if (resolutionType == ResolutionType.SIMPLE) {
+          // Distinguished attributes only for simple inheritance model
+          partiallyResolved.add(distinguishedPath, value);
+        } else {
+          // Full attributes for everything else
+          String fullPath = cldrFile.getFullXPath(distinguishedPath);
+          partiallyResolved.add(fullPath, value);
+        }
       }
     }
     return partiallyResolved;
