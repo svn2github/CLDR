@@ -51,7 +51,7 @@ public class CldrResolver {
   private static final UOption SOURCEDIR = UOption.SOURCEDIR();
   private static final UOption RESOLUTION_TYPE = UOption.create("resolutiontype", 'r',
       UOption.REQUIRES_ARG);
-  private static final UOption DRAFT_STATUS = UOption.create("mindraftstatus", 'd', UOption.REQUIRES_ARG);
+  private static final UOption DRAFT_STATUS = UOption.create("mindraftstatus", 'm', UOption.REQUIRES_ARG);
   private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE, DRAFT_STATUS};
 
   /**
@@ -114,17 +114,25 @@ public class CldrResolver {
       if (minDraftStatus == null) {
         // TODO(ryanmentley): List recognized draft statuses?
         System.out.println("Warning: " + DRAFT_STATUS.value + " is not a recognized draft status.");
-        
         // This default is defined in the internals of CLDRFile, so we don't output it here
         System.out.println("Using default draft status");
       } else {
+        debugPrintln("\nMinimum draft status: " + minDraftStatus.toString(), 2);
         resolver = new CldrResolver(srcDir, minDraftStatus);
       }
+    } else {
+      debugPrintln("\nMinimum draft status: default", 2);
     }
     
     if (resolver == null) {
       resolver = new CldrResolver(srcDir);
     }
+    
+    // Print out the options other than draft status (which has already been printed)
+    debugPrintln("Locale regular expression: " + localeRegex + "\"", 2);
+    debugPrintln("Source (CLDR common/main) directory: \"" + srcDir + "\"", 2);
+    debugPrintln("Destination (resolved output) directory: \"" + destDir + "\"", 2);
+    debugPrintln("Resolution type: " + resolutionType.toString(), 2);
     
     resolver.resolve(localeRegex, destDir, resolutionType);
     debugPrintln("Execution complete.", 3);
