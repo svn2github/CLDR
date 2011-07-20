@@ -217,12 +217,16 @@ public class CldrResolver {
             removeAliases(base, resolutionType);
         printToFile(rootWithoutAliases, outputDir);
       } else {
-        // Make parent file
-        debugPrintln("Making parent file by truncation...", 3);
-        String parentLocale = LanguageTagParser.getParent(locale);
-        CLDRFile truncationParent = cldrFactory.make(parentLocale, true);
-        String realParent = CLDRFile.getParent(locale);
-
+        String parentLocale = null;
+        CLDRFile truncationParent = null;
+        String realParent = null;
+        if (resolutionType == ResolutionType.SIMPLE) {
+          // Make parent file
+          debugPrintln("Making parent file by truncation...", 3);
+          parentLocale = LanguageTagParser.getParent(locale);
+          truncationParent = cldrFactory.make(parentLocale, true);
+          realParent = CLDRFile.getParent(locale);
+        }
 
         // Create empty file to hold (partially or fully) resolved data
         debugPrint("Creating empty CLDR file to store resolved data...", 3);
@@ -232,18 +236,29 @@ public class CldrResolver {
 
         // Go through the XPaths, filter out aliases and inherited values,
         // then copy to the new CLDRFile.
-        debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: "
-            + realParent + ")...", 2);
+        if (resolutionType == ResolutionType.SIMPLE) {
+          debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: "
+              + realParent + ")...", 2);
+        } else {
+          debugPrintln("Removing aliases"
+              + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "")
+              + "...", 2);
+        }
+
         Set<String> basePaths = new HashSet<String>();
         String distinguishedPath = null;
         String fullPath = null;
         paths: for (Iterator<String> baseIter = base.iterator("", CLDRFile.ldmlComparator); baseIter
             .hasNext();) {
           distinguishedPath = baseIter.next();
-          fullPath = base.getFullXPath(distinguishedPath);
           basePaths.add(distinguishedPath);
           debugPrintln("Distinguished path: " + distinguishedPath, 5);
-          debugPrintln("Full path: " + fullPath, 5);
+          
+          if (resolutionType == ResolutionType.FULL || resolutionType == ResolutionType.NO_CODE_FALLBACK) {
+            fullPath = base.getFullXPath(distinguishedPath);
+            debugPrintln("Full path: " + fullPath, 5);
+          }
+          
           if (distinguishedPath.equals("//ldml/alias")) {
             // If the entire locale is an alias, we don't output a file. Such
             // locales have an element at the XPath //ldml/alias
@@ -256,8 +271,11 @@ public class CldrResolver {
             continue paths;
           }
 
-          String parentValue = truncationParent.getStringValue(distinguishedPath);
-          debugPrintln("    Parent [" + parentLocale + "] value : " + strRep(parentValue), 5);
+          String parentValue = null;
+          if (resolutionType == ResolutionType.SIMPLE) {
+            parentValue = truncationParent.getStringValue(distinguishedPath);
+            debugPrintln("    Parent [" + parentLocale + "] value : " + strRep(parentValue), 5);
+          }
           String baseValue = base.getStringValue(distinguishedPath);
           debugPrintln("    Base [" + locale + "] value: " + strRep(baseValue), 5);
           if (baseValue == null && parentValue != null) {
