@@ -114,6 +114,11 @@ public class CldrResolver {
       if (minDraftStatus == null) {
         // TODO(ryanmentley): List recognized draft statuses?
         System.out.println("Warning: " + DRAFT_STATUS.value + " is not a recognized draft status.");
+        System.out.print("Recognized draft statuses:");
+        for (DraftStatus status : DraftStatus.values()) {
+          System.out.print(" " + status.toString());
+        }
+        System.out.println();
         // This default is defined in the internals of CLDRFile, so we don't output it here
         System.out.println("Using default draft status");
       } else {
@@ -201,125 +206,129 @@ public class CldrResolver {
         continue locales;
       }
 
-      debugPrintln("Processing locale " + locale + "...", 2);
+      CLDRFile resolved = resolveLocale(locale, resolutionType);
 
-      // Create CLDRFile for current (base) locale
-      debugPrintln("Making base file...", 3);
-      CLDRFile base = cldrFactory.make(locale, true);
+      // Output the file to disk
+      printToFile(resolved, outputDir);
+    }
+  }
+  
+  private CLDRFile resolveLocale(String locale, ResolutionType resolutionType) {
+    debugPrintln("Processing locale " + locale + "...", 2);
 
-      // root, having no parent, is a special case, which just gets its aliases
-      // removed and then gets printed directly.
-      if (locale.equals("root")) {
-        debugPrintln("Locale is root.", 3);
+    // Create CLDRFile for current (base) locale
+    debugPrintln("Making base file...", 3);
+    CLDRFile base = cldrFactory.make(locale, true);
+    
+    CLDRFile resolved;
 
-        // Remove aliases from root.
-        CLDRFile rootWithoutAliases =
-            removeAliases(base, resolutionType);
-        printToFile(rootWithoutAliases, outputDir);
-      } else {
-        String parentLocale = null;
-        CLDRFile truncationParent = null;
-        String realParent = null;
-        if (resolutionType == ResolutionType.SIMPLE) {
-          // Make parent file
-          debugPrintln("Making parent file by truncation...", 3);
-          parentLocale = LanguageTagParser.getParent(locale);
-          truncationParent = cldrFactory.make(parentLocale, true);
-          realParent = CLDRFile.getParent(locale);
-        }
+    // root, having no parent, is a special case, which just gets its aliases
+    // removed and then gets printed directly.
+    if (locale.equals("root")) {
+      // Remove aliases from root.
+      resolved = removeAliases(base, resolutionType);
+    } else {
+      resolved = resolveNonRootLocale(base, resolutionType);
+    }
+    
+    return resolved;
+  }
+  
+  private CLDRFile resolveNonRootLocale (CLDRFile file, ResolutionType resolutionType) {
+    String locale = file.getLocaleID();
+    String parentLocale = null;
+    CLDRFile truncationParent = null;
+    String realParent = null;
+    if (resolutionType == ResolutionType.SIMPLE) {
+      // Make parent file
+      debugPrintln("Making parent file by truncation...", 3);
+      parentLocale = LanguageTagParser.getParent(locale);
+      truncationParent = cldrFactory.make(parentLocale, true);
+      realParent = CLDRFile.getParent(locale);
+    }
 
-        // Create empty file to hold (partially or fully) resolved data
-        debugPrint("Creating empty CLDR file to store resolved data...", 3);
-        // False/unresolved because it needs to be mutable.
-        CLDRFile resolved = new CLDRFile(new CLDRFile.SimpleXMLSource(null, locale), false);
-        debugPrintln("done.", 3);
+    // Create empty file to hold (partially or fully) resolved data
+    debugPrint("Creating empty CLDR file to store resolved data...", 3);
+    // False/unresolved because it needs to be mutable.
+    CLDRFile resolved = new CLDRFile(new CLDRFile.SimpleXMLSource(null, locale), false);
+    debugPrintln("done.", 3);
 
-        // Go through the XPaths, filter out aliases and inherited values,
-        // then copy to the new CLDRFile.
-        if (resolutionType == ResolutionType.SIMPLE) {
-          debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: "
-              + realParent + ")...", 2);
-        } else {
-          debugPrintln("Removing aliases"
-              + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "")
-              + "...", 2);
-        }
+    // Go through the XPaths, filter out appropriate values based on the inheritance model,
+    // then copy to the new CLDRFile.
+    if (resolutionType == ResolutionType.SIMPLE) {
+      debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: "
+          + realParent + ")...", 2);
+    } else {
+      debugPrintln("Removing aliases"
+          + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "")
+          + "...", 2);
+    }
 
-        Set<String> basePaths = new HashSet<String>();
-        String distinguishedPath = null;
-        String fullPath = null;
-        paths: for (Iterator<String> baseIter = base.iterator("", CLDRFile.ldmlComparator); baseIter
-            .hasNext();) {
-          distinguishedPath = baseIter.next();
-          basePaths.add(distinguishedPath);
-          debugPrintln("Distinguished path: " + distinguishedPath, 5);
-          
-          if (resolutionType == ResolutionType.FULL || resolutionType == ResolutionType.NO_CODE_FALLBACK) {
-            fullPath = base.getFullXPath(distinguishedPath);
-            debugPrintln("Full path: " + fullPath, 5);
-          }
-          
-          if (distinguishedPath.equals("//ldml/alias")) {
-            // If the entire locale is an alias, we don't output a file. Such
-            // locales have an element at the XPath //ldml/alias
-            // This appears to be obsolete with CLDR 2.0
-            debugPrintln("Entire-locale alias found.  Skipping...\n", 2);
-            continue locales;
-          } else if (distinguishedPath.endsWith("/alias")) {
-            // Ignore any aliases.
-            debugPrintln("This path is an alias.  Dropping...", 5);
-            continue paths;
-          }
+    Set<String> basePaths = new HashSet<String>();
+    String distinguishedPath = null;
+    String fullPath = null;
+    paths: for (Iterator<String> baseIter = file.iterator("", CLDRFile.ldmlComparator); baseIter
+        .hasNext();) {
+      distinguishedPath = baseIter.next();
+      basePaths.add(distinguishedPath);
+      debugPrintln("Distinguished path: " + distinguishedPath, 5);
+      
+      if (resolutionType == ResolutionType.FULL || resolutionType == ResolutionType.NO_CODE_FALLBACK) {
+        fullPath = file.getFullXPath(distinguishedPath);
+        debugPrintln("Full path: " + fullPath, 5);
+      }
+      
+      if (distinguishedPath.endsWith("/alias")) {
+        // Ignore any aliases.
+        debugPrintln("This path is an alias.  Dropping...", 5);
+        continue paths;
+      }
 
-          String parentValue = null;
-          if (resolutionType == ResolutionType.SIMPLE) {
-            parentValue = truncationParent.getStringValue(distinguishedPath);
-            debugPrintln("    Parent [" + parentLocale + "] value : " + strRep(parentValue), 5);
-          }
-          String baseValue = base.getStringValue(distinguishedPath);
-          debugPrintln("    Base [" + locale + "] value: " + strRep(baseValue), 5);
-          if (baseValue == null && parentValue != null) {
-            // This catches (and ignores) weirdness caused by aliases in older
-            // versions of CLDR.
-            // This shouldn't happen in the new version.
-            debugPrintln("Non-inherited null detected in base locale.  If you are using a version"
-                + " of CLDR 2.0.0 or newer, this is cause for concern.", 1);
-            continue paths;
-          }
-          /*
-           * If we're fully resolving the locale (and, if code-fallback
-           * suppression is enabled, if the value is not from code-fallback) or
-           * the values aren't equal, add it to the resolved file.
-           */
-          if (resolutionType == ResolutionType.FULL
-              || (resolutionType == ResolutionType.NO_CODE_FALLBACK && !base.getSourceLocaleID(
-                  distinguishedPath, null).equals(CODE_FALLBACK))
-              || !areEqual(parentValue, baseValue)) {
-            debugPrintln("  Adding to resolved file.", 5);
-            // Suppress non-distinguishing attributes in simple inheritance 
-            resolved.add((resolutionType == ResolutionType.SIMPLE ? distinguishedPath : fullPath), baseValue);
-          }
-        }
-        
-        // The undefined value is only needed for the simple inheritance resolution
-        if (resolutionType == ResolutionType.SIMPLE) {
-          // Add undefined values for anything in the parent but not the child
-          debugPrintln("Checking values in " + base.getLocaleID(), 3);
-          for (Iterator<String> parentIter = truncationParent.iterator("", CLDRFile.ldmlComparator); parentIter
-              .hasNext();) {
-            distinguishedPath = parentIter.next();
-            // Do the comparison with distinguished paths to prevent errors
-            // resulting from duplicate full paths but the same distinguished path
-            if (!basePaths.contains(distinguishedPath)) {
-              resolved.add(distinguishedPath, UNDEFINED);
-            }
-          }
-        }
-
-        // Output the file to disk
-        printToFile(resolved, outputDir);
+      String parentValue = null;
+      if (resolutionType == ResolutionType.SIMPLE) {
+        parentValue = truncationParent.getStringValue(distinguishedPath);
+        debugPrintln("    Parent [" + parentLocale + "] value : " + strRep(parentValue), 5);
+      }
+      String baseValue = file.getStringValue(distinguishedPath);
+      debugPrintln("    Base [" + locale + "] value: " + strRep(baseValue), 5);
+      if (baseValue == null && parentValue != null) {
+        // This catches (and ignores) weirdness caused by aliases in older
+        // versions of CLDR.
+        // This shouldn't happen in the new version.
+        debugPrintln("Non-inherited null detected in base locale.  If you are using a version"
+            + " of CLDR 2.0.0 or newer, this is cause for concern.", 1);
+        continue paths;
+      }
+      /*
+       * If we're fully resolving the locale (and, if code-fallback
+       * suppression is enabled, if the value is not from code-fallback) or
+       * the values aren't equal, add it to the resolved file.
+       */
+      if (resolutionType == ResolutionType.FULL
+          || (resolutionType == ResolutionType.NO_CODE_FALLBACK && !file.getSourceLocaleID(
+              distinguishedPath, null).equals(CODE_FALLBACK))
+          || !areEqual(parentValue, baseValue)) {
+        debugPrintln("  Adding to resolved file.", 5);
+        // Suppress non-distinguishing attributes in simple inheritance 
+        resolved.add((resolutionType == ResolutionType.SIMPLE ? distinguishedPath : fullPath), baseValue);
       }
     }
+    
+    // The undefined value is only needed for the simple inheritance resolution
+    if (resolutionType == ResolutionType.SIMPLE) {
+      // Add undefined values for anything in the parent but not the child
+      debugPrintln("Checking values in " + file.getLocaleID(), 3);
+      for (Iterator<String> parentIter = truncationParent.iterator("", CLDRFile.ldmlComparator); parentIter
+          .hasNext();) {
+        distinguishedPath = parentIter.next();
+        // Do the comparison with distinguished paths to prevent errors
+        // resulting from duplicate full paths but the same distinguished path
+        if (!basePaths.contains(distinguishedPath)) {
+          resolved.add(distinguishedPath, UNDEFINED);
+        }
+      }
+    }
+    return resolved;
   }
 
   /**
