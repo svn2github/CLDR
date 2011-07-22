@@ -226,7 +226,7 @@ public class CldrResolver {
     // removed and then gets printed directly.
     if (locale.equals("root")) {
       // Remove aliases from root.
-      resolved = removeAliases(base, resolutionType);
+      resolved = resolveRootLocale(base, resolutionType);
     } else {
       resolved = resolveNonRootLocale(base, resolutionType);
     }
@@ -411,7 +411,7 @@ public class CldrResolver {
    * @param resolutionType the type of resolution to use when processing the file
    * @return a copy of cldrFile with aliases removed
    */
-  private static CLDRFile removeAliases(CLDRFile cldrFile, ResolutionType resolutionType) {
+  private static CLDRFile resolveRootLocale(CLDRFile cldrFile, ResolutionType resolutionType) {
     // False/unresolved because it needs to be mutable
     CLDRFile partiallyResolved =
         new CLDRFile(new CLDRFile.SimpleXMLSource(null, cldrFile.getLocaleID()), false);
