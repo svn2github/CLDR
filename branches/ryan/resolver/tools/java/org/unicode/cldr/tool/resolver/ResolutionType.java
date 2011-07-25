@@ -16,31 +16,25 @@ public enum ResolutionType {
 
   /* These are to allow multiple names for the same resolution types */
 
-  /* Simple inheritance names */
-  private static final String[] SIMPLE_INHERITANCE_ARR = {"p", "partial", "s", "simple"};
   /**
    * A list of resolve types that will result in the simple inheritance model
    */
-  private static final List<String> SIMPLE_INHERITANCE = Arrays.asList(SIMPLE_INHERITANCE_ARR);
+  private static final List<String> SIMPLE_INHERITANCE = Arrays.asList(new String[] {"p",
+      "partial", "s", "simple"});
 
-  /* Fully-resolved names */
-  private static final String[] FULLY_RESOLVED_ARR = {"f", "full", "fully", "fully resolved",
-      "fully-resolved"};
   /**
    * A list of resolve types that will result in the fully-resolved inheritance
    * model
    */
-  private static final List<String> FULLY_RESOLVED = Arrays.asList(FULLY_RESOLVED_ARR);
+  private static final List<String> FULLY_RESOLVED = Arrays.asList(new String[] {"f", "full",
+      "fully", "fully resolved", "fully-resolved"});
 
-  /* Fully-resolved inheritance model with code-fallback suppressed names */
-  private static final String[] FULLY_RESOLVED_WITHOUT_CODE_FALLBACK_ARR = {"n", "nc",
-      "nocodefallback", "nocode", "no-code", "no-code-fallback"};
   /**
    * A list of resolve types that will result in the fully-resolved inheritance
    * model with code-fallback suppressed
    */
   private static final List<String> FULLY_RESOLVED_WITHOUT_CODE_FALLBACK = Arrays
-      .asList(FULLY_RESOLVED_WITHOUT_CODE_FALLBACK_ARR);
+      .asList(new String[] {"n", "nc", "nocodefallback", "nocode", "no-code", "no-code-fallback"});
 
   /**
    * Gets a ResolutionType corresponding to a given string
