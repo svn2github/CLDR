@@ -35,7 +35,7 @@ public class CldrResolver {
   private static final int VERBOSITY = 2;
 
   /**
-   * The value that denotes a non-existant value in the child that exists in the
+   * The value that denotes a non-existent value in the child that exists in the
    * truncation parent
    */
   private static final String UNDEFINED = "\uFFFDNO_VALUE\uFFFD";
