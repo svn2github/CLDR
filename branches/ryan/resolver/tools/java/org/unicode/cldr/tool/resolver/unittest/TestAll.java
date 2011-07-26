@@ -5,8 +5,9 @@ package org.unicode.cldr.tool.resolver.unittest;
 import com.ibm.icu.dev.test.TestFmwk.TestGroup;
 
 /**
- * @author ryanmentley@google.com (Ryan Mentley)
+ * Runs all the CLDR Resolver Tool tests
  * 
+ * @author ryanmentley@google.com (Ryan Mentley)
  */
 public class TestAll extends TestGroup {
 
@@ -24,7 +25,6 @@ public class TestAll extends TestGroup {
    * @param args Command-line arguments
    */
   public static void main(String[] args) {
-    // TODO(ryanmentley): Auto-generated method stub
     new TestAll().run(args);
   }
 
