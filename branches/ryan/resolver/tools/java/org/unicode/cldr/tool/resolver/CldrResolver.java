@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Class designed for the resolution of CLDR XML Files (e.g., removing aliases
@@ -187,30 +188,47 @@ public class CldrResolver {
       throw new IllegalArgumentException(outputDir.getPath() + " is not a directory");
     }
 
-    debugPrint("Getting available locales...", 3);
-    Set<String> locales = cldrFactory.getAvailable();
-    debugPrintln("done.\n", 3);
-
     // Iterate through all the locales
-    locales: for (Iterator<String> localeIter = locales.iterator(); localeIter.hasNext();) {
-      String locale = localeIter.next();
+    for (String locale : getLocaleNames(localeRegex)) {
       // if (!weirdCases.contains(locale)) {
       // continue locales;
       // }
       // if (!locale.equals("ku_Latn")) {
       // continue locales;
       // }
-      // Check if the locale name matches the regex
-      if (!locale.matches(localeRegex)) {
-        debugPrintln("Locale " + locale + "does not match the pattern.  Skipping...\n", 4);
-        continue locales;
-      }
-
+      
+      // Resolve the file
       CLDRFile resolved = resolveLocale(locale, resolutionType);
 
       // Output the file to disk
       printToFile(resolved, outputDir);
     }
+  }
+  
+  /**
+   * Returns the locale names from the resolver that match a given regular
+   * expression.
+   * 
+   * @param localeRegex a regular expression to match against
+   * @return all of the locales that will be resolved by a call to resolve()
+   *         with the same localeRegex
+   */
+  public Set<String> getLocaleNames(String localeRegex) {
+    debugPrint("Getting list of locales...", 3);
+    Set<String> allLocales = cldrFactory.getAvailable();
+    Set<String> locales = new TreeSet<String>();
+    // Iterate through all the locales
+    locales: for (Iterator<String> localeIter = allLocales.iterator(); localeIter.hasNext();) {
+      String locale = localeIter.next();
+      // Check if the locale name matches the regex
+      if (!locale.matches(localeRegex)) {
+        debugPrintln("Locale " + locale + "does not match the pattern.  Skipping...\n", 4);
+        continue locales;
+      }
+      locales.add(locale);
+    }
+    debugPrintln("done.\n", 3);
+    return locales;
   }
   
   private CLDRFile resolveLocale(String locale, ResolutionType resolutionType) {
