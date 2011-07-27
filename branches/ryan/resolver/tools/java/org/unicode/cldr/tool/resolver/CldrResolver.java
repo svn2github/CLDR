@@ -231,7 +231,7 @@ public class CldrResolver {
     return locales;
   }
   
-  private CLDRFile resolveLocale(String locale, ResolutionType resolutionType) {
+  public CLDRFile resolveLocale(String locale, ResolutionType resolutionType) {
     debugPrintln("Processing locale " + locale + "...", 2);
 
     // Create CLDRFile for current (base) locale
