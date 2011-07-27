@@ -9,7 +9,10 @@ import java.util.Set;
 
 import org.unicode.cldr.tool.resolver.CldrResolver;
 import org.unicode.cldr.tool.resolver.ResolutionType;
+import org.unicode.cldr.unittest.TestAll.TestInfo;
+import org.unicode.cldr.unittest.TestUtilities;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.XMLFileReader;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
@@ -36,26 +39,36 @@ public class FullResolutionTests extends TestFmwk {
           + "Set it using -DCLDR_DIR=/path/to/cldr");
       return;
     }
+    // If this is ever made multi-threaded, we should just make our own factories. 
+    Factory factory = TestInfo.getInstance().getCldrFactory();
     Set<String> locales = resolver.getLocaleNames(LOCALES_TO_TEST);
     for (String locale : locales) {
-      CLDRFile resolved = resolver.resolveLocale(locale, RESOLUTION_TYPE);
+      CLDRFile cldrResolved = factory.make(locale, true);
+      CLDRFile toolResolved = resolver.resolveLocale(locale, RESOLUTION_TYPE);
       StringWriter stringOut = new StringWriter();
       PrintWriter pw = new PrintWriter(stringOut);
-      resolved.write(pw);
+      toolResolved.write(pw);
       String xml = stringOut.toString();
       StringReader sr = new StringReader(xml);
       XMLFileReader xmlReader = new XMLFileReader();
-      xmlReader.setHandler(new SimpleHandler() {
-        /* (non-Javadoc)
-         * @see org.unicode.cldr.util.XMLFileReader.SimpleHandler#handlePathValue(java.lang.String, java.lang.String)
-         */
-        @Override
-        public void handlePathValue(String path, String value) {
-          System.out.println("Path: \"" + path + "\" Value: \"" + value + "\"");
-        }
-      });
+      xmlReader.setHandler(new TestHandler(cldrResolved) );
       xmlReader
           .read(locale, sr, XMLFileReader.CONTENT_HANDLER | XMLFileReader.ERROR_HANDLER, false);
+    }
+  }
+  
+  private class TestHandler extends SimpleHandler {
+    CLDRFile file;
+    
+    public TestHandler(CLDRFile cldrResolvedFile) {
+      this.file = cldrResolvedFile;
+    }
+    
+    @Override
+    public void handlePathValue(String path, String value) {
+      //System.out.println("Path: \"" + path + "\" Value: \"" + value + "\"");
+      assertEquals("CLDRFile resolved value for " + path + "should match tool resolved value",
+          file.getStringValue(path), value);
     }
   }
 }
