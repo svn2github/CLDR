@@ -10,7 +10,6 @@ import java.util.Set;
 import org.unicode.cldr.tool.resolver.CldrResolver;
 import org.unicode.cldr.tool.resolver.ResolutionType;
 import org.unicode.cldr.unittest.TestAll.TestInfo;
-import org.unicode.cldr.unittest.TestUtilities;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.CldrUtility;
