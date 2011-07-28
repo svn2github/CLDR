@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2004-2011, Unicode, Inc., Google, Inc., and others.
+ * For terms of use, see http://www.unicode.org/terms_of_use.html
+ */
 package org.unicode.cldr.tool.resolver;
 
 import com.ibm.icu.dev.tool.UOption;
@@ -223,14 +227,14 @@ public class CldrResolver {
     Set<String> allLocales = cldrFactory.getAvailable();
     Set<String> locales = new TreeSet<String>();
     // Iterate through all the locales
-    locales: for (Iterator<String> localeIter = allLocales.iterator(); localeIter.hasNext();) {
-      String locale = localeIter.next();
+    for (String locale : allLocales) {
       // Check if the locale name matches the regex
-      if (!locale.matches(localeRegex)) {
+      if (locale.matches(localeRegex)) {
+        locales.add(locale);
+      } else {
         debugPrintln("Locale " + locale + "does not match the pattern.  Skipping...\n", 4);
-        continue locales;
       }
-      locales.add(locale);
+      
     }
     debugPrintln("done.\n", 3);
     return locales;
@@ -449,17 +453,17 @@ public class CldrResolver {
         2);
     // Go through the XPaths, filter out aliases, then copy to the new CLDRFile
     String distinguishedPath = null;
-    paths: for (Iterator<String> fileIter = cldrFile.iterator("", CLDRFile.ldmlComparator); fileIter
+    for (Iterator<String> fileIter = cldrFile.iterator("", CLDRFile.ldmlComparator); fileIter
         .hasNext();) {
       distinguishedPath = fileIter.next();
       debugPrintln("Path: " + distinguishedPath, 5);
       if (distinguishedPath.endsWith("/alias")) {
         debugPrintln("  This path is an alias.  Dropping...", 5);
-        continue paths;
+        continue;
       } else if (resolutionType == ResolutionType.NO_CODE_FALLBACK
           && cldrFile.getSourceLocaleID(distinguishedPath, null).equals(CODE_FALLBACK)) {
         debugPrintln("  This path is in code-fallback.  Dropping...", 5);
-        continue paths;
+        continue;
       } else {
         String value = cldrFile.getStringValue(distinguishedPath);
         if (resolutionType == ResolutionType.SIMPLE) {

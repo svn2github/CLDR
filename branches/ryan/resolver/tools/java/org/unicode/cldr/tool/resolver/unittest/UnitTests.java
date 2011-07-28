@@ -1,4 +1,7 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
+/*
+ * Copyright (C) 2004-2011, Unicode, Inc., Google, Inc., and others.
+ * For terms of use, see http://www.unicode.org/terms_of_use.html
+ */
 
 package org.unicode.cldr.tool.resolver.unittest;
 

@@ -1,5 +1,7 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
-
+/*
+ * Copyright (C) 2004-2011, Unicode, Inc., Google, Inc., and others.
+ * For terms of use, see http://www.unicode.org/terms_of_use.html
+ */
 package org.unicode.cldr.tool.resolver.unittest;
 
 import java.io.PrintWriter;
@@ -24,7 +26,7 @@ import com.ibm.icu.dev.test.TestFmwk;
 /**
  * Test the full resolution of CLDR files.
  * 
- * This will take a long time to run (on the order of half an hour).
+ * This will take a long time to run (on the order of an hour).
  * 
  * @author ryanmentley@google.com (Ryan Mentley)
  */
@@ -83,8 +85,7 @@ public class FullResolutionTests extends TestFmwk {
         // Add the path to the Set for the next batch of checks
         cldrPaths.add(canonicalXpath(fullPath));
       }
-      for (Iterator<String> pathIter = toolPaths.iterator(); pathIter.hasNext();) {
-        String fullPath = pathIter.next();
+      for (String fullPath : toolPaths) {
         // Ignore the //ldml/identity/ elements
         if (!fullPath.startsWith("//ldml/identity/")) {
           assertTrue("Path " + fullPath + " is present in tool resolved file for locale " + locale
