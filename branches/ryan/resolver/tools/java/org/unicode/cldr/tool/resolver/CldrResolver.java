@@ -52,8 +52,10 @@ public class CldrResolver {
   private static final UOption SOURCEDIR = UOption.SOURCEDIR();
   private static final UOption RESOLUTION_TYPE = UOption.create("resolutiontype", 'r',
       UOption.REQUIRES_ARG);
-  private static final UOption DRAFT_STATUS = UOption.create("mindraftstatus", 'm', UOption.REQUIRES_ARG);
-  private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE, DRAFT_STATUS};
+  private static final UOption DRAFT_STATUS = UOption.create("mindraftstatus", 'm',
+      UOption.REQUIRES_ARG);
+  private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE,
+      DRAFT_STATUS};
 
   /**
    * This list is not used for anything practical, just for test cases for weird
@@ -100,11 +102,11 @@ public class CldrResolver {
     if (LOCALE.doesOccur) {
       localeRegex = LOCALE.value;
     }
-    
+
     if (SOURCEDIR.doesOccur) {
       srcDir = SOURCEDIR.value;
     }
-    
+
     if (DESTDIR.doesOccur) {
       destDir = DESTDIR.value;
     }
@@ -120,7 +122,8 @@ public class CldrResolver {
           System.out.print(" " + status.toString());
         }
         System.out.println();
-        // This default is defined in the internals of CLDRFile, so we don't output it here
+        // This default is defined in the internals of CLDRFile, so we don't
+        // output it here
         System.out.println("Using default draft status");
       } else {
         debugPrintln("\nMinimum draft status: " + minDraftStatus.toString(), 2);
@@ -129,17 +132,18 @@ public class CldrResolver {
     } else {
       debugPrintln("\nMinimum draft status: default", 2);
     }
-    
+
     if (resolver == null) {
       resolver = new CldrResolver(srcDir);
     }
-    
-    // Print out the options other than draft status (which has already been printed)
+
+    // Print out the options other than draft status (which has already been
+    // printed)
     debugPrintln("Locale regular expression: " + localeRegex + "\"", 2);
     debugPrintln("Source (CLDR common/main) directory: \"" + srcDir + "\"", 2);
     debugPrintln("Destination (resolved output) directory: \"" + destDir + "\"", 2);
     debugPrintln("Resolution type: " + resolutionType.toString(), 2);
-    
+
     resolver.resolve(localeRegex, destDir, resolutionType);
     debugPrintln("Execution complete.", 3);
   }
@@ -161,9 +165,10 @@ public class CldrResolver {
     cldrFactory = Factory.make(cldrDirectory, ".*");
     debugPrintln("Factory made.\n", 3);
   }
-  
+
   public CldrResolver(String cldrDirectory, DraftStatus minimumDraftStatus) {
-    debugPrintln("Making factory with minimum draft status " + minimumDraftStatus.toString() + "...", 3);
+    debugPrintln("Making factory with minimum draft status " + minimumDraftStatus.toString()
+        + "...", 3);
     /*
      * We don't do the regex filter here so that we can still resolve parent
      * files that don't match the regex
@@ -196,7 +201,7 @@ public class CldrResolver {
       // if (!locale.equals("ku_Latn")) {
       // continue locales;
       // }
-      
+
       // Resolve the file
       CLDRFile resolved = resolveLocale(locale, resolutionType);
 
@@ -204,7 +209,7 @@ public class CldrResolver {
       printToFile(resolved, outputDir);
     }
   }
-  
+
   /**
    * Returns the locale names from the resolver that match a given regular
    * expression.
@@ -230,14 +235,14 @@ public class CldrResolver {
     debugPrintln("done.\n", 3);
     return locales;
   }
-  
+
   public CLDRFile resolveLocale(String locale, ResolutionType resolutionType) {
     debugPrintln("Processing locale " + locale + "...", 2);
 
     // Create CLDRFile for current (base) locale
     debugPrintln("Making base file...", 3);
     CLDRFile base = cldrFactory.make(locale, true);
-    
+
     CLDRFile resolved;
 
     // root, having no parent, is a special case, which just gets its aliases
@@ -248,11 +253,11 @@ public class CldrResolver {
     } else {
       resolved = resolveNonRootLocale(base, resolutionType);
     }
-    
+
     return resolved;
   }
-  
-  private CLDRFile resolveNonRootLocale (CLDRFile file, ResolutionType resolutionType) {
+
+  private CLDRFile resolveNonRootLocale(CLDRFile file, ResolutionType resolutionType) {
     String locale = file.getLocaleID();
     String parentLocale = null;
     CLDRFile truncationParent = null;
@@ -271,15 +276,17 @@ public class CldrResolver {
     CLDRFile resolved = new CLDRFile(new CLDRFile.SimpleXMLSource(null, locale), false);
     debugPrintln("done.", 3);
 
-    // Go through the XPaths, filter out appropriate values based on the inheritance model,
+    // Go through the XPaths, filter out appropriate values based on the
+    // inheritance model,
     // then copy to the new CLDRFile.
     if (resolutionType == ResolutionType.SIMPLE) {
       debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: "
           + realParent + ")...", 2);
     } else {
-      debugPrintln("Removing aliases"
-          + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "")
-          + "...", 2);
+      debugPrintln(
+          "Removing aliases"
+              + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "")
+              + "...", 2);
     }
 
     Set<String> basePaths = new HashSet<String>();
@@ -290,12 +297,13 @@ public class CldrResolver {
       distinguishedPath = baseIter.next();
       basePaths.add(distinguishedPath);
       debugPrintln("Distinguished path: " + distinguishedPath, 5);
-      
-      if (resolutionType == ResolutionType.FULL || resolutionType == ResolutionType.NO_CODE_FALLBACK) {
+
+      if (resolutionType == ResolutionType.FULL
+          || resolutionType == ResolutionType.NO_CODE_FALLBACK) {
         fullPath = file.getFullXPath(distinguishedPath);
         debugPrintln("Full path: " + fullPath, 5);
       }
-      
+
       if (distinguishedPath.endsWith("/alias")) {
         // Ignore any aliases.
         debugPrintln("This path is an alias.  Dropping...", 5);
@@ -307,6 +315,7 @@ public class CldrResolver {
         parentValue = truncationParent.getStringValue(distinguishedPath);
         debugPrintln("    Parent [" + parentLocale + "] value : " + strRep(parentValue), 5);
       }
+      
       String baseValue = file.getStringValue(distinguishedPath);
       debugPrintln("    Base [" + locale + "] value: " + strRep(baseValue), 5);
       if (baseValue == null && parentValue != null) {
@@ -317,21 +326,22 @@ public class CldrResolver {
             + " of CLDR 2.0.0 or newer, this is cause for concern.", 1);
         continue paths;
       }
+      
       /*
-       * If we're fully resolving the locale (and, if code-fallback
-       * suppression is enabled, if the value is not from code-fallback) or
-       * the values aren't equal, add it to the resolved file.
+       * If we're fully resolving the locale (and, if code-fallback suppression
+       * is enabled, if the value is not from code-fallback) or the values
+       * aren't equal, add it to the resolved file.
        */
       if (resolutionType == ResolutionType.FULL
           || (resolutionType == ResolutionType.NO_CODE_FALLBACK && !file.getSourceLocaleID(
-              distinguishedPath, null).equals(CODE_FALLBACK))
-          || !areEqual(parentValue, baseValue)) {
+              distinguishedPath, null).equals(CODE_FALLBACK)) || !areEqual(parentValue, baseValue)) {
         debugPrintln("  Adding to resolved file.", 5);
-        // Suppress non-distinguishing attributes in simple inheritance 
-        resolved.add((resolutionType == ResolutionType.SIMPLE ? distinguishedPath : fullPath), baseValue);
+        // Suppress non-distinguishing attributes in simple inheritance
+        resolved.add((resolutionType == ResolutionType.SIMPLE ? distinguishedPath : fullPath),
+            baseValue);
       }
     }
-    
+
     // The undefined value is only needed for the simple inheritance resolution
     if (resolutionType == ResolutionType.SIMPLE) {
       // Add undefined values for anything in the parent but not the child
@@ -426,14 +436,17 @@ public class CldrResolver {
    * through for other locales.
    * 
    * @param cldrFile the CLDRFile whose aliases to remove
-   * @param resolutionType the type of resolution to use when processing the file
+   * @param resolutionType the type of resolution to use when processing the
+   *        file
    * @return a copy of cldrFile with aliases removed
    */
   private static CLDRFile resolveRootLocale(CLDRFile cldrFile, ResolutionType resolutionType) {
     // False/unresolved because it needs to be mutable
     CLDRFile partiallyResolved =
         new CLDRFile(new CLDRFile.SimpleXMLSource(null, cldrFile.getLocaleID()), false);
-    debugPrintln("Removing aliases" + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "") + "...", 2);
+    debugPrintln("Removing aliases"
+        + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "") + "...",
+        2);
     // Go through the XPaths, filter out aliases, then copy to the new CLDRFile
     String distinguishedPath = null;
     paths: for (Iterator<String> fileIter = cldrFile.iterator("", CLDRFile.ldmlComparator); fileIter
@@ -461,7 +474,7 @@ public class CldrResolver {
     }
     return partiallyResolved;
   }
-  
+
   /**
    * Resolves a string to a draft status enum object. The resolution is
    * performed by selecting a value from the DraftStatus enum that starts with
@@ -481,7 +494,7 @@ public class CldrResolver {
           // This is the first time we've found a DraftStatus that matches
           value = status;
         } else {
-          // This string is ambiguous - two DraftStatus names start with it 
+          // This string is ambiguous - two DraftStatus names start with it
           value = null;
           break;
         }
