@@ -239,6 +239,10 @@ public class CldrResolver {
     debugPrintln("done.\n", 3);
     return locales;
   }
+  
+  public Factory getFactory() {
+    return cldrFactory;
+  }
 
   public CLDRFile resolveLocale(String locale, ResolutionType resolutionType) {
     debugPrintln("Processing locale " + locale + "...", 2);

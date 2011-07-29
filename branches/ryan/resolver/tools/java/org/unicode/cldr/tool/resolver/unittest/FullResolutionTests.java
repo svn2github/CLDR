@@ -45,7 +45,8 @@ public class FullResolutionTests extends TestFmwk {
     }
     // If this is ever made multi-threaded, we should just make our own
     // factories.
-    Factory factory = TestInfo.getInstance().getCldrFactory();
+    //Factory factory = TestInfo.getInstance().getCldrFactory();
+    Factory factory = resolver.getFactory();
     Set<String> locales = resolver.getLocaleNames(LOCALES_TO_TEST);
     for (String locale : locales) {
       // Resolve with CLDR and with the tool
