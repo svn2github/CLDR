@@ -48,7 +48,7 @@ public class CldrResolver {
   /**
    * The name of the code-fallback locale
    */
-  private static final String CODE_FALLBACK = "code-fallback";
+  public static final String CODE_FALLBACK = "code-fallback";
 
   /* The command-line UOptions, along with a storage container. */
   private static final UOption LOCALE = UOption.create("locale", 'l', UOption.REQUIRES_ARG);

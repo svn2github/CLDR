@@ -31,7 +31,7 @@ import com.ibm.icu.dev.test.TestFmwk;
  * @author ryanmentley@google.com (Ryan Mentley)
  */
 public class FullResolutionTests extends TestFmwk {
-  private static final String LOCALES_TO_TEST = ".*";
+  private static final String LOCALES_TO_TEST = "en";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.FULL;
 
   public void TestFullResolution() {
@@ -81,10 +81,9 @@ public class FullResolutionTests extends TestFmwk {
           String canonicalPath = canonicalXpath(fullPath);
           assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale " + locale
               + " but not in tool resolved file.", toolPaths.contains(canonicalPath));
+          // Add the path to the Set for the next batch of checks
+          cldrPaths.add(canonicalPath);
         }
-
-        // Add the path to the Set for the next batch of checks
-        cldrPaths.add(canonicalXpath(fullPath));
       }
       for (String fullPath : toolPaths) {
         // Ignore the //ldml/identity/ elements
