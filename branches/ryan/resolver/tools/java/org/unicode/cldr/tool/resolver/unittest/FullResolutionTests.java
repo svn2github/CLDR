@@ -31,7 +31,7 @@ import com.ibm.icu.dev.test.TestFmwk;
  * @author ryanmentley@google.com (Ryan Mentley)
  */
 public class FullResolutionTests extends TestFmwk {
-  private static final String LOCALES_TO_TEST = "en";
+  private static final String LOCALES_TO_TEST = ".*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.FULL;
 
   public void TestFullResolution() {

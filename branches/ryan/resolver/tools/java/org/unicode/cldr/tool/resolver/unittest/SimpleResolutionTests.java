@@ -10,7 +10,7 @@ import com.ibm.icu.dev.test.TestFmwk;
 /**
  * Test the simple resolution of CLDR files.
  * 
- * This will take a long time to run (on the order of half an hour).
+ * This will take a long time to run (on the order of 40 minutes).
  * 
  * @author ryanmentley@google.com (Ryan Mentley)
  */
