@@ -342,7 +342,8 @@ public class CldrResolver {
        */
       if (resolutionType == ResolutionType.FULL
           || (resolutionType == ResolutionType.NO_CODE_FALLBACK && !file.getSourceLocaleID(
-              distinguishedPath, null).equals(CODE_FALLBACK)) || !areEqual(parentValue, baseValue)) {
+              distinguishedPath, null).equals(CODE_FALLBACK))
+          || (resolutionType == ResolutionType.SIMPLE && !areEqual(parentValue, baseValue))) {
         debugPrintln("  Adding to resolved file.", 5);
         // Suppress non-distinguishing attributes in simple inheritance
         resolved.add((resolutionType == ResolutionType.SIMPLE ? distinguishedPath : fullPath),
