@@ -4,21 +4,17 @@
  */
 package org.unicode.cldr.tool.resolver.unittest;
 
-import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.unicode.cldr.tool.resolver.CldrResolver;
 import org.unicode.cldr.tool.resolver.ResolutionType;
-import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.XMLFileReader;
-import org.unicode.cldr.util.XPathParts;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
 
 import com.ibm.icu.dev.test.TestFmwk;
@@ -26,7 +22,7 @@ import com.ibm.icu.dev.test.TestFmwk;
 /**
  * Test the full resolution of CLDR files.
  * 
- * This will take a long time to run (on the order of an hour).
+ * This will take a long time to run (on the order of 40 minutes).
  * 
  * @author ryanmentley@google.com (Ryan Mentley)
  */
@@ -58,10 +54,7 @@ public class FullResolutionTests extends TestFmwk {
       Set<String> toolPaths = new HashSet<String>();
 
       // Print the tool output to an XML String
-      StringWriter stringOut = new StringWriter();
-      PrintWriter pw = new PrintWriter(stringOut);
-      toolResolved.write(pw);
-      String xml = stringOut.toString();
+      String xml = ResolverTestUtils.writeToString(toolResolved);
 
       // Read the XML string back in for testing
       StringReader sr = new StringReader(xml);
@@ -78,7 +71,7 @@ public class FullResolutionTests extends TestFmwk {
         String fullPath = cldrResolved.getFullXPath(distinguishedPath);
         // Ignore aliases and the //ldml/identity/ elements
         if (!distinguishedPath.endsWith("/alias") && !distinguishedPath.startsWith("//ldml/identity/")) {
-          String canonicalPath = canonicalXpath(fullPath);
+          String canonicalPath = ResolverTestUtils.canonicalXpath(fullPath);
           assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale " + locale
               + " but not in tool resolved file.", toolPaths.contains(canonicalPath));
           // Add the path to the Set for the next batch of checks
@@ -93,16 +86,6 @@ public class FullResolutionTests extends TestFmwk {
         }
       }
     }
-  }
-  
-  /**
-   * Returns a canonical representation of an XPath for use in comparing XPaths
-   * 
-   * @param xPath the original XPath
-   * @return the canonical representation of xPath
-   */
-  private String canonicalXpath(String xPath) {
-    return new XPathParts().initialize(xPath).toString();
   }
 
   private class TestHandler extends SimpleHandler {
@@ -122,7 +105,7 @@ public class FullResolutionTests extends TestFmwk {
 
     @Override
     public void handlePathValue(String path, String value) {
-      paths.add(canonicalXpath(path));
+      paths.add(ResolverTestUtils.canonicalXpath(path));
       assertEquals("CLDRFile resolved value for " + path + " in locale " + file.getLocaleID()
           + " should match tool resolved value", file.getStringValue(path), value);
     }
