@@ -30,7 +30,7 @@ public class NoCodeFallbackTests extends TestFmwk {
   private static final String LOCALES_TO_TEST = ".*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.NO_CODE_FALLBACK;
 
-  public void TestFullResolution() {
+  public void TestNoCodeFallbackResolution() {
     CldrResolver resolver;
     try {
       resolver = new CldrResolver(CldrUtility.MAIN_DIRECTORY);
