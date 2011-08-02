@@ -8,7 +8,6 @@ package org.unicode.cldr.tool.resolver.unittest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,23 +57,26 @@ public class SimpleResolutionTests extends TestFmwk {
           + "Set it using -DCLDR_DIR=/path/to/cldr");
       return;
     }
-    // If this is ever made multi-threaded, we should just make our own
-    // factories.
-    //Factory factory = TestInfo.getInstance().getCldrFactory();
     Factory factory = resolver.getFactory();
     Set<String> locales = resolver.getLocaleNames(LOCALES_TO_TEST);
+    
+    // First pass: Resolve everything with the tool and store paths/values
     for (String locale : locales) {
-      // Resolve with CLDR and with the tool
-      CLDRFile cldrResolved = factory.make(locale, true);
+      // Resolve with the tool
       CLDRFile toolResolved = resolver.resolveLocale(locale, RESOLUTION_TYPE);
 
-      // Create sets to hold the paths from CLDR and the tool
-      Set<String> cldrPaths = new HashSet<String>();
+      // Create a set to hold the paths from the tool
       Set<String> toolPaths = new HashSet<String>();
 
       // Process the file and populate unresolvedFromTool
-      SimpleHandler handler = new TestHandler(cldrResolved);
+      SimpleHandler handler = new TestHandler(locale);
       ResolverTestUtils.processToolResolvedFile(toolResolved, handler);
+    }
+    
+    // Second pass: Resolve with CLDR and check against tool output
+    for (String locale : locales) {
+      CLDRFile cldrResolved = factory.make(locale, true);
+      Set<String> cldrPaths = new HashSet<String>();
     }
   }
   
@@ -121,21 +123,19 @@ public class SimpleResolutionTests extends TestFmwk {
   }
 
   private class TestHandler extends SimpleHandler {
-    private CLDRFile file;
+    private String locale;
 
     /**
      * Creates a test handler
      * 
-     * @param cldrResolvedFile a CLDRFile to check the XML against
-     * @param pathSet a set into which to insert all discovered XPaths
+     * @param locale the locale being handled
      */
-    public TestHandler(CLDRFile cldrResolvedFile) {
-      this.file = cldrResolvedFile;
+    public TestHandler(String locale) {
+      this.locale = locale;
     }
 
     @Override
     public void handlePathValue(String path, String value) {
-      String locale = file.getLocaleID();
       String canonicalPath = ResolverTestUtils.canonicalXpath(path);
       // Populate the unresolved map
       if (!unresolvedFromTool.containsKey(locale)) {
