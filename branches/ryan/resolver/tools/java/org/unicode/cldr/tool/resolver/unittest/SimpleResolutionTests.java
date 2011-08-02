@@ -74,29 +74,6 @@ public class SimpleResolutionTests extends TestFmwk {
 
       SimpleHandler handler = new TestHandler(cldrResolved, toolPaths);
       ResolverTestUtils.processToolResolvedFile(toolResolved, handler);
-      
-      // Check to make sure no paths from the CLDR resolved version that aren't
-      // aliases get left out
-      for (Iterator<String> fileIter = cldrResolved.iterator("", CLDRFile.ldmlComparator); fileIter
-          .hasNext();) {
-        String distinguishedPath = fileIter.next();
-        String fullPath = cldrResolved.getFullXPath(distinguishedPath);
-        // Ignore aliases and the //ldml/identity/ elements
-        if (!distinguishedPath.endsWith("/alias") && !distinguishedPath.startsWith("//ldml/identity/")) {
-          String canonicalPath = ResolverTestUtils.canonicalXpath(fullPath);
-          assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale " + locale
-              + " but not in tool resolved file.", toolPaths.contains(canonicalPath));
-          // Add the path to the Set for the next batch of checks
-          cldrPaths.add(canonicalPath);
-        }
-      }
-      for (String fullPath : toolPaths) {
-        // Ignore the //ldml/identity/ elements
-        if (!fullPath.startsWith("//ldml/identity/")) {
-          assertTrue("Path " + fullPath + " is present in tool resolved file for locale " + locale
-              + " but not in CLDR resolved file.", cldrPaths.contains(fullPath));
-        }
-      }
     }
   }
   
@@ -138,7 +115,7 @@ public class SimpleResolutionTests extends TestFmwk {
       }
     }
     
-    // Cache is populated now, return the result from the cache
+    // Cache is populated now if it wasn't already; return the result from the cache
     return Collections.unmodifiableMap(fullyResolvedFromTool.get(locale));
   }
 
