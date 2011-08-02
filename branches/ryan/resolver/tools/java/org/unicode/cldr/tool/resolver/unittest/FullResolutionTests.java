@@ -4,7 +4,6 @@
  */
 package org.unicode.cldr.tool.resolver.unittest;
 
-import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,7 +13,6 @@ import org.unicode.cldr.tool.resolver.ResolutionType;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.CldrUtility;
-import org.unicode.cldr.util.XMLFileReader;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
 
 import com.ibm.icu.dev.test.TestFmwk;
@@ -22,7 +20,7 @@ import com.ibm.icu.dev.test.TestFmwk;
 /**
  * Test the full resolution of CLDR files.
  * 
- * This will take a long time to run (on the order of 40 minutes).
+ * This will take a long time to run.
  * 
  * @author ryanmentley@google.com (Ryan Mentley)
  */
@@ -53,15 +51,8 @@ public class FullResolutionTests extends TestFmwk {
       Set<String> cldrPaths = new HashSet<String>();
       Set<String> toolPaths = new HashSet<String>();
 
-      // Print the tool output to an XML String
-      String xml = ResolverTestUtils.writeToString(toolResolved);
-
-      // Read the XML string back in for testing
-      StringReader sr = new StringReader(xml);
-      XMLFileReader xmlReader = new XMLFileReader();
-      xmlReader.setHandler(new TestHandler(cldrResolved, toolPaths));
-      xmlReader
-          .read(locale, sr, XMLFileReader.CONTENT_HANDLER | XMLFileReader.ERROR_HANDLER, false);
+      SimpleHandler handler = new TestHandler(cldrResolved, toolPaths);
+      ResolverTestUtils.processToolResolvedFile(toolResolved, handler);
 
       // Check to make sure no paths from the CLDR resolved version that aren't
       // aliases get left out
