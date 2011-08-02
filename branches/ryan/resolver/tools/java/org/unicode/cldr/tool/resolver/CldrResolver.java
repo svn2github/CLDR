@@ -43,7 +43,7 @@ public class CldrResolver {
    * The value that denotes a non-existent value in the child that exists in the
    * truncation parent
    */
-  private static final String UNDEFINED = "\uFFFDNO_VALUE\uFFFD";
+  public static final String UNDEFINED = "\uFFFDNO_VALUE\uFFFD";
 
   /**
    * The name of the code-fallback locale
