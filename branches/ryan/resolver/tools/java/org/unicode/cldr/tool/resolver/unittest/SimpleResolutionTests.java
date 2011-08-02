@@ -72,7 +72,8 @@ public class SimpleResolutionTests extends TestFmwk {
       Set<String> cldrPaths = new HashSet<String>();
       Set<String> toolPaths = new HashSet<String>();
 
-      SimpleHandler handler = new TestHandler(cldrResolved, toolPaths);
+      // Process the file and populate unresolvedFromTool
+      SimpleHandler handler = new TestHandler(cldrResolved);
       ResolverTestUtils.processToolResolvedFile(toolResolved, handler);
     }
   }
@@ -121,7 +122,6 @@ public class SimpleResolutionTests extends TestFmwk {
 
   private class TestHandler extends SimpleHandler {
     private CLDRFile file;
-    private Set<String> paths;
 
     /**
      * Creates a test handler
@@ -129,9 +129,8 @@ public class SimpleResolutionTests extends TestFmwk {
      * @param cldrResolvedFile a CLDRFile to check the XML against
      * @param pathSet a set into which to insert all discovered XPaths
      */
-    public TestHandler(CLDRFile cldrResolvedFile, Set<String> pathSet) {
+    public TestHandler(CLDRFile cldrResolvedFile) {
       this.file = cldrResolvedFile;
-      this.paths = pathSet;
     }
 
     @Override
