@@ -37,9 +37,6 @@ public class NoCodeFallbackTests extends TestFmwk {
           + "Set it using -DCLDR_DIR=/path/to/cldr");
       return;
     }
-    // If this is ever made multi-threaded, we should just make our own
-    // factories.
-    //Factory factory = TestInfo.getInstance().getCldrFactory();
     Factory factory = resolver.getFactory();
     Set<String> locales = resolver.getLocaleNames(LOCALES_TO_TEST);
     for (String locale : locales) {
@@ -66,12 +63,14 @@ public class NoCodeFallbackTests extends TestFmwk {
             && !cldrResolved.getSourceLocaleID(distinguishedPath, null).equals(
                 CldrResolver.CODE_FALLBACK)) {
           String canonicalPath = ResolverTestUtils.canonicalXpath(fullPath);
-          assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale " + locale
-              + " but not in tool resolved file.", toolPaths.contains(canonicalPath));
+          assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
+              + locale + " but not in tool resolved file.", toolPaths.contains(canonicalPath));
           // Add the path to the Set for the next batch of checks
           cldrPaths.add(canonicalPath);
         }
       }
+      // Check to make sure that all paths from the tool-resolved version are
+      // also in the CLDR-resolved version
       for (String fullPath : toolPaths) {
         // Ignore the //ldml/identity/ elements
         if (!fullPath.startsWith("//ldml/identity/")) {

@@ -2,7 +2,6 @@
  * Copyright (C) 2004-2011, Unicode, Inc., Google, Inc., and others.
  * For terms of use, see http://www.unicode.org/terms_of_use.html
  */
-
 package org.unicode.cldr.tool.resolver.unittest;
 
 import java.io.PrintWriter;
@@ -15,16 +14,18 @@ import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
 import org.unicode.cldr.util.XPathParts;
 
 /**
- * Package-private class containing helper methods for testing the CLDR resolver tool
- *  
+ * Package-private class containing helper methods for testing the CLDR resolver
+ * tool
+ * 
  * @author ryanmentley@google.com (Ryan Mentley)
  */
 class ResolverTestUtils {
-  
+
   /**
    * Static class, no public constructor
    */
-  private ResolverTestUtils() {}
+  private ResolverTestUtils() {
+  }
 
   /**
    * Prints a CLDRFile to a String
@@ -39,7 +40,7 @@ class ResolverTestUtils {
     String xml = stringOut.toString();
     return xml;
   }
-  
+
   /**
    * Prints a CLDRFile to XML, reads it back in, and runs it against a handler.
    * 
@@ -56,8 +57,8 @@ class ResolverTestUtils {
     xmlReader.setHandler(handler);
     xmlReader.read(toolResolved.getLocaleID(), sr, XMLFileReader.CONTENT_HANDLER
         | XMLFileReader.ERROR_HANDLER, false);
- }
-  
+  }
+
   /**
    * Returns a canonical representation of an XPath for use in comparing XPaths
    * 

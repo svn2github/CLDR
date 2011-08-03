@@ -46,7 +46,7 @@ public class SimpleResolutionTests extends TestFmwk {
    * {@link ResolverTestUtils#canonicalXpath(String)}&gt;
    */
   private Map<String, Map<String, String>> fullyResolvedFromTool =
-      new HashMap<String, Map<String,String>>();
+      new HashMap<String, Map<String, String>>();
 
 
   public void TestSimpleResolution() {
@@ -60,7 +60,7 @@ public class SimpleResolutionTests extends TestFmwk {
     }
     Factory factory = resolver.getFactory();
     Set<String> locales = resolver.getLocaleNames(LOCALES_TO_TEST);
-    
+
     // First pass: Resolve everything with the tool and store paths/values
     for (String locale : locales) {
       // Resolve with the tool
@@ -70,7 +70,7 @@ public class SimpleResolutionTests extends TestFmwk {
       SimpleHandler handler = new TestHandler(locale);
       ResolverTestUtils.processToolResolvedFile(toolResolved, handler);
     }
-    
+
     // Second pass: Resolve with CLDR and check against tool output
     for (String locale : locales) {
       CLDRFile cldrResolved = factory.make(locale, true);
@@ -102,7 +102,7 @@ public class SimpleResolutionTests extends TestFmwk {
       }
     }
   }
-  
+
   /**
    * Gets the fully-resolved data from the simple data.<br />
    * <b>Precondition:</b> {@link #unresolvedFromTool} is already populated.
@@ -140,8 +140,9 @@ public class SimpleResolutionTests extends TestFmwk {
         }
       }
     }
-    
-    // Cache is populated now if it wasn't already; return the result from the cache
+
+    // Cache is populated now if it wasn't already; return the result from the
+    // cache
     return Collections.unmodifiableMap(fullyResolvedFromTool.get(locale));
   }
 
@@ -164,7 +165,8 @@ public class SimpleResolutionTests extends TestFmwk {
       if (!unresolvedFromTool.containsKey(locale)) {
         unresolvedFromTool.put(locale, new HashMap<String, String>());
       }
-      assertFalse("Duplicate paths should never occur", unresolvedFromTool.get(locale).containsKey(canonicalPath));
+      assertFalse("Duplicate paths should never occur",
+          unresolvedFromTool.get(locale).containsKey(canonicalPath));
       unresolvedFromTool.get(locale).put(canonicalPath, value);
     }
   }

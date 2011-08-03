@@ -37,9 +37,6 @@ public class FullResolutionTests extends TestFmwk {
           + "Set it using -DCLDR_DIR=/path/to/cldr");
       return;
     }
-    // If this is ever made multi-threaded, we should just make our own
-    // factories.
-    //Factory factory = TestInfo.getInstance().getCldrFactory();
     Factory factory = resolver.getFactory();
     Set<String> locales = resolver.getLocaleNames(LOCALES_TO_TEST);
     for (String locale : locales) {
@@ -54,21 +51,24 @@ public class FullResolutionTests extends TestFmwk {
       SimpleHandler handler = new TestHandler(cldrResolved, toolPaths);
       ResolverTestUtils.processToolResolvedFile(toolResolved, handler);
 
-      // Check to make sure no paths from the CLDR resolved version that aren't
+      // Check to make sure no paths from the CLDR-resolved version that aren't
       // aliases get left out
       for (Iterator<String> fileIter = cldrResolved.iterator("", CLDRFile.ldmlComparator); fileIter
           .hasNext();) {
         String distinguishedPath = fileIter.next();
         String fullPath = cldrResolved.getFullXPath(distinguishedPath);
         // Ignore aliases and the //ldml/identity/ elements
-        if (!distinguishedPath.endsWith("/alias") && !distinguishedPath.startsWith("//ldml/identity/")) {
+        if (!distinguishedPath.endsWith("/alias")
+            && !distinguishedPath.startsWith("//ldml/identity/")) {
           String canonicalPath = ResolverTestUtils.canonicalXpath(fullPath);
-          assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale " + locale
-              + " but not in tool resolved file.", toolPaths.contains(canonicalPath));
+          assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
+              + locale + " but not in tool resolved file.", toolPaths.contains(canonicalPath));
           // Add the path to the Set for the next batch of checks
           cldrPaths.add(canonicalPath);
         }
       }
+      // Check to make sure that all paths from the tool-resolved version are
+      // also in the CLDR-resolved version
       for (String fullPath : toolPaths) {
         // Ignore the //ldml/identity/ elements
         if (!fullPath.startsWith("//ldml/identity/")) {
