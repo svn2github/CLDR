@@ -8,6 +8,7 @@ package org.unicode.cldr.tool.resolver.unittest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,9 +66,6 @@ public class SimpleResolutionTests extends TestFmwk {
       // Resolve with the tool
       CLDRFile toolResolved = resolver.resolveLocale(locale, RESOLUTION_TYPE);
 
-      // Create a set to hold the paths from the tool
-      Set<String> toolPaths = new HashSet<String>();
-
       // Process the file and populate unresolvedFromTool
       SimpleHandler handler = new TestHandler(locale);
       ResolverTestUtils.processToolResolvedFile(toolResolved, handler);
@@ -77,6 +75,31 @@ public class SimpleResolutionTests extends TestFmwk {
     for (String locale : locales) {
       CLDRFile cldrResolved = factory.make(locale, true);
       Set<String> cldrPaths = new HashSet<String>();
+      Map<String, String> toolResolved = getFullyResolvedToolData(locale);
+      // Check to make sure no paths from the CLDR-resolved version that aren't
+      // aliases get left out
+      for (Iterator<String> fileIter = cldrResolved.iterator("", CLDRFile.ldmlComparator); fileIter
+          .hasNext();) {
+        String distinguishedPath = fileIter.next();
+        // Ignore aliases and the //ldml/identity/ elements
+        if (!distinguishedPath.endsWith("/alias")
+            && !distinguishedPath.startsWith("//ldml/identity/")) {
+          String canonicalPath = ResolverTestUtils.canonicalXpath(distinguishedPath);
+          assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
+              + locale + " but not in tool resolved file.", toolResolved.containsKey(canonicalPath));
+          // Add the path to the Set for the next batch of checks
+          cldrPaths.add(canonicalPath);
+        }
+      }
+      // Check to make sure that all paths from the tool-resolved version are
+      // also in the CLDR-resolved version
+      for (String distinguishedPath : toolResolved.keySet()) {
+        // Ignore the //ldml/identity/ elements
+        if (!distinguishedPath.startsWith("//ldml/identity/")) {
+          assertTrue("Path " + distinguishedPath + " is present in tool resolved file for locale "
+              + locale + " but not in CLDR resolved file.", cldrPaths.contains(distinguishedPath));
+        }
+      }
     }
   }
   
