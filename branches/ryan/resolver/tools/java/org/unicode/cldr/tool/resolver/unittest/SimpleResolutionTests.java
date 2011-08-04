@@ -30,11 +30,11 @@ import com.ibm.icu.dev.test.TestFmwk;
  * @author ryanmentley@google.com (Ryan Mentley)
  */
 public class SimpleResolutionTests extends TestFmwk {
-  private static final String LOCALES_TO_TEST = ".*";
+  private static final String LOCALES_TO_TEST = "[a].*|root";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.SIMPLE;
   /**
-   * Holds the unresolved data straight out of the resolver tool. Keyed by a
-   * Pair&lt;locale, full XPath in the canonical form retrieved by
+   * Holds the unresolved data straight out of the resolver tool. Keyed by
+   * locale, then full XPath in the canonical form retrieved by
    * {@link ResolverTestUtils#canonicalXpath(String)}&gt;
    */
   private Map<String, Map<String, String>> unresolvedFromTool =
@@ -42,7 +42,7 @@ public class SimpleResolutionTests extends TestFmwk {
 
   /**
    * Caches the fully-resolved data retrieved from the simple tool output. Keyed
-   * by a Pair&lt;locale, full XPath in the canonical form retrieved by
+   * locale, then full XPath in the canonical form retrieved by
    * {@link ResolverTestUtils#canonicalXpath(String)}&gt;
    */
   private Map<String, Map<String, String>> fullyResolvedFromTool =
@@ -123,27 +123,35 @@ public class SimpleResolutionTests extends TestFmwk {
         Map<String, String> resolvedChildMap = new HashMap<String, String>(resolvedParentMap);
         Map<String, String> unresolvedChildMap = unresolvedFromTool.get(locale);
         for (String distinguishedPath : unresolvedChildMap.keySet()) {
+
           String childValue = unresolvedChildMap.get(distinguishedPath);
           if (childValue.equals(CldrResolver.UNDEFINED)) {
-            assertFalse(
+            assertTrue(
                 "Child should not contain UNDEFINED values unless the truncation parent has a "
                     + "value at the given path", resolvedParentMap.containsKey(distinguishedPath));
             // Delete undefined values from the child Map
             resolvedChildMap.remove(distinguishedPath);
           } else {
-            assertFalse(
-                "Child should not contain values that are the same in the truncation parent locale",
-                childValue.equals(resolvedParentMap.get(distinguishedPath)));
+            // Ignore the //ldml/identity/ elements
+            if (!distinguishedPath.startsWith("//ldml/identity/")) {
+              assertFalse(
+                  "Child ("
+                      + locale
+                      + ") should not contain values that are the same in the truncation parent locale ("
+                      + parent + ") at path '" + distinguishedPath + "'.",
+                  childValue.equals(resolvedParentMap.get(distinguishedPath)));
+            }
             // Overwrite the parent value
             resolvedChildMap.put(distinguishedPath, childValue);
           }
         }
+        fullyResolvedFromTool.put(locale, Collections.unmodifiableMap(resolvedChildMap));
       }
     }
 
     // Cache is populated now if it wasn't already; return the result from the
     // cache
-    return Collections.unmodifiableMap(fullyResolvedFromTool.get(locale));
+    return fullyResolvedFromTool.get(locale);
   }
 
   private class TestHandler extends SimpleHandler {
