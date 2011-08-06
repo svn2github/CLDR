@@ -30,12 +30,12 @@ import com.ibm.icu.dev.test.TestFmwk;
  * @author ryanmentley@google.com (Ryan Mentley)
  */
 public class SimpleResolutionTests extends TestFmwk {
-  private static final String LOCALES_TO_TEST = "[a].*|root";
+  private static final String LOCALES_TO_TEST = ".*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.SIMPLE;
   /**
    * Holds the unresolved data straight out of the resolver tool. Keyed by
    * locale, then full XPath in the canonical form retrieved by
-   * {@link ResolverTestUtils#canonicalXpath(String)}&gt;
+   * {@link ResolverTestUtils#canonicalXpath(String)}
    */
   private Map<String, Map<String, String>> unresolvedFromTool =
       new HashMap<String, Map<String, String>>();
@@ -43,7 +43,7 @@ public class SimpleResolutionTests extends TestFmwk {
   /**
    * Caches the fully-resolved data retrieved from the simple tool output. Keyed
    * locale, then full XPath in the canonical form retrieved by
-   * {@link ResolverTestUtils#canonicalXpath(String)}&gt;
+   * {@link ResolverTestUtils#canonicalXpath(String)}
    */
   private Map<String, Map<String, String>> fullyResolvedFromTool =
       new HashMap<String, Map<String, String>>();
@@ -126,9 +126,10 @@ public class SimpleResolutionTests extends TestFmwk {
 
           String childValue = unresolvedChildMap.get(distinguishedPath);
           if (childValue.equals(CldrResolver.UNDEFINED)) {
-            assertTrue(
-                "Child should not contain UNDEFINED values unless the truncation parent has a "
-                    + "value at the given path", resolvedParentMap.containsKey(distinguishedPath));
+            assertTrue("Child locale " + locale
+                + " should not contain UNDEFINED values unless the truncation parent (" + parent
+                + " has a " + "value at the given path '" + distinguishedPath + "'.",
+                resolvedParentMap.containsKey(distinguishedPath));
             // Delete undefined values from the child Map
             resolvedChildMap.remove(distinguishedPath);
           } else {
