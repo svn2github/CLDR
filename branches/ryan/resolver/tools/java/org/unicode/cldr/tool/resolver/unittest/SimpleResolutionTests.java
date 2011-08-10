@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.unicode.cldr.tool.resolver.CldrResolver;
 import org.unicode.cldr.tool.resolver.ResolutionType;
+import org.unicode.cldr.tool.resolver.ResolverUtils;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.CLDRFile.Factory;
@@ -78,15 +79,13 @@ public class SimpleResolutionTests extends TestFmwk {
       Map<String, String> toolResolved = getFullyResolvedToolData(locale);
       // Check to make sure no paths from the CLDR-resolved version that aren't
       // aliases get left out
-      for (Iterator<String> fileIter = cldrResolved.iterator("", CLDRFile.ldmlComparator); fileIter
-          .hasNext();) {
-        String distinguishedPath = fileIter.next();
+      for (String distinguishedPath : ResolverUtils.getAllPaths(cldrResolved)) {
         // Ignore aliases and the //ldml/identity/ elements
         if (!distinguishedPath.endsWith("/alias")
             && !distinguishedPath.startsWith("//ldml/identity/")) {
           String canonicalPath = ResolverTestUtils.canonicalXpath(distinguishedPath);
           assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
-              + locale + " but not in tool resolved file.", toolResolved.containsKey(canonicalPath));
+              + locale + " but not in tool resolved file (value: '" + cldrResolved.getStringValue(canonicalPath) + "'.", toolResolved.containsKey(canonicalPath));
           // Add the path to the Set for the next batch of checks
           cldrPaths.add(canonicalPath);
         }

@@ -17,7 +17,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -119,7 +118,6 @@ public class CldrResolver {
     if (DRAFT_STATUS.doesOccur) {
       DraftStatus minDraftStatus = draftStatusFromString(DRAFT_STATUS.value);
       if (minDraftStatus == null) {
-        // TODO(ryanmentley): List recognized draft statuses?
         System.out.println("Warning: " + DRAFT_STATUS.value + " is not a recognized draft status.");
         System.out.print("Recognized draft statuses:");
         for (DraftStatus status : DraftStatus.values()) {
@@ -284,9 +282,6 @@ public class CldrResolver {
     CLDRFile resolved = new CLDRFile(new CLDRFile.SimpleXMLSource(null, locale), false);
     debugPrintln("done.", 3);
 
-    // Go through the XPaths, filter out appropriate values based on the
-    // inheritance model,
-    // then copy to the new CLDRFile.
     if (resolutionType == ResolutionType.SIMPLE) {
       debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: "
           + realParent + ")...", 2);
@@ -297,13 +292,12 @@ public class CldrResolver {
               + "...", 2);
     }
 
-    Set<String> basePaths = new HashSet<String>();
-    String distinguishedPath = null;
+    // Go through the XPaths, filter out appropriate values based on the
+    // inheritance model,
+    // then copy to the new CLDRFile.
+    Set<String> basePaths = ResolverUtils.getAllPaths(file);
     String fullPath = null;
-    paths: for (Iterator<String> baseIter = file.iterator("", CLDRFile.ldmlComparator); baseIter
-        .hasNext();) {
-      distinguishedPath = baseIter.next();
-      basePaths.add(distinguishedPath);
+    for (String distinguishedPath : basePaths) {
       debugPrintln("Distinguished path: " + distinguishedPath, 5);
 
       if (resolutionType == ResolutionType.FULL
@@ -315,24 +309,24 @@ public class CldrResolver {
       if (distinguishedPath.endsWith("/alias")) {
         // Ignore any aliases.
         debugPrintln("This path is an alias.  Dropping...", 5);
-        continue paths;
+        continue;
       }
 
       String parentValue = null;
       if (resolutionType == ResolutionType.SIMPLE) {
         parentValue = truncationParent.getStringValue(distinguishedPath);
-        debugPrintln("    Parent [" + parentLocale + "] value : " + strRep(parentValue), 5);
+        debugPrintln("    Parent [" + parentLocale + "] value : " + ResolverUtils.strRep(parentValue), 5);
       }
       
       String baseValue = file.getStringValue(distinguishedPath);
-      debugPrintln("    Base [" + locale + "] value: " + strRep(baseValue), 5);
+      debugPrintln("    Base [" + locale + "] value: " + ResolverUtils.strRep(baseValue), 5);
       if (baseValue == null && parentValue != null) {
         // This catches (and ignores) weirdness caused by aliases in older
         // versions of CLDR.
         // This shouldn't happen in the new version.
         debugPrintln("Non-inherited null detected in base locale.  If you are using a version"
             + " of CLDR 2.0.0 or newer, this is cause for concern.", 1);
-        continue paths;
+        continue;
       }
       
       /*
@@ -354,10 +348,8 @@ public class CldrResolver {
     // The undefined value is only needed for the simple inheritance resolution
     if (resolutionType == ResolutionType.SIMPLE) {
       // Add undefined values for anything in the parent but not the child
-      debugPrintln("Checking values in " + file.getLocaleID(), 3);
-      for (Iterator<String> parentIter = truncationParent.iterator("", CLDRFile.ldmlComparator); parentIter
-          .hasNext();) {
-        distinguishedPath = parentIter.next();
+      debugPrintln("Adding UNDEFINED values based on " + truncationParent.getLocaleID(), 3);
+      for (String distinguishedPath : ResolverUtils.getAllPaths(truncationParent)) {
         // Do the comparison with distinguished paths to prevent errors
         // resulting from duplicate full paths but the same distinguished path
         if (!basePaths.contains(distinguishedPath)) {
@@ -457,10 +449,7 @@ public class CldrResolver {
         + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "") + "...",
         2);
     // Go through the XPaths, filter out aliases, then copy to the new CLDRFile
-    String distinguishedPath = null;
-    for (Iterator<String> fileIter = cldrFile.iterator("", CLDRFile.ldmlComparator); fileIter
-        .hasNext();) {
-      distinguishedPath = fileIter.next();
+    for (String distinguishedPath : ResolverUtils.getAllPaths(cldrFile)) {
       debugPrintln("Path: " + distinguishedPath, 5);
       if (distinguishedPath.endsWith("/alias")) {
         debugPrintln("  This path is an alias.  Dropping...", 5);
@@ -532,24 +521,6 @@ public class CldrResolver {
    */
   private static void debugPrintln(String str, int verbosity) {
     debugPrint(str + "\n", verbosity);
-  }
-
-  /**
-   * Debugging method used to make null and empty strings more obvious in
-   * printouts
-   * 
-   * @param str the string
-   * @return "[null]" if str==null, "[empty]" if str is the empty string, str
-   *         otherwise
-   */
-  private static String strRep(String str) {
-    if (str == null) {
-      return "[null]";
-    } else if (str.isEmpty()) {
-      return "[empty]";
-    } else {
-      return str;
-    }
   }
 
   /**
