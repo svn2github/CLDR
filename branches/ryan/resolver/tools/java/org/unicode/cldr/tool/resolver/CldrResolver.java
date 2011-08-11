@@ -48,6 +48,11 @@ public class CldrResolver {
    * The name of the code-fallback locale
    */
   public static final String CODE_FALLBACK = "code-fallback";
+  
+  /**
+   * The name of the root locale
+   */
+  public static final String ROOT = "root";
 
   /* The command-line UOptions, along with a storage container. */
   private static final UOption LOCALE = UOption.create("locale", 'l', UOption.REQUIRES_ARG);
@@ -79,7 +84,8 @@ public class CldrResolver {
   private static final java.util.List<String> weirdCases = Arrays.asList(weirdCasesArray);
 
   /* Private instance variables */
-  Factory cldrFactory;
+  private Factory cldrFactory;
+  private Set<String> rootPaths = null;
 
   public static void main(String[] args) {
     debugPrintln("Working directory is: " + System.getProperty("user.dir") + "\n", 2);
@@ -253,7 +259,7 @@ public class CldrResolver {
 
     // root, having no parent, is a special case, which just gets its aliases
     // removed and then gets printed directly.
-    if (locale.equals("root")) {
+    if (locale.equals(ROOT)) {
       // Remove aliases from root.
       resolved = resolveRootLocale(base, resolutionType);
     } else {
@@ -314,7 +320,7 @@ public class CldrResolver {
 
       String parentValue = null;
       if (resolutionType == ResolutionType.SIMPLE) {
-        parentValue = truncationParent.getStringValue(distinguishedPath);
+        parentValue = getValueIfInPathSet(truncationParent, distinguishedPath);
         debugPrintln("    Parent [" + parentLocale + "] value : " + ResolverUtils.strRep(parentValue), 5);
       }
       
@@ -405,6 +411,24 @@ public class CldrResolver {
     resolve(localeRegex, outputDir, ResolutionType.SIMPLE);
   }
 
+  private String getValueIfInPathSet(CLDRFile file, String distinguishedPath) {
+    if (file.getLocaleID().equals(ROOT)) {
+      if (rootPaths == null) {
+        rootPaths = new HashSet<String>();
+        for (String path : ResolverUtils.getAllPaths(file)) {
+          rootPaths.add(ResolverUtils.canonicalXpath(path));
+        }
+      }
+      if (rootPaths.contains(distinguishedPath)) {
+        return file.getStringValue(distinguishedPath);
+      } else {
+        return null;
+      }
+    } else {
+      return file.getStringValue(distinguishedPath);
+    }
+  }
+  
   /**
    * Writes out the given CLDRFile in XML form to the given directory
    * 

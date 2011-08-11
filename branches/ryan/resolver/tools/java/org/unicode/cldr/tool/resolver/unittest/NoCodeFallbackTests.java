@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.unicode.cldr.tool.resolver.CldrResolver;
 import org.unicode.cldr.tool.resolver.ResolutionType;
+import org.unicode.cldr.tool.resolver.ResolverUtils;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.CldrUtility;
@@ -62,7 +63,7 @@ public class NoCodeFallbackTests extends TestFmwk {
             && !distinguishedPath.startsWith("//ldml/identity/")
             && !cldrResolved.getSourceLocaleID(distinguishedPath, null).equals(
                 CldrResolver.CODE_FALLBACK)) {
-          String canonicalPath = ResolverTestUtils.canonicalXpath(fullPath);
+          String canonicalPath = ResolverUtils.canonicalXpath(fullPath);
           assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
               + locale + " but not in tool resolved file.", toolPaths.contains(canonicalPath));
           // Add the path to the Set for the next batch of checks
@@ -98,7 +99,7 @@ public class NoCodeFallbackTests extends TestFmwk {
 
     @Override
     public void handlePathValue(String path, String value) {
-      paths.add(ResolverTestUtils.canonicalXpath(path));
+      paths.add(ResolverUtils.canonicalXpath(path));
       assertEquals("CLDRFile resolved value for " + path + " in locale " + file.getLocaleID()
           + " should match tool resolved value", file.getStringValue(path), value);
     }

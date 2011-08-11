@@ -36,7 +36,7 @@ public class SimpleResolutionTests extends TestFmwk {
   /**
    * Holds the unresolved data straight out of the resolver tool. Keyed by
    * locale, then full XPath in the canonical form retrieved by
-   * {@link ResolverTestUtils#canonicalXpath(String)}
+   * {@link ResolverUtils#canonicalXpath(String)}
    */
   private Map<String, Map<String, String>> unresolvedFromTool =
       new HashMap<String, Map<String, String>>();
@@ -44,7 +44,7 @@ public class SimpleResolutionTests extends TestFmwk {
   /**
    * Caches the fully-resolved data retrieved from the simple tool output. Keyed
    * locale, then full XPath in the canonical form retrieved by
-   * {@link ResolverTestUtils#canonicalXpath(String)}
+   * {@link ResolverUtils#canonicalXpath(String)}
    */
   private Map<String, Map<String, String>> fullyResolvedFromTool =
       new HashMap<String, Map<String, String>>();
@@ -83,7 +83,7 @@ public class SimpleResolutionTests extends TestFmwk {
         // Ignore aliases and the //ldml/identity/ elements
         if (!distinguishedPath.endsWith("/alias")
             && !distinguishedPath.startsWith("//ldml/identity/")) {
-          String canonicalPath = ResolverTestUtils.canonicalXpath(distinguishedPath);
+          String canonicalPath = ResolverUtils.canonicalXpath(distinguishedPath);
           assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
               + locale + " but not in tool resolved file (value: '" + cldrResolved.getStringValue(canonicalPath) + "'.", toolResolved.containsKey(canonicalPath));
           // Add the path to the Set for the next batch of checks
@@ -168,7 +168,7 @@ public class SimpleResolutionTests extends TestFmwk {
 
     @Override
     public void handlePathValue(String path, String value) {
-      String canonicalPath = ResolverTestUtils.canonicalXpath(path);
+      String canonicalPath = ResolverUtils.canonicalXpath(path);
       // Populate the unresolved map
       if (!unresolvedFromTool.containsKey(locale)) {
         unresolvedFromTool.put(locale, new HashMap<String, String>());

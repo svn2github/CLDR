@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.XPathParts;
 
 /**
  * @author ryanmentley@google.com (Ryan Mentley)
@@ -52,5 +53,15 @@ public class ResolverUtils {
     } else {
       return str;
     }
+  }
+
+  /**
+   * Returns a canonical representation of an XPath for use in comparing XPaths
+   * 
+   * @param xPath the original XPath
+   * @return the canonical representation of xPath
+   */
+  public static String canonicalXpath(String xPath) {
+    return new XPathParts().initialize(xPath).toString();
   }
 }

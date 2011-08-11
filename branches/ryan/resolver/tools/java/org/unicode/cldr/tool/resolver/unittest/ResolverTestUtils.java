@@ -11,7 +11,6 @@ import java.io.StringWriter;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.XMLFileReader;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
-import org.unicode.cldr.util.XPathParts;
 
 /**
  * Package-private class containing helper methods for testing the CLDR resolver
@@ -57,15 +56,5 @@ class ResolverTestUtils {
     xmlReader.setHandler(handler);
     xmlReader.read(toolResolved.getLocaleID(), sr, XMLFileReader.CONTENT_HANDLER
         | XMLFileReader.ERROR_HANDLER, false);
-  }
-
-  /**
-   * Returns a canonical representation of an XPath for use in comparing XPaths
-   * 
-   * @param xPath the original XPath
-   * @return the canonical representation of xPath
-   */
-  static String canonicalXpath(String xPath) {
-    return new XPathParts().initialize(xPath).toString();
   }
 }
