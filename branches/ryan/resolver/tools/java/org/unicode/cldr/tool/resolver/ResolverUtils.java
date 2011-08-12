@@ -66,15 +66,11 @@ public class ResolverUtils {
    * Returns a canonical representation of an XPath for use in comparing XPaths
    * 
    * @param xPath the original XPath
-   * @return the canonical representation of xPath, or {@code null} if {@code xPath == null}
+   * @return the canonical representation of xPath
+   * @throws NullPointerException if {@code xPath == null}
    */
   public static String canonicalXpath(String xPath) {
-    if (xPath != null) {
-      return new XPathParts().initialize(xPath).toString();      
-    } else {
-      return null;
-    }
-    
+    return new XPathParts().initialize(xPath).toString();
   }
 
   /**
