@@ -54,9 +54,7 @@ public class FullResolutionTests extends TestFmwk {
 
       // Check to make sure no paths from the CLDR-resolved version that aren't
       // aliases get left out
-      for (Iterator<String> fileIter = cldrResolved.iterator("", CLDRFile.ldmlComparator); fileIter
-          .hasNext();) {
-        String distinguishedPath = fileIter.next();
+      for (String distinguishedPath : ResolverUtils.getAllPaths(cldrResolved)) {
         String fullPath = cldrResolved.getFullXPath(distinguishedPath);
         // Ignore aliases and the //ldml/identity/ elements
         if (!distinguishedPath.endsWith("/alias")
