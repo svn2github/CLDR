@@ -7,6 +7,7 @@ package org.unicode.cldr.tool.resolver;
 import com.ibm.icu.dev.tool.UOption;
 
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
@@ -88,15 +89,14 @@ public class CldrResolver {
   private Set<String> rootPaths = null;
 
   public static void main(String[] args) {
-    ResolverUtils.debugPrintln("Working directory is: " + System.getProperty("user.dir") + "\n", 2);
     UOption.parseArgs(args, options);
 
     // Defaults
     ResolutionType resolutionType = ResolutionType.SIMPLE;
     String localeRegex = ".*";
     // TODO(ryanmentley): Make these not the defaults
-    String srcDir = "/usr/local/google/users/ryanmentley/cldr/trunk/common/main";
-    String destDir = "/usr/local/google/users/ryanmentley/cldrtest";
+    String srcDir = CldrUtility.MAIN_DIRECTORY;
+    String destDir = System.getProperty("user.dir");
 
     // Parse the options
     if (RESOLUTION_TYPE.doesOccur) {
@@ -118,6 +118,12 @@ public class CldrResolver {
 
     if (DESTDIR.doesOccur) {
       destDir = DESTDIR.value;
+    }
+    
+    if (srcDir == null) {
+      System.err.println("Error: a source (CLDR common/main) directory must be specified via either" +
+      		" the -s command-line option or by the CLDR_DIR environment variable.");
+      System.exit(1);
     }
 
     CldrResolver resolver = null;
@@ -147,7 +153,7 @@ public class CldrResolver {
 
     // Print out the options other than draft status (which has already been
     // printed)
-    ResolverUtils.debugPrintln("Locale regular expression: " + localeRegex + "\"", 2);
+    ResolverUtils.debugPrintln("Locale regular expression: \"" + localeRegex + "\"", 2);
     ResolverUtils.debugPrintln("Source (CLDR common/main) directory: \"" + srcDir + "\"", 2);
     ResolverUtils.debugPrintln("Destination (resolved output) directory: \"" + destDir + "\"", 2);
     ResolverUtils.debugPrintln("Resolution type: " + resolutionType.toString(), 2);
