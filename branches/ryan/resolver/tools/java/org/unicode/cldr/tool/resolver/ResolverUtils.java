@@ -25,7 +25,8 @@ public class ResolverUtils {
   }
 
   /**
-   * Get the set of paths with non-null values from a CLDR file (including all extra paths).
+   * Get the set of paths with non-null values from a CLDR file (including all
+   * extra paths).
    * 
    * @param file the CLDRFile from which to extract paths
    * @return a Set containing all the paths returned by
