@@ -81,7 +81,7 @@ public class ResolverUtils {
    * Debugging method to print things based on verbosity.
    * 
    * @param str The string to print
-   * @param verbosity The minimum VERBOSITY level at which to print this message
+   * @param verbosity The minimum verbosity level at which to print this message
    */
   static void debugPrint(String str, int verbosity) {
     if (CldrResolver.verbosity >= verbosity) {
@@ -92,8 +92,8 @@ public class ResolverUtils {
   /**
    * Debugging method to print things based on verbosity.
    * 
-   * @param str
-   * @param verbosity
+   * @param str The string to print
+   * @param verbosity The minimum verbosity level at which to print this message
    */
   static void debugPrintln(String str, int verbosity) {
     debugPrint(str + "\n", verbosity);

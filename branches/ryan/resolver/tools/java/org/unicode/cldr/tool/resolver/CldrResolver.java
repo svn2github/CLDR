@@ -165,6 +165,7 @@ public class CldrResolver {
     ResolverUtils.debugPrintln("Resolution type: " + resolutionType.toString(), 2);
     ResolverUtils.debugPrintln("Verbosity: " + verbosity, 2);
 
+    // Perform the resolution
     resolver.resolve(localeRegex, destDir, resolutionType);
     ResolverUtils.debugPrintln("Execution complete.", 3);
   }
@@ -254,7 +255,7 @@ public class CldrResolver {
   /**
    * Accessor method for the CLDR factory.  Used for testing.
    * 
-   * @return the {@link CLDRFile.Factory} used to resolve the CLDR data 
+   * @return the {@link org.unicode.cldr.util.CLDRFile.Factory} used to resolve the CLDR data 
    */
   public Factory getFactory() {
     return cldrFactory;
