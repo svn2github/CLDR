@@ -37,7 +37,7 @@ public class CldrResolver {
    * Output level from 0-5. 0 is nothing, 1 is errors, 2-3 is pretty sane, 5
    * will flood your terminal.
    */
-  static final int VERBOSITY = 2;
+  static int verbosity = 2;
 
   /**
    * The value that denotes a non-existent value in the child that exists in the
@@ -63,6 +63,8 @@ public class CldrResolver {
       UOption.REQUIRES_ARG);
   private static final UOption DRAFT_STATUS = UOption.create("mindraftstatus", 'm',
       UOption.REQUIRES_ARG);
+  private static final UOption VERBOSITY = UOption.create("verbosity", 'v',
+    UOption.REQUIRES_ARG);
   private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE,
       DRAFT_STATUS};
 
@@ -120,6 +122,22 @@ public class CldrResolver {
       destDir = DESTDIR.value;
     }
     
+    if (VERBOSITY.doesOccur) {
+      int verbosityParsed;
+      try {
+        verbosityParsed = Integer.parseInt(VERBOSITY.value);
+      } catch (NumberFormatException e) {
+        System.out.println("Warning: Error parsing verbosity value \"" + VERBOSITY.value + "\".  Using default value " + verbosity);
+        verbosityParsed = verbosity;
+      }
+      
+      if (verbosityParsed < 0 || verbosityParsed > 5) {
+        System.out.println("Warning: Verbosity must be between 0 and 5, inclusive.  Using default value " + verbosity);
+      } else {
+        verbosity = verbosityParsed;
+      }
+    }
+    
     if (srcDir == null) {
       System.err.println("Error: a source (CLDR common/main) directory must be specified via either" +
       		" the -s command-line option or by the CLDR_DIR environment variable.");
@@ -157,6 +175,7 @@ public class CldrResolver {
     ResolverUtils.debugPrintln("Source (CLDR common/main) directory: \"" + srcDir + "\"", 2);
     ResolverUtils.debugPrintln("Destination (resolved output) directory: \"" + destDir + "\"", 2);
     ResolverUtils.debugPrintln("Resolution type: " + resolutionType.toString(), 2);
+    ResolverUtils.debugPrintln("Verbosity: " + verbosity, 2);
 
     resolver.resolve(localeRegex, destDir, resolutionType);
     ResolverUtils.debugPrintln("Execution complete.", 3);

@@ -80,7 +80,7 @@ public class ResolverUtils {
    * @param verbosity The minimum VERBOSITY level at which to print this message
    */
   static void debugPrint(String str, int verbosity) {
-    if (CldrResolver.VERBOSITY >= verbosity) {
+    if (CldrResolver.verbosity >= verbosity) {
       System.out.print(str);
     }
   }
