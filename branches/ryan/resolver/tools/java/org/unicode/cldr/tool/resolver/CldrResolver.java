@@ -64,7 +64,7 @@ public class CldrResolver {
       UOption.REQUIRES_ARG);
   private static final UOption VERBOSITY = UOption.create("verbosity", 'v', UOption.REQUIRES_ARG);
   private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE,
-      DRAFT_STATUS};
+      DRAFT_STATUS, VERBOSITY};
 
   /* Private instance variables */
   private Factory cldrFactory;
