@@ -63,7 +63,7 @@ public class CldrResolver {
   private static final UOption DRAFT_STATUS = UOption.create("mindraftstatus", 'm',
       UOption.REQUIRES_ARG);
   private static final UOption VERBOSITY = UOption.create("verbosity", 'v', UOption.REQUIRES_ARG);
-  private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE,
+  private static final UOption[] OPTIONS = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE,
       DRAFT_STATUS, VERBOSITY};
 
   /* Private instance variables */
@@ -76,7 +76,7 @@ public class CldrResolver {
   private Set<String> rootPaths = null;
 
   public static void main(String[] args) {
-    UOption.parseArgs(args, options);
+    UOption.parseArgs(args, OPTIONS);
 
     // Defaults
     ResolutionType resolutionType = ResolutionType.SIMPLE;
