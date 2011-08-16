@@ -68,24 +68,6 @@ public class CldrResolver {
   private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE,
       DRAFT_STATUS};
 
-  /**
-   * This list is not used for anything practical, just for test cases for weird
-   * ones.
-   */
-  private static final String[] weirdCasesArray = { // Parent is root
-      "az_Cyrl", "ha_Arab", "ku_Latn", "mn_Mong", "pa_Arab", "shi_Tfng", "sr_Latn", "uz_Arab",
-          "uz_Latn", "vai_Latn", "zh_Hant",
-          // Parent is es_419
-          "es_AR", "es_BO", "es_CL", "es_CO", "es_CR", "es_DO", "es_EC", "es_GT", "es_HN", "es_MX",
-          "es_NI", "es_PA", "es_PE", "es_PR", "es_PY", "es_SV", "es_US", "es_UY", "es_VE",
-          // Parent is pt_PT
-          "pt_AO", "pt_GW", "pt_MZ", "pt_ST",
-          // Things I need
-          "root", "az",
-          // Non-weird cases
-          "en", "en_AU", "de_DE", "de", "de_AT"};
-  private static final java.util.List<String> weirdCases = Arrays.asList(weirdCasesArray);
-
   /* Private instance variables */
   private Factory cldrFactory;
   private Set<String> rootPaths = null;
@@ -96,7 +78,6 @@ public class CldrResolver {
     // Defaults
     ResolutionType resolutionType = ResolutionType.SIMPLE;
     String localeRegex = ".*";
-    // TODO(ryanmentley): Make these not the defaults
     String srcDir = CldrUtility.MAIN_DIRECTORY;
     String destDir = System.getProperty("user.dir");
 
@@ -228,13 +209,6 @@ public class CldrResolver {
 
     // Iterate through all the locales
     for (String locale : getLocaleNames(localeRegex)) {
-      // if (!weirdCases.contains(locale)) {
-      // continue locales;
-      // }
-      // if (!locale.equals("ku_Latn")) {
-      // continue locales;
-      // }
-
       // Resolve the file
       CLDRFile resolved = resolveLocale(locale, resolutionType);
 
