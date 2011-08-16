@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -49,7 +48,7 @@ public class CldrResolver {
    * The name of the code-fallback locale
    */
   public static final String CODE_FALLBACK = "code-fallback";
-  
+
   /**
    * The name of the root locale
    */
@@ -63,8 +62,7 @@ public class CldrResolver {
       UOption.REQUIRES_ARG);
   private static final UOption DRAFT_STATUS = UOption.create("mindraftstatus", 'm',
       UOption.REQUIRES_ARG);
-  private static final UOption VERBOSITY = UOption.create("verbosity", 'v',
-    UOption.REQUIRES_ARG);
+  private static final UOption VERBOSITY = UOption.create("verbosity", 'v', UOption.REQUIRES_ARG);
   private static final UOption[] options = {LOCALE, DESTDIR, SOURCEDIR, RESOLUTION_TYPE,
       DRAFT_STATUS};
 
@@ -102,26 +100,30 @@ public class CldrResolver {
     if (DESTDIR.doesOccur) {
       destDir = DESTDIR.value;
     }
-    
+
     if (VERBOSITY.doesOccur) {
       int verbosityParsed;
       try {
         verbosityParsed = Integer.parseInt(VERBOSITY.value);
       } catch (NumberFormatException e) {
-        System.out.println("Warning: Error parsing verbosity value \"" + VERBOSITY.value + "\".  Using default value " + verbosity);
+        System.out.println("Warning: Error parsing verbosity value \"" + VERBOSITY.value
+            + "\".  Using default value " + verbosity);
         verbosityParsed = verbosity;
       }
-      
+
       if (verbosityParsed < 0 || verbosityParsed > 5) {
-        System.out.println("Warning: Verbosity must be between 0 and 5, inclusive.  Using default value " + verbosity);
+        System.out
+            .println("Warning: Verbosity must be between 0 and 5, inclusive.  Using default value "
+                + verbosity);
       } else {
         verbosity = verbosityParsed;
       }
     }
-    
+
     if (srcDir == null) {
-      System.err.println("Error: a source (CLDR common/main) directory must be specified via either" +
-      		" the -s command-line option or by the CLDR_DIR environment variable.");
+      System.err
+          .println("Error: a source (CLDR common/main) directory must be specified via either"
+              + " the -s command-line option or by the CLDR_DIR environment variable.");
       System.exit(1);
     }
 
@@ -181,8 +183,8 @@ public class CldrResolver {
   }
 
   public CldrResolver(String cldrDirectory, DraftStatus minimumDraftStatus) {
-    ResolverUtils.debugPrintln("Making factory with minimum draft status " + minimumDraftStatus.toString()
-        + "...", 3);
+    ResolverUtils.debugPrintln(
+        "Making factory with minimum draft status " + minimumDraftStatus.toString() + "...", 3);
     /*
      * We don't do the regex filter here so that we can still resolve parent
      * files that don't match the regex
@@ -235,14 +237,15 @@ public class CldrResolver {
       if (locale.matches(localeRegex)) {
         locales.add(locale);
       } else {
-        ResolverUtils.debugPrintln("Locale " + locale + "does not match the pattern.  Skipping...\n", 4);
+        ResolverUtils.debugPrintln("Locale " + locale
+            + "does not match the pattern.  Skipping...\n", 4);
       }
-      
+
     }
     ResolverUtils.debugPrintln("done.\n", 3);
     return locales;
   }
-  
+
   public Factory getFactory() {
     return cldrFactory;
   }
@@ -288,8 +291,8 @@ public class CldrResolver {
     ResolverUtils.debugPrintln("done.", 3);
 
     if (resolutionType == ResolutionType.SIMPLE) {
-      ResolverUtils.debugPrintln("Filtering against truncation parent " + parentLocale + " (real parent: "
-          + realParent + ")...", 2);
+      ResolverUtils.debugPrintln("Filtering against truncation parent " + parentLocale
+          + " (real parent: " + realParent + ")...", 2);
     } else {
       ResolverUtils.debugPrintln(
           "Removing aliases"
@@ -320,20 +323,23 @@ public class CldrResolver {
       String parentValue = null;
       if (resolutionType == ResolutionType.SIMPLE) {
         parentValue = getValueIfInPathSet(truncationParent, distinguishedPath);
-        ResolverUtils.debugPrintln("    Parent [" + parentLocale + "] value : " + ResolverUtils.strRep(parentValue), 5);
+        ResolverUtils.debugPrintln(
+            "    Parent [" + parentLocale + "] value : " + ResolverUtils.strRep(parentValue), 5);
       }
-      
+
       String baseValue = file.getStringValue(distinguishedPath);
-      ResolverUtils.debugPrintln("    Base [" + locale + "] value: " + ResolverUtils.strRep(baseValue), 5);
+      ResolverUtils.debugPrintln(
+          "    Base [" + locale + "] value: " + ResolverUtils.strRep(baseValue), 5);
       if (baseValue == null && parentValue != null) {
         // This catches (and ignores) weirdness caused by aliases in older
         // versions of CLDR.
         // This shouldn't happen in the new version.
-        ResolverUtils.debugPrintln("Non-inherited null detected in base locale.  If you are using a version"
-            + " of CLDR 2.0.0 or newer, this is cause for concern.", 1);
+        ResolverUtils.debugPrintln(
+            "Non-inherited null detected in base locale.  If you are using a version"
+                + " of CLDR 2.0.0 or newer, this is cause for concern.", 1);
         continue;
       }
-      
+
       /*
        * If we're fully resolving the locale (and, if code-fallback suppression
        * is enabled, if the value is not from code-fallback) or the values
@@ -353,7 +359,8 @@ public class CldrResolver {
     // The undefined value is only needed for the simple inheritance resolution
     if (resolutionType == ResolutionType.SIMPLE) {
       // Add undefined values for anything in the parent but not the child
-      ResolverUtils.debugPrintln("Adding UNDEFINED values based on " + truncationParent.getLocaleID(), 3);
+      ResolverUtils.debugPrintln(
+          "Adding UNDEFINED values based on " + truncationParent.getLocaleID(), 3);
       for (String distinguishedPath : ResolverUtils.getAllPaths(truncationParent)) {
         // Do the comparison with distinguished paths to prevent errors
         // resulting from duplicate full paths but the same distinguished path
@@ -427,7 +434,7 @@ public class CldrResolver {
       return file.getStringValue(distinguishedPath);
     }
   }
-  
+
   /**
    * Writes out the given CLDRFile in XML form to the given directory
    * 
@@ -448,7 +455,8 @@ public class CldrResolver {
       return;
     } catch (UnsupportedEncodingException e) {
       // This should never ever happen.
-      ResolverUtils.debugPrintln("Your system does not support UTF-8 encoding: " + e.getMessage(), 1);
+      ResolverUtils.debugPrintln("Your system does not support UTF-8 encoding: " + e.getMessage(),
+          1);
       System.exit(1);
       return;
     }
