@@ -68,6 +68,11 @@ public class CldrResolver {
 
   /* Private instance variables */
   private Factory cldrFactory;
+
+  /**
+   * Caches the canonical version of the paths returned by root to work around
+   * CLDR bugs
+   */
   private Set<String> rootPaths = null;
 
   public static void main(String[] args) {
@@ -246,10 +251,22 @@ public class CldrResolver {
     return locales;
   }
 
+  /**
+   * Accessor method for the CLDR factory.  Used for testing.
+   * 
+   * @return the {@link CLDRFile.Factory} used to resolve the CLDR data 
+   */
   public Factory getFactory() {
     return cldrFactory;
   }
 
+  /**
+   * Resolves a locale to a {@link CLDRFile} object
+   * 
+   * @param locale the name of the locale to resolve
+   * @param resolutionType the type of resolution to perform
+   * @return a {@link CLDRFile} containing the resolved data
+   */
   public CLDRFile resolveLocale(String locale, ResolutionType resolutionType) {
     ResolverUtils.debugPrintln("Processing locale " + locale + "...", 2);
 
@@ -271,6 +288,13 @@ public class CldrResolver {
     return resolved;
   }
 
+  /**
+   * Resolves a locale other than root to a {@link CLDRFile}
+   * 
+   * @param file the file to retrieve the data from
+   * @param resolutionType the type of resolution to perform
+   * @return a {@link CLDRFile} containing the resolved data
+   */
   private CLDRFile resolveNonRootLocale(CLDRFile file, ResolutionType resolutionType) {
     String locale = file.getLocaleID();
     String parentLocale = null;
