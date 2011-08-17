@@ -84,7 +84,8 @@ public class SimpleResolutionTests extends TestFmwk {
             && !distinguishedPath.startsWith("//ldml/identity/")) {
           String canonicalPath = ResolverUtils.canonicalXpath(distinguishedPath);
           // TODO(ryanmentley): THIS IF STATEMENT IS A HACK. REMOVE THE IF
-          // STATEMENT (LEAVING THE CONTENTS) WHEN TICKET XXXX IS RESOLVED
+          // STATEMENT (LEAVING THE CONTENTS) WHEN TICKET 1297 IS RESOLVED
+          // http://unicode.org/cldr/trac/ticket/1297
           if (!distinguishedPath.startsWith("//ldml/layout/orientation")) {
             assertTrue(
                 "Path " + canonicalPath + " is present in CLDR resolved file for locale " + locale
@@ -102,7 +103,8 @@ public class SimpleResolutionTests extends TestFmwk {
         // Ignore the //ldml/identity/ elements
         if (!distinguishedPath.startsWith("//ldml/identity/")) {
           // TODO(ryanmentley): THIS IF STATEMENT IS A HACK. REMOVE THE IF
-          // STATEMENT (LEAVING THE CONTENTS) WHEN TICKET XXXX IS RESOLVED
+          // STATEMENT (LEAVING THE CONTENTS) WHEN TICKET 1297 IS RESOLVED
+          // http://unicode.org/cldr/trac/ticket/1297
           if (!distinguishedPath.startsWith("//ldml/layout/orientation")) {
             assertTrue("Path " + distinguishedPath
                 + " is present in tool resolved file for locale " + locale

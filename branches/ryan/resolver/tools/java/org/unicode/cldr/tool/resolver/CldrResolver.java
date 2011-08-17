@@ -33,12 +33,6 @@ import java.util.TreeSet;
  */
 public class CldrResolver {
   /**
-   * Output level from 0-5. 0 is nothing, 1 is errors, 2-3 is pretty sane, 5
-   * will flood your terminal.
-   */
-  static int verbosity = 2;
-
-  /**
    * The value that denotes a non-existent value in the child that exists in the
    * truncation parent
    */
@@ -112,16 +106,16 @@ public class CldrResolver {
         verbosityParsed = Integer.parseInt(VERBOSITY.value);
       } catch (NumberFormatException e) {
         System.out.println("Warning: Error parsing verbosity value \"" + VERBOSITY.value
-            + "\".  Using default value " + verbosity);
-        verbosityParsed = verbosity;
+            + "\".  Using default value " + ResolverUtils.verbosity);
+        verbosityParsed = ResolverUtils.verbosity;
       }
 
       if (verbosityParsed < 0 || verbosityParsed > 5) {
         System.out
             .println("Warning: Verbosity must be between 0 and 5, inclusive.  Using default value "
-                + verbosity);
+                + ResolverUtils.verbosity);
       } else {
-        verbosity = verbosityParsed;
+        ResolverUtils.verbosity = verbosityParsed;
       }
     }
 
@@ -163,7 +157,7 @@ public class CldrResolver {
     ResolverUtils.debugPrintln("Source (CLDR common/main) directory: \"" + srcDir + "\"", 2);
     ResolverUtils.debugPrintln("Destination (resolved output) directory: \"" + destDir + "\"", 2);
     ResolverUtils.debugPrintln("Resolution type: " + resolutionType.toString(), 2);
-    ResolverUtils.debugPrintln("Verbosity: " + verbosity, 2);
+    ResolverUtils.debugPrintln("Verbosity: " + ResolverUtils.verbosity, 2);
 
     // Perform the resolution
     resolver.resolve(localeRegex, destDir, resolutionType);

@@ -19,6 +19,12 @@ import org.unicode.cldr.util.XPathParts;
  */
 public class ResolverUtils {
   /**
+   * Output level from 0-5. 0 is nothing, 1 is errors, 2-3 is pretty sane, 5
+   * will flood your terminal.
+   */
+  static int verbosity = 2;
+
+  /**
    * This is a static class and should never be instantiated
    */
   private ResolverUtils() {
@@ -36,8 +42,8 @@ public class ResolverUtils {
   public static Set<String> getAllPaths(CLDRFile file) {
     String locale = file.getLocaleID();
     Set<String> paths = new HashSet<String>();
-    for (Iterator<String> fileIter = file.iterator(); fileIter.hasNext();) {
-      paths.add(fileIter.next());
+    for (String path : file) {
+      paths.add(path);
     }
     for (String path : file.getExtraPaths()) {
       if (file.getStringValue(path) != null) {
@@ -82,10 +88,10 @@ public class ResolverUtils {
    * Debugging method to print things based on verbosity.
    * 
    * @param str The string to print
-   * @param verbosity The minimum verbosity level at which to print this message
+   * @param msgVerbosity The minimum verbosity level at which to print this message
    */
-  static void debugPrint(String str, int verbosity) {
-    if (CldrResolver.verbosity >= verbosity) {
+  static void debugPrint(String str, int msgVerbosity) {
+    if (verbosity >= msgVerbosity) {
       System.out.print(str);
     }
   }
@@ -94,9 +100,9 @@ public class ResolverUtils {
    * Debugging method to print things based on verbosity.
    * 
    * @param str The string to print
-   * @param verbosity The minimum verbosity level at which to print this message
+   * @param msgVerbosity The minimum verbosity level at which to print this message
    */
-  static void debugPrintln(String str, int verbosity) {
-    debugPrint(str + "\n", verbosity);
+  static void debugPrintln(String str, int msgVerbosity) {
+    debugPrint(str + "\n", msgVerbosity);
   }
 }
