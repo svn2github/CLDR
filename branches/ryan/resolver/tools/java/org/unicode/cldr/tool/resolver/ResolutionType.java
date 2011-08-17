@@ -19,22 +19,22 @@ public enum ResolutionType {
   /**
    * A list of resolve types that will result in the simple inheritance model
    */
-  private static final List<String> SIMPLE_INHERITANCE = Arrays.asList(new String[] {"p",
-      "partial", "s", "simple"});
+  private static final List<String> SIMPLE_INHERITANCE = Arrays.asList(new String[] {"s", "simple",
+      "simpleinheritance", "simple-inheritance", "p", "partial"});
 
   /**
    * A list of resolve types that will result in the fully-resolved inheritance
    * model
    */
   private static final List<String> FULLY_RESOLVED = Arrays.asList(new String[] {"f", "full",
-      "fully", "fully resolved", "fully-resolved"});
+      "fully", "fullyresolved", "fully-resolved"});
 
   /**
    * A list of resolve types that will result in the fully-resolved inheritance
    * model with code-fallback suppressed
    */
   private static final List<String> FULLY_RESOLVED_WITHOUT_CODE_FALLBACK = Arrays
-      .asList(new String[] {"n", "nc", "nocodefallback", "nocode", "no-code", "no-code-fallback"});
+      .asList(new String[] {"n", "nc", "nocode", "no-code", "nocodefallback", "no-code-fallback"});
 
   /**
    * Gets a ResolutionType corresponding to a given string
