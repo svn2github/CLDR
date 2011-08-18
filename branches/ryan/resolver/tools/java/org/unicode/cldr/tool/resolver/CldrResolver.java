@@ -82,8 +82,8 @@ public class CldrResolver {
       try {
         resolutionType = ResolutionType.forString(RESOLUTION_TYPE.value);
       } catch (IllegalArgumentException e) {
-        System.out.println("Warning: " + e.getMessage());
-        System.out.println("Using default resolution type " + resolutionType.toString());
+        ResolverUtils.debugPrintln("Warning: " + e.getMessage(), 1);
+        ResolverUtils.debugPrintln("Using default resolution type " + resolutionType.toString(), 1);
       }
     }
 
@@ -104,24 +104,24 @@ public class CldrResolver {
       try {
         verbosityParsed = Integer.parseInt(VERBOSITY.value);
       } catch (NumberFormatException e) {
-        System.out.println("Warning: Error parsing verbosity value \"" + VERBOSITY.value
-            + "\".  Using default value " + ResolverUtils.verbosity);
+        ResolverUtils.debugPrintln("Warning: Error parsing verbosity value \"" + VERBOSITY.value
+            + "\".  Using default value " + ResolverUtils.verbosity, 1);
         verbosityParsed = ResolverUtils.verbosity;
       }
 
       if (verbosityParsed < 0 || verbosityParsed > 5) {
-        System.out
-            .println("Warning: Verbosity must be between 0 and 5, inclusive.  Using default value "
-                + ResolverUtils.verbosity);
+        ResolverUtils.debugPrintln(
+            "Warning: Verbosity must be between 0 and 5, inclusive.  Using default value "
+                + ResolverUtils.verbosity, 1);
       } else {
         ResolverUtils.verbosity = verbosityParsed;
       }
     }
 
     if (srcDir == null) {
-      System.err
-          .println("Error: a source (CLDR common/main) directory must be specified via either"
-              + " the -s command-line option or by the CLDR_DIR environment variable.");
+      ResolverUtils.debugPrintln(
+          "Error: a source (CLDR common/main) directory must be specified via either"
+              + " the -s command-line option or by the CLDR_DIR environment variable.", 1);
       System.exit(1);
     }
 
@@ -129,15 +129,16 @@ public class CldrResolver {
     if (DRAFT_STATUS.doesOccur) {
       DraftStatus minDraftStatus = ResolverUtils.draftStatusFromString(DRAFT_STATUS.value);
       if (minDraftStatus == null) {
-        System.out.println("Warning: " + DRAFT_STATUS.value + " is not a recognized draft status.");
-        System.out.print("Recognized draft statuses:");
+        ResolverUtils.debugPrintln("Warning: " + DRAFT_STATUS.value
+            + " is not a recognized draft status.", 1);
+        ResolverUtils.debugPrint("Recognized draft statuses:", 1);
         for (DraftStatus status : DraftStatus.values()) {
-          System.out.print(" " + status.toString());
+          ResolverUtils.debugPrint(" " + status.toString(), 1);
         }
-        System.out.println();
+        ResolverUtils.debugPrintln("", 1);
         // This default is defined in the internals of CLDRFile, so we don't
         // output it here
-        System.out.println("Using default draft status");
+        ResolverUtils.debugPrintln("Using default draft status", 1);
       } else {
         ResolverUtils.debugPrintln("\nMinimum draft status: " + minDraftStatus.toString(), 2);
         resolver = new CldrResolver(srcDir, minDraftStatus);
