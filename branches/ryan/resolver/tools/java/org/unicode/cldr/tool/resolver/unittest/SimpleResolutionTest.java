@@ -23,7 +23,7 @@ import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
  * 
  * @author ryanmentley@google.com (Ryan Mentley)
  */
-public class NewSimpleResolutionTest extends ResolverTest {
+public class SimpleResolutionTest extends ResolverTest {
   private static final String LOCALES_TO_TEST = ".*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.SIMPLE;
 

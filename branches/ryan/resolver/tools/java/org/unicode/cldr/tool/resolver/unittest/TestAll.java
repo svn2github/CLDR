@@ -15,9 +15,9 @@ public class TestAll extends TestGroup {
 
   public TestAll() {
     super(new String[] {
-                        "org.unicode.cldr.tool.resolver.unittest.NewFullResolutionTest",
-                        "org.unicode.cldr.tool.resolver.unittest.NewNoCodeFallbackTest",
-                        "org.unicode.cldr.tool.resolver.unittest.NewSimpleResolutionTest",
+                        "org.unicode.cldr.tool.resolver.unittest.FullResolutionTest",
+                        "org.unicode.cldr.tool.resolver.unittest.NoCodeFallbackTest",
+                        "org.unicode.cldr.tool.resolver.unittest.SimpleResolutionTest",
                         },
         "All tests for the CLDR Resolver Tool");
   }
