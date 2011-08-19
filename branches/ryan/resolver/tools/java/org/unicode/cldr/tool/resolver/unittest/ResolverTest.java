@@ -27,6 +27,7 @@ import com.ibm.icu.dev.test.TestFmwk;
 public abstract class ResolverTest extends TestFmwk {
   /**
    * Gets the fully-resolved data for the locale
+   * <b>Precondition:</b> caches have already been populated.
    * 
    * @param locale the locale for which to get the map
    * @return an immutable Map from distinguished path to string value
