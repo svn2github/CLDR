@@ -64,6 +64,15 @@ public abstract class ResolverTest extends TestFmwk {
    * @return a {@link SimpleHandler} to handle the XML data for the given locale
    */
   protected abstract SimpleHandler makeHandler(String locale);
+  
+  /**
+   * Transform a distinguished XPath to the canonical form that the XML file
+   * will return
+   * 
+   * @param distinguishedPath a distinguished XPath
+   * @return a String in the same form as paths canonicalized from XML files
+   */
+  protected abstract String canonicalizeDPath(String distinguishedPath, CLDRFile file);
 
   /**
    * Template method to test any type of CLDR resolution
@@ -100,10 +109,10 @@ public abstract class ResolverTest extends TestFmwk {
       for (String distinguishedPath : ResolverUtils.getAllPaths(cldrResolved)) {
         // Check if path should be ignored
         if (!shouldIgnorePath(distinguishedPath, cldrResolved)) {
-          String canonicalPath = ResolverUtils.canonicalXpath(distinguishedPath);
-          String cldrValue = cldrResolved.getStringValue(canonicalPath);
+          String canonicalPath = canonicalizeDPath(distinguishedPath, cldrResolved);
+          String cldrValue = cldrResolved.getStringValue(distinguishedPath);
           assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
-              + locale + " but not in tool resolved file (value: '" + cldrValue + "').",
+              + locale + " but not in tool resolved file (CLDR value: '" + cldrValue + "').",
               toolResolved.containsKey(canonicalPath));
           assertEquals("Tool resolved value for " + canonicalPath + " in locale " + locale
               + " should match CLDRFile resolved value", cldrValue, toolResolved.get(canonicalPath));
@@ -113,11 +122,11 @@ public abstract class ResolverTest extends TestFmwk {
       }
       // Check to make sure that all paths from the tool-resolved version are
       // also in the CLDR-resolved version
-      for (String distinguishedPath : toolResolved.keySet()) {
+      for (String canonicalPath : toolResolved.keySet()) {
         // Check if path should be ignored
-        if (!shouldIgnorePath(distinguishedPath, cldrResolved)) {
-          assertTrue("Path " + distinguishedPath + " is present in tool resolved file for locale "
-              + locale + " but not in CLDR resolved file.", cldrPaths.contains(distinguishedPath));
+        if (!shouldIgnorePath(canonicalPath, cldrResolved)) {
+          assertTrue("Path " + canonicalPath + " is present in tool resolved file for locale "
+              + locale + " but not in CLDR resolved file.", cldrPaths.contains(canonicalPath));
         }
       }
     }

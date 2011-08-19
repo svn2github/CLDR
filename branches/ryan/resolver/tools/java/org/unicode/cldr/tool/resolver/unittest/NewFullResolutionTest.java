@@ -16,7 +16,7 @@ import org.unicode.cldr.util.CLDRFile;
  * @author ryanmentley@google.com (Ryan Mentley)
  */
 public class NewFullResolutionTest extends NonSimpleResolutionTest {
-  private static final String LOCALES_TO_TEST = "root|aa.*|en.*";
+  private static final String LOCALES_TO_TEST = ".*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.FULL;
 
   /**

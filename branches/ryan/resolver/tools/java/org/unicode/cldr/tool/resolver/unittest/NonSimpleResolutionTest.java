@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.unicode.cldr.tool.resolver.ResolverUtils;
+import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
 
 /**
@@ -36,6 +37,11 @@ public abstract class NonSimpleResolutionTest extends ResolverTest {
   @Override
   protected SimpleHandler makeHandler(String locale) {
     return new TestHandler(locale);
+  }
+
+  @Override
+  protected String canonicalizeDPath(String distinguishedPath, CLDRFile file) {
+    return ResolverUtils.canonicalXpath(file.getFullXPath(distinguishedPath));
   }
 
   private class TestHandler extends SimpleHandler {
