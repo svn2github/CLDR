@@ -84,7 +84,7 @@ public abstract class ResolverTest extends TestFmwk {
       // Resolve with the tool
       CLDRFile toolResolved = resolver.resolveLocale(locale, getResolutionType());
 
-      // Process the file and populate unresolvedFromTool
+      // Process the file and populate caches
       SimpleHandler handler = makeHandler(locale);
       ResolverTestUtils.processToolResolvedFile(toolResolved, handler);
     }
@@ -95,31 +95,25 @@ public abstract class ResolverTest extends TestFmwk {
       Set<String> cldrPaths = new HashSet<String>();
       Map<String, String> toolResolved = getFullyResolvedToolData(locale);
       // Check to make sure no paths from the CLDR-resolved version that aren't
-      // aliases get left out
+      // explicitly excluded get left out
       for (String distinguishedPath : ResolverUtils.getAllPaths(cldrResolved)) {
-        // Ignore aliases and the //ldml/identity/ elements
-        if (!distinguishedPath.endsWith("/alias")
-            && !distinguishedPath.startsWith("//ldml/identity/")) {
+        // Check if path should be ignored
+        if (!shouldIgnorePath(distinguishedPath, cldrResolved)) {
           String canonicalPath = ResolverUtils.canonicalXpath(distinguishedPath);
-          // TODO(ryanmentley): THIS IF STATEMENT IS A HACK. REMOVE THE IF
-          // STATEMENT (LEAVING THE CONTENTS) WHEN TICKET 1297 IS RESOLVED
-          // http://unicode.org/cldr/trac/ticket/1297
-          if (!distinguishedPath.startsWith("//ldml/layout/orientation")) {
-            String cldrValue = cldrResolved.getStringValue(canonicalPath);
-            assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
-                + locale + " but not in tool resolved file (value: '" + cldrValue + "'.",
-                toolResolved.containsKey(canonicalPath));
-            assertEquals("CLDRFile resolved value for " + canonicalPath + " in locale " + locale
-                + " should match tool resolved value", cldrValue, toolResolved.get(canonicalPath));
-            // Add the path to the Set for the next batch of checks
-            cldrPaths.add(canonicalPath);
-          }
+          String cldrValue = cldrResolved.getStringValue(canonicalPath);
+          assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
+              + locale + " but not in tool resolved file (value: '" + cldrValue + "'.",
+              toolResolved.containsKey(canonicalPath));
+          assertEquals("CLDRFile resolved value for " + canonicalPath + " in locale " + locale
+              + " should match tool resolved value", cldrValue, toolResolved.get(canonicalPath));
+          // Add the path to the Set for the next batch of checks
+          cldrPaths.add(canonicalPath);
         }
       }
       // Check to make sure that all paths from the tool-resolved version are
       // also in the CLDR-resolved version
       for (String distinguishedPath : toolResolved.keySet()) {
-        // Ignore the //ldml/identity/ elements
+        // Check if path should be ignored
         if (!shouldIgnorePath(distinguishedPath, cldrResolved)) {
           assertTrue("Path " + distinguishedPath + " is present in tool resolved file for locale "
               + locale + " but not in CLDR resolved file.", cldrPaths.contains(distinguishedPath));
