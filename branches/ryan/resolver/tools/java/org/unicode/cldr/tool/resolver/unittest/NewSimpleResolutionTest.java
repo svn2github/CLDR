@@ -1,4 +1,7 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
+/*
+ * Copyright (C) 2004-2011, Unicode, Inc., Google, Inc., and others.
+ * For terms of use, see http://www.unicode.org/terms_of_use.html
+ */
 
 package org.unicode.cldr.tool.resolver.unittest;
 
@@ -14,13 +17,16 @@ import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
 
 /**
+ * Test the simple resolution of CLDR files.
+ * 
+ * This will take a long time to run.
+ * 
  * @author ryanmentley@google.com (Ryan Mentley)
- *
  */
 public class NewSimpleResolutionTest extends ResolverTest {
-  private static final String LOCALES_TO_TEST = "root|aa.*";
+  private static final String LOCALES_TO_TEST = ".*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.SIMPLE;
-  
+
   /**
    * Holds the unresolved data straight out of the resolver tool. Keyed by
    * locale, then full XPath in the canonical form retrieved by
@@ -37,7 +43,7 @@ public class NewSimpleResolutionTest extends ResolverTest {
    */
   private Map<String, Map<String, String>> fullyResolvedFromTool =
       new HashMap<String, Map<String, String>>();
-  
+
   /**
    * This is needed because the testing framework does not detect inherited test
    * methods
@@ -46,8 +52,12 @@ public class NewSimpleResolutionTest extends ResolverTest {
     TestResolution();
   }
 
-  /* (non-Javadoc)
-   * @see org.unicode.cldr.tool.resolver.unittest.ResolverTest#getFullyResolvedToolData(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.unicode.cldr.tool.resolver.unittest.ResolverTest#getFullyResolvedToolData
+   * (java.lang.String)
    */
   @Override
   protected Map<String, String> getFullyResolvedToolData(String locale) {
@@ -95,33 +105,21 @@ public class NewSimpleResolutionTest extends ResolverTest {
     return fullyResolvedFromTool.get(locale);
   }
 
-  /* (non-Javadoc)
-   * @see org.unicode.cldr.tool.resolver.unittest.ResolverTest#getLocalesToTest()
-   */
   @Override
   protected String getLocalesToTest() {
     return LOCALES_TO_TEST;
   }
 
-  /* (non-Javadoc)
-   * @see org.unicode.cldr.tool.resolver.unittest.ResolverTest#getResolutionType()
-   */
   @Override
   protected ResolutionType getResolutionType() {
     return RESOLUTION_TYPE;
   }
-  
-  /* (non-Javadoc)
-   * @see org.unicode.cldr.tool.resolver.unittest.ResolverTest#makeHandler(java.lang.String)
-   */
+
   @Override
   protected SimpleHandler makeHandler(String locale) {
     return new TestHandler(locale);
   }
 
-  /* (non-Javadoc)
-   * @see org.unicode.cldr.tool.resolver.unittest.ResolverTest#shouldIgnorePath(java.lang.String, org.unicode.cldr.util.CLDRFile)
-   */
   @Override
   protected boolean shouldIgnorePath(String distinguishedPath, CLDRFile file) {
     if (distinguishedPath.endsWith("/alias") || distinguishedPath.startsWith("//ldml/identity/")) {
@@ -160,5 +158,5 @@ public class NewSimpleResolutionTest extends ResolverTest {
           unresolvedFromTool.get(locale).containsKey(canonicalPath));
       unresolvedFromTool.get(locale).put(canonicalPath, value);
     }
-  }  
+  }
 }
