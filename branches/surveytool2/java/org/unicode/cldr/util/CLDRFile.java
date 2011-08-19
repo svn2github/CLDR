@@ -109,10 +109,10 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
   public enum DraftStatus {unconfirmed, provisional, contributed, approved};
 
   public static class SimpleXMLSource extends XMLSource {
-    private HashMap<String,String> xpath_value = new HashMap<String,String>(); // TODO change to HashMap, once comparator is gone
-    private HashMap<String,String> xpath_fullXPath = new HashMap<String,String>();
-    private Comments xpath_comments = new Comments(); // map from paths to comments.
-    private Factory factory; // for now, fix later
+    protected HashMap<String,String> xpath_value = new HashMap<String,String>();
+    protected HashMap<String,String> xpath_fullXPath = new HashMap<String,String>();
+    protected Comments xpath_comments = new Comments(); // map from paths to comments.
+    protected Factory factory; // for now, fix later
     public DraftStatus madeWithMinimalDraftStatus = DraftStatus.unconfirmed;
 
     public SimpleXMLSource(Factory factory, String localeID) {
@@ -198,7 +198,11 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
       return factory.getAvailable();
     }
   }
-
+  
+  public XMLSource getDataSource()
+  {
+    return dataSource;
+  }
 
 
   public String toString() {
