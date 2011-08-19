@@ -103,10 +103,10 @@ public abstract class ResolverTest extends TestFmwk {
           String canonicalPath = ResolverUtils.canonicalXpath(distinguishedPath);
           String cldrValue = cldrResolved.getStringValue(canonicalPath);
           assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
-              + locale + " but not in tool resolved file (value: '" + cldrValue + "'.",
+              + locale + " but not in tool resolved file (value: '" + cldrValue + "').",
               toolResolved.containsKey(canonicalPath));
-          assertEquals("CLDRFile resolved value for " + canonicalPath + " in locale " + locale
-              + " should match tool resolved value", cldrValue, toolResolved.get(canonicalPath));
+          assertEquals("Tool resolved value for " + canonicalPath + " in locale " + locale
+              + " should match CLDRFile resolved value", cldrValue, toolResolved.get(canonicalPath));
           // Add the path to the Set for the next batch of checks
           cldrPaths.add(canonicalPath);
         }
