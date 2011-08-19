@@ -24,7 +24,7 @@ import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
  * @author ryanmentley@google.com (Ryan Mentley)
  */
 public class NewSimpleResolutionTest extends ResolverTest {
-  private static final String LOCALES_TO_TEST = ".*";
+  private static final String LOCALES_TO_TEST = "root|aa.*|en.*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.SIMPLE;
 
   /**
@@ -34,7 +34,6 @@ public class NewSimpleResolutionTest extends ResolverTest {
    */
   private Map<String, Map<String, String>> unresolvedFromTool =
       new HashMap<String, Map<String, String>>();
-
 
   /**
    * Caches the fully-resolved data retrieved from the simple tool output. Keyed
