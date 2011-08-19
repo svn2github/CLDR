@@ -127,6 +127,12 @@ public class NewSimpleResolutionTest extends ResolverTest {
     if (distinguishedPath.endsWith("/alias") || distinguishedPath.startsWith("//ldml/identity/")) {
       return true;
     } else {
+      // TODO(ryanmentley): THIS IS A HACK. (see ticket #4088)
+      // REMOVE THE FOLLOWING IF STATEMENT WHEN TICKET 1297 IS RESOLVED
+      // http://unicode.org/cldr/trac/ticket/1297
+      if (distinguishedPath.startsWith("//ldml/layout/orientation")) {
+        return true;
+      }
       return false;
     }
   }
