@@ -23,15 +23,14 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
 
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathUtilities;
-import org.unicode.cldr.web.SurveyMain.UserLocaleStuff;
 
 import com.ibm.icu.dev.test.util.ElapsedTimer;
 import com.ibm.icu.text.DateFormat;
@@ -40,9 +39,9 @@ import com.ibm.icu.util.ULocale;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
-import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.io.SyndFeedOutput;
 
 /**
@@ -749,8 +748,7 @@ public class SurveyForum {
 	 * Get CLDR File
 	 */
 	public static CLDRFile getCLDRFile(WebContext ctx) {
-		return ctx.getUserFile().cldrfile;
-		//return ctx.sm.getCLDRFile(ctx.session, ctx.getLocale());
+		return ctx.sm.stFactory.make(ctx.getLocale(),true);
 	}
 
 	public static void showSubmitButton(WebContext baseCtx) {

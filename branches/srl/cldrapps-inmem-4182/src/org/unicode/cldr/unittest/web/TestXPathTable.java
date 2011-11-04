@@ -6,13 +6,9 @@ package org.unicode.cldr.unittest.web;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
-import org.unicode.cldr.unittest.TestPaths;
 import org.unicode.cldr.web.CookieSession;
 import org.unicode.cldr.web.DBUtils;
-import org.unicode.cldr.web.IntHash;
 import org.unicode.cldr.web.SurveyMain;
 import org.unicode.cldr.web.XPathTable;
 

@@ -2111,7 +2111,9 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 		 * @return list of aliases
 		 */
 		@Override
-		protected synchronized List<Alias> getAliases() {
+		protected synchronized TreeMap<String, String> getAliases() {
+			if(true) throw new InternalError("NOT IMPLEMENTED.");
+			
 			String locale = getLocaleID();
 			List<Alias> output = aliasTable.get(locale);
 			if(output == null) {
@@ -2148,7 +2150,7 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 					closeOrThrow(stmts);
 				}
 			}
-			return output;
+			return null; //output;
 		}
 
 		Hashtable<String, XMLSource> makeHash = new Hashtable<String, XMLSource>();

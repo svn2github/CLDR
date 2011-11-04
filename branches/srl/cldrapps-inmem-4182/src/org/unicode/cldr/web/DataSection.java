@@ -993,7 +993,6 @@ public class DataSection extends Registerable {
     public static DataSection make(WebContext ctx, CLDRLocale locale, String prefix, boolean simple, String ptype) {
     	DataSection section = new DataSection(ctx.sm, locale, prefix, ptype);
     	//        section.simple = simple;
-    	SurveyMain.UserLocaleStuff uf = ctx.getUserFile();
 
     	final String[] prefixesWithExamples = { "currencies", "calendars", "codePatterns", "numbers", "localeDisplayPattern"};
     	for ( String s : prefixesWithExamples ) {
@@ -1006,9 +1005,10 @@ public class DataSection extends Registerable {
     		section.hasExamples = true;
     	}
     	
-    	XMLSource ourSrc = uf.dbSource;
+    	CLDRFile cf = ctx.sm.stFactory.make(locale,true);
+    	
     	synchronized(ctx.session) {
-    		CheckCLDR checkCldr = uf.getCheck(ctx);
+    		CheckCLDR checkCldr = ctx.sm.stFactory.getCheck(locale);
     		if(checkCldr == null) {
     			throw new InternalError("checkCldr == null");
     		}
@@ -1016,19 +1016,19 @@ public class DataSection extends Registerable {
     		com.ibm.icu.dev.test.util.ElapsedTimer cet = null;
     		if(SHOW_TIME) {
     			cet= new com.ibm.icu.dev.test.util.ElapsedTimer();
-    			System.err.println("Begin populate of " + locale + " // " + prefix+":"+workingCoverageLevel + " - is:" + ourSrc.getClass().getName());
+    			System.err.println("Begin populate of " + locale + " // " + prefix+":"+workingCoverageLevel + " - is:" );
     		}
     		CLDRFile baselineFile = ctx.sm.getBaselineFile();
     		section.skippedDueToCoverage=0;
     		ctx.println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='Populating...';</script>"); ctx.flush();
 
-    		section.populateFrom(ourSrc, checkCldr, baselineFile,ctx.getOptionsMap(), workingCoverageLevel);
+    		section.populateFrom(cf, checkCldr, baselineFile,ctx.getOptionsMap(), workingCoverageLevel);
     		int popCount = section.getAll().size();
     		/*            if(SHOW_TIME) {
 	                System.err.println("DP: Time taken to populate " + locale + " // " + prefix +":"+ctx.defaultPtype()+ " = " + et + " - Count: " + pod.getAll().size());
 	            }*/
     		ctx.println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='Completing..."+popCount+" items';</script>"); ctx.flush();
-    		section.ensureComplete(ourSrc, checkCldr, baselineFile, ctx.getOptionsMap(), workingCoverageLevel);
+    		section.ensureComplete(cf, checkCldr, baselineFile, ctx.getOptionsMap(), workingCoverageLevel);
     		if(SHOW_TIME) {
     			int allCount = section.getAll().size();
     			System.err.println("Populate+complete " + locale + " // " + prefix +":"+section.getPtype()+ " = " + cet + " - Count: " + popCount+"+"+(allCount-popCount)+"="+allCount);
@@ -1149,13 +1149,13 @@ public class DataSection extends Registerable {
      */
 	public static final String CONTINENT_DIVIDER = "\u2603";
     
-    private void populateFrom(XMLSource ourSrc, CheckCLDR checkCldr, CLDRFile baselineFile, Map<String,String> options, String workingCoverageLevel) {
+    private void populateFrom(CLDRFile cf, CheckCLDR checkCldr, CLDRFile baselineFile, Map<String,String> options, String workingCoverageLevel) {
         DBEntry vettedParentEntry = null;
         try  {
         	init();
         	XPathParts xpp = new XPathParts(null,null);
         	//        System.out.println("[] initting from pod " + locale + " with prefix " + xpathPrefix);
-        	CLDRFile aFile = new CLDRFile(ourSrc, true);
+        	CLDRFile aFile = cf;
         	List examplesResult = new ArrayList();
         	SupplementalDataInfo sdi = sm.getSupplementalDataInfo();
         	long lastTime = -1;
@@ -1173,9 +1173,7 @@ public class DataSection extends Registerable {
         	CLDRFile vettedParent = null;
         	CLDRLocale parentLoc = locale.getParent();
         	if(parentLoc != null) {
-        		XMLSource vettedParentSource = sm.makeDBSource(parentLoc, true /*finalData*/);            
-        		vettedParent = new CLDRFile(vettedParentSource,true);
-        		vettedParentEntry = sm.dbsrcfac.openEntry(vettedParentSource);
+        		vettedParent = cf.make(parentLoc.getBaseName(),true);
         	}
 
         	int pn;
@@ -1488,7 +1486,7 @@ public class DataSection extends Registerable {
         		// (may be nested in the case of alt types)
         		DataRow p = getDataRow(type, altType);
         		p.base_xpath = base_xpath;
-        		p.winningXpathId = sm.dbsrcfac.getWinningPathId(base_xpath, locale, false);
+        		p.winningXpathId = base_xpath; //sm.dbsrcfac.getWinningPathId(base_xpath, locale, false);
 
         		p.coverageValue=coverageValue;
 
@@ -1799,7 +1797,7 @@ public class DataSection extends Registerable {
     /**
      * Makes sure this pod contains the peas we'd like to see.
      */
-    private void ensureComplete(XMLSource ourSrc, CheckCLDR checkCldr, CLDRFile baselineFile, Map<String,String> options, String workingCoverageLevel) {
+    private void ensureComplete(CLDRFile cf, CheckCLDR checkCldr, CLDRFile baselineFile, Map<String,String> options, String workingCoverageLevel) {
     	
 //    	if(xpathPrefix.contains("@type")) {
 //    		if(DEBUG) System.err.println("Bailing- no reason to complete a type-specifix xpath");
@@ -1861,7 +1859,7 @@ public class DataSection extends Registerable {
             }        
 
             String podBase = xpathPrefix;
-            CLDRFile resolvedFile = new CLDRFile(ourSrc, true);
+            CLDRFile resolvedFile = cf.getResolved();
 //            XPathParts parts = new XPathParts(null,null);
 //            TimezoneFormatter timezoneFormatter = new TimezoneFormatter(resolvedFile, true); // TODO: expensive here.
 

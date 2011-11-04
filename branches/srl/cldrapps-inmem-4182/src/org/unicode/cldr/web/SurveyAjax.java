@@ -176,13 +176,10 @@ public class SurveyAjax extends HttpServlet {
                         List<CheckStatus> result = new ArrayList<CheckStatus>();
                         //CLDRFile file = CLDRFile.make(loc);
                         //CLDRFile file = mySession.
-                        SurveyMain.UserLocaleStuff uf = null;
                         boolean dataEmpty;
                         JSONWriter r = newJSONStatus(sm);
                         synchronized(mySession) {
-	                        try {
-		                        uf = sm.getUserFile(mySession, CLDRLocale.getInstance(loc));
-		                        CLDRFile file = uf.cldrfile;
+		                        CLDRFile file = sm.stFactory.make(loc, true);
 		                        cc.setCldrFileToCheck(file, SurveyMain.basicOptionsMap(), result);
 		                        cc.check(xp, file.getFullXPath(xp), val, options, result);
 		                        dataEmpty = file.isEmpty();
@@ -195,9 +192,6 @@ public class SurveyAjax extends HttpServlet {
 		                        r.put("testsLoc", loc);
 		                        r.put("xpathTested", xp);
 		                        r.put("dataEmpty", Boolean.toString(dataEmpty));
-	                        } finally {
-	                        	uf.close();
-	                        }
                         }
                         
                         send(r,out);

@@ -235,7 +235,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     File vetdir = null;
     public static  String vetweb = System.getProperty("CLDR_VET_WEB"); // dir for web data
     public static  String cldrLoad = System.getProperty("CLDR_LOAD_ALL"); // preload all locales?
-    public static String fileBase = null; // not static - may change later
+    public static String fileBase = null; // not constant - may change later
     static String fileBaseOld = null; // fileBase + oldVersion
     static String specialMessage = System.getProperty("CLDR_MESSAGE"); //  static - may change later
     static String specialHeader = System.getProperty("CLDR_HEADER"); //  static - may change later
@@ -1085,7 +1085,6 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 				e.printStackTrace();
 				
 			}
-        	ctx.println("Open user files: " + allUserLocaleStuffs.size()+"<br/>");
         	ctx.println("</div>");
 
         	StringBuffer buf = new StringBuffer();
@@ -2126,15 +2125,11 @@ o	            		}*/
 				int dot = localeName.indexOf('.');
 				theLocale = localeName.substring(0,dot);
 				System.err.println("#vx "+theLocale);
-				XMLSource dbSource = makeDBSource(CLDRLocale.getInstance(theLocale), true);
-				CLDRFile file = makeCLDRFile(dbSource);
-				  OutputStream files = new FileOutputStream(new File(outdir,localeName),false); // Append
-//				  PrintWriter pw = new PrintWriter(files);
-	//            file.write(WebContext.openUTF8Writer(response.getOutputStream()));
+				CLDRFile file = stFactory.make(theLocale,true);
+				OutputStream files = new FileOutputStream(new File(outdir,localeName),false); // Append
 				PrintWriter ow;
 				file.write(ow=WebContext.openUTF8Writer(files));
 				ow.close();
-//				pw.close();
 				files.close();
 				
 				} catch(IOException exception){
@@ -5665,20 +5660,9 @@ o	            		}*/
     		doMain(ctx);
     		return;
     	}
-    	UserLocaleStuff uf = null;
-    	synchronized (ctx.session) {
-    		uf = ctx.getUserFile();
-
-    		CLDRFile cf = uf.cldrfile;
-    		if(cf == null) {
-    			throw new InternalError("CLDRFile is null!");
-    		}
-    		XMLSource ourSrc = uf.dbSource; // TODO: remove. debuggin'
-    		if(ourSrc == null) {
-    			throw new InternalError("oursrc is null! - " + (USER_FILE + CLDRDBSRC) + " @ " + ctx.getLocale() );
-    		}
-    		// Set up checks
-    		CheckCLDR checkCldr = (CheckCLDR)uf.getCheck(ctx); //make it happen
+    	{
+	    	CLDRFile  cf = stFactory.make(ctx.getLocale().getBaseName(), false);
+	   		CheckCLDR checkCldr = stFactory.getCheck(ctx.getLocale());
 
     		// Locale menu
     		if((which == null) ||
@@ -5699,7 +5683,7 @@ o	            		}*/
 
     		// check for errors
     		{
-    			List checkCldrResult = (List)uf.hash.get(CHECKCLDR_RES+ctx.getEffectiveCoverageLevel());
+    			List checkCldrResult = stFactory.getCheckResult(ctx.getLocale());
 
     			if((checkCldrResult != null) &&  (!checkCldrResult.isEmpty()) && 
     					(/* true || */ (checkCldr != null) && (xMAIN.equals(which))) ) {
@@ -6046,14 +6030,7 @@ o	            		}*/
 		    
 		    // if i>5 break [ for testing ]
 		    
-		    XMLSource dbSource = makeDBSource( loc, vetted);
-		    CLDRFile file;
-		    
-		    if(resolved == false) {
-		        file = makeCLDRFile(dbSource);
-		    } else { 
-		        file = new CLDRFile(dbSource,true);
-		    }
+		    CLDRFile file = stFactory.make(loc, resolved);
 
 		    long nextTime = System.currentTimeMillis();
 		    if((nextTime - lastTime) > 10000) { // denote, every 10 seconds
@@ -6091,7 +6068,9 @@ o	            		}*/
 		        PrintWriter utf8OutStream = new PrintWriter(
 		            new OutputStreamWriter(
 		                new FileOutputStream(voteFile), "UTF8"));
-		        boolean NewxpathSet[] = this.vet.writeVoteFile(utf8OutStream, conn, dbSource, file, ourDate, xpathSet);
+		       // boolean NewxpathSet[] = this.vet.writeVoteFile(utf8OutStream, conn, dbSource, file, ourDate, xpathSet);
+		       if(true) throw new InternalError("Unimplemented.");
+		       boolean NewxpathSet[] = null;
 		        nrOutFiles++;
 		        utf8OutStream.close();
 		        lastfile = null;
@@ -6105,10 +6084,10 @@ o	            		}*/
 		    } catch (IOException e) {
 		        e.printStackTrace();
 		        throw new InternalError("IO Exception on vote file "+e.toString());
-		    } catch (SQLException e) {
-		        // TODO Auto-generated catch block
-		        e.printStackTrace();
-		        throw new InternalError("SQL Exception on vote file "+DBUtils.unchainSqlException(e));
+//		    } catch (SQLException e) {
+//		        // TODO Auto-generated catch block
+//		        e.printStackTrace();
+//		        throw new InternalError("SQL Exception on vote file "+DBUtils.unchainSqlException(e));
 		    } finally {
 		        if(lastfile != null) {
 		            System.err.println("Last  vote file written: " + kind + " / " + lastfile);
@@ -6369,21 +6348,8 @@ o	            		}*/
                 Connection conn = null;
                 XMLSource dbSource = null; 
                 CLDRFile file;
-                if(cached == true) {
-                    if(finalData) {
-                        file = this.getCLDRFileCache().getVettedCLDRFile(locale);
-                    } else { 
-                        file = this.getCLDRFileCache().getCLDRFile(locale, resolved);
-                    }
-                } else {
-//                    conn = getDBConnection();
-                    dbSource = makeDBSource(locale, finalData);
-                    if(resolved == false) {
-                        file= makeCLDRFile(dbSource);
-                    } else { 
-                        file = new CLDRFile(dbSource,true);
-                    }
-                }
+                file = stFactory.make(locale, resolved);
+            
     //            file.write(WebContext.openUTF8Writer(response.getOutputStream()));
                 if(voteData) {
                     try {
@@ -6426,7 +6392,7 @@ o	            		}*/
      */
     public void doMain(WebContext ctx) {
         //SLOW: String diskVer = LDMLUtilities.loadFileRevision(fileBase, ctx.getLocale().toString() + ".xml"); // just get ver of the latest file.
-        String dbVer = dbsrcfac.getSourceRevision(ctx.getLocale());
+        String dbVer = "?"; // dbsrcfac.getSourceRevision(ctx.getLocale());
         
         // what should users be notified about?
         if(isPhaseSubmit() || isPhaseVetting() || isPhaseVettingClosed()) {
@@ -6640,7 +6606,11 @@ o	            		}*/
 
     private CLDRFile.Factory gFactory = null;
 
-    private synchronized CLDRFile.Factory getFactory() {
+    /**
+     * Get the factory returning the 'current' (svn) data.
+     * @return
+     */
+    public synchronized CLDRFile.Factory getFactory() {
         if(gFactory == null) {
             gFactory = CLDRFile.SimpleFactory.make(fileBase,".*");
         }
@@ -6649,7 +6619,7 @@ o	            		}*/
     private CLDRFile.Factory gOldFactory = null;
     
     /**
-     * Return the actual XML file on disk
+     * Return the actual XML file on disk (from svn)
      * @param loc
      * @return
      */
@@ -6657,6 +6627,10 @@ o	            		}*/
     	return new File(fileBase,loc.getBaseName()+".xml");
     }
 
+    /**
+     * Get the xml files for the old version
+     * @return a factory returning old-version data
+     */
     synchronized CLDRFile.Factory getOldFactory() {
         if(gOldFactory == null) {
             File oldBase = new File(fileBaseOld);
@@ -6674,6 +6648,10 @@ o	            		}*/
         return gOldFactory;
     }
 
+    /**
+     * Get the 'baseline' (en_ZZ etc) xml file
+     * @return
+     */
     public synchronized CLDRFile getBaselineFile(/*CLDRDBSource ourSrc*/) {
         if(gBaselineFile == null) {
             try {
@@ -6688,8 +6666,6 @@ o	            		}*/
     }
     
     HashMap<String,String> gBaselineHash = new HashMap<String,String>();
-
-	Set<UserLocaleStuff> allUserLocaleStuffs = new HashSet<UserLocaleStuff>();
 
     /* Sentinel value indicating that there was no baseline string available. */
     private static final String NULL_STRING = "";
@@ -6822,178 +6798,69 @@ o	            		}*/
             return checkCldr;
     }
 
-    public static boolean CACHE_VXML_FOR_TESTS = false;
-//    public static boolean CACHE_VXML_FOR_EXAMPLES = false;
 
-    /**
-     * Any user of this should be within session sync.
-     * @author srl
-     *
-     */
-    public class UserLocaleStuff extends Registerable {
-    	private DBEntry dbEntry = null;
-        public CLDRFile cldrfile = null;
-        private CLDRFile cachedCldrFile = null; /* If not null: use this for tests. Readonly. */
-        public XMLSource dbSource = null;
-        public Hashtable hash = new Hashtable();
-        private ExampleGenerator exampleGenerator = null;
-        private Registerable exampleIsValid = new Registerable(lcr, locale);
-		private int use;
-		CLDRFile fileForGenerator = null;
+//        public ExampleGenerator getExampleGenerator() {
+//        	if(exampleGenerator==null || !exampleIsValid.isValid() ) {
+//        		//                if(CACHE_VXML_FOR_EXAMPLES) {
+//        		//                    fileForGenerator = getCLDRFileCache().getCLDRFile(locale, true);
+//        		//                } else {
+//        		//   System.err.println("!CACHE_VXML_FOR_EXAMPLES");
+//        		//              }
+//
+//        		if(fileForGenerator==null) {
+//        			System.err.println("Err: fileForGenerator is null for " + dbSource);
+//        		}
+//        		exampleGenerator = new ExampleGenerator(fileForGenerator, fileBase + "/../supplemental/");
+//        		exampleGenerator.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
+//        		//System.err.println("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
+//        		exampleIsValid.setValid();
+//        		//System.err.println(" >> "+locale + " - " + exampleIsValid + " in " + this);
+//        		exampleIsValid.register();
+//        		//System.err.println(" >>> "+locale + " - " + exampleIsValid + " in " + this);
+//        	}
+//            return exampleGenerator;
+//        }
+        
+        
 
-		public void open() {
-			use++;
-			System.err.println("uls: open="+use);
-		}
+//        public CheckCLDR getCheck(String ptype, Map<String,String> options) {
+//            CheckCLDR checkCldr = (CheckCLDR)hash.get(CHECKCLDR+ptype);
+//            if (checkCldr == null)  {
+//                List checkCldrResult = new ArrayList();
+//                
+//                checkCldr = createCheck();
+//                
+//                CLDRFile fileForChecks = null;
+//                
+//                if(cachedCldrFile!=null) {
+//                    fileForChecks = cachedCldrFile;
+//                } else {
+//                    fileForChecks = cldrfile;
+//                }
+//                
+//                //cldrfile.write(new PrintWriter(System.out));
+//                
+//                if(cldrfile==null) {
+//                    throw new InternalError("cldrfile was null.");
+//                }
+//                //long t0 = System.currentTimeMillis();
+//                checkCldr.setCldrFileToCheck(fileForChecks, options, checkCldrResult);
+//                //   logger.info("fileToCheck set . . . on "+ checkCldr.toString());
+//                hash.put(CHECKCLDR+ptype, checkCldr);
+//                if(!checkCldrResult.isEmpty()) {
+//                    hash.put(CHECKCLDR_RES+ptype, checkCldrResult);
+//                }
+//                //long t2 = System.currentTimeMillis();
+//                //logger.info("Time to init tests: " + (t2-t0));
+//            }
+//            return checkCldr;
+//        }
+//        
         
-        public ExampleGenerator getExampleGenerator() {
-        	if(exampleGenerator==null || !exampleIsValid.isValid() ) {
-        		//                if(CACHE_VXML_FOR_EXAMPLES) {
-        		//                    fileForGenerator = getCLDRFileCache().getCLDRFile(locale, true);
-        		//                } else {
-        		//   System.err.println("!CACHE_VXML_FOR_EXAMPLES");
-        		//              }
-
-        		if(fileForGenerator==null) {
-        			System.err.println("Err: fileForGenerator is null for " + dbSource);
-        		}
-        		exampleGenerator = new ExampleGenerator(fileForGenerator, fileBase + "/../supplemental/");
-        		exampleGenerator.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
-        		//System.err.println("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
-        		exampleIsValid.setValid();
-        		//System.err.println(" >> "+locale + " - " + exampleIsValid + " in " + this);
-        		exampleIsValid.register();
-        		//System.err.println(" >>> "+locale + " - " + exampleIsValid + " in " + this);
-        	}
-            return exampleGenerator;
-        }
+//        public CheckCLDR getCheck(WebContext ctx) {
+//        	return getCheck(ctx.getEffectiveCoverageLevel(), ctx.getOptionsMap(basicOptionsMap()));
+//        }
         
-        private String closeStack = null;
-        
-        public void close() {
-        	if(use<=0) {
-        		throw new InternalError("Already closed! use="+use+", closeStack:"+closeStack);
-        	}
-			use--;
-			closeStack = DEBUG?StackTracker.currentStack():null;
-			System.err.println("uls: close="+use);
-        	if(use>0) {
-        		return;
-        	}
-        	internalClose();
-			// TODO Auto-generated method stub
-            synchronized(allUserLocaleStuffs) {
-            	allUserLocaleStuffs.remove(this);
-            }
-		}
-        
-        public void internalClose() {
-            this.dbSource=null;
-            try {
-				this.dbEntry.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-        
-        public boolean isClosed() {
-        	return this.dbSource==null;
-        }
-
-		public UserLocaleStuff(CLDRLocale locale) {
-            super(lcr, locale);
-            exampleIsValid.register();
-//    System.err.println("Adding ULS:"+locale);
-            synchronized(allUserLocaleStuffs) {
-            	allUserLocaleStuffs.add(this);
-            }
-            complete(locale);
-        }
-        
-        public void clear() {
-            hash.clear();        
-            // TODO: try just kicking these instead of clearing?
-            cldrfile=null;
-            dbSource=null;
-            hash.clear();
-            setValid();
-        }
-        
-        public CheckCLDR getCheck(String ptype, Map<String,String> options) {
-            CheckCLDR checkCldr = (CheckCLDR)hash.get(CHECKCLDR+ptype);
-            if (checkCldr == null)  {
-                List checkCldrResult = new ArrayList();
-                
-                checkCldr = createCheck();
-                
-                CLDRFile fileForChecks = null;
-                
-                if(cachedCldrFile!=null) {
-                    fileForChecks = cachedCldrFile;
-                } else {
-                    fileForChecks = cldrfile;
-                }
-                
-                //cldrfile.write(new PrintWriter(System.out));
-                
-                if(cldrfile==null) {
-                    throw new InternalError("cldrfile was null.");
-                }
-                //long t0 = System.currentTimeMillis();
-                checkCldr.setCldrFileToCheck(fileForChecks, options, checkCldrResult);
-                //   logger.info("fileToCheck set . . . on "+ checkCldr.toString());
-                hash.put(CHECKCLDR+ptype, checkCldr);
-                if(!checkCldrResult.isEmpty()) {
-                    hash.put(CHECKCLDR_RES+ptype, checkCldrResult);
-                }
-                //long t2 = System.currentTimeMillis();
-                //logger.info("Time to init tests: " + (t2-t0));
-            }
-            return checkCldr;
-        }
-        public CheckCLDR getCheck(WebContext ctx) {
-        	return getCheck(ctx.getEffectiveCoverageLevel(), ctx.getOptionsMap(basicOptionsMap()));
-        }
-        
-        
-        CLDRFile makeCachedCLDRFile(XMLSource dbSource) {
-            if(CACHE_VXML_FOR_TESTS) {
-                return getCLDRFileCache().getCLDRFile(locale());
-            } else {
-//                System.err.println(" !CACHE_VXML_FOR_TESTS");
-                return null;
-            }
-        }
-
-        /**
-         * 
-         * @param ctx
-         * @param user
-         * @param locale
-         */
-        private void complete(CLDRLocale locale) {
-            // TODO: refactor.
-            UserLocaleStuff uf = this;
-            if(uf.cldrfile == null) {
-                uf.dbSource = makeDBSource( locale); // use context's connection.
-            	uf.dbEntry= dbsrcfac.openEntry(uf.dbSource);
-                uf.cldrfile = makeCLDRFile(uf.dbSource);
-                uf.cachedCldrFile = uf.makeCachedCLDRFile(uf.dbSource);
-        		fileForGenerator = new CLDRFile(dbSource,true);
-            }
-        }
-    };
-
-    /**
-     * Any user of this should be within session sync
-     * @param ctx
-     * @return
-     */
-    UserLocaleStuff getOldUserFile(CookieSession session, CLDRLocale locale) {
-        UserLocaleStuff uf = (UserLocaleStuff)session.getByLocale(USER_FILE_KEY, locale.toString());
-        return uf;
-    }
 
     //private CLDRFileCache cldrFileCache = null; // LOCAL to UserFile.
     
@@ -7010,45 +6877,6 @@ o	            		}*/
 //        return dbsrcfac.getCLDRFileCache();
     }
 
-    /**
-     * Return the UserLocaleStuff for the current context.
-     * Any user of this should be within session sync (ctx.session) and must be balanced with calls to close();
-     * @param ctx
-     * @param user
-     * @param locale
-     * @see UserLocaleStuff#close()
-     * @see WebContext#getUserFile()
-     */
-    public UserLocaleStuff getUserFile(CookieSession session,  CLDRLocale locale) {
-        // has this locale been invalidated?
-        //UserLocaleStuff uf = null;
-        UserLocaleStuff uf = null; //getOldUserFile(session, locale);
-//        if(uf!=null && !uf.isValid()) {
-//        	uf.close();
-//        	uf = null;
-//        }
-//        if(uf == null) {
-            uf = new UserLocaleStuff(locale);
-//            session.putByLocale(USER_FILE_KEY, locale.toString(),uf);
-//            uf.register(); // register with lcr
-//        }
-        uf.open(); // incr count.
-        
-        int n = dbsrcfac.update();
-        if(n>0) System.err.println("getUserFile() updated " + n + " locales.");
-        return uf;
-    }
-    XMLSource makeDBSource(CLDRLocale locale) {
-        XMLSource dbSource = dbsrcfac.getInstance(locale);
-        return dbSource;
-    }
-    XMLSource makeDBSource(CLDRLocale locale, boolean finalData) {
-        XMLSource dbSource = dbsrcfac.getInstance(locale, finalData);
-        return dbSource;
-    }
-    static CLDRFile makeCLDRFile(XMLSource dbSource) {
-        return new CLDRFile(dbSource,false);
-    }
 
     /**
      * reset the "list of locales".  
@@ -7344,10 +7172,7 @@ o	            		}*/
         String current = null;
         XPathParts parts = new XPathParts(null, null);
         synchronized(ctx.session) { // TODO: redundant sync?
-            SurveyMain.UserLocaleStuff uf = ctx.getUserFile();
-            //CLDRFile cf = uf.cldrfile;
-            CLDRFile resolvedFile = new CLDRFile(uf.dbSource,true);
-            //CLDRFile engFile = ctx.sm.getBaselineFile();
+        	CLDRFile resolvedFile = stFactory.make(ctx.getLocale(), true);
     
             String xpath =  "//ldml/"+"dates/timeZoneNames/zone";
             String ourSuffix = "[@type=\""+zone+"\"]";
@@ -7584,9 +7409,7 @@ o	            		}*/
     		curThread.setName(threadName + ":" + ctx.getLocale() );
     	}
     	try {
-	    	XMLSource ourSrc = dbsrcfac.getInstance(ctx.getLocale(),false);
-	    	CLDRFile cf = new CLDRFile(ourSrc,false);
-	    	entry = dbsrcfac.openEntry(ourSrc);
+	    	CLDRFile cf = stFactory.make(ctx.getLocale(), true);
 	    	
             String fullThing = xpath + "/" + lastElement;
         //    boolean isTz = xpath.equals("timeZoneNames");
@@ -7607,7 +7430,7 @@ o	            		}*/
                         ctx.println("<i id='processPea'>Processing submitted data...</i><br/>");ctx.flush();
                         try {
 	                        DataSection oldSection = ctx.getExistingSection(fullThing);
-	                        if(processPeaChanges(ctx, oldSection, cf, ourSrc, new DefaultDataSubmissionResultHandler(ctx))) {
+	                        if(processPeaChanges(ctx, oldSection, cf, new DefaultDataSubmissionResultHandler(ctx))) {
 	                            int j = vet.updateResults(oldSection.locale,entry.getConnectionAlias()); // bach 'em
 	                            int d = this.dbsrcfac.update(entry.getConnectionAlias()); // then the fac so it can update
 	                            System.err.println("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
@@ -7838,13 +7661,9 @@ o	            		}*/
         
         //boolean partialPeas = (matcher != null); // true if we are filtering the section
         boolean partialPeas = false; // TODO: always nonpartial
-        UserLocaleStuff uf = null;
         synchronized(ctx.session) {
-            uf = ctx.getUserFile();
-
-            CLDRFile cf = uf.cldrfile;
-            XMLSource ourSrc = uf.dbSource; // TODO: remove. debuggin'
-            CheckCLDR checkCldr = (CheckCLDR)uf.getCheck(ctx);
+            CLDRFile cf = stFactory.make(ctx.getLocale(), true);
+            CheckCLDR checkCldr = stFactory.getCheck(ctx.getLocale());
             
             // get the name of the sortmode
             String sortModeName = SortMode.getSortMode(ctx, section);
@@ -7972,10 +7791,10 @@ o	            		}*/
                         if(n!=-1) {
                             zone = zone.substring(0,n); //   blahblah/default/foo   ->  blahblah/default   ('foo' is lastType and will show up as the value)
                         }
-                        showDataRow(ctx, section, p, uf, cf, ourSrc, canModify,ctx.base()+"?"+
-                                "_="+ctx.getLocale()+"&amp;x=timezones&amp;zone="+zone,refs,checkCldr, zoomedIn);                
+                        showDataRow(ctx, section, p, cf, canModify, ctx.base()+"?"+
+                                "_="+ctx.getLocale()+"&amp;x=timezones&amp;zone="+zone, refs,checkCldr,zoomedIn);                
                     } else {
-                        showDataRow(ctx, section, p, uf, cf, ourSrc, canModify,null,refs,checkCldr, zoomedIn);
+                        showDataRow(ctx, section, p, cf, canModify, null, refs,checkCldr,zoomedIn);
                     }
                 } catch(Throwable t) {
                     // failed to show pea. 
@@ -7987,7 +7806,7 @@ o	            		}*/
                     for(Iterator e = p.subRows.values().iterator();e.hasNext();) {
                         DataSection.DataRow subDataRow = (DataSection.DataRow)e.next();
                         try {
-                            showDataRow(ctx, section, subDataRow, uf, cf, ourSrc, canModify, null,refs,checkCldr, zoomedIn);
+                            showDataRow(ctx, section, subDataRow, cf, canModify, null, refs, checkCldr,zoomedIn);
                         } catch(Throwable t) {
                             // failed to show sub-pea.
                             ctx.println("<tr class='topbar'><td colspan='8'>sub pea: <b>"+section.xpath(subDataRow)+"."+subDataRow.altType+"</b><br>");
@@ -8084,50 +7903,19 @@ o	            		}*/
      * @param dsrh 
      * @return
      */
-    boolean processPeaChanges(WebContext ctx, DataSection oldSection, CLDRFile cf, XMLSource ourSrc, DataSubmissionResultHandler dsrh) {
+    boolean processPeaChanges(WebContext ctx, DataSection oldSection, CLDRFile cf, DataSubmissionResultHandler dsrh) {
         boolean someDidChange = false;
         if(oldSection != null) {
             for(Iterator i = oldSection.getAll().iterator();i.hasNext();) {
                 DataSection.DataRow p = (DataSection.DataRow)i.next();
-                someDidChange = processDataRowChanges(ctx, oldSection, p, cf, ourSrc, dsrh) || someDidChange;
+                someDidChange = processDataRowChanges(ctx, oldSection, p, cf, dsrh) || someDidChange;
                 if(p.subRows != null) {
                     for(Iterator e = p.subRows.values().iterator();e.hasNext();) {
                         DataSection.DataRow subDataRow = (DataSection.DataRow)e.next();
-                        someDidChange = processDataRowChanges(ctx, oldSection, subDataRow, cf, ourSrc, dsrh) || someDidChange;
+                        someDidChange = processDataRowChanges(ctx, oldSection, subDataRow, cf, dsrh) || someDidChange;
                     }
                 }
             }            
-            if(oldSection.xpathPrefix.indexOf("references")!=-1) {
-                String newRef = ctx.field(MKREFERENCE+QUERY_VALUE_SUFFIX);
-                String uri = ctx.field(MKREFERENCE+"_u");
-                if(newRef.length()>0) {
-                    String dup = null;
-                    for(Iterator i = oldSection.getAll().iterator();i.hasNext();) {
-                        DataSection.DataRow p = (DataSection.DataRow)i.next();
-                        DataSection.DataRow subDataRow = p;
-                        for(Iterator j = p.items.iterator();j.hasNext();) {
-                            DataSection.DataRow.CandidateItem item = (DataSection.DataRow.CandidateItem)j.next();
-                            if(item.value.equals(newRef)) {
-                                dup = p.type;
-                            } else {
-                            }
-                        }
-                    }            
-                    ctx.print("<b>Adding new reference...</b> ");
-                    if(dup != null) {
-                        ctx.println("Ref already exists, not adding: <tt class='codebox'>"+dup+"</tt> " + newRef + "<br>");
-                    } else {
-                        String newType =  DataSection.addReferenceToNextSlot(ourSrc, cf, ctx.getLocale().toString(), ctx.session.user.id, newRef, uri);
-                        if(newType == null) {
-                            ctx.print("<i>Error.</i>");
-                        } else {
-                            ctx.print("<tt class='codebox'>"+newType+"</tt>");
-                            ctx.print(" added.. " + newRef +" @ " +uri);
-                            someDidChange=true;
-                        }
-                    }
-                }
-            }
         }
         if(someDidChange) {
         	System.err.println("SomeDidChange: " + oldSection.locale());
@@ -8150,11 +7938,10 @@ o	            		}*/
      * @param section
      * @param p
      * @param cf
-     * @param ourSrc
      * @param dsrh 
      * @return
      */
-    boolean processDataRowChanges(WebContext ctx, DataSection section, DataSection.DataRow p, CLDRFile cf, XMLSource ourSrc, DataSubmissionResultHandler dsrh) {
+    boolean processDataRowChanges(WebContext ctx, DataSection section, DataSection.DataRow p, CLDRFile cf, DataSubmissionResultHandler dsrh) {
         String fieldHash = section.fieldHash(p);
         String altType = p.altType;
         String choice = ctx.field(fieldHash); // checkmark choice
@@ -8369,7 +8156,7 @@ o	            		}*/
 						choice = DONTCARE;
 						voteForItem = null;
 					}
-					ourSrc.removeValueAtDPath(xpt.getById(item.xpathId));
+					if(true) throw new InternalError("NOT IMP: 	ourSrc.removeValueAtDPath(xpt.getById(item.xpathId)); ");
 					didSomething = true;
 				} else {
 					dsrh.handleNoPermission(p, item, "remove");
@@ -8453,16 +8240,14 @@ o	            		}*/
             // don't print 'new value' here until it is successful.
 
             boolean doFail = false;
-            UserLocaleStuff uf = null;
 
             // Test: is the value valid?
             synchronized(ctx.session){
                 /* cribbed from elsewhere */
                 // The enclosion function already holds session sync
                 
-                uf=ctx.getUserFile();
                 // Set up checks
-                CheckCLDR checkCldr = (CheckCLDR)uf.getCheck(ctx); //make it happen
+                CheckCLDR checkCldr = stFactory.getCheck(ctx.getLocale()); //make it happen
                 List checkCldrResult = new ArrayList();
                 
                 checkCldr.check(fullPathMinusAlt, fullPathMinusAlt, choice_v, ctx.getOptionsMap(basicOptionsMap()), checkCldrResult);  // they get the full course
@@ -8509,8 +8294,7 @@ o	            		}*/
             
             String newProp = null;
 //            synchronized(vet) { // make sure that no-one else grabs our slot.
-                newProp = DataSection.addDataToNextSlot(ourSrc, cf, section.locale, fullPathMinusAlt, altType, 
-                    altPrefix, ctx.session.user.id, choice_v, choice_r);
+                if(true) throw new InternalError(" NOT IMP: newProp = DataSection.addDataToNextSlot(ourSrc, cf, section.locale, fullPathMinusAlt, altType,                    altPrefix, ctx.session.user.id, choice_v, choice_r); ");
 //            }
             // update implied vote
 //            ctx.print(" &nbsp;&nbsp; <tt class='proposed'>" + newProp+"</tt>");
@@ -8577,9 +8361,9 @@ o	            		}*/
         return rs;
     }
 
-    void showDataRow(WebContext ctx, DataSection section, DataSection.DataRow p, UserLocaleStuff uf, CLDRFile cf, 
-        XMLSource ourSrc, boolean canModify, String specialUrl, String refs[], CheckCLDR checkCldr)  {
-        showDataRow(ctx,section,p,uf, cf,ourSrc,canModify,specialUrl,refs,checkCldr,false);
+    void showDataRow(WebContext ctx, DataSection section, DataSection.DataRow p,  CLDRFile cf, 
+         boolean canModify, String specialUrl, String refs[], CheckCLDR checkCldr)  {
+        showDataRow(ctx,section,p,cf, canModify,specialUrl,refs,checkCldr,false);
     }
 
     /**
@@ -8599,8 +8383,8 @@ o	            		}*/
     /**
      * Show a single pea
      */
-    void showDataRow(WebContext ctx, DataSection section, DataSection.DataRow p, UserLocaleStuff uf, CLDRFile cf, 
-        XMLSource ourSrc, boolean canModify, String specialUrl, String refs[], CheckCLDR checkCldr, boolean zoomedIn) {
+    void showDataRow(WebContext ctx, DataSection section, DataSection.DataRow p, CLDRFile cf, boolean canModify, 
+        String specialUrl, String refs[], CheckCLDR checkCldr, boolean zoomedIn)  {
         String ourAlign = "left";
         if(ctx.getDirectionForLocale().equals(HTMLDirection.RIGHT_TO_LEFT)) {
             ourAlign = "right";
@@ -8794,11 +8578,11 @@ o	            		}*/
         
         // Prime the Pump  - Native must be called first.
         if(topCurrent != null) {
-            /* ignored */ uf.getExampleGenerator().getExampleHtml(topCurrent.xpath, topCurrent.value,
+            /* ignored */ stFactory.getExampleGenerator().getExampleHtml(topCurrent.xpath, topCurrent.value,
                     zoomedIn?ExampleGenerator.Zoomed.IN:ExampleGenerator.Zoomed.OUT, exampleContext, ExampleType.NATIVE);
         } else {
             // no top item, so use NULL
-            /* ignored */ uf.getExampleGenerator().getExampleHtml(section.xpath(p), null,
+            /* ignored */ stFactory.getExampleGenerator().getExampleHtml(section.xpath(p), null,
                     zoomedIn?ExampleGenerator.Zoomed.IN:ExampleGenerator.Zoomed.OUT, exampleContext, ExampleType.NATIVE);
         }
 
@@ -8828,7 +8612,7 @@ o	            		}*/
                 ctx.print("<td rowspan='"+rowSpan+"' >" + "</td>"); // empty box for baseline
             }
         }
-        printCells(ctx,section,p,topCurrent,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, refsList, exampleContext);
+        printCells(ctx,section,p,topCurrent,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,zoomedIn, numberedItemsList, refsList, exampleContext);
 
         // ## 6.1, 6.2 - Print the top proposed item. Can be null if there aren't any.
         DataSection.DataRow.CandidateItem topProposed = null;
@@ -8836,7 +8620,7 @@ o	            		}*/
             topProposed = proposedItems.get(0);
         }
         if(topProposed != null) {
-            printCells(ctx,section,p,topProposed,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, refsList, exampleContext);
+            printCells(ctx,section,p,topProposed,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,zoomedIn, numberedItemsList, refsList, exampleContext);
         } else {
             printEmptyCells(ctx, section, p, ourAlign, zoomedIn);
         }
@@ -8967,7 +8751,7 @@ o	            		}*/
                 // current item
                 if(currentItems.size() > row) {
                     item = currentItems.get(row);
-                    printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, refsList, exampleContext);
+                    printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,zoomedIn, numberedItemsList, refsList, exampleContext);
                 } else {
                     item = null;
                     printEmptyCells(ctx, section, p, ourAlign, zoomedIn);
@@ -8976,7 +8760,7 @@ o	            		}*/
                 // #6.1, 6.2 - proposed items
                 if(proposedItems.size() > row) {
                     item = proposedItems.get(row);
-                    printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, refsList, exampleContext);
+                    printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,zoomedIn, numberedItemsList, refsList, exampleContext);
                 } else {
                     item = null;
                     printEmptyCells(ctx, section, p, ourAlign, zoomedIn);
@@ -9108,273 +8892,270 @@ o	            		}*/
 	    ctx.print("<td colspan="+(PODTABLE_WIDTH-2)+">");
 		
 	    Vetting.DataTester tester  = null;
-	    try {
-	    	tester = vet.getTester(uf.dbSource);
-	    	Race r =  vet.getRace(section.locale, p.base_xpath,uf.dbEntry.getConnectionAlias(),tester);
-	    	ctx.println("<i>Voting results by organization:</i><br>");
-	    	ctx.print("<table class='list' border=1 summary='voting results by organization'>");
-	    	ctx.print("<tr class='heading'><th>Organization</th><th>Organization's Vote</th><th>Item</th><th>Score</th><th>Conflicting Votes</th></tr>");
-	    	int onn=0;
-	    	for(Race.OrgVote org : r.orgVotes.values()) {
-	    		Race.Chad orgVote = r.getOrgVote(org.name);				    
-	    		Map<Chad,Long> o2c = r.getOrgToVotes(org.name);
-	    		
-	    		Map<Integer,Long>o2v = new TreeMap<Integer,Long>();
-	    		
-	    		for(Map.Entry<Chad, Long> e : o2c.entrySet()) {
-	    			o2v.put(e.getKey().xpath, e.getValue());
-	    		}
-	    		ctx.println("<tr class='row"+(onn++ % 2)+"'>");
-	    		long score=0;
+	    tester = null; // vet.getTester(dbSource);
+		Race r =  null; // vet.getRace(section.locale, p.base_xpath,uf.dbEntry.getConnectionAlias(),tester);
+if(r == null) throw new InternalError("Not reimplemented yet.");
+		ctx.println("<i>Voting results by organization:</i><br>");
+		ctx.print("<table class='list' border=1 summary='voting results by organization'>");
+		ctx.print("<tr class='heading'><th>Organization</th><th>Organization's Vote</th><th>Item</th><th>Score</th><th>Conflicting Votes</th></tr>");
+		int onn=0;
+		for(Race.OrgVote org : r.orgVotes.values()) {
+			Race.Chad orgVote = r.getOrgVote(org.name);				    
+			Map<Chad,Long> o2c = r.getOrgToVotes(org.name);
+			
+			Map<Integer,Long>o2v = new TreeMap<Integer,Long>();
+			
+			for(Map.Entry<Chad, Long> e : o2c.entrySet()) {
+				o2v.put(e.getKey().xpath, e.getValue());
+			}
+			ctx.println("<tr class='row"+(onn++ % 2)+"'>");
+			long score=0;
 
-	    		CandidateItem oitem = null;
-	    		int on = -1;
-	    		if(orgVote != null)
-	    		{
-	    			int nn=0;
-	    			for(CandidateItem citem : numberedItemsList) {
-	    				nn++;
-	    				if(citem==null) continue;
-	    				if(orgVote.xpath==citem.xpathId) {
-	    					oitem = citem;
-	    					on=nn;
-	    				}
-	    			}
-	    			if(oitem!=null) {
-	    				Long l = o2v.get(oitem.xpathId);
-	    				if(l != null) {
-	    					score = l;
-	    					//				    System.err.println(org.name+": ox " + oitem.xpathId + " -> l " + l + ", nn="+nn);
-	    					if(on>=0) {
-	    						totals[on-1]+=score;
-	    					}
-	    				}
-	    			}
-	    		}
+			CandidateItem oitem = null;
+			int on = -1;
+			if(orgVote != null)
+			{
+				int nn=0;
+				for(CandidateItem citem : numberedItemsList) {
+					nn++;
+					if(citem==null) continue;
+					if(orgVote.xpath==citem.xpathId) {
+						oitem = citem;
+						on=nn;
+					}
+				}
+				if(oitem!=null) {
+					Long l = o2v.get(oitem.xpathId);
+					if(l != null) {
+						score = l;
+						//				    System.err.println(org.name+": ox " + oitem.xpathId + " -> l " + l + ", nn="+nn);
+						if(on>=0) {
+							totals[on-1]+=score;
+						}
+					}
+				}
+			}
 
-	    		ctx.print("<th>"+org.name+"</th>");
-	    		ctx.print("<td>");
-	    		if(orgVote == null) {
-	    			ctx.print("<i>(No vote.)</i>");
-	    			if(org.dispute) {
-	    				ctx.print("<br>");
-	    				if((ctx.session.user != null) && (org.name.equals(ctx.session.user.org))) {
-	    					ctx.print(ctx.iconHtml("disp","Vetter Dispute"));
-	    				}
-	    				ctx.print(" (Dispute among "+org.name+" vetters) ");
-	    			}
-	    		} else {
-	    			String theValue = orgVote.value;
-	    			if(theValue == null) {  
-	    				if(orgVote.xpath == r.base_xpath) {
-	    					theValue = "<i>(Old Vote for Status Quo)</i>";
-	    				} else {
-	    					theValue = "<strike>(Old Vote for Other Item)</strike>";
-	    				}
-	    			}
-	    			if(orgVote.disqualified) {
-	    				ctx.print("<strike>");
-	    			}
-	    			ctx.print("<span dir='"+ctx.getDirectionForLocale()+"'>");
-	    			//						ctx.print(VoteResolver.getOrganizationToMaxVote(section.locale).
-	    			//						            get(VoteResolver.Organization.valueOf(org.name)).toString().replaceAll("street","guest")
-	    			ctx.print(ctx.iconHtml("vote","#"+orgVote.xpath)+theValue+"</span>");
-	    			if(orgVote.disqualified) {
-	    				ctx.print("</strike>");
-	    			}
-	    			if(org.votes.isEmpty()/* && (r.winner.orgsDefaultFor!=null) && (r.winner.orgsDefaultFor.contains(org))*/) {
-	    				ctx.print(" (default vote)");
-	    			}
-	    			if(true||UserRegistry.userIsTC(ctx.session.user)) {
-	    				ctx.print("<br>");
-	    				for(UserRegistry.User u:orgVote.voters) {
-	    					if(!u.voterOrg().equals(org.name)) continue;
-	    					ctx.print(u.toHtml(ctx.session.user)+", ");
-	    				}
-	    			}
-	    		}
-	    		ctx.print("</td>");
+			ctx.print("<th>"+org.name+"</th>");
+			ctx.print("<td>");
+			if(orgVote == null) {
+				ctx.print("<i>(No vote.)</i>");
+				if(org.dispute) {
+					ctx.print("<br>");
+					if((ctx.session.user != null) && (org.name.equals(ctx.session.user.org))) {
+						ctx.print(ctx.iconHtml("disp","Vetter Dispute"));
+					}
+					ctx.print(" (Dispute among "+org.name+" vetters) ");
+				}
+			} else {
+				String theValue = orgVote.value;
+				if(theValue == null) {  
+					if(orgVote.xpath == r.base_xpath) {
+						theValue = "<i>(Old Vote for Status Quo)</i>";
+					} else {
+						theValue = "<strike>(Old Vote for Other Item)</strike>";
+					}
+				}
+				if(orgVote.disqualified) {
+					ctx.print("<strike>");
+				}
+				ctx.print("<span dir='"+ctx.getDirectionForLocale()+"'>");
+				//						ctx.print(VoteResolver.getOrganizationToMaxVote(section.locale).
+				//						            get(VoteResolver.Organization.valueOf(org.name)).toString().replaceAll("street","guest")
+				ctx.print(ctx.iconHtml("vote","#"+orgVote.xpath)+theValue+"</span>");
+				if(orgVote.disqualified) {
+					ctx.print("</strike>");
+				}
+				if(org.votes.isEmpty()/* && (r.winner.orgsDefaultFor!=null) && (r.winner.orgsDefaultFor.contains(org))*/) {
+					ctx.print(" (default vote)");
+				}
+				if(true||UserRegistry.userIsTC(ctx.session.user)) {
+					ctx.print("<br>");
+					for(UserRegistry.User u:orgVote.voters) {
+						if(!u.voterOrg().equals(org.name)) continue;
+						ctx.print(u.toHtml(ctx.session.user)+", ");
+					}
+				}
+			}
+			ctx.print("</td>");
 
-	    		ctx.print("<td class='warningReference'>#"+on);
-	    		if(on==-1) {
-	    			ctx.print("<br/><b class='graybox'>Error: this value is missing.</b>");
-	    		}
-	    		ctx.print("</td> ");
+			ctx.print("<td class='warningReference'>#"+on);
+			if(on==-1) {
+				ctx.print("<br/><b class='graybox'>Error: this value is missing.</b>");
+			}
+			ctx.print("</td> ");
 
-	    		ctx.print("<td>"+score+"</td>");
+			ctx.print("<td>"+score+"</td>");
 
-	    		ctx.print("<td>");
-	    		if(!org.votes.isEmpty()) for(Race.Chad item : org.votes) {
-	    			if(item==orgVote) continue;
+			ctx.print("<td>");
+			if(!org.votes.isEmpty()) for(Race.Chad item : org.votes) {
+				if(item==orgVote) continue;
 
-	    			String theValue = item.value;
-	    			if(theValue == null) {  
-	    				if(item.xpath == r.base_xpath) {
-	    					theValue = "<i>(Old Vote for Status Quo)</i>";
-	    				} else {
-	    					theValue = "<strike>(Old Vote for Other Item"+")</strike>";
-	    				}
-	    			}
-	    			if(item.disqualified) {
-	    				ctx.print("<strike>");
-	    			}
-	    			ctx.print("<span dir='"+ctx.getDirectionForLocale()+"' class='notselected' title='#"+item.xpath+"'>"+theValue+"</span>");
-	    			if(item.disqualified) {
-	    				ctx.print("</strike>");
-	    			}
-	    			ctx.print("<br>");
-	    			for(UserRegistry.User u : item.voters)  { 
-	    				if(!u.voterOrg().equals(org.name)) continue;
-	    				ctx.print(u.toHtml(ctx.session.user)+", ");
-	    			}
-	    			ctx.println("<hr>");
-	    		}
-	    		ctx.println("</td>");
-	    		ctx.print("</tr>");
-	    	}
-	    	ctx.print("</table>"); // end of votes-by-organization
+				String theValue = item.value;
+				if(theValue == null) {  
+					if(item.xpath == r.base_xpath) {
+						theValue = "<i>(Old Vote for Status Quo)</i>";
+					} else {
+						theValue = "<strike>(Old Vote for Other Item"+")</strike>";
+					}
+				}
+				if(item.disqualified) {
+					ctx.print("<strike>");
+				}
+				ctx.print("<span dir='"+ctx.getDirectionForLocale()+"' class='notselected' title='#"+item.xpath+"'>"+theValue+"</span>");
+				if(item.disqualified) {
+					ctx.print("</strike>");
+				}
+				ctx.print("<br>");
+				for(UserRegistry.User u : item.voters)  { 
+					if(!u.voterOrg().equals(org.name)) continue;
+					ctx.print(u.toHtml(ctx.session.user)+", ");
+				}
+				ctx.println("<hr>");
+			}
+			ctx.println("</td>");
+			ctx.print("</tr>");
+		}
+		ctx.print("</table>"); // end of votes-by-organization
 
-	    	if(isUnofficial || UserRegistry.userIsTC(ctx.session.user)) {
-	    		ctx.println("<div class='graybox'>"+r.resolverToString());
-	    		ctx.print("</div>");
-	    	}
+		if(isUnofficial || UserRegistry.userIsTC(ctx.session.user)) {
+			ctx.println("<div class='graybox'>"+r.resolverToString());
+			ctx.print("</div>");
+		}
 
 
-	    	if((r.nexthighest > 0) && (r.winner!=null)&&(r.winner.score==0)) {
-	    		// This says that the optimal value was NOT the numeric winner.
-	    		ctx.print("<i>not enough votes to overturn approved item</i><br>");
-	    	} else if(!r.disputes.isEmpty()) {
-	    		ctx.print(" "+ctx.iconHtml("warn","Warning")+"Disputed with: ");
-	    		for(Race.Chad disputor : r.disputes) {
-	    			ctx.print("<span title='#"+disputor.xpath+"'>"+disputor.value+"</span> ");
-	    		}
-	    		ctx.print("");
-	    		ctx.print("<br>");
-	    	} else if(r.hadDisqualifiedWinner) {
-	    		ctx.print("<br><b>"+ctx.iconHtml("warn","Warning")+"Original winner of votes was disqualified due to errors.</b><br>");
-	    	}
-	    	if(isUnofficial && r.hadOtherError) {
-	    		ctx.print("<br><b>"+ctx.iconHtml("warn","Warning")+"Had Other Error.</b><br>");
-	    	}
+		if((r.nexthighest > 0) && (r.winner!=null)&&(r.winner.score==0)) {
+			// This says that the optimal value was NOT the numeric winner.
+			ctx.print("<i>not enough votes to overturn approved item</i><br>");
+		} else if(!r.disputes.isEmpty()) {
+			ctx.print(" "+ctx.iconHtml("warn","Warning")+"Disputed with: ");
+			for(Race.Chad disputor : r.disputes) {
+				ctx.print("<span title='#"+disputor.xpath+"'>"+disputor.value+"</span> ");
+			}
+			ctx.print("");
+			ctx.print("<br>");
+		} else if(r.hadDisqualifiedWinner) {
+			ctx.print("<br><b>"+ctx.iconHtml("warn","Warning")+"Original winner of votes was disqualified due to errors.</b><br>");
+		}
+		if(isUnofficial && r.hadOtherError) {
+			ctx.print("<br><b>"+ctx.iconHtml("warn","Warning")+"Had Other Error.</b><br>");
+		}
 
-	    	ctx.print("<br><hr><i>Voting results by item:</i>");
-	    	ctx.print("<table class='list' border=1 summary='voting results by item'>");
-	    	ctx.print("<tr class='heading'><th>Value</th><th>Item</th><th>Score</th><th>O/N</th><th>Status "+oldVersion+"</th><th>Status "+newVersion+"</th></tr>");
-	    	int nn=0;
+		ctx.print("<br><hr><i>Voting results by item:</i>");
+		ctx.print("<table class='list' border=1 summary='voting results by item'>");
+		ctx.print("<tr class='heading'><th>Value</th><th>Item</th><th>Score</th><th>O/N</th><th>Status "+oldVersion+"</th><th>Status "+newVersion+"</th></tr>");
+		int nn=0;
 
-	    	int lastReleaseXpath = r.getLastReleaseXpath();
-	    	String lastReleaseStatus = r.getLastReleaseStatus().toString();
+		int lastReleaseXpath = r.getLastReleaseXpath();
+		String lastReleaseStatus = r.getLastReleaseStatus().toString();
 
-	    	for(CandidateItem citem : numberedItemsList) {
-	    		ctx.println("<tr class='row"+(nn++ % 2)+"'>");
-	    		if(citem==null) {ctx.println("</tr>"); continue; } 
-	    		String theValue = citem.value;
-	    		String title="X#"+citem.xpathId;
+		for(CandidateItem citem : numberedItemsList) {
+			ctx.println("<tr class='row"+(nn++ % 2)+"'>");
+			if(citem==null) {ctx.println("</tr>"); continue; } 
+			String theValue = citem.value;
+			String title="X#"+citem.xpathId;
 
-	    		// find Chad item that matches citem
+			// find Chad item that matches citem
 
-	    		long score = -1;
-	    		Race.Chad item = null;
-	    		if(citem.inheritFrom==null) {
-	    			for(Race.Chad anitem : r.chads.values()) {
-	    				if(anitem.xpath==citem.xpathId) {
-	    					item = anitem;
-	    					title="#"+item.xpath;
-	    				}
-	    			}
-	    		}
+			long score = -1;
+			Race.Chad item = null;
+			if(citem.inheritFrom==null) {
+				for(Race.Chad anitem : r.chads.values()) {
+					if(anitem.xpath==citem.xpathId) {
+						item = anitem;
+						title="#"+item.xpath;
+					}
+				}
+			}
 
-	    		//for(Race.Chad item : r.chads.values()) {
-	    		if(item!=null&&theValue == null) {  
-	    			if(item.xpath == r.base_xpath) {
-	    				theValue = "<i>(Old Vote for Status Quo)</i>";
-	    			} else {
-	    				theValue = "<strike>(Old Vote for Other Item"+")</strike>";
-	    			}
-	    		}
+			//for(Race.Chad item : r.chads.values()) {
+			if(item!=null&&theValue == null) {  
+				if(item.xpath == r.base_xpath) {
+					theValue = "<i>(Old Vote for Status Quo)</i>";
+				} else {
+					theValue = "<strike>(Old Vote for Other Item"+")</strike>";
+				}
+			}
 
-	    		ctx.print("<td>");
-	    		if(item!=null) {
-	    			if(item == r.winner) {
-	    				ctx.print("<b>");
-	    			}
-	    			if(item.disqualified) {
-	    				ctx.print("<strike>");
-	    			}
-	    		}
-	    		ctx.print("<span dir='"+ctx.getDirectionForLocale()+"' title='"+title+"'>"+theValue+"</span> ");
-	    		if(item!=null) {
-	    			if(item.disqualified) {
-	    				ctx.print("</strike>");
-	    			}
-	    			if(item == r.winner) {
-	    				ctx.print("</b>");
-	    			}
-	    			if(item == r.existing) {
-	    				ctx.print(ctx.iconHtml("star","existing item"));
-	    			}
-	    		}
-	    		ctx.print("</td>");
+			ctx.print("<td>");
+			if(item!=null) {
+				if(item == r.winner) {
+					ctx.print("<b>");
+				}
+				if(item.disqualified) {
+					ctx.print("<strike>");
+				}
+			}
+			ctx.print("<span dir='"+ctx.getDirectionForLocale()+"' title='"+title+"'>"+theValue+"</span> ");
+			if(item!=null) {
+				if(item.disqualified) {
+					ctx.print("</strike>");
+				}
+				if(item == r.winner) {
+					ctx.print("</b>");
+				}
+				if(item == r.existing) {
+					ctx.print(ctx.iconHtml("star","existing item"));
+				}
+			}
+			ctx.print("</td>");
 
-	    		ctx.println("<th class='warningReference'>#"+nn+"</th>");
-	    		if(item!=null) {
-	    			ctx.print("<td>"+ totals[nn-1] +"</td>");
-	    			if(item == r.Ochad) {
-	    				ctx.print("<td>O</td>");
-	    			} else if(item == r.Nchad) {
-	    				ctx.print("<td>N</td>");
-	    			} else {
-	    				ctx.print("<td></td>");
-	    			}
-	    			if(item.xpath == lastReleaseXpath) {
-	    				ctx.print("<td>"+lastReleaseStatus.toString().toLowerCase()+"</td>");
-	    			} else {
-	    				ctx.print("<td></td>");
-	    			}
-	    			if(item == r.winner) {
-	    				ctx.print("<td>"+r.vrstatus.toString().toLowerCase()+"</td>");
-	    			} else {
-	    				ctx.print("<td></td>");
-	    			}
+			ctx.println("<th class='warningReference'>#"+nn+"</th>");
+			if(item!=null) {
+				ctx.print("<td>"+ totals[nn-1] +"</td>");
+				if(item == r.Ochad) {
+					ctx.print("<td>O</td>");
+				} else if(item == r.Nchad) {
+					ctx.print("<td>N</td>");
+				} else {
+					ctx.print("<td></td>");
+				}
+				if(item.xpath == lastReleaseXpath) {
+					ctx.print("<td>"+lastReleaseStatus.toString().toLowerCase()+"</td>");
+				} else {
+					ctx.print("<td></td>");
+				}
+				if(item == r.winner) {
+					ctx.print("<td>"+r.vrstatus.toString().toLowerCase()+"</td>");
+				} else {
+					ctx.print("<td></td>");
+				}
 
-	    		} else {
-	    			/* no item */
-	    			if(citem.inheritFrom!=null) {
-	    				ctx.println("<td colspan=4><i>Inherited from "+citem.inheritFrom+"</i></td>");
-	    			} else {
-	    				ctx.println("<td colspan=4><i>Item not found!</i>");
-		    			if(isUnofficial) {
-		    				ctx.println("Looking for xpid " + citem.xpathId+"=="+xpt.getById(citem.xpathId)+"<br/>");
-		    				for(Race.Chad anitem : r.chads.values()) {
-		    					ctx.println(anitem+"="+anitem.xpath+"=="+xpt.getById(anitem.xpath)+"<br/>");
-			    			}
+			} else {
+				/* no item */
+				if(citem.inheritFrom!=null) {
+					ctx.println("<td colspan=4><i>Inherited from "+citem.inheritFrom+"</i></td>");
+				} else {
+					ctx.println("<td colspan=4><i>Item not found!</i>");
+					if(isUnofficial) {
+						ctx.println("Looking for xpid " + citem.xpathId+"=="+xpt.getById(citem.xpathId)+"<br/>");
+						for(Race.Chad anitem : r.chads.values()) {
+							ctx.println(anitem+"="+anitem.xpath+"=="+xpt.getById(anitem.xpath)+"<br/>");
 		    			}
-	    				ctx.println("</td>");
-	    			}
-	    		}
-	    		ctx.print("</tr>");
-	    	}
-	    	ctx.print("</table>");
-	    	//if(UserRegistry.userIsTC(ctx.session.user)) {
-	    	if(r.winner != null ) {
-	    		CandidateItem witem = null;
-	    		int wn = -1;
-	    		nn=0;
-	    		for(CandidateItem citem : numberedItemsList) {
-	    			nn++;
-	    			if(citem == null) continue;
-	    			if(r.winner.xpath==citem.xpathId) {
-	    				witem = citem;
-	    				wn=nn;
-	    			}
-	    		}
-	    		ctx.print("<b class='selected'>Optimal field</b>: #"+wn+" <span dir='"+ctx.getDirectionForLocale()+"' class='winner' title='#"+r.winner.xpath+"'>"+r.winner.value+"</span>, " + r.vrstatus + ", <!-- score: "+r.winner.score +" -->");
-	    	}
+					}
+					ctx.println("</td>");
+				}
+			}
+			ctx.print("</tr>");
+		}
+		ctx.print("</table>");
+		//if(UserRegistry.userIsTC(ctx.session.user)) {
+		if(r.winner != null ) {
+			CandidateItem witem = null;
+			int wn = -1;
+			nn=0;
+			for(CandidateItem citem : numberedItemsList) {
+				nn++;
+				if(citem == null) continue;
+				if(r.winner.xpath==citem.xpathId) {
+					witem = citem;
+					wn=nn;
+				}
+			}
+			ctx.print("<b class='selected'>Optimal field</b>: #"+wn+" <span dir='"+ctx.getDirectionForLocale()+"' class='winner' title='#"+r.winner.xpath+"'>"+r.winner.value+"</span>, " + r.vrstatus + ", <!-- score: "+r.winner.score +" -->");
+		}
 
-	    	ctx.println("For more information, see <a href='http://cldr.unicode.org/index/process#Voting_Process'>Voting Process</a><br>");
-	    } catch (SQLException se) {
-		ctx.println("<div class='ferrbox'>Error fetching vetting results:<br><pre>"+se.toString()+"</pre></div>");
-	    }
+		ctx.println("For more information, see <a href='http://cldr.unicode.org/index/process#Voting_Process'>Voting Process</a><br>");
             
 	    ctx.println("</td></tr>");
             
@@ -9430,7 +9211,7 @@ o	            		}*/
      * @param numberedItemsList All items are added here.
      */ 
     void printCells(WebContext ctx, DataSection section, DataSection.DataRow p, DataSection.DataRow.CandidateItem item, String fieldHash, String resultXpath, String ourVoteXpath,
-        boolean canModify, String ourAlign, UserLocaleStuff uf, boolean zoomedIn, List<DataSection.DataRow.CandidateItem> numberedItemsList, List<String> refsList,
+        boolean canModify, String ourAlign, boolean zoomedIn, List<DataSection.DataRow.CandidateItem> numberedItemsList, List<String> refsList,
         ExampleContext exampleContext) {
         // ##6.1 proposed - print the TOP item
         
@@ -9440,13 +9221,13 @@ o	            		}*/
         boolean haveReferences = (item != null) && (item.references!=null) && (refsList != null);
         
         if(item != null) {
-            itemExample = uf.getExampleGenerator().getExampleHtml(item.xpath, item.value,
+            itemExample = stFactory.getExampleGenerator().getExampleHtml(item.xpath, item.value,
                         zoomedIn?ExampleGenerator.Zoomed.IN:ExampleGenerator.Zoomed.OUT, exampleContext, ExampleType.NATIVE);
             if((item.tests != null) || (item.examples != null)) {
                 haveTests = true;
             }
         } else {
-            itemExample = uf.getExampleGenerator().getExampleHtml(section.xpath(p), null,
+            itemExample = stFactory.getExampleGenerator().getExampleHtml(section.xpath(p), null,
                     zoomedIn?ExampleGenerator.Zoomed.IN:ExampleGenerator.Zoomed.OUT, exampleContext, ExampleType.NATIVE);
         }
         
@@ -10368,18 +10149,17 @@ o	            		}*/
 	    CLDRFile file;
 	    boolean isFlat = false;
 		if(kind.equals("vxml")) {
-			dbSource = makeDBSource(loc, true);
-		    file = makeCLDRFile(dbSource);
-		} else if(kind.equals("fxml")) {
-				dbSource = makeDBSource(loc, true);
-			    file = makeCLDRFile(dbSource);
-			    isFlat=true;
-		} else if(kind.equals("rxml")) {
-			dbSource = makeDBSource(loc, true);
-	    	file = new CLDRFile(dbSource,true);
-	    } else if(kind.equals("xml")) {
-			dbSource = makeDBSource(loc, false);
-	    	file = new CLDRFile(dbSource,false);
+			file = stFactory.make(loc,false);
+//		} else if(kind.equals("fxml")) {
+//				dbSource = makeDBSource(loc, true);
+//			    file = makeCLDRFile(dbSource);
+//			    isFlat=true;
+//		} else if(kind.equals("rxml")) {
+//			dbSource = makeDBSource(loc, true);
+//	    	file = new CLDRFile(dbSource,true);
+//	    } else if(kind.equals("xml")) {
+//			dbSource = makeDBSource(loc, false);
+//	    	file = new CLDRFile(dbSource,false);
 	    } else {
 	    	if(!isCacheableKind(kind)) {
 	    		throw new InternalError("Can't (yet) cache kind " + kind + " for loc " + loc);
@@ -10387,9 +10167,7 @@ o	            		}*/
 	    		throw new InternalError("Don't know how to make kind " + kind + " for loc " + loc + " - isCacheableKind() out of sync with writeOutputFile()");
 	    	}
 	    }
-		DBEntry dbEntry = null;
 		try {
-			dbEntry = dbsrcfac.openEntry(dbSource);
 			File outFile = getDataFile(kind, loc);
 			PrintWriter u8out = new PrintWriter(
 					new OutputStreamWriter(
@@ -10416,15 +10194,6 @@ o	            		}*/
 		} catch (IOException e) {
 	    	e.printStackTrace();
 	    	throw new RuntimeException("IO Exception "+e.toString(),e);
-	    } finally {
-	    	if(dbEntry!=null) {
-				try {
-					dbEntry.close();
-				} catch (SQLException e) {
-					System.err.println("Error in " + kind + "/" + loc + " _ " + e.toString());
-					e.printStackTrace();
-				}
-	    	}
 	    }
     }
 
@@ -10979,6 +10748,8 @@ o	            		}*/
     }
 
     public DBUtils dbUtils= null;
+
+	STFactory stFactory;
     
     private void doStartupDB()
     {
@@ -11004,6 +10775,10 @@ o	            		}*/
                 return;
             }
             // note: make xpt before CLDRDBSource..
+
+       progress.update("NOT creating cldrdbsrcfac");
+       this.stFactory = new STFactory(this);
+       /*
             progress.update("Create CLDR_DATA"); // restore
             try {
                 dbsrcfac = new CLDRDBSourceFactory(this, fileBase, logger, new File(homeFile, "vxpt"));
@@ -11011,6 +10786,7 @@ o	            		}*/
                 busted("On CLDRDBSource startup", e);
                 return;
             }
+       */
             progress.update( "Create Vetting"); // restore
             try {
                 vet = Vetting.createTable(logger, this);
@@ -11019,15 +10795,15 @@ o	            		}*/
                 busted("On Vetting startup", e);
                 return;
             }
-            progress.update("Tell DBFac the Vetter is Ready"); // restore
-            try {
-                dbsrcfac.vetterReady();
-            } catch (Throwable e) {
-                e.printStackTrace();
-                busted("On Tell DBFac the Vetter is Ready startup", e);
-                return;
-            }
-            progress.update("Create fora"); // restore
+//            progress.update("Tell DBFac the Vetter is Ready"); // restore
+//            try {
+//                dbsrcfac.vetterReady();
+//            } catch (Throwable e) {
+//                e.printStackTrace();
+//                busted("On Tell DBFac the Vetter is Ready startup", e);
+//                return;
+//            }
+           progress.update("Create fora"); // restore
             try {
                 fora = SurveyForum.createTable(logger, dbUtils.getDBConnection(), this);
             } catch (SQLException e) {
@@ -11057,9 +10833,8 @@ o	            		}*/
         try
         {
         	
-        	closeOpenUserLocaleStuff(true);
         	
-        	dbsrcfac.closeAllEntries();
+//        	dbsrcfac.closeAllEntries();
             // shut down other connections
             try {
                 CookieSession.shutdownDB();
@@ -11095,16 +10870,6 @@ o	            		}*/
             logger.info("DB: while shutting down: " + se.toString());
         }
     }
-
-    private void closeOpenUserLocaleStuff(boolean closeAll) {
-    	if(allUserLocaleStuffs.isEmpty()) return;
-    	System.err.println("Closing " + allUserLocaleStuffs.size() + " user files.");
-    	for(UserLocaleStuff uf : allUserLocaleStuffs) {
-    		if(!uf.isClosed()) {
-    			uf.internalClose();
-    		}
-    	}
-	}
     
 	public static void main(String args[]) {
         System.out.println("Starting some test of SurveyTool locally....");
@@ -11221,7 +10986,6 @@ o	            		}*/
                 	try {
                 		sm.doSession(xctx); // Session-based Survey main
                 	} finally {
-                		xctx.closeUserFile();
                 	}
                 }
                 //xctx.close();

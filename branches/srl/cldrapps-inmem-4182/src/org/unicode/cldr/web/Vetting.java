@@ -2928,21 +2928,15 @@ if(true == true)    throw new InternalError("removed from use.");
             
 //            System.err.println("PPC["+podBase+"] - ges-> " + oldSection);
             
-            SurveyMain.UserLocaleStuff uf = ctx.getUserFile();
-            CLDRFile cf = uf.cldrfile;
+            CLDRFile cf = ctx.sm.stFactory.make(ctx.getLocale(), true);
             if(cf == null) {
                 throw new InternalError("CLDRFile is null!");
             }
-            XMLSource ourSrc = uf.dbSource;
-            
-            if(ourSrc == null) {
-                throw new InternalError("oursrc is null! - " + (SurveyMain.USER_FILE + SurveyMain.CLDRDBSRC) + " @ " + ctx.getLocale() );
-            }
-            synchronized(ourSrc) { 
+            synchronized(ctx) { 
                 // Set up checks
-                CheckCLDR checkCldr = (CheckCLDR)uf.getCheck(ctx); //make tests happen
+                CheckCLDR checkCldr = ctx.sm.stFactory.getCheck(ctx.getLocale()); //make tests happen
             
-                if(sm.processPeaChanges(ctx, oldSection, cf, ourSrc,dsrh)) {
+                if(sm.processPeaChanges(ctx, oldSection, cf, dsrh)) {
                 	try {
                 		Connection conn = null;
                 		try {
@@ -3008,17 +3002,19 @@ if(true == true)    throw new InternalError("removed from use.");
         Map options = sm.basicOptionsMap();
         
         void reset() {
-        	XMLSource dbSource = sm.makeDBSource( locale);
-        	reset(dbSource);
+        	throw new InternalError("NOT IMP");
+//        	XMLSource dbSource = sm.makeDBSource( locale);
+//        	reset(dbSource);
         }
         
         void reset(XMLSource dbSource) {
-        	file = sm.makeCLDRFile(dbSource);
-        	overallResults.clear();
-        	check = sm.createCheckWithoutCollisions();
-        	check.setCldrFileToCheck(file, options, overallResults);
-        	setValid();
-        	register();
+        	throw new InternalError("NOT IMP");
+//        	file = sm.makeCLDRFile(dbSource);
+//        	overallResults.clear();
+//        	check = sm.createCheckWithoutCollisions();
+//        	check.setCldrFileToCheck(file, options, overallResults);
+//        	setValid();
+//        	register();
         }
         
         private DataTester(CLDRLocale locale) 
