@@ -7431,10 +7431,10 @@ o	            		}*/
                         try {
 	                        DataSection oldSection = ctx.getExistingSection(fullThing);
 	                        if(processPeaChanges(ctx, oldSection, cf, new DefaultDataSubmissionResultHandler(ctx))) {
-	                            int j = vet.updateResults(oldSection.locale,entry.getConnectionAlias()); // bach 'em
-	                            int d = this.dbsrcfac.update(entry.getConnectionAlias()); // then the fac so it can update
-	                            System.err.println("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
-	                            ctx.println("<br> You submitted data or vote changes, <!-- and " + j + " results were updated. As a result, --> your items may show up under the 'priority' or 'proposed' categories.<br>");
+//	                            int j = vet.updateResults(oldSection.locale,entry.getConnectionAlias()); // bach 'em
+//	                            int d = this.dbsrcfac.update(entry.getConnectionAlias()); // then the fac so it can update
+//	                            System.err.println("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
+	                            ctx.println("<br> You submitted data or vote changes, <!-- and " + /* j +*/ " results were updated. As a result, --> your items may show up under the 'priority' or 'proposed' categories.<br>");
 	                        }
                         } finally {
                         	ctx.println("<script type=\"text/javascript\">document.getElementById('processPea').innerHTML='';</script>"); ctx.flush();
@@ -7919,10 +7919,11 @@ o	            		}*/
         }
         if(someDidChange) {
         	System.err.println("SomeDidChange: " + oldSection.locale());
-    		int updcount = dbsrcfac.update();
-    		int updcount2 = dbsrcfac.sm.vet.updateResults(oldSection.locale());
-    		System.err.println("Results updated: " + updcount + ", " + updcount2 + " for " + oldSection.locale());
-            updateLocale(oldSection.locale());
+//    		int updcount = dbsrcfac.update();
+//    		int updcount2 = dbsrcfac.sm.vet.updateResults(oldSection.locale());
+//    		System.err.println("Results updated: " + updcount + ", " + updcount2 + " for " + oldSection.locale());
+//            updateLocale(oldSection.locale());
+        	System.err.println("not doing anything @ processPeaChanges");
         }
         return someDidChange;
     }
@@ -7945,6 +7946,7 @@ o	            		}*/
         String fieldHash = section.fieldHash(p);
         String altType = p.altType;
         String choice = ctx.field(fieldHash); // checkmark choice
+        BallotBox<User> ballotBox = this.stFactory.ballotBoxForLocale(section.locale); // new ballot box
         
 //        System.err.println("CH["+fieldHash+"] -> " + choice);
         
@@ -7954,18 +7956,13 @@ o	            		}*/
         
         String fullPathFull = section.xpath(p);
         int base_xpath = xpt.xpathToBaseXpathId(fullPathFull);
-        int oldVote = vet.queryVote(section.locale, ctx.session.user.id, base_xpath);
+        String oldVoteValue = ballotBox.getVoteValue(ctx.session.user, fullPathFull);
         // do modification here. 
         String choice_v = ctx.field(fieldHash+QUERY_VALUE_SUFFIX); // choice + value
-        String choice_r = ctx.field(fieldHash+"_r"); // choice + value
-        String choice_refDisplay = ""; // display value for ref
         boolean canSubmit = UserRegistry.userCanSubmitAnyLocale(ctx.session.user) || p.hasProps || p.hasErrors || p.hasWarnings;
         
         //NOT a toggle.. proceed 'normally'
         
-        if(choice_r.length()>0) {
-            choice_refDisplay = " Ref: "+choice_r;
-        }
         if(!choice.equals(CHANGETO)) {
             choice_v=""; // so that the value is ignored, as it is not changing
         } else if (choiceNotEmptyOrAllowedEmpty(choice_v, fullPathFull)) {
@@ -8011,9 +8008,18 @@ o	            		}*/
 		    }
 		}
         
+		DataSection.DataRow.CandidateItem oldVoteItem = null; /* which item did the user already vote for? */
+		int oldVoteId = -1;
 		/* find the item.  Could fail if the HTML is stale. */
         for(Iterator j = p.items.iterator();j.hasNext();) {
             DataSection.DataRow.CandidateItem item = (DataSection.DataRow.CandidateItem)j.next();
+            if(oldVoteValue.equals(item.value)) {
+            	if(oldVoteItem!=null) {
+            		System.err.println("?? Multiple items for vote value ["+section.locale+"/"+fullPathFull+"/'"+oldVoteValue+"'] - " + item.id + " and " + oldVoteItem.id);
+            	}
+            	oldVoteItem=item;
+            	oldVoteId = item.id;
+            }
             if(choice.equals(item.altProposed)) {
                 voteForItem = item;
 			} else if(choice.equals(CONFIRM)&&item.altProposed==null) {
@@ -8039,106 +8045,10 @@ o	            		}*/
                 choice = CHANGETO;
 //                System.err.println("v4i"+choice+" -> CHANGETO "+voteForItem.value);
                 choice_v = voteForItem.value;
-                choice_r = voteForItem.references;
-                if(choice_r==null) choice_r="";
         	}
         }
         
-        // OBSOLETE
-//        if(p.attributeChoice != null) {
-//            // it's not a toggle.. but it is an attribute choice.
-//
-//            String altPrefix =         XPathTable.altProposedPrefix(ctx.session.user.id);
-//            boolean unvote = false;
-//            String voteForChoice = null;
-//            boolean hadChange = false;
-//            
-//            if(voteForItem != null) {
-//                voteForChoice = voteForItem.value;
-//            } else if(choice.equals(DONTCARE)) {
-//                unvote = true;
-//            } else if(choice.equals(CHANGETO) && (choice_v.length()>0)) {
-//                voteForChoice = choice_v;
-//                for(Iterator j = p.items.iterator();j.hasNext();) {
-//                    DataSection.DataRow.CandidateItem item = (DataSection.DataRow.CandidateItem)j.next();
-//                    if(item.value.equals(voteForChoice)) {
-//                        voteForItem = item; // found an item
-//                    }
-//                }
-//            } else {
-//                return false;
-//            }
-//            
-//            if(unvote) {
-//                for(String v : p.valuesList) {
-//                    String unvoteXpath = p.attributeChoice.xpathForChoice(v);
-//                    int unvoteXpathId = xpt.xpathToBaseXpathId(unvoteXpath);                    
-//                    
-//                    int oldNoVote = vet.queryVote(section.locale, ctx.session.user.id, unvoteXpathId);
-//                    
-//                    if(oldNoVote != -1) {
-//                        doVote(ctx, section.locale, -1, unvoteXpathId);
-//                        hadChange = true;
-//                    }
-//                }
-//                if(hadChange) {
-//                    ctx.print("<tt class='codebox'>"+ p.displayName +"</tt>: Removing vote <br>");
-//                    return true;
-//                }
-//            } else {
-//                // vote for item
-//                boolean updateImpliedVotes = false;
-//                // yes vote first
-//                String yesPath = p.attributeChoice.xpathForChoice(voteForChoice);
-//                int yesId = xpt.xpathToBaseXpathId(yesPath);
-//                if(voteForItem == null) {
-//                    // no item existed - create it.
-//                    String yesPathMinusAlt = XPathTable.removeAlt(yesPath);
-//                    String newProp = ourSrc.addDataToNextSlot(cf, section.locale, yesPathMinusAlt, p.altType, 
-//                        altPrefix, ctx.session.user.id, voteForChoice, choice_r); // removal
-//                    doUnVote(ctx, section.locale, yesId); // remove explicit vote - the implied votes will pick up the vote
-//                    updateImpliedVotes = true;
-//                    hadChange = true;
-//                    ctx.print("<tt class='codebox'>"+ p.displayName +"</tt>:creating new item "+voteForChoice+" <br>");
-//                } else {
-//                    // voting for an existing item.
-//                    int oldYesVote = vet.queryVote(section.locale, ctx.session.user.id, yesId);
-//                    if(oldYesVote != voteForItem.xpathId) {
-//                        doVote(ctx, section.locale, voteForItem.xpathId, yesId);
-//                        hadChange = true;
-//                    }
-//                }
-//                
-//                // vote REMOVE on the rest
-//                for(String v : p.valuesList) {
-//                    if(v.equals(voteForChoice)) continue; // skip the new item
-//                    String noPath = p.attributeChoice.xpathForChoice(v);
-//                    int noId = xpt.xpathToBaseXpathId(noPath);
-//                    
-//                    int oldNoVote = vet.queryVote(section.locale, ctx.session.user.id, noId);
-//                    // remove vote
-//                    
-//                    if(oldNoVote != -1) {
-//                        hadChange = true;
-//                        doVote(ctx, section.locale, -1, noId);
-//                    }
-//                }
-//
-//
-//                if(hadChange) {
-//                    ctx.print("<tt class='codebox'>"+ p.displayName +"</tt>: vote succeeded <br>");
-//                    return true;
-//                }
-//            }            
-//
-//            return false;
-//        }
-        
-        // handle a change of REFERENCE.
-        // If there was a reference - see if they MIGHT be changing reference
-//        if(choice_r.length()>0) {
-//        }
-        
+        System.err.println("voteForItem " + fullPathFull + " = '"+voteForItem + "', value " + choice_v + " - oldVoteItem = " + oldVoteItem + " (\""+oldVoteValue+"\", #"+oldVoteId+")");
 		
 		boolean didSomething = false;  // Was any item modified?
 		
@@ -8203,31 +8113,14 @@ o	            		}*/
                 if(choice_v.equals(item.value)  && 
                 		(item.pathWhereFound==null) &&
                     !((item.altProposed==null) && (item.inheritFrom!=null) &&  XMLSource.CODE_FALLBACK_ID.equals(item.inheritFrom))) { // OK to override code fallbacks
-                    String theirReferences = item.references;
-                    if(theirReferences == null) {
-                        theirReferences="";
-                    }
-                    if(theirReferences.equals(choice_r)) {
-                        if(oldVote != item.xpathId) {
-                        	dsrh.warnAcceptedAsVoteFor(p, item);
-                            return doVote(ctx, section.locale, item.xpathId) || didSomething;
-                        } else {
-                        	dsrh.warnAlreadyVotingFor(p, item);
-							return didSomething;
-                        }
-                    } else {
-//                        ctx.println(ctx.iconHtml("warn","duplicate")+"<i>Note, differs only in references</i> ("+theirReferences+")<br>");
-                    }
                 }
             }
-            String altPrefix = null;
-            // handle FFT        
-            altPrefix = XPathTable.altProposedPrefix(ctx.session.user.id);
-            
+
             // user requested a new alternate.
             String newAlt = ctx.field(fieldHash+"_alt").trim();
             if(newAlt.length()>0) {
                 altType = newAlt;
+                throw new InternalError("Not implemented: ALT change");
             }
             String aDisplayName = p.displayName;
             if(section.xpath(p).startsWith("//ldml/characters") && 
@@ -8291,36 +8184,41 @@ o	            		}*/
                     }
                 }
             }
+
+            /* Do vote, using new API.  This is only used for a changeTo. */ 
             
-            String newProp = null;
-//            synchronized(vet) { // make sure that no-one else grabs our slot.
-                if(true) throw new InternalError(" NOT IMP: newProp = DataSection.addDataToNextSlot(ourSrc, cf, section.locale, fullPathMinusAlt, altType,                    altPrefix, ctx.session.user.id, choice_v, choice_r); ");
-//            }
-            // update implied vote
-//            ctx.print(" &nbsp;&nbsp; <tt class='proposed'>" + newProp+"</tt>");
+            String newXpath = ballotBox.voteForValue(ctx.session.user, fullPathFull, choice_v);
+
             if(HAVE_REMOVE&&choice.equals(REMOVE)) {
             	dsrh.handleRemoved(p);
+            	throw new InternalError("Not imp: remove");
             } else {
             	dsrh.handleNewValue(p, choice_v, doFail);
             }
-            doUnVote(ctx, section.locale, base_xpath);
             //ctx.println("updated " + n + " implied votes due to new data submission.");
             return true;
         } else if(choice.equals(CONFIRM)) {
-            if(oldVote != base_xpath) {
-            	dsrh.handleVote(p, oldVote, base_xpath);
-                return doVote(ctx, section.locale, base_xpath) || didSomething; // vote with xpath
+        	if((oldVoteId != voteForItem.id) && (oldVoteValue==null||!oldVoteValue.equals(voteForItem.value))) {
+        		String newXpath = ballotBox.voteForValue(ctx.session.user, fullPathFull, voteForItem.value);
+        		dsrh.handleVote(p, oldVoteId, base_xpath);
+            } else {
+            	return didSomething;
             }
         } else if (choice.equals(DONTCARE)) {
-            if(oldVote != -1) {
-            	dsrh.handleVote(p, oldVote, -1);
-                return doVote(ctx, section.locale, -1, base_xpath) || didSomething;
-            }
+        		if(oldVoteId!=-1) {
+	        		String newXpath = ballotBox.voteForValue(ctx.session.user, fullPathFull, null);
+	            	dsrh.handleVote(p, oldVoteId, -1);
+	            	return true;
+        		} else {
+        			return didSomething;
+        		}
         } else if(voteForItem != null)  {
             DataSection.DataRow.CandidateItem item = voteForItem;
-            if(oldVote != item.xpathId) {
-            	dsrh.handleVote(p, oldVote, item.xpathId);
-                return doVote(ctx, section.locale, item.xpathId) || didSomething;
+
+            if(oldVoteValue==null || !oldVoteValue.equals(item.value)) {
+                String newXpath = ballotBox.voteForValue(ctx.session.user, fullPathFull, item.value);
+            	dsrh.handleVote(p, oldVoteId, item.xpathId);
+            	return true;
             } else {
                 return didSomething; // existing vote.
             }

@@ -1722,7 +1722,8 @@ public class DataSection extends Registerable {
         		/*
                 Was this item submitted via SurveyTool? Let's find out.
         		 */
-        		myItem.submitter = sm.dbsrcfac.getSubmitterId(locale, myItem.xpathId);
+        		System.err.println("Note: not getting submitter id.");
+        		myItem.submitter = -1; // sm.dbsrcfac.getSubmitterId(locale, myItem.xpathId);
         		if(myItem.submitter != -1) {
         			///*srl*/                System.err.println("submitter set: " + myItem.submitter + " @ " + locale + ":"+ xpath);
         		}
@@ -2041,122 +2042,7 @@ public class DataSection extends Registerable {
         
         return "//ldml"; // the "misc" pile.
     }
-    /**
-     * 'shim' 
-     * @param ourSrc
-     * @param cf
-     * @param locale
-     * @param fullPathMinusAlt
-     * @param altType
-     * @param altPrefix
-     * @param id
-     * @deprecated SHIM- please rewrite caller to use CLDRFile api
-     * @return the altProposed string for the new slot, or null on failure
-     */
-    public static String addDataToNextSlot(XMLSource ourSrc, CLDRFile cf, CLDRLocale locale,
-            String fullPathMinusAlt, String altType, String altPrefix, int id, String value,
-            String refs) {
 
-        XPathParts xpp = new XPathParts(null,null);
-        // prepare for slot check
-        for(int slot=1;slot<100;slot++) {
-            String altProposed = null;
-            String alt = null;
-            String altTag = null;
-            if(altPrefix != null) {
-                altProposed = altPrefix+slot; // proposed-u123-4 
-                alt = LDMLUtilities.formatAlt(altType, altProposed);
-                altTag =  "[@alt=\"" + alt + "\"]";
-            } else {
-                // no alt
-                altTag = "";
-            }
-            //            String rawXpath = fullXpathMinusAlt + "[@alt='" + alt + "']";
-            String refStr = "";
-            if(refs.length()!=0) {
-                refStr = "[@references=\""+refs+"\"]";
-            }
-            String rawXpath = fullPathMinusAlt + altTag + refStr; // refstr will get removed
-            System.err.println("addDataToNextSlot:  rawXpath = " + rawXpath);
-           // String xpath = CLDRFile.getDistinguishingXPath(rawXpath, null, false);  // removes  @used=  etc
-           // if(!xpath.equals(rawXpath)) {
-           //     logger.info("NORMALIZED:  was " + rawXpath + " now " + xpath);
-           // }
-            String xpath = fullPathMinusAlt + altTag;
-            String oxpath = xpath+refStr+"[@draft=\"unconfirmed\"]";
-            //int xpid = xpt.getByXpath(xpath);
-            boolean has = ourSrc.hasValueAtDPath(xpath);
-            System.err.println("Add: survey says " + has + " for " + xpath);
-            if(has) {
-                    continue;
-            }
-//            // Check to see if this slot is in use.
-//            //synchronized(conn) {
-//                try {
-//                    stmts.queryValue.setString(1,locale.toString());
-//                    stmts.queryValue.setInt(2,xpid);
-//                    ResultSet rs = stmts.queryValue.executeQuery();
-//                    if(rs.next()) {
-//                        // already taken..
-//                        //logger.info("Taken: " + altProposed);
-//                        rs.close();
-//                        continue;
-//                    }
-//                    rs.close();
-//                } catch(SQLException se) {
-//                    String complaint = "CLDRDBSource: Couldn't search for empty slot " + locale + ":" + xpid + "(" + xpath + ")='" + value + "' -- " + SurveyMain.unchainSqlException(se);
-//                    logger.severe(complaint);
-//                    throw new InternalError(complaint);
-//                }
-//            //}
-            
-            
-            
-            //int oxpid = xpt.getByXpath(oxpath);
-            xpp.clear();
-            xpp.initialize(oxpath);
-            String lelement = xpp.getElement(-1);
-            /* all of these are always at the end */
-            String eAlt = xpp.findAttributeValue(lelement,LDMLConstants.ALT);
-            String eDraft = xpp.findAttributeValue(lelement,LDMLConstants.DRAFT);
-            
-            /* special func to find this */
-           // String eType = sm.xpt.typeFromPathToTinyXpath(xpath, xpp);
-            String tinyXpath = xpp.toString();
-            
-           // int txpid = xpt.getByXpath(tinyXpath);
-            
-            /*SRL*/ 
-            //                System.out.println(xpath + " l: " + locale);
-            //                System.out.println(" <- " + oxpath);
-            //                System.out.println(" t=" + eType + ", a=" + eAlt + ", d=" + eDraft);
-            //                System.out.println(" => "+txpid+"#" + tinyXpath);
-            ourSrc.putValueAtPath(oxpath, value);
-            return altProposed;
-        } // end for
-        return null; // couldn't find a slot..
-    
-    }
-    /**
-     * 'shim' 
-     * @param ourSrc
-     * @param cf
-     * @param string
-     * @param id
-     * @param newRef
-     * @param uri
-     * @return the altProposed string for the new slot, or null on failure
-     * @deprecated SHIM- please rewrite caller
-     */
-    public static String addReferenceToNextSlot(XMLSource ourSrc, CLDRFile cf, String string,
-            int id, String newRef, String uri) {
-        System.err.println("@@unimp: addReferenceToNextSlot");
-        return UserRegistry.makePassword(uri.toString()); // throw it a bone
-        // TODO Auto-generated method stub
-   //     SurveyMain.busted("unimplemented: addReferenceToNextSlot");
-//        throw new InternalError("unimplemented: addReferenceToNextSlot");
-//        return null;
-    }
     public int getSkippedDueToCoverage() {
         return skippedDueToCoverage;
     }

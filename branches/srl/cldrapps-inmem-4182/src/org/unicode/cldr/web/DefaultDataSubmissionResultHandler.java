@@ -98,7 +98,11 @@ public class DefaultDataSubmissionResultHandler implements
 	}
 
 	public void handleVote(DataRow p, int oldVote, int newVote) {
-		if(newVote == p.base_xpath) {
+		if(newVote==oldVote) {
+            ctx.print("INTERNAL ERROR: <tt class='codebox'>"+ p.displayName +"</tt>: pointless confirmation ");
+            ctx.println("<!-- Registering vote for "+p.base_xpath+" - "+p.getLocale()+":" + newVote + " == " + oldVote + " --> " + 
+                    ctx.iconHtml("squo","voted")+" Vote accepted. <br>");
+		} else if(newVote == p.base_xpath) {
             ctx.print("<tt class='codebox'>"+ p.displayName +"</tt>: ");
             ctx.println("<!-- Registering vote for "+p.base_xpath+" - "+p.getLocale()+":" + p.base_xpath+" (base_xpath) replacing " + oldVote + " --> " + 
                     ctx.iconHtml("okay","voted")+" Vote accepted. <br>");
