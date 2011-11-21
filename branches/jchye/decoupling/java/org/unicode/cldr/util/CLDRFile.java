@@ -250,50 +250,6 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
   }
 
   /**
-   * Create a CLDRFile for the given localename. (Normally a Factory is used to create CLDRFiles.)
-   * SimpleXMLSource will be used as the source.
-   * @param localeName
-   */
-  public static CLDRFile make(String localeName) {
-    CLDRFile result = new CLDRFile(null, false);
-    result.dataSource.setLocaleID(localeName);
-    return result;
-  }
-
-  /**
-   * Create a CLDRFile for the given localename. (Normally a Factory is used to create CLDRFiles.)
-   * @param localeName
-   */
-  public static CLDRFile makeSupplemental(String localeName) {
-    CLDRFile result = new CLDRFile(null, false);
-    result.dataSource.setLocaleID(localeName);
-    result.setNonInheriting(true);
-    return result;
-  }
-
-  /**
-   * Produce a CLDRFile from a localeName and filename, given a directory. (Normally a Factory is used to create CLDRFiles.)
-   * @param localeName
-   * @param dir directory 
-   */
-  public static CLDRFile make(String localeName, String dir, boolean includeDraft) {
-    return make(localeName, dir, includeDraft ? DraftStatus.unconfirmed : DraftStatus.approved);
-  }
-
-  public static CLDRFile make(String localeName, String dir, DraftStatus minimalDraftStatus) {
-    return makeFromFile(dir + File.separator + localeName + ".xml", localeName, minimalDraftStatus);
-  }
-
-  /**
-   * Produce a CLDRFile from a localeName, given a directory. (Normally a Factory is used to create CLDRFiles.)
-   * @param localeName
-   * @param dir directory 
-   */
-  // TODO make the directory a URL  
-  public static CLDRFile makeFromFile(String fullFileName, String localeName, DraftStatus minimalDraftStatus) {
-    return make(localeName).loadFromFile(fullFileName, localeName, minimalDraftStatus);
-  }
-  /**
    * Produce a CLDRFile from a localeName, given a directory. (Normally a Factory is used to create CLDRFiles.)
    * @param localeName
    * @param dir directory 
@@ -320,28 +276,6 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     return loadFromFile(new File(fullFileName), localeName, minimalDraftStatus);
   }
 
-  /**
-   * Produce a CLDRFile from a file input stream. (Normally a Factory is used to create CLDRFiles.)
-   * @param localeName
-   * @param fis
-   */
-  public static CLDRFile make(String fileName, String localeName, InputStream fis, DraftStatus minimalDraftStatus) {
-    return make(localeName).load(fileName,localeName, fis, minimalDraftStatus);
-  }
-  
-  /**
-   * CLDRFile from a file input stream. Set the locale ID from the same input stream. (Normally a Factory is used to create CLDRFiles.)
-   * @param fileName
-   * @param fis
-   * @param minimalDraftStatus
-   * @return
-   */
-  public static CLDRFile make(String fileName, InputStream fis, DraftStatus minimalDraftStatus) {
-      CLDRFile file = make("und").load(fileName, "und", fis, minimalDraftStatus);
-      file.dataSource.setLocaleID(file.getLocaleIDFromIdentity());
-      return file;
-  }
-  
   /**
    * Load a CLDRFile from a file input stream.
    * @param localeName

@@ -32,6 +32,7 @@ import org.unicode.cldr.util.Iso639Data;
 import org.unicode.cldr.util.Iso639Data.Scope;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.VariantFolder;
 import org.unicode.cldr.util.XPathParts;
@@ -613,7 +614,7 @@ public class TestMisc {
     static void testPopulous() {
         Factory cldrFactory = Factory.make(CldrUtility.MAIN_DIRECTORY, ".*");
         CLDRFile supp = cldrFactory.make("supplementalData", false);
-        CLDRFile temp = CLDRFile.make("supplemental");
+        CLDRFile temp = SimpleFactory.makeFile("supplemental");
         temp.setNonInheriting(true);
         XPathParts parts = new XPathParts(null, null);
         for (Iterator it = supp.iterator(null, CLDRFile.ldmlComparator); it.hasNext();) {

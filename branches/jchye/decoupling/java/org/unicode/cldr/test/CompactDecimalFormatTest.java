@@ -19,6 +19,7 @@ import org.unicode.cldr.test.CompactDecimalFormat.Style;
 import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.XPathParts;
@@ -124,7 +125,7 @@ public class CompactDecimalFormatTest {
             hardOut.println("package org.unicode.cldr.test;\npublic class CompactDecimalFormatData {\n\tstatic void load() {");
         }
 
-        CLDRFile.Factory cldrFactory  = CLDRFile.Factory.make(sourceDir, ".*");
+        Factory cldrFactory  = Factory.make(sourceDir, ".*");
         StandardCodes sc = StandardCodes.make();
         NumberFormat enf = NumberFormat.getInstance(ULocale.ENGLISH);
 

@@ -2194,7 +2194,7 @@ o	            		}*/
 									" ready to add " + xmlFile.getName() +"<br>");
 							numToAdd++;
 						} else {
-							CLDRFile emptyFile = CLDRFile.make(aloc.getBaseName());
+							CLDRFile emptyFile = SimpleFactory.makeFile(aloc.getBaseName());
 		                    try {
 		                        PrintWriter utf8OutStream = new PrintWriter(
 		                            new OutputStreamWriter(

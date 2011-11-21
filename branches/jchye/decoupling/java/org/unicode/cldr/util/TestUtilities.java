@@ -288,7 +288,7 @@ public class TestUtilities {
     }
 
     private static void writeMetaData() throws IOException {
-        CLDRFile meta = CLDRFile.make("metaData").setNonInheriting(true);
+        CLDRFile meta = SimpleFactory.makeFile("metaData").setNonInheriting(true);
         String[] elements = new String[] { "ldml", "identity", "alias", "localeDisplayNames", "layout", "characters", "delimiters", "measurement", "dates", "numbers", "collations", "posix",
                 "segmentations", "references", "version", "generation", "language", "script", "territory", "variant", "languages", "scripts", "territories", "variants", "keys", "types",
                 "measurementSystemNames", "key", "type", "measurementSystemName", "orientation", "inList", "exemplarCharacters", "mapping", "quotationStart", "quotationEnd", "alternateQuotationStart",

@@ -15,6 +15,7 @@ import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.CoverageLevel;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.XPathParts;
 import org.w3c.dom.Node;
@@ -164,8 +165,8 @@ public abstract class CLDRConverterTool {
     private void initCoverageLevel(
         String localeName, boolean exemplarsContainA_Z, String supplementalDir) {
         if (coverageLevel == null) {
-            CLDRFile sd = CLDRFile.make(CLDRFile.SUPPLEMENTAL_NAME, supplementalDir, true);
-            CLDRFile smd = CLDRFile.make(CLDRFile.SUPPLEMENTAL_METADATA, supplementalDir, true);
+            CLDRFile sd = SimpleFactory.makeFile(CLDRFile.SUPPLEMENTAL_NAME, supplementalDir, true);
+            CLDRFile smd = SimpleFactory.makeFile(CLDRFile.SUPPLEMENTAL_METADATA, supplementalDir, true);
             coverageLevel = new CoverageLevel();
             CoverageLevel.init(sd, smd);
             ArrayList<CheckStatus> errors = new ArrayList<CheckStatus>();

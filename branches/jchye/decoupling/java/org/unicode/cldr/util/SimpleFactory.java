@@ -1,6 +1,7 @@
 package org.unicode.cldr.util;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -12,7 +13,7 @@ import org.unicode.cldr.util.CLDRFile.SimpleXMLSource;
 
 public class SimpleFactory extends Factory {
     /**
-     * The maximum cache size the caches in SimpleFactory.
+     * The maximum cache size the caches in 
      * 15 is a safe limit for instances with limited amounts of memory (around 128MB).
      * Larger numbers are tolerable if more memory is available.
      * This constant may be moved to CldrUtilities in future if needed.
@@ -25,17 +26,17 @@ public class SimpleFactory extends Factory {
     private Map<String,CLDRFile>[] mainCache = new Map[DraftStatus.values().length];
     private Map<String,CLDRFile>[] resolvedCache = new Map[DraftStatus.values().length];
     {
-      for (int i = 0; i < mainCache.length; ++i) {
-        mainCache[i] = new LruMap<String, CLDRFile>(CACHE_LIMIT);
-        resolvedCache[i] = new LruMap<String, CLDRFile>(CACHE_LIMIT);
-      }
+        for (int i = 0; i < mainCache.length; ++i) {
+            mainCache[i] = new LruMap<String, CLDRFile>(CACHE_LIMIT);
+            resolvedCache[i] = new LruMap<String, CLDRFile>(CACHE_LIMIT);
+        }
     }
 
     private DraftStatus minimalDraftStatus = DraftStatus.unconfirmed;
     private SimpleFactory() {}
 
     protected DraftStatus getMinimalDraftStatus() {
-      return minimalDraftStatus;
+        return minimalDraftStatus;
     }
 
     /**
@@ -43,27 +44,27 @@ public class SimpleFactory extends Factory {
      * For the matchString meaning, see {@link getMatchingXMLFiles}
      */
     public static Factory make(String sourceDirectory, String matchString) {
-      return make(sourceDirectory, matchString, DraftStatus.unconfirmed);
+        return make(sourceDirectory, matchString, DraftStatus.unconfirmed);
     }
 
     public static Factory make(String sourceDirectory, String matchString, DraftStatus minimalDraftStatus) {
-      SimpleFactory result = new SimpleFactory();
-      result.sourceDirectory = sourceDirectory;
-      result.matchString = matchString;
-      result.minimalDraftStatus = minimalDraftStatus;
-      Matcher m = Pattern.compile(matchString).matcher("");
-      result.localeList = CLDRFile.getMatchingXMLFiles(sourceDirectory, m);
-      //      try {
-      //        result.localeList.addAll(getMatchingXMLFiles(sourceDirectory + "/../supplemental/", m));
-      //      } catch(Throwable t) {
-      //        throw new Error("CLDRFile unable to load Supplemental data: couldn't getMatchingXMLFiles("+sourceDirectory + "/../supplemental"+")",t);
-      //      }
-      return result;
+        SimpleFactory result = new SimpleFactory();
+        result.sourceDirectory = sourceDirectory;
+        result.matchString = matchString;
+        result.minimalDraftStatus = minimalDraftStatus;
+        Matcher m = Pattern.compile(matchString).matcher("");
+        result.localeList = CLDRFile.getMatchingXMLFiles(sourceDirectory, m);
+        //      try {
+        //        result.localeList.addAll(getMatchingXMLFiles(sourceDirectory + "/../supplemental/", m));
+        //      } catch(Throwable t) {
+        //        throw new Error("CLDRFile unable to load Supplemental data: couldn't getMatchingXMLFiles("+sourceDirectory + "/../supplemental"+")",t);
+        //      }
+        return result;
     }
 
 
     protected Set<String> handleGetAvailable() {
-      return localeList;
+        return localeList;
     }
 
 
@@ -76,34 +77,101 @@ public class SimpleFactory extends Factory {
     // TODO resolve aliases
 
     public CLDRFile handleMake(String localeName, boolean resolved, DraftStatus minimalDraftStatus) {
-      // TODO fix hack: 
-      // read root first so that we get the ordering right.
-      /*			if (needToReadRoot) {
+        // TODO fix hack: 
+        // read root first so that we get the ordering right.
+        /*			if (needToReadRoot) {
        if (!localeName.equals("root")) make("root", false);
        needToReadRoot = false;
        }
-       */			// end of hack
-      Map<String,CLDRFile> cache = resolved ? resolvedCache[minimalDraftStatus.ordinal()] : mainCache[minimalDraftStatus.ordinal()];
+         */			// end of hack
+        Map<String,CLDRFile> cache = resolved ? resolvedCache[minimalDraftStatus.ordinal()] : mainCache[minimalDraftStatus.ordinal()];
 
-      CLDRFile result = cache.get(localeName);
-      if (result == null) {
-        final String dir = CLDRFile.isSupplementalName(localeName) ? sourceDirectory.replace("incoming/vetted/","common/") + File.separator + "../supplemental/" : sourceDirectory;
-        result = CLDRFile.make(localeName, dir, minimalDraftStatus);
-        SimpleXMLSource mySource = (SimpleXMLSource)result.dataSource;
-        mySource.factory = this;
-        mySource.madeWithMinimalDraftStatus = minimalDraftStatus;
-        if (resolved) {
-          result.dataSource = result.dataSource.getResolving();
-        } else {
-          result.freeze();	    			
+        CLDRFile result = cache.get(localeName);
+        if (result == null) {
+            final String dir = CLDRFile.isSupplementalName(localeName) ? sourceDirectory.replace("incoming/vetted/","common/") + File.separator + "../supplemental/" : sourceDirectory;
+            result = makeFile(localeName, dir, minimalDraftStatus);
+            SimpleXMLSource mySource = (SimpleXMLSource)result.dataSource;
+            mySource.factory = this;
+            mySource.madeWithMinimalDraftStatus = minimalDraftStatus;
+            if (resolved) {
+                result.dataSource = result.dataSource.getResolving();
+            } else {
+                result.freeze();	    			
+            }
+            cache.put(localeName, result);
         }
-        cache.put(localeName, result);
-      }
-      return result;
+        return result;
     }
 
     public String getSourceDirectory() {
-      return sourceDirectory;
+        return sourceDirectory;
     }
 
-  }
+    /**
+     * Produce a CLDRFile from a localeName, given a directory.
+     * @param localeName
+     * @param dir directory 
+     */
+    // TODO make the directory a URL  
+    public static CLDRFile makeFromFile(String fullFileName, String localeName, CLDRFile.DraftStatus minimalDraftStatus) {
+        return makeFile(localeName).loadFromFile(fullFileName, localeName, minimalDraftStatus);
+    }
+
+    /**
+     * Create a CLDRFile for the given localename.
+     * @param localeName
+     */
+    public static CLDRFile makeSupplemental(String localeName) {
+        CLDRFile result = new CLDRFile(null, false);
+        result.dataSource.setLocaleID(localeName);
+        result.setNonInheriting(true);
+        return result;
+    }
+
+    /**
+     * CLDRFile from a file input stream. Set the locale ID from the same input stream.
+     * @param fileName
+     * @param fis
+     * @param minimalDraftStatus
+     * @return
+     */
+    public static CLDRFile makeFile(String fileName, InputStream fis, CLDRFile.DraftStatus minimalDraftStatus) {
+        CLDRFile file = makeFile("und").load(fileName, "und", fis, minimalDraftStatus);
+        file.dataSource.setLocaleID(file.getLocaleIDFromIdentity());
+        return file;
+    }
+
+    /**
+     * Produce a CLDRFile from a file input stream.
+     * @param localeName
+     * @param fis
+     */
+    public static CLDRFile makeFile(String fileName, String localeName, InputStream fis, CLDRFile.DraftStatus minimalDraftStatus) {
+        return makeFile(localeName).load(fileName,localeName, fis, minimalDraftStatus);
+    }
+
+    public static CLDRFile makeFile(String localeName, String dir, CLDRFile.DraftStatus minimalDraftStatus) {
+        return makeFromFile(dir + File.separator + localeName + ".xml", localeName, minimalDraftStatus);
+    }
+
+    /**
+     * Create a CLDRFile for the given localename.
+     * SimpleXMLSource will be used as the source.
+     * @param localeName
+     */
+    public static CLDRFile makeFile(String localeName) {
+        CLDRFile result = new CLDRFile(null, false);
+        result.dataSource.setLocaleID(localeName);
+        return result;
+    }
+
+    /**
+     * Produce a CLDRFile from a localeName and filename, given a directory.
+     * @param localeName
+     * @param dir directory 
+     */
+    public static CLDRFile makeFile(String localeName, String dir, boolean includeDraft) {
+        return makeFile(localeName, dir, includeDraft ? CLDRFile.DraftStatus.unconfirmed : CLDRFile.DraftStatus.approved);
+    }
+
+}

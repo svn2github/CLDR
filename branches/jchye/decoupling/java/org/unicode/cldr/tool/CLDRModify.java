@@ -37,6 +37,7 @@ import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.Log;
 import org.unicode.cldr.util.Predicate;
+import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XPathParts;
@@ -1949,7 +1950,7 @@ public class CLDRModify {
     // then minimize against the NEW parents
 
     Set removal = new TreeSet(CLDRFile.ldmlComparator);
-    CLDRFile replacements = CLDRFile.make("temp");
+    CLDRFile replacements = SimpleFactory.makeFile("temp");
     fixList.setFile(k, removal, replacements);
 
     for (Iterator it2 = k.iterator(); it2.hasNext();) {
