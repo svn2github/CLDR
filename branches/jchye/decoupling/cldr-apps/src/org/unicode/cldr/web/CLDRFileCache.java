@@ -19,13 +19,12 @@ import java.util.Set;
 
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRLocale;
+import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.Factory;
-import org.unicode.cldr.util.CLDRFile.SimpleXMLSource;
 import org.unicode.cldr.util.XPathParts.Comments;
 import org.unicode.cldr.web.CLDRDBSourceFactory.CLDRDBSource;
-import org.unicode.cldr.web.CLDRFileCache.CacheableXMLSource;
 import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 
 /**
@@ -881,7 +880,7 @@ public class CLDRFileCache {
 			if (DEBUG_INSANE)
 				System.err.println("## " + serno + " 1getsrc " + localeID
 						+ "  @ " + cacheFile.getAbsolutePath());
-			cachedFileSource = new CLDRFile.SimpleXMLSource(factory, localeID);
+			cachedFileSource = new SimpleXMLSource(factory, localeID);
 
 			/* Cause load */
 			CLDRFile f = new CLDRFile(cachedFileSource, false);

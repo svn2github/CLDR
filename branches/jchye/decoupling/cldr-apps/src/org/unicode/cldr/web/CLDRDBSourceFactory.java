@@ -42,6 +42,7 @@ import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.LruMap;
+import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.VettingViewer.ErrorChecker;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
@@ -1975,7 +1976,7 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 			if(MAKE_CACHE) result = makeHash.get(localeID);
 			if(result == null) {
 				if(localeID.startsWith(CLDRFile.SUPPLEMENTAL_PREFIX)) {
-					XMLSource msource = new CLDRFile.SimpleXMLSource(rawXmlFactory, localeID).make(localeID);
+					XMLSource msource = new SimpleXMLSource(rawXmlFactory, localeID).make(localeID);
 					msource.freeze();
 					//                System.err.println("Getting simpleXMLSource for " + localeID);
 					result = msource; 
