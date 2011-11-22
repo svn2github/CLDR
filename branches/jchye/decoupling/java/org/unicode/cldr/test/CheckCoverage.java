@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.InternalCldrException;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
@@ -35,13 +36,17 @@ import org.unicode.cldr.util.XMLSource;
 public class CheckCoverage extends CheckCLDR {
     static final boolean DEBUG = false;
     static final boolean DEBUG_SET = false;
-    private static CoverageLevel coverageLevel = new CoverageLevel();
+    private static CoverageLevel coverageLevel;
     private Level requiredLevel;
     
     SupplementalDataInfo supplementalData;
 
     //private boolean requireConfirmed = true;
     //private Matcher specialsToTestMatcher = CLDRFile.specialsToPushFromRoot.matcher("");
+
+    public CheckCoverage(Factory factory) {
+        coverageLevel = new CoverageLevel(factory);
+    }
 
     public CheckCLDR handleCheck(String path, String fullPath, String value,
             Map<String, String> options, List<CheckStatus> result) {

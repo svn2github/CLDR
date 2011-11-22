@@ -169,8 +169,9 @@ public class TestMisc {
 
 
 
-
-        ExampleGenerator eg = new ExampleGenerator(Factory.make(CldrUtility.MAIN_DIRECTORY,".*").make("en",false), CldrUtility.SUPPLEMENTAL_DIRECTORY);
+        Factory cldrFactory = Factory.make(CldrUtility.MAIN_DIRECTORY, ".*");
+        CLDRFile englishFile = cldrFactory.make("en", false); 
+        ExampleGenerator eg = new ExampleGenerator(englishFile, englishFile.getResolved(), CldrUtility.SUPPLEMENTAL_DIRECTORY);
         System.out.println(eg.getHelpHtml("//ldml/numbers/currencyFormats/currencyFormatLength/currencyFormat[@type=\"standard\"]/pattern[@type=\"standard\"][@draft=\"provisional\"]",""));
         System.out.println(eg.getHelpHtml("/exemplarCharacters",""));
         System.out.println(eg.getHelpHtml("/calendar/pattern",""));

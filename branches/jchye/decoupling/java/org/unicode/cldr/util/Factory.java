@@ -118,4 +118,20 @@ import org.unicode.cldr.util.CLDRFile.DraftStatus;
       return this;
     }
 
+    // TODO(jchye): Clean this up.
+    public CLDRFile getSupplementalData() {
+      try {
+        return make("supplementalData", false);
+      } catch (RuntimeException e) {
+        return Factory.make(getAlternateSupplementalDirectory().getPath(), ".*").make("supplementalData", false);
+      }
+    }
+    
+    public CLDRFile getSupplementalMetadata() {
+      try {
+        return make("supplementalMetadata", false);
+      } catch (RuntimeException e) {
+        return Factory.make(getAlternateSupplementalDirectory().getPath(), ".*").make("supplementalMetadata", false);
+      }
+    }
   }

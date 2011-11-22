@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
@@ -47,6 +48,11 @@ public class CheckAttributeValues extends CheckCLDR {
 
     XPathParts parts = new XPathParts(null, null);
     static final UnicodeSet DIGITS = new UnicodeSet("[0-9]").freeze();
+    private Factory factory;
+
+    public CheckAttributeValues(Factory factory) {
+        this.factory = factory;
+    }
 
     public CheckCLDR handleCheck(String path, String fullPath, String value, Map<String, String> options, List<CheckStatus> result) {
         if (fullPath == null) return this; // skip paths that we don't have
@@ -147,7 +153,7 @@ public class CheckAttributeValues extends CheckCLDR {
         isEnglish = "en".equals(localeIDParser.set(cldrFileToCheck.getLocaleID()).getLanguage());
         synchronized (elementOrder) {
             if (!initialized) {
-                CLDRFile metadata = cldrFileToCheck.getSupplementalMetadata();
+                CLDRFile metadata = factory.getSupplementalMetadata();
                 getMetadata(metadata);
                 initialized = true;
                 for (Iterator it = missing.iterator(); it.hasNext();) {

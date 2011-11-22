@@ -2268,11 +2268,6 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     return dataSource.getAvailableLocales();
   }
 
-  public CLDRFile make(String locale, boolean resolved) {
-    if (dataSource == null) throw new UnsupportedOperationException("Make not supported");
-    return new CLDRFile(dataSource.make(locale), resolved);
-  }
-
   // WARNING: this must go AFTER attributeOrdering is set; otherwise it uses a null comparator!!
   private static final DistinguishedXPath distinguishedXPath = new DistinguishedXPath();
 
@@ -2566,24 +2561,6 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
 
 
   public enum WinningChoice {NORMAL, WINNING};
-
-  // TODO This stuff needs some rethinking, but just to get it going for now...
-
-  public CLDRFile getSupplementalData() {
-    try {
-      return make("supplementalData", false);
-    } catch (RuntimeException e) {
-      return Factory.make(getSupplementalDirectory().getPath(), ".*").make("supplementalData", false);
-    }
-  }
-
-  public CLDRFile getSupplementalMetadata() {
-    try {
-      return make("supplementalMetadata", false);
-    } catch (RuntimeException e) {
-      return Factory.make(getSupplementalDirectory().getPath(), ".*").make("supplementalMetadata", false);
-    }
-  }
 
   /**
    * Used in TestUser to get the "winning" path. Simple implementation just for testing.

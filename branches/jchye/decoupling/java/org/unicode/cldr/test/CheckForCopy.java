@@ -10,6 +10,7 @@ import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Status;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.SupplementalDataInfo;
@@ -25,6 +26,11 @@ public class CheckForCopy extends CheckCLDR {
     XPathParts parts = new XPathParts();
     //CLDRFile.Status status = new CLDRFile.Status();
     Set seenSoFar = new HashSet();
+    private Factory factory;
+
+    public CheckForCopy(Factory factory) {
+        this.factory = factory;
+    }
 
     static RegexLookup<Boolean> skip = new RegexLookup<Boolean>()
     .add("/(availableFormats" +
@@ -220,7 +226,7 @@ public class CheckForCopy extends CheckCLDR {
         Set<String> locales = cldrFileToCheck.getAvailableLocales();
         for (String locale : locales) {
             if (locale.contains("_") || locale.equals("en")) continue;
-            CLDRFile nativeFile = cldrFileToCheck.make(locale, false);
+            CLDRFile nativeFile = factory.make(locale, false);
 
             String englishName = getDisplayInformation().getName(CLDRFile.LANGUAGE_NAME, locale);
             if (englishName == null) continue;

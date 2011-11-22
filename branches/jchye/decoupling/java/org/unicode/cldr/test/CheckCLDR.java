@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.InternalCldrException;
 
 import com.ibm.icu.dev.test.util.ElapsedTimer;
@@ -77,14 +78,14 @@ abstract public class CheckCLDR {
    * based on their class name (such as .* for all checks, .*Collisions.* for CheckDisplayCollisions, etc.)
    * @return
    */
-  public static CompoundCheckCLDR getCheckAll(String nameMatcher) {
+  public static CompoundCheckCLDR getCheckAll(Factory factory, String nameMatcher) {
     return new CompoundCheckCLDR()
     .setFilter(Pattern.compile(nameMatcher,Pattern.CASE_INSENSITIVE).matcher(""))
-    .add(new CheckAttributeValues())
-    .add(new CheckChildren())
-    .add(new CheckCoverage())
+    .add(new CheckAttributeValues(factory))
+    .add(new CheckChildren(factory))
+    .add(new CheckCoverage(factory))
     .add(new CheckDates())
-    .add(new CheckForCopy())
+    .add(new CheckForCopy(factory))
     .add(new CheckDisplayCollisions())
     .add(new CheckExemplars())
     .add(new CheckForExemplars())

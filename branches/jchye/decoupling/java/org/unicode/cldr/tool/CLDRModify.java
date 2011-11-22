@@ -527,9 +527,11 @@ public class CLDRModify {
     private CLDRFile toBeReplaced;
     protected XPathParts parts = new XPathParts(null, null);
     protected XPathParts fullparts = new XPathParts(null, null);
+    protected Factory factory;
 
-    public final void setFile(CLDRFile k, Set removal, CLDRFile replacements) {
+    public final void setFile(CLDRFile k, Factory factory, Set removal, CLDRFile replacements) {
       this.cldrFileToFilter = k;
+      this.factory = factory;
       localeID = k.getLocaleID();
       this.toBeRemoved = removal;
       this.toBeReplaced = replacements;
@@ -618,10 +620,10 @@ public class CLDRModify {
       helps[letter] = help;
       options.add(letter);
     }
-    void setFile(CLDRFile file, Set removal, CLDRFile replacements) {
+    void setFile(CLDRFile file, Factory factory, Set removal, CLDRFile replacements) {
       for (int i = 0; i < filters.length; ++i) {
         if (filters[i] != null) {
-          filters[i].setFile(file, removal, replacements);
+          filters[i].setFile(file, factory, removal, replacements);
         }
       }
     }
@@ -870,7 +872,7 @@ public class CLDRModify {
       private CLDRFile resolved;
 
       public void handleStart() {
-        resolved = cldrFileToFilter.make(cldrFileToFilter.getLocaleID(), true);
+        resolved = factory.make(cldrFileToFilter.getLocaleID(), true);
       }
 
       public void handlePath(String xpath) {
@@ -1951,7 +1953,7 @@ public class CLDRModify {
 
     Set removal = new TreeSet(CLDRFile.ldmlComparator);
     CLDRFile replacements = SimpleFactory.makeFile("temp");
-    fixList.setFile(k, removal, replacements);
+    fixList.setFile(k, cldrFactory, removal, replacements);
 
     for (Iterator it2 = k.iterator(); it2.hasNext();) {
       String xpath = (String) it2.next();

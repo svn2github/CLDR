@@ -116,8 +116,7 @@ public class CompactDecimalFormatTest {
         String sourceDir = myOptions.get("sourceDir").getValue();
         String organization = myOptions.get("organization").getValue();
         String localeList = myOptions.get("locale").getValue();
-        String hardCodedFile = myOptions.get("generate").getUsingImplicitValue() ? null 
-                : myOptions.get("generate").getValue();
+        String hardCodedFile = myOptions.get("generate").getValue();
         boolean useHard = myOptions.get("use").doesOccur();
         
         PrintWriter hardOut = hardCodedFile == null ? null : BagFormatter.openUTF8Writer(hardCodedFile, "CompactDecimalFormatData.java");

@@ -14,6 +14,7 @@ import org.unicode.cldr.icu.ResourceSplitter.SplitInfo;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.CoverageLevel;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
@@ -165,9 +166,10 @@ public abstract class CLDRConverterTool {
     private void initCoverageLevel(
         String localeName, boolean exemplarsContainA_Z, String supplementalDir) {
         if (coverageLevel == null) {
-            CLDRFile sd = SimpleFactory.makeFile(CLDRFile.SUPPLEMENTAL_NAME, supplementalDir, true);
-            CLDRFile smd = SimpleFactory.makeFile(CLDRFile.SUPPLEMENTAL_METADATA, supplementalDir, true);
-            coverageLevel = new CoverageLevel();
+            Factory factory = SimpleFactory.make(supplementalDir, ".*");
+            CLDRFile sd = factory.make(CLDRFile.SUPPLEMENTAL_NAME, true);
+            CLDRFile smd = factory.make(CLDRFile.SUPPLEMENTAL_METADATA, true);
+            coverageLevel = new CoverageLevel(factory);
             CoverageLevel.init(sd, smd);
             ArrayList<CheckStatus> errors = new ArrayList<CheckStatus>();
             coverageLevel.setFile(localeName, exemplarsContainA_Z, false, null, null, errors);

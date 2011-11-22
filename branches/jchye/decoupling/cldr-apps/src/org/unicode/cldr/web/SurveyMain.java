@@ -6695,7 +6695,8 @@ o	            		}*/
 
     public synchronized ExampleGenerator getBaselineExample() {
         if(gBaselineExample == null) {
-            gBaselineExample = new ExampleGenerator(getBaselineFile(), fileBase + "/../supplemental/");
+            CLDRFile baselineFile = getBaselineFile();
+            gBaselineExample = new ExampleGenerator(baselineFile, baselineFile, fileBase + "/../supplemental/");
         }
         gBaselineExample.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
         return gBaselineExample;
@@ -6769,7 +6770,7 @@ o	            		}*/
             //if(phaseVetting) {
             //    checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             //} else {
-            checkCldr = CheckCLDR.getCheckAll("(?!.*(CheckCoverage).*).*");
+            checkCldr = CheckCLDR.getCheckAll(dbsrcfac, "(?!.*(CheckCoverage).*).*");
 //                checkCldr = CheckCLDR.getCheckAll("(?!.*DisplayCollisions.*).*" /*  ".*" */);
             //}
 
@@ -6789,9 +6790,9 @@ o	            		}*/
             //    checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             //} else {
             if(false) {  // show ALL ?
-                checkCldr = CheckCLDR.getCheckAll(".*");
+                checkCldr = CheckCLDR.getCheckAll(dbsrcfac, ".*");
             } else {
-                checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
+                checkCldr = CheckCLDR.getCheckAll(dbsrcfac, "(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             }
 
             checkCldr.setDisplayInformation(getBaselineFile());
@@ -6817,6 +6818,7 @@ o	            		}*/
         private Registerable exampleIsValid = new Registerable(lcr, locale);
 		private int use;
 		CLDRFile fileForGenerator = null;
+		CLDRFile baselineFile;
 
 		public void open() {
 			use++;
@@ -6834,7 +6836,7 @@ o	            		}*/
         		if(fileForGenerator==null) {
         			System.err.println("Err: fileForGenerator is null for " + dbSource);
         		}
-        		exampleGenerator = new ExampleGenerator(fileForGenerator, fileBase + "/../supplemental/");
+        		exampleGenerator = new ExampleGenerator(fileForGenerator, baselineFile, fileBase + "/../supplemental/");
         		exampleGenerator.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
         		//System.err.println("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
         		exampleIsValid.setValid();
@@ -6958,6 +6960,8 @@ o	            		}*/
                 uf.cldrfile = makeCLDRFile(uf.dbSource);
                 uf.cachedCldrFile = uf.makeCachedCLDRFile(uf.dbSource);
         		fileForGenerator = new CLDRFile(dbSource,true);
+        		XMLSource baseSource = makeDBSource(CLDRLocale.getInstance(BASELINE_LOCALE));
+        		baselineFile = new CLDRFile(baseSource, true);
             }
         }
     };
