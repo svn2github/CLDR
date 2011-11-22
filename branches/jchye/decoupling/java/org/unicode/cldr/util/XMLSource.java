@@ -117,7 +117,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
         if (locked) {
             throw new UnsupportedOperationException("Attempt to modify locked object");
         }
-        String distinguishingXPath = CLDRFile.getDistinguishingXPath(xpath, fixedPath, nonInheriting);	
+        String distinguishingXPath = CLDRFile.getDistinguishingXPath(xpath, fixedPath, nonInheriting);  
         putValueAtDPath(distinguishingXPath, value);
         if (!fixedPath[0].equals(distinguishingXPath)) {
             clearCache();
@@ -531,7 +531,14 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
      */
     public XMLSource getResolving() {
         if (isResolving()) return this;
-        return new ResolvingSource(this);
+        List<XMLSource> sourceList = new ArrayList<XMLSource>();
+        XMLSource source = this;
+        while(source != null) {
+            sourceList.add(source);
+            String localeID = LocaleIDParser.getParent(source.getLocaleID());
+            source = source.make(localeID);
+        } // If this loop finishes normally, lastSource == root.
+        return new ResolvingSource(sourceList);
     }
 
     /**
@@ -605,7 +612,8 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
      *
      */
     private static class ResolvingSource extends XMLSource {
-        private XMLSource mySource;
+        private XMLSource currentSource;
+        private LinkedHashMap<String, XMLSource> sources;
 
         public boolean isResolving() {
             return true;
@@ -626,10 +634,10 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
                 System.out.println("Getting value for Path: " + xpath);
             }
             if (TRACE_VALUE) System.out.println("\t*xpath: " + xpath
-                    + CldrUtility.LINE_SEPARATOR + "\t*source: " + mySource.getClass().getName()
-                    + CldrUtility.LINE_SEPARATOR + "\t*locale: " + mySource.getLocaleID()
+                    + CldrUtility.LINE_SEPARATOR + "\t*source: " + currentSource.getClass().getName()
+                    + CldrUtility.LINE_SEPARATOR + "\t*locale: " + currentSource.getLocaleID()
             );
-            String result = mySource.getValueAtDPath(xpath);
+            String result = currentSource.getValueAtDPath(xpath);
 
             if (result == null) {
                 AliasLocation fullStatus = getCachedFullStatus(xpath);
@@ -646,9 +654,8 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
         }
 
         public XMLSource getSource(AliasLocation fullStatus) {
-            return fullStatus.localeWhereFound.equals(mySource.localeID) ? mySource 
-                    : fullStatus.localeWhereFound.equals(CODE_FALLBACK_ID) ? constructedItems
-                            : make(fullStatus.localeWhereFound);
+            XMLSource source = sources.get(fullStatus.localeWhereFound);
+            return source == null ? constructedItems : source;
         }
 
 
@@ -679,7 +686,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
         Map<String,String> getFullPathAtDPathCache = new HashMap();
 
         public String getFullPathAtDPath(String xpath) {
-            String result = mySource.getFullPathAtDPath(xpath);
+            String result = currentSource.getFullPathAtDPath(xpath);
             if (result != null) {
                 return result;
             }
@@ -761,7 +768,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
         //    }
 
         public String getWinningPath(String xpath) {
-            String result = mySource.getWinningPath(xpath);
+            String result = currentSource.getWinningPath(xpath);
             if (result != null) return result;
             AliasLocation fullStatus = getCachedFullStatus(xpath);
             if (fullStatus != null) {
@@ -822,20 +829,13 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
         }
 
         private AliasLocation getPathLocation(String xpath) {
-            XMLSource source = mySource;
-            XMLSource lastSource = source;
-            
-            while(source != null) {
+            for (XMLSource source : sources.values()) {
                 if (source.hasValueAtDPath(xpath)) {
                     return new AliasLocation(xpath, source.getLocaleID());
                 }
-                String localeID = LocaleIDParser.getParent(source.getLocaleID());
-                lastSource = source;
-                source = source.make(localeID);
-            } // If this loop finishes normally, lastSource == root.
-
+            }
             // Path not found, check if an alias exists
-            TreeMap<String, String> aliases = lastSource.getAliases();
+            TreeMap<String, String> aliases = sources.get("root").getAliases();
             String aliasedPath = aliases.get(xpath);
             if (aliasedPath == null) {
                 // Check if there is an alias for a subset xpath.
@@ -909,22 +909,16 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
          * @return
          */
         private Set<String> findNonAliasedPaths() {
-            XMLSource source = mySource;
             HashSet<String> paths = new HashSet<String>();
 
             // Get all XMLSources used during resolution.
-            List<XMLSource> sources = new ArrayList<XMLSource>();
-            while(source != null) {
-                sources.add(source);
-                String localeID = LocaleIDParser.getParent(source.getLocaleID());
-                source = source.make(localeID);
-            }
+            List<XMLSource> sourceList = new ArrayList<XMLSource>(sources.values());
             if (!SKIP_FALLBACKID) {
-                sources.add(constructedItems);
+                sourceList.add(constructedItems);
             }
 
             // Make a pass through, filling all the direct paths, excluding aliases, and collecting others
-            for (XMLSource curSource : sources) {
+            for (XMLSource curSource : sourceList) {
                 for (String xpath : curSource) {
                     paths.add(xpath);
                 }
@@ -937,7 +931,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
          */
         private LinkedHashMap<String, List<String>> getReverseAliases() {
             // Aliases are only ever found in root.
-            Map<String, String> aliases = make("root").getAliases();
+            Map<String, String> aliases = sources.get("root").getAliases();
             Map<String, List<String>> reverseAliases = new HashMap<String, List<String>>();
             for (Map.Entry<String, String> entry : aliases.entrySet()) {
                 List<String> list = reverseAliases.get(entry.getValue());
@@ -1018,16 +1012,16 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
             throw new UnsupportedOperationException("Resolved CLDRFiles are read-only");
         }
         public Comments getXpathComments() {
-            return mySource.getXpathComments();
+            return currentSource.getXpathComments();
         }
         /**
          * Pass the supplemental information from the original XMLSource
          */
         public File getSupplementalDirectory() {
-            return mySource.getSupplementalDirectory();
+            return currentSource.getSupplementalDirectory();
         }
         public void setXpathComments(Comments path) {
-            throw new UnsupportedOperationException("Resolved CLDRFiles are read-only");		
+            throw new UnsupportedOperationException("Resolved CLDRFiles are read-only");        
         }
         public void removeValueAtDPath(String xpath) {
             throw new UnsupportedOperationException("Resolved CLDRFiles are read-only");
@@ -1035,13 +1029,25 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
         public Object freeze() {
             return this; // No-op. ResolvingSource is already read-only. 
         }
-        public ResolvingSource(/*Factory factory, */XMLSource source) {
-            super();
-            //this.factory = factory;
-            mySource = source;
+
+        /**
+         * Creates a new ResolvingSource with the given locale resolution chain.
+         * @param sourceList the list of XMLSources to look in during resolution,
+         *                   ordered from the current locale up to root.
+         */
+        public ResolvingSource(List<XMLSource> sourceList) {
+            // Sanity check for root.
+            if (sourceList == null || !sourceList.get(sourceList.size() - 1).getLocaleID().equals("root")) {
+                throw new IllegalArgumentException("Last element should be root");
+            }
+            currentSource = sourceList.get(0);  // Convenience variable
+            sources = new LinkedHashMap<String, XMLSource>();
+            for (XMLSource source : sourceList) {
+                sources.put(source.getLocaleID(), source);
+            }
         }
         public String getLocaleID() {
-            return mySource.getLocaleID();
+            return currentSource.getLocaleID();
         }
 
         private static final String [] keyDisplayNames = {
@@ -1127,7 +1133,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
                 //if (typeNo < 0) continue;
                 String type2 = (typeNo == CLDRFile.CURRENCY_SYMBOL) ? CLDRFile.getNameName(CLDRFile.CURRENCY_NAME)
                         : (typeNo >= CLDRFile.TZ_START) ? "tzid"
-                                : type;				
+                                : type;             
                 Set<String> codes = sc.getSurveyToolDisplayCodes(type2);
                 //String prefix = CLDRFile.NameTable[typeNo][0];
                 //String postfix = CLDRFile.NameTable[typeNo][1];
@@ -1222,14 +1228,14 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
             }
         }
         public XMLSource make(String localeID) {
-            return mySource.make(localeID);
+            return sources.get(localeID);
         }
-        public Set getAvailableLocales() {
-            return mySource.getAvailableLocales();
+        public Set getAvailableLocales() {  // TODO: Move to Factory.
+            return currentSource.getAvailableLocales();
         }
         @Override
         public boolean isHere(String path) {
-            return mySource.isHere(path); // only test one level
+            return currentSource.isHere(path); // only test one level
         }
     }
     /**
