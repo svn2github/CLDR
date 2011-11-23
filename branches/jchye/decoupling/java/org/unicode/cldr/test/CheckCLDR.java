@@ -85,7 +85,7 @@ abstract public class CheckCLDR {
     .add(new CheckCoverage(factory))
     .add(new CheckDates(factory))
     .add(new CheckForCopy(factory))
-    .add(new CheckDisplayCollisions())
+    .add(new CheckDisplayCollisions(factory))
     .add(new CheckExemplars(factory))
     .add(new CheckForExemplars(factory))
     .add(new CheckNumbers(factory))

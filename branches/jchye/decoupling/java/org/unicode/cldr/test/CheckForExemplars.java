@@ -104,7 +104,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         spaceCol = Collator.getInstance(new ULocale(locale));
         spaceCol.setStrength(col.PRIMARY);
 
-        CLDRFile resolvedFile = cldrFile.getResolved();
+        CLDRFile resolvedFile = getResolvedCldrFileToCheck();
         boolean[] ok = new boolean[1];
         exemplars = safeGetExemplars("", possibleErrors, resolvedFile, ok);
         if (!ok[0]) exemplars = new UnicodeSet();

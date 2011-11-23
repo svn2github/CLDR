@@ -2254,14 +2254,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     return null;
   }
 
-  transient CLDRFile resolvedVersion;
-
-  public CLDRFile getResolved() {
-    if (dataSource.isResolving()) return this;
-    if (resolvedVersion == null) {
-      resolvedVersion = new CLDRFile(dataSource, true);
-    }
-    return resolvedVersion;
+  public boolean isResolved() {
+      return dataSource.isResolving();
   }
 
   public Set getAvailableLocales() {

@@ -182,8 +182,9 @@ public class CoverageLevel {
     }
     boolean exemplarsContainA_Z = false;
     UnicodeSet exemplars;
+    CLDRFile resolvedFile = factory.make(file.getLocaleID(), true);
     try {
-        exemplars = file.getResolved().getExemplarSet("", CLDRFile.WinningChoice.WINNING); // need to use resolved version to get exemplars
+        exemplars = resolvedFile.getExemplarSet("", CLDRFile.WinningChoice.WINNING); // need to use resolved version to get exemplars
     } catch(IllegalArgumentException iae) {
       possibleErrors.add(new CheckStatus()
       .setCause(cause).setMainType(CheckStatus.errorType).setSubtype(Subtype.couldNotAccessExemplars)
@@ -195,12 +196,12 @@ public class CoverageLevel {
         throw new InternalCldrException("'"+file.getLocaleID()+"'.getExemplarSet() returned null.");
     }
     
-    UnicodeSet auxexemplars = file.getResolved().getExemplarSet("auxiliary", CLDRFile.WinningChoice.WINNING);
+    UnicodeSet auxexemplars = resolvedFile.getExemplarSet("auxiliary", CLDRFile.WinningChoice.WINNING);
     if (auxexemplars != null) exemplars.addAll(auxexemplars);
     exemplarsContainA_Z = exemplars.contains('A','Z');
     
     boolean currencyExemplarsContainA_Z = false;
-    auxexemplars = file.getResolved().getExemplarSet("currencySymbol", CLDRFile.WinningChoice.WINNING);
+    auxexemplars = resolvedFile.getExemplarSet("currencySymbol", CLDRFile.WinningChoice.WINNING);
     if (auxexemplars != null) currencyExemplarsContainA_Z = auxexemplars.contains('A','Z');
 
     setFile(file.getLocaleID(), exemplarsContainA_Z, currencyExemplarsContainA_Z, options, cause, possibleErrors);
@@ -731,11 +732,11 @@ public class CoverageLevel {
     usedMetazones.clear();
 
     if ( timezones != null && !timezones.isEmpty() ) {
-
+      CLDRFile resolvedFile = factory.make(file.getLocaleID(), true);
       for (Iterator it = timezones.iterator(); it.hasNext();) {
         String tz = (String) it.next();
         XPathParts parts = new XPathParts(null,null);
-        String usedMetazone = file.getResolved().getCurrentMetazone(tz);
+        String usedMetazone = resolvedFile.getCurrentMetazone(tz);
         if ( !usedMetazones.contains(usedMetazone)) {
           usedMetazones.add(usedMetazone);
         }
