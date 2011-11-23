@@ -51,7 +51,6 @@ abstract public class CheckCLDR {
   public static String finalErrorType = CheckStatus.errorType;
 
   private CLDRFile cldrFileToCheck;
-  private CLDRFile resolvedCldrFileToCheck;
   private boolean skipTest = false;
   private Phase phase;
 
@@ -84,18 +83,18 @@ abstract public class CheckCLDR {
     .add(new CheckAttributeValues(factory))
     .add(new CheckChildren(factory))
     .add(new CheckCoverage(factory))
-    .add(new CheckDates())
+    .add(new CheckDates(factory))
     .add(new CheckForCopy(factory))
     .add(new CheckDisplayCollisions())
-    .add(new CheckExemplars())
-    .add(new CheckForExemplars())
-    .add(new CheckNumbers())
+    .add(new CheckExemplars(factory))
+    .add(new CheckForExemplars(factory))
+    .add(new CheckNumbers(factory))
     // .add(new CheckZones()) // this doesn't work; many spurious errors that user can't correct
     .add(new CheckMetazones())
     .add(new CheckAlt())
     .add(new CheckCurrencies())
     .add(new CheckCasing())
-    .add(new CheckConsistentCasing()) //  this doesn't work; many spurious errors that user can't correct
+    .add(new CheckConsistentCasing(factory)) //  this doesn't work; many spurious errors that user can't correct
     .add(new CheckNew()) // this is at the end; it will check for other certain other errors and warnings and not add a message if there are any.
     ;
   }
@@ -167,10 +166,6 @@ GaMjkHmsSEDFwWxhKzAeugXZvcL
     return cldrFileToCheck;
   }
 
-  public final CLDRFile getResolvedCldrFileToCheck() {
-    if (resolvedCldrFileToCheck == null) resolvedCldrFileToCheck = cldrFileToCheck.getResolved();
-    return resolvedCldrFileToCheck;
-  }
   /**
    * Set the CLDRFile. Must be done before calling check. If null is called, just skip
    * Often subclassed for initializing. If so, make the first 2 lines:
@@ -183,7 +178,6 @@ GaMjkHmsSEDFwWxhKzAeugXZvcL
    */
   public CheckCLDR setCldrFileToCheck(CLDRFile cldrFileToCheck, Map<String, String> options, List<CheckStatus> possibleErrors) {
     this.cldrFileToCheck = cldrFileToCheck;
-    resolvedCldrFileToCheck = null;
     return this;
   }
   /**

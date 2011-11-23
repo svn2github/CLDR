@@ -21,15 +21,14 @@ import org.unicode.cldr.util.XPathParts;
 import com.ibm.icu.lang.CharSequences;
 import com.ibm.icu.text.UnicodeSet;
 
-public class CheckForCopy extends CheckCLDR {
+public class CheckForCopy extends FactoryCheckCLDR {
 
     XPathParts parts = new XPathParts();
     //CLDRFile.Status status = new CLDRFile.Status();
     Set seenSoFar = new HashSet();
-    private Factory factory;
 
     public CheckForCopy(Factory factory) {
-        this.factory = factory;
+        super(factory);
     }
 
     static RegexLookup<Boolean> skip = new RegexLookup<Boolean>()
@@ -226,7 +225,7 @@ public class CheckForCopy extends CheckCLDR {
         Set<String> locales = cldrFileToCheck.getAvailableLocales();
         for (String locale : locales) {
             if (locale.contains("_") || locale.equals("en")) continue;
-            CLDRFile nativeFile = factory.make(locale, false);
+            CLDRFile nativeFile = getFactory().make(locale, false);
 
             String englishName = getDisplayInformation().getName(CLDRFile.LANGUAGE_NAME, locale);
             if (englishName == null) continue;

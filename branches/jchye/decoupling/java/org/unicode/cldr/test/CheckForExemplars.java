@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Status;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.InternalCldrException;
 import org.unicode.cldr.util.XMLSource;
 
@@ -25,7 +26,7 @@ import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.ULocale;
 
-public class CheckForExemplars extends CheckCLDR {
+public class CheckForExemplars extends FactoryCheckCLDR {
     //private final UnicodeSet commonAndInherited = new UnicodeSet(CheckExemplars.Allowed).complement(); 
     // "[[:script=common:][:script=inherited:][:alphabetic=false:]]");
     static String[] EXEMPLAR_SKIPS = {"/currencySpacing", "/hourFormat", "/exemplarCharacters", "/pattern",
@@ -84,6 +85,10 @@ public class CheckForExemplars extends CheckCLDR {
     static final Pattern IS_COUNT_ZERO_ONE_TWO = Pattern.compile("/units.*\\[@count=\"(zero|one|two)\"");
     private Matcher isCountZeroOneTwo = IS_COUNT_ZERO_ONE_TWO.matcher("");
     private boolean hasSpecialPlurals;
+
+    public CheckForExemplars(Factory factory) {
+        super(factory);
+    }
 
     public CheckCLDR setCldrFileToCheck(CLDRFile cldrFile, Map<String, String> options, List<CheckStatus> possibleErrors) {
         if (cldrFile == null) return this;

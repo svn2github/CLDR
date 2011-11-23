@@ -28,7 +28,7 @@ import com.ibm.icu.dev.test.util.CollectionUtilities;
 import com.ibm.icu.dev.test.util.CollectionUtilities.ObjectMatcher;
 import com.ibm.icu.text.UnicodeSet;
 
-public class CheckAttributeValues extends CheckCLDR {
+public class CheckAttributeValues extends FactoryCheckCLDR {
     static LinkedHashSet elementOrder = new LinkedHashSet();
     static LinkedHashSet attributeOrder = new LinkedHashSet();
     static LinkedHashSet serialElements = new LinkedHashSet();
@@ -48,10 +48,9 @@ public class CheckAttributeValues extends CheckCLDR {
 
     XPathParts parts = new XPathParts(null, null);
     static final UnicodeSet DIGITS = new UnicodeSet("[0-9]").freeze();
-    private Factory factory;
 
     public CheckAttributeValues(Factory factory) {
-        this.factory = factory;
+        super(factory);
     }
 
     public CheckCLDR handleCheck(String path, String fullPath, String value, Map<String, String> options, List<CheckStatus> result) {
@@ -153,7 +152,7 @@ public class CheckAttributeValues extends CheckCLDR {
         isEnglish = "en".equals(localeIDParser.set(cldrFileToCheck.getLocaleID()).getLanguage());
         synchronized (elementOrder) {
             if (!initialized) {
-                CLDRFile metadata = factory.getSupplementalMetadata();
+                CLDRFile metadata = getFactory().getSupplementalMetadata();
                 getMetadata(metadata);
                 initialized = true;
                 for (Iterator it = missing.iterator(); it.hasNext();) {

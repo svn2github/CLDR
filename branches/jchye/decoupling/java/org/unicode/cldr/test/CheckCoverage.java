@@ -33,7 +33,7 @@ import org.unicode.cldr.util.XMLSource;
  * @author davis
  * 
  */
-public class CheckCoverage extends CheckCLDR {
+public class CheckCoverage extends FactoryCheckCLDR {
     static final boolean DEBUG = false;
     static final boolean DEBUG_SET = false;
     private static CoverageLevel coverageLevel;
@@ -45,6 +45,7 @@ public class CheckCoverage extends CheckCLDR {
     //private Matcher specialsToTestMatcher = CLDRFile.specialsToPushFromRoot.matcher("");
 
     public CheckCoverage(Factory factory) {
+        super(factory);
         coverageLevel = new CoverageLevel(factory);
     }
 
