@@ -1155,7 +1155,7 @@ public class DataSection extends Registerable {
         	init();
         	XPathParts xpp = new XPathParts(null,null);
         	//        System.out.println("[] initting from pod " + locale + " with prefix " + xpathPrefix);
-        	CLDRFile aFile = new CLDRFile(ourSrc, true);
+        	CLDRFile aFile = new CLDRFile(ourSrc.getResolving());
         	List examplesResult = new ArrayList();
         	SupplementalDataInfo sdi = sm.getSupplementalDataInfo();
         	long lastTime = -1;
@@ -1174,7 +1174,7 @@ public class DataSection extends Registerable {
         	CLDRLocale parentLoc = locale.getParent();
         	if(parentLoc != null) {
         		XMLSource vettedParentSource = sm.makeDBSource(parentLoc, true /*finalData*/);            
-        		vettedParent = new CLDRFile(vettedParentSource,true);
+        		vettedParent = new CLDRFile(vettedParentSource.getResolving());
         		vettedParentEntry = sm.dbsrcfac.openEntry(vettedParentSource);
         	}
 
@@ -1861,7 +1861,7 @@ public class DataSection extends Registerable {
             }        
 
             String podBase = xpathPrefix;
-            CLDRFile resolvedFile = new CLDRFile(ourSrc, true);
+            CLDRFile resolvedFile = new CLDRFile(ourSrc.getResolving());
 //            XPathParts parts = new XPathParts(null,null);
 //            TimezoneFormatter timezoneFormatter = new TimezoneFormatter(resolvedFile, true); // TODO: expensive here.
 

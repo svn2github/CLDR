@@ -69,9 +69,14 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 		@Override
 		protected CLDRFile handleMake(String localeID, boolean resolved,
 				DraftStatus madeWithMinimalDraftStatus) {
-			XMLSource source = getInstance(CLDRLocale.getInstance(localeID), false);
-			if(dbEntry!=null) dbEntry.add(source);
-			return new CLDRFile(source,resolved);
+		    XMLSource source;
+		    if (resolved) {
+		        source = makeResolvingSource(localeID, madeWithMinimalDraftStatus);
+		    } else {
+		        source = getInstance(CLDRLocale.getInstance(localeID), false);
+	            if(dbEntry!=null) dbEntry.add(source);
+		    }
+			return new CLDRFile(source);
 		}
 
 		@Override
@@ -2165,7 +2170,11 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
     @Override
     protected CLDRFile handleMake(String localeID, boolean resolved,
             DraftStatus madeWithMinimalDraftStatus) {
-        return new CLDRFile(getInstance(CLDRLocale.getInstance(localeID), false),resolved);
+        if (resolved) {
+            return new CLDRFile(makeResolvingSource(localeID, madeWithMinimalDraftStatus));
+        } else {
+            return new CLDRFile(getInstance(CLDRLocale.getInstance(localeID), false));
+        }
     }
 
     @Override

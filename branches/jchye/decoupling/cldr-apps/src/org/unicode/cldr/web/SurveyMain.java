@@ -80,6 +80,7 @@ import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.PathUtilities;
 import org.unicode.cldr.util.SimpleFactory;
+import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalData;
 import org.unicode.cldr.util.SupplementalDataInfo;
@@ -1483,9 +1484,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                         CLDRLocale loc = getLocaleOf(file);
                         DisplayAndInputProcessor processor = new DisplayAndInputProcessor(loc.toULocale());
                         ctx.println("<a name=\""+loc+"\"><h2>"+file.getName()+" - "+loc.getDisplayName(ctx.displayLocale)+"</h2></a>");
-
-                        CLDRFile c = new CLDRFile(null, false);
-                        c.loadFromFile(file.getPath(), loc.getBaseName(), CLDRFile.DraftStatus.unconfirmed);
+                        CLDRFile c = SimpleFactory.makeFile(file.getPath(), loc.getBaseName(), CLDRFile.DraftStatus.unconfirmed);
                         XPathParts xpp = new XPathParts(null,null);
 
                         OnceWarner warner = new OnceWarner();
@@ -6034,7 +6033,7 @@ o	            		}*/
 		    if(resolved == false) {
 		        file = makeCLDRFile(dbSource);
 		    } else { 
-		        file = new CLDRFile(dbSource,true);
+		        file = new CLDRFile(dbSource.getResolving());
 		    }
 
 		    long nextTime = System.currentTimeMillis();
@@ -6358,7 +6357,7 @@ o	            		}*/
                     if(resolved == false) {
                         file= makeCLDRFile(dbSource);
                     } else { 
-                        file = new CLDRFile(dbSource,true);
+                        file = new CLDRFile(dbSource.getResolving());
                     }
                 }
     //            file.write(WebContext.openUTF8Writer(response.getOutputStream()));
@@ -6959,9 +6958,9 @@ o	            		}*/
             	uf.dbEntry= dbsrcfac.openEntry(uf.dbSource);
                 uf.cldrfile = makeCLDRFile(uf.dbSource);
                 uf.cachedCldrFile = uf.makeCachedCLDRFile(uf.dbSource);
-        		fileForGenerator = new CLDRFile(dbSource,true);
+        		fileForGenerator = new CLDRFile(dbSource.getResolving());
         		XMLSource baseSource = makeDBSource(CLDRLocale.getInstance(BASELINE_LOCALE));
-        		baselineFile = new CLDRFile(baseSource, true);
+        		baselineFile = new CLDRFile(baseSource.getResolving());
             }
         }
     };
@@ -7028,7 +7027,7 @@ o	            		}*/
         return dbSource;
     }
     static CLDRFile makeCLDRFile(XMLSource dbSource) {
-        return new CLDRFile(dbSource,false);
+        return new CLDRFile(dbSource);
     }
 
     /**
@@ -7327,7 +7326,7 @@ o	            		}*/
         synchronized(ctx.session) { // TODO: redundant sync?
             SurveyMain.UserLocaleStuff uf = ctx.getUserFile();
             //CLDRFile cf = uf.cldrfile;
-            CLDRFile resolvedFile = new CLDRFile(uf.dbSource,true);
+            CLDRFile resolvedFile = new CLDRFile(uf.dbSource.getResolving());
             //CLDRFile engFile = ctx.sm.getBaselineFile();
     
             String xpath =  "//ldml/"+"dates/timeZoneNames/zone";
@@ -7566,7 +7565,7 @@ o	            		}*/
     	}
     	try {
 	    	XMLSource ourSrc = dbsrcfac.getInstance(ctx.getLocale(),false);
-	    	CLDRFile cf = new CLDRFile(ourSrc,false);
+	    	CLDRFile cf = new CLDRFile(ourSrc);
 	    	entry = dbsrcfac.openEntry(ourSrc);
 	    	
             String fullThing = xpath + "/" + lastElement;
@@ -10357,10 +10356,10 @@ o	            		}*/
 			    isFlat=true;
 		} else if(kind.equals("rxml")) {
 			dbSource = makeDBSource(loc, true);
-	    	file = new CLDRFile(dbSource,true);
+	    	file = new CLDRFile(dbSource.getResolving());
 	    } else if(kind.equals("xml")) {
 			dbSource = makeDBSource(loc, false);
-	    	file = new CLDRFile(dbSource,false);
+	    	file = new CLDRFile(dbSource);
 	    } else {
 	    	if(!isCacheableKind(kind)) {
 	    		throw new InternalError("Can't (yet) cache kind " + kind + " for loc " + loc);

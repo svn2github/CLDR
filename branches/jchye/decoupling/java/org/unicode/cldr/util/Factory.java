@@ -48,6 +48,10 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
       return make(currentLocaleID,true,madeWithMinimalDraftStatus);
     }
     
+    public static CLDRFile makeResolved(List<XMLSource> sources) {
+        return new CLDRFile(new ResolvingSource(sources));
+    }
+    
     /**
      * Creates a resolving source for the given locale ID.
      * @param localeID

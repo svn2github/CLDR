@@ -66,9 +66,6 @@ public class SimpleFactory extends Factory {
         return localeList;
     }
 
-
-    private boolean needToReadRoot = true;
-
     /**
      * Make a CLDR file. The result is a locked file, so that it can be cached. If you want to modify it,
      * use clone().
@@ -79,7 +76,7 @@ public class SimpleFactory extends Factory {
         CLDRFile result = cache.get(localeName);
         if (result == null) {
             if (resolved) {
-                result = new CLDRFile(makeResolvingSource(localeName, minimalDraftStatus), resolved);
+                result = new CLDRFile(makeResolvingSource(localeName, minimalDraftStatus));
             } else {
                 final String dir = CLDRFile.isSupplementalName(localeName) ? sourceDirectory.replace("incoming/vetted/","common/") + File.separator + "../supplemental/" : sourceDirectory;
                 result = makeFile(localeName, dir, minimalDraftStatus);
@@ -112,7 +109,8 @@ public class SimpleFactory extends Factory {
      * @param localeName
      */
     public static CLDRFile makeSupplemental(String localeName) {
-        CLDRFile result = new CLDRFile(null, false);
+        XMLSource source = new SimpleXMLSource(null, null);
+        CLDRFile result = new CLDRFile(source);
         result.dataSource.setLocaleID(localeName);
         result.setNonInheriting(true);
         return result;
@@ -150,7 +148,8 @@ public class SimpleFactory extends Factory {
      * @param localeName
      */
     public static CLDRFile makeFile(String localeName) {
-        CLDRFile result = new CLDRFile(null, false);
+        XMLSource source = new SimpleXMLSource(null, null);
+        CLDRFile result = new CLDRFile(source);
         result.dataSource.setLocaleID(localeName);
         return result;
     }

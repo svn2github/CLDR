@@ -198,7 +198,7 @@ import com.ibm.icu.dev.test.util.ElapsedTimer;
 
 					DefaultErrorStatus des = new DefaultErrorStatus(sm.dbsrcfac);
 					// TODO: DBSRC entry
-					CLDRFile cldrFile = new CLDRFile(sm.dbsrcfac.getInstance(loc),true);
+					CLDRFile cldrFile = sm.dbsrcfac.make(loc.toString(), true);
 					des.initErrorStatus(cldrFile);
 					
 	

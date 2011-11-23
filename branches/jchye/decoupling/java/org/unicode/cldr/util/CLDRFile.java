@@ -140,17 +140,10 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
 
   /**
    * Construct a new CLDRFile.  
-   * @param dataSource if null, an empty SimpleXMLSource will be used.
+   * @param dataSource must not be null
    * @param resolved
    */
-  public CLDRFile(XMLSource dataSource, boolean resolved){
-    if (dataSource == null) dataSource = new SimpleXMLSource(null, null);
-    if (resolved && !dataSource.isResolving()) {
-      dataSource = dataSource.getResolving();
-    }
-    if (!resolved && dataSource.isResolving()) {
-      throw new IllegalArgumentException("Can't create unresolved file from resolved one");
-    }
+  public CLDRFile(XMLSource dataSource){
     this.dataSource = dataSource;
     //source.xpath_value = isSupplemental ? new TreeMap() : new TreeMap(ldmlComparator);
   }
@@ -2595,7 +2588,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     Map<String,String> userOverrides = new HashMap();
 
     public TestUser(CLDRFile baseFile, String user, boolean resolved) {
-      super(baseFile.dataSource, resolved);
+      super(resolved ? baseFile.dataSource.getResolving() : baseFile.dataSource);
       Relation<String,String> pathMap = new Relation(new HashMap(), TreeSet.class, new WinningComparator(user));
       this.baseFile = baseFile;
       for (String path : baseFile) {

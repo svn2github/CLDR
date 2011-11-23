@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import java.util.Set;
 
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRLocale;
+import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
@@ -779,8 +781,19 @@ public class CLDRFileCache {
 	}
 
 	public CLDRFile getCLDRFile(CLDRLocale locale, boolean resolving) {
-		XMLSource x = getSource(locale, false); // !vetted
-		CLDRFile f = new CLDRFile(x, resolving); // !fallback
+	    CLDRFile f;
+	    if (resolving) {
+            ArrayList<XMLSource> sources = new ArrayList<XMLSource>();
+            CLDRLocale curLocale = locale;
+            while (curLocale != null) {
+                sources.add(getSource(curLocale, false));
+                curLocale = curLocale.getParent();
+            }
+            f = Factory.makeResolved(sources); // fallback
+	    } else {
+	        XMLSource x = getSource(locale, false);
+	        f = new CLDRFile(x); // !fallback
+	    }
 		// f.freeze();
 		return f;
 	}
@@ -793,8 +806,13 @@ public class CLDRFileCache {
 	// }
 
 	public CLDRFile getVettedCLDRFile(CLDRLocale locale) {
-		XMLSource x = getSource(locale, true); // vetted
-		CLDRFile f = new CLDRFile(x, true); // fallback
+	    ArrayList<XMLSource> sources = new ArrayList<XMLSource>();
+	    CLDRLocale curLocale = locale;
+	    while (curLocale != null) {
+	        sources.add(getSource(curLocale, true));
+	        curLocale = curLocale.getParent();
+	    }
+		CLDRFile f = Factory.makeResolved(sources); // fallback
 		// f.freeze();
 		return f;
 	}
@@ -870,7 +888,7 @@ public class CLDRFileCache {
 		XMLSource cachedFileSource = null;
 		try {
 			XMLSource src = realSource.make(localeID);
-			CLDRFile aFile = new CLDRFile(src, false);
+			CLDRFile aFile = new CLDRFile(src);
 			FileOutputStream fos;
 			fos = new FileOutputStream(cacheFile);
 			PrintWriter pw = new PrintWriter(fos);
@@ -883,13 +901,13 @@ public class CLDRFileCache {
 			cachedFileSource = new SimpleXMLSource(factory, localeID);
 
 			/* Cause load */
-			CLDRFile f = new CLDRFile(cachedFileSource, false);
+			CLDRFile f = new CLDRFile(cachedFileSource);
 			f.loadFromFile(cacheFile, localeID,
 					CLDRFile.DraftStatus.unconfirmed);
 
 			CacheableXMLSource wxs = new CacheableXMLSource(factory, CLDRLocale
 					.getInstance(localeID));
-			CLDRFile g = new CLDRFile(wxs, false);
+			CLDRFile g = new CLDRFile(wxs);
 			g.loadFromFile(cacheFile, localeID,
 					CLDRFile.DraftStatus.unconfirmed);
 			wxs.save(new File(cacheFile.getParentFile(), localeID + ".xpt"));
