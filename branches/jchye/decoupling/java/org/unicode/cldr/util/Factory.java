@@ -1,12 +1,15 @@
 package org.unicode.cldr.util;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
+import org.unicode.cldr.util.XMLSource.ResolvingSource;
 
 /**
    * A factory is the normal method to produce a set of CLDRFiles from a directory of XML files.
@@ -28,7 +31,6 @@ import org.unicode.cldr.util.CLDRFile.DraftStatus;
       return make(localeID, resolved, includeDraft ? DraftStatus.unconfirmed : DraftStatus.approved);
     }
 
-
     public CLDRFile make(String localeID, boolean resolved) {
       return make(localeID, resolved, getMinimalDraftStatus());
     }
@@ -45,7 +47,24 @@ import org.unicode.cldr.util.CLDRFile.DraftStatus;
       }
       return make(currentLocaleID,true,madeWithMinimalDraftStatus);
     }
-
+    
+    /**
+     * Creates a resolving source for the given locale ID.
+     * @param localeID
+     * @param madeWithMinimalDraftStatus
+     * @return
+     */
+    protected XMLSource makeResolvingSource(String localeID, DraftStatus madeWithMinimalDraftStatus) {
+        List<XMLSource> sourceList = new ArrayList<XMLSource>();
+        String curLocale = localeID;
+        while(curLocale != null) {
+            XMLSource source = handleMake(curLocale, false, madeWithMinimalDraftStatus).dataSource;
+            sourceList.add(source);
+            curLocale = LocaleIDParser.getParent(curLocale);
+        }
+        return new ResolvingSource(sourceList);
+    }
+    
     protected abstract DraftStatus getMinimalDraftStatus();
 
     /**

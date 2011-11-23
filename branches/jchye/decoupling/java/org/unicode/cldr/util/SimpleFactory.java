@@ -73,35 +73,26 @@ public class SimpleFactory extends Factory {
      * Make a CLDR file. The result is a locked file, so that it can be cached. If you want to modify it,
      * use clone().
      */
-    // TODO resolve aliases
-
     public CLDRFile handleMake(String localeName, boolean resolved, DraftStatus minimalDraftStatus) {
-        // TODO fix hack: 
-        // read root first so that we get the ordering right.
-        /*			if (needToReadRoot) {
-       if (!localeName.equals("root")) make("root", false);
-       needToReadRoot = false;
-       }
-         */			// end of hack
         Map<String,CLDRFile> cache = resolved ? resolvedCache[minimalDraftStatus.ordinal()] : mainCache[minimalDraftStatus.ordinal()];
 
         CLDRFile result = cache.get(localeName);
         if (result == null) {
-            final String dir = CLDRFile.isSupplementalName(localeName) ? sourceDirectory.replace("incoming/vetted/","common/") + File.separator + "../supplemental/" : sourceDirectory;
-            result = makeFile(localeName, dir, minimalDraftStatus);
-            SimpleXMLSource mySource = (SimpleXMLSource)result.dataSource;
-            mySource.factory = this;
-            mySource.madeWithMinimalDraftStatus = minimalDraftStatus;
             if (resolved) {
-                result.dataSource = result.dataSource.getResolving();
+                result = new CLDRFile(makeResolvingSource(localeName, minimalDraftStatus), resolved);
             } else {
-                result.freeze();	    			
+                final String dir = CLDRFile.isSupplementalName(localeName) ? sourceDirectory.replace("incoming/vetted/","common/") + File.separator + "../supplemental/" : sourceDirectory;
+                result = makeFile(localeName, dir, minimalDraftStatus);
+                SimpleXMLSource mySource = (SimpleXMLSource)result.dataSource;
+                mySource.factory = this;
+                mySource.madeWithMinimalDraftStatus = minimalDraftStatus;
+                result.freeze();
             }
             cache.put(localeName, result);
         }
         return result;
     }
-
+    
     public String getSourceDirectory() {
         return sourceDirectory;
     }
@@ -112,7 +103,7 @@ public class SimpleFactory extends Factory {
      * @param dir directory 
      */
     // TODO make the directory a URL  
-    public static CLDRFile makeFromFile(String fullFileName, String localeName, CLDRFile.DraftStatus minimalDraftStatus) {
+    public static CLDRFile makeFromFile(String fullFileName, String localeName, DraftStatus minimalDraftStatus) {
         return makeFile(localeName).loadFromFile(fullFileName, localeName, minimalDraftStatus);
     }
 

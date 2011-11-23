@@ -537,7 +537,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
             sourceList.add(source);
             String localeID = LocaleIDParser.getParent(source.getLocaleID());
             source = source.make(localeID);
-        } // If this loop finishes normally, lastSource == root.
+        }
         return new ResolvingSource(sourceList);
     }
 
@@ -611,7 +611,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
      * @author davis
      *
      */
-    private static class ResolvingSource extends XMLSource {
+    protected static class ResolvingSource extends XMLSource {
         private XMLSource currentSource;
         private LinkedHashMap<String, XMLSource> sources;
 
