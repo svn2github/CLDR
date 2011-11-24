@@ -48,8 +48,8 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
       return make(currentLocaleID,true,madeWithMinimalDraftStatus);
     }
     
-    public static CLDRFile makeResolved(List<XMLSource> sources) {
-        return new CLDRFile(new ResolvingSource(sources));
+    public static XMLSource makeResolvingSource(List<XMLSource> sources) {
+        return new ResolvingSource(sources);
     }
     
     /**
@@ -58,7 +58,7 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
      * @param madeWithMinimalDraftStatus
      * @return
      */
-    protected XMLSource makeResolvingSource(String localeID, DraftStatus madeWithMinimalDraftStatus) {
+    protected ResolvingSource makeResolvingSource(String localeID, DraftStatus madeWithMinimalDraftStatus) {
         List<XMLSource> sourceList = new ArrayList<XMLSource>();
         String curLocale = localeID;
         while(curLocale != null) {

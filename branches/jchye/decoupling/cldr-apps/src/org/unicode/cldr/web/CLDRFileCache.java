@@ -789,7 +789,7 @@ public class CLDRFileCache {
                 sources.add(getSource(curLocale, false));
                 curLocale = curLocale.getParent();
             }
-            f = Factory.makeResolved(sources); // fallback
+            f = new CLDRFile(Factory.makeResolvingSource(sources)); // fallback
 	    } else {
 	        XMLSource x = getSource(locale, false);
 	        f = new CLDRFile(x); // !fallback
@@ -812,7 +812,7 @@ public class CLDRFileCache {
 	        sources.add(getSource(curLocale, true));
 	        curLocale = curLocale.getParent();
 	    }
-		CLDRFile f = Factory.makeResolved(sources); // fallback
+		CLDRFile f = new CLDRFile(Factory.makeResolvingSource(sources)); // fallback
 		// f.freeze();
 		return f;
 	}

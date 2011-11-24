@@ -141,7 +141,6 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
   /**
    * Construct a new CLDRFile.  
    * @param dataSource must not be null
-   * @param resolved
    */
   public CLDRFile(XMLSource dataSource){
     this.dataSource = dataSource;
@@ -2588,7 +2587,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     Map<String,String> userOverrides = new HashMap();
 
     public TestUser(CLDRFile baseFile, String user, boolean resolved) {
-      super(resolved ? baseFile.dataSource.getResolving() : baseFile.dataSource);
+      super(resolved ? baseFile.dataSource : baseFile.dataSource.getUnresolving());
+      if (!baseFile.isResolved()) throw new IllegalArgumentException("baseFile must be resolved");
       Relation<String,String> pathMap = new Relation(new HashMap(), TreeSet.class, new WinningComparator(user));
       this.baseFile = baseFile;
       for (String path : baseFile) {

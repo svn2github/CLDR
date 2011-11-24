@@ -6027,14 +6027,8 @@ o	            		}*/
 		    
 		    // if i>5 break [ for testing ]
 		    
-		    XMLSource dbSource = makeDBSource( loc, vetted);
-		    CLDRFile file;
-		    
-		    if(resolved == false) {
-		        file = makeCLDRFile(dbSource);
-		    } else { 
-		        file = new CLDRFile(dbSource.getResolving());
-		    }
+		    XMLSource dbSource = makeDBSource( loc, vetted, resolved);
+		    CLDRFile file = makeCLDRFile(dbSource);
 
 		    long nextTime = System.currentTimeMillis();
 		    if((nextTime - lastTime) > 10000) { // denote, every 10 seconds
@@ -6199,6 +6193,7 @@ o	            		}*/
         }
         
         CLDRProgressTask progress = this.openProgress("Raw XML");
+        Connection conn = null;
         try {
         	
         boolean finalData = false;
@@ -6342,7 +6337,6 @@ o	            		}*/
 			}
 		}
 		
-                Connection conn = null;
                 XMLSource dbSource = null; 
                 CLDRFile file;
                 if(cached == true) {
@@ -6353,12 +6347,7 @@ o	            		}*/
                     }
                 } else {
 //                    conn = getDBConnection();
-                    dbSource = makeDBSource(locale, finalData);
-                    if(resolved == false) {
-                        file= makeCLDRFile(dbSource);
-                    } else { 
-                        file = new CLDRFile(dbSource.getResolving());
-                    }
+                    file = new CLDRFile(makeDBSource(locale, finalData, resolved));
                 }
     //            file.write(WebContext.openUTF8Writer(response.getOutputStream()));
                 if(voteData) {
@@ -6387,13 +6376,12 @@ o	            		}*/
 			}
 	
                 }
-                if(conn!=null) 
-                    DBUtils.closeDBConnection(conn);
             }
         }
         return true;
         } finally {
         	progress.close();
+            DBUtils.closeDBConnection(conn);
         }
     }
 
@@ -6812,11 +6800,12 @@ o	            		}*/
         public CLDRFile cldrfile = null;
         private CLDRFile cachedCldrFile = null; /* If not null: use this for tests. Readonly. */
         public XMLSource dbSource = null;
+        public XMLSource resolvedSource = null;
         public Hashtable hash = new Hashtable();
         private ExampleGenerator exampleGenerator = null;
         private Registerable exampleIsValid = new Registerable(lcr, locale);
 		private int use;
-		CLDRFile fileForGenerator = null;
+		CLDRFile resolvedFile = null;
 		CLDRFile baselineFile;
 
 		public void open() {
@@ -6832,10 +6821,10 @@ o	            		}*/
         		//   System.err.println("!CACHE_VXML_FOR_EXAMPLES");
         		//              }
 
-        		if(fileForGenerator==null) {
+        		if(resolvedFile==null) {
         			System.err.println("Err: fileForGenerator is null for " + dbSource);
         		}
-        		exampleGenerator = new ExampleGenerator(fileForGenerator, baselineFile, fileBase + "/../supplemental/");
+        		exampleGenerator = new ExampleGenerator(resolvedFile, baselineFile, fileBase + "/../supplemental/");
         		exampleGenerator.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
         		//System.err.println("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
         		exampleIsValid.setValid();
@@ -6952,15 +6941,15 @@ o	            		}*/
          */
         private void complete(CLDRLocale locale) {
             // TODO: refactor.
-            UserLocaleStuff uf = this;
-            if(uf.cldrfile == null) {
-                uf.dbSource = makeDBSource( locale); // use context's connection.
-            	uf.dbEntry= dbsrcfac.openEntry(uf.dbSource);
-                uf.cldrfile = makeCLDRFile(uf.dbSource);
-                uf.cachedCldrFile = uf.makeCachedCLDRFile(uf.dbSource);
-        		fileForGenerator = new CLDRFile(dbSource.getResolving());
-        		XMLSource baseSource = makeDBSource(CLDRLocale.getInstance(BASELINE_LOCALE));
-        		baselineFile = new CLDRFile(baseSource.getResolving());
+            if(cldrfile == null) {
+                resolvedSource = makeDBSource(locale, false, true); // use context's connection.
+                dbSource = resolvedSource.getUnresolving();
+            	dbEntry= dbsrcfac.openEntry(dbSource);
+                cldrfile = makeCLDRFile(dbSource);
+                cachedCldrFile = makeCachedCLDRFile(dbSource);
+        		resolvedFile = new CLDRFile(resolvedSource);
+        		XMLSource baseSource = makeDBSource(CLDRLocale.getInstance(BASELINE_LOCALE), false, true);
+        		baselineFile = new CLDRFile(baseSource);
             }
         }
     };
@@ -7025,6 +7014,22 @@ o	            		}*/
     XMLSource makeDBSource(CLDRLocale locale, boolean finalData) {
         XMLSource dbSource = dbsrcfac.getInstance(locale, finalData);
         return dbSource;
+    }
+    XMLSource makeDBSource(CLDRLocale locale, boolean finalData, boolean resolved) {
+        // HACK: CLDRDBSourceFactory has a "final data" source version so we have
+        // to create the XMLSources for resolution directly here. The factory
+        // should really be split into two factories.
+        if (resolved) {
+            List<XMLSource> sources = new ArrayList<XMLSource>();
+            CLDRLocale curLocale = locale;
+            while(curLocale != null) {
+                sources.add(dbsrcfac.getInstance(curLocale, finalData));
+                curLocale = curLocale.getParent();
+            }
+            return Factory.makeResolvingSource(sources);
+        } else {
+            return dbsrcfac.getInstance(locale, finalData);
+        }
     }
     static CLDRFile makeCLDRFile(XMLSource dbSource) {
         return new CLDRFile(dbSource);
@@ -7326,7 +7331,7 @@ o	            		}*/
         synchronized(ctx.session) { // TODO: redundant sync?
             SurveyMain.UserLocaleStuff uf = ctx.getUserFile();
             //CLDRFile cf = uf.cldrfile;
-            CLDRFile resolvedFile = new CLDRFile(uf.dbSource.getResolving());
+            CLDRFile resolvedFile = uf.resolvedFile;
             //CLDRFile engFile = ctx.sm.getBaselineFile();
     
             String xpath =  "//ldml/"+"dates/timeZoneNames/zone";
@@ -10355,8 +10360,8 @@ o	            		}*/
 			    file = makeCLDRFile(dbSource);
 			    isFlat=true;
 		} else if(kind.equals("rxml")) {
-			dbSource = makeDBSource(loc, true);
-	    	file = new CLDRFile(dbSource.getResolving());
+			dbSource = makeDBSource(loc, true, true);
+	    	file = new CLDRFile(dbSource);
 	    } else if(kind.equals("xml")) {
 			dbSource = makeDBSource(loc, false);
 	    	file = new CLDRFile(dbSource);

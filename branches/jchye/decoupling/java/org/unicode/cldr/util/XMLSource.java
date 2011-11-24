@@ -526,19 +526,11 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
     }
 
     /**
-     * @return returns a resolving class (same one if we are resolving already)
-     * SUBCLASSING: Don't override; there should be only one ResolvingSource
+     * Returns the unresolved version of this XMLSource.
+     * SUBCLASSING: Override in resolving sources.
      */
-    public XMLSource getResolving() {
-        if (isResolving()) return this;
-        List<XMLSource> sourceList = new ArrayList<XMLSource>();
-        XMLSource source = this;
-        while(source != null) {
-            sourceList.add(source);
-            String localeID = LocaleIDParser.getParent(source.getLocaleID());
-            source = source.make(localeID);
-        }
-        return new ResolvingSource(sourceList);
+    public XMLSource getUnresolving() {
+        return this;
     }
 
     /**
@@ -617,6 +609,10 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
 
         public boolean isResolving() {
             return true;
+        }
+        
+        public XMLSource getUnresolving() {
+            return sources.get(getLocaleID());
         }
 
         /*
