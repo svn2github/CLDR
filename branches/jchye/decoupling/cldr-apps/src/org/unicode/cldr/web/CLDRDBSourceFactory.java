@@ -394,9 +394,7 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 		Factory afactory = SimpleFactory.make(this.dir,".*");
 		this.initConn(afactory);
 		if(DEBUG) System.err.println("DBSRCFAC: processing vetterReady()...");
-		rootDbSourceV = new CLDRDBSource(CLDRLocale.ROOT, true);
-		rootDbSource = new CLDRDBSource(CLDRLocale.ROOT, false);
-		cache= new CLDRFileCache(rootDbSource, rootDbSourceV, cacheDir, sm);
+		cache= new CLDRFileCache(this, cacheDir, sm);
 
 		vetterReady = true;
 		update(progress, null);
@@ -470,19 +468,65 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 	public XMLSource getInstance(CLDRLocale locale) {
 		return getInstance(locale, false);
 	}
+	
+	public XMLSource getInstance(String localeID) {
+	    return getInstance(localeID, false);
+	}
 
 	/**
 	 * The Muxed sources automatically are cached on read, and update on write.
 	 */
 	Map<CLDRLocale, MuxedSource> mux = new HashMap<CLDRLocale, MuxedSource>();
 
-	public XMLSource  getInstance(CLDRLocale locale, boolean finalData) {
-		if(finalData == true) {
-			return rootDbSourceV.make(locale.toString());
-		} else {
-			return rootDbSource.make(locale.toString());
-			//return getMuxedInstance(locale);
-		}
+    private LruMap<String, XMLSource>[] sourceCache = new LruMap[] {
+        new LruMap<String, XMLSource>(5),
+        new LruMap<String, XMLSource>(5)
+    };
+
+    public XMLSource getInstance(String localeID, boolean finalData) {
+        if(localeID == null) return null; // ???
+        XMLSource result = null;
+        Map<String, XMLSource> cache = sourceCache[finalData ? 1 : 0];
+        if(MAKE_CACHE) {
+            result = cache.get(localeID);
+        }
+        if(result == null) {
+            if(localeID.startsWith(CLDRFile.SUPPLEMENTAL_PREFIX)) {
+                XMLSource msource = rawXmlFactory.makeSource(localeID);
+                msource.freeze();
+                //                System.err.println("Getting simpleXMLSource for " + localeID);
+                result = msource; 
+            } else {
+                CLDRDBSource dbresult = new CLDRDBSource(CLDRLocale.ROOT, finalData);
+                if(!localeID.equals(dbresult.getLocaleID())) {
+                    //dbresult.setLocaleID(localeID);
+                    //dbresult.initConn(conn, rawXmlFactory); // set up connection & prepared statements. conn/factory may be set twice.
+                    dbresult.setLocaleAndValidate(localeID);
+                }
+                result = dbresult;
+            }
+            if(MAKE_CACHE) cache.put(localeID, result);
+        } else if(TRACE_CONN && SurveyMain.isUnofficial) {
+            if(cache.size()>maxMakeHashSize) {
+                maxMakeHashSize=cache.size();
+            }
+            makeHashHitCount++;
+            if((makeHashHitCount%1000) == 0) {
+                System.err.println("make: cache hit "+makeHashHitCount+" times, hash size " + cache.size() + " (max " + maxMakeHashSize+"), initConn count " + nn);
+                if(false&& (makeHashHitCount % 1000)==0){
+                    try {
+                        throw new Throwable("cache hit make() called here");
+                    } catch(Throwable t) {
+                        t.printStackTrace();
+                    }                
+                }                    
+            }
+        }
+        return result;
+    }
+
+	public XMLSource getInstance(CLDRLocale locale, boolean finalData) {
+	    return getInstance(locale.toString(), finalData);
 	}
 
 	@Override
@@ -1962,57 +2006,10 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 			return output;
 		}
 
-		LruMap<String, XMLSource> makeHash = new LruMap<String, XMLSource>(5);
-
 		/**
 		 * @deprecated
 		 */
 		public final XPathTable xpt = CLDRDBSourceFactory.this.xpt;
-
-		/**
-		 * Factory function. Create a new XMLSource from the specified id. 
-		 * clones this's db conn, etc.
-		 * @param localeID the id to make
-		 * @return the new CLDRDBSource
-		 */
-		public XMLSource make(String localeID) {
-			if(localeID == null) return null; // ???
-			XMLSource result = null;
-			if(MAKE_CACHE) result = makeHash.get(localeID);
-			if(result == null) {
-				if(localeID.startsWith(CLDRFile.SUPPLEMENTAL_PREFIX)) {
-					XMLSource msource = new SimpleXMLSource(rawXmlFactory, localeID).make(localeID);
-					msource.freeze();
-					//                System.err.println("Getting simpleXMLSource for " + localeID);
-					result = msource; 
-				} else {
-					CLDRDBSource dbresult = (CLDRDBSource)clone();
-					if(!localeID.equals(dbresult.getLocaleID())) {
-						//dbresult.setLocaleID(localeID);
-						//dbresult.initConn(conn, rawXmlFactory); // set up connection & prepared statements. conn/factory may be set twice.
-						dbresult.setLocaleAndValidate(localeID);
-					}
-					result = dbresult;
-				}
-				if(MAKE_CACHE) makeHash.put(localeID, result);
-			} else if(TRACE_CONN && SurveyMain.isUnofficial) {
-				if(makeHash.size()>maxMakeHashSize) {
-					maxMakeHashSize=makeHash.size();
-				}
-				makeHashHitCount++;
-				if((makeHashHitCount%1000) == 0) {
-					System.err.println("make: cache hit "+makeHashHitCount+" times, hash size " + makeHash.size() + " (max " + maxMakeHashSize+"), initConn count " + nn);
-					if(false&& (makeHashHitCount % 1000)==0){
-						try {
-							throw new Throwable("cache hit make() called here");
-						} catch(Throwable t) {
-							t.printStackTrace();
-						}                
-					}                    
-				}
-			}
-			return result;
-		}
 
 		//    private void initConn(Connection conn, Factory rawXmlFactory) {
 		//        throw new InternalError("not imp: initConn()");
@@ -2093,7 +2090,6 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 				result.aliasTable = aliasTable;
 				result.finalData = finalData;
 				//            result.vetting = vetting;
-				result.makeHash = makeHash;
 				result.dbEntry = dbEntry;
 				// do something here?
 				return result;
@@ -2201,12 +2197,6 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 		//return getErrorCheckManager().getErrorChecker();
 		
 		return new CachingErrorChecker(sm);
-	}
-
-	@Override
-	public XMLSource getRootDbSource() {
-		// TODO Auto-generated method stub
-		return rootDbSource;
 	}
 
 	@Override

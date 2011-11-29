@@ -495,10 +495,6 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
      */
     abstract public Iterator<String> iterator();
     /**
-     * @return an XMLSource for the given localeID; null if unavailable
-     */
-    abstract public XMLSource make(String localeID);
-    /**
      * @return all localeIDs for which make(...) returns a non-null value
      */
     abstract public Set getAvailableLocales();
@@ -1222,9 +1218,6 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
             if (typeNo == CLDRFile.LANGUAGE_NAME || typeNo == CLDRFile.SCRIPT_NAME || typeNo == CLDRFile.TERRITORY_NAME) {
                 allowDuplicates.put(distinguishingPath, code);
             }
-        }
-        public XMLSource make(String localeID) {
-            return sources.get(localeID);
         }
         public Set getAvailableLocales() {  // TODO: Move to Factory.
             return currentSource.getAvailableLocales();

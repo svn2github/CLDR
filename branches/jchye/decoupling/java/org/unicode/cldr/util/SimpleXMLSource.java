@@ -89,12 +89,7 @@ public class SimpleXMLSource extends XMLSource {
     public void putValueAtDPath(String distinguishingXPath, String value) {
       xpath_value.put(distinguishingXPath, value);
     }
-    public XMLSource make(String localeID) {
-      if (localeID == null) return null;
-      CLDRFile file = factory.make(localeID, false, madeWithMinimalDraftStatus);
-      if (file == null) return null;
-      return file.dataSource;
-    }
+
     public Set<String> getAvailableLocales() {
       return factory.getAvailable();
     }

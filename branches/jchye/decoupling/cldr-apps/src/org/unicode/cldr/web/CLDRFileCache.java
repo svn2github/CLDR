@@ -58,7 +58,7 @@ public class CLDRFileCache {
 		@Override
 		public String getSourceDirectory() {
 			// assume: thread safe
-			return realSource.getSupplementalDirectory().getAbsolutePath();
+			return srcfac.getSourceDirectory();
 		}
 
 		@Override
@@ -70,7 +70,7 @@ public class CLDRFileCache {
 		@Override
 		protected Set<String> handleGetAvailable() {
 			// assume: thread safe
-			return realSource.getAvailableLocales();
+			return srcfac.getAvailable();
 		}
 
 	}
@@ -96,8 +96,8 @@ public class CLDRFileCache {
 			if (DEBUG_INSANE)
 				System.err.println("## " + serno + " subspawn @ "
 						+ cacheDir.getAbsolutePath());
-			setLocaleID(realSource.getLocaleID());
-			subSource = realSource.make(getLocaleID());
+			setLocaleID(CLDRLocale.ROOT.toString());
+			subSource = srcfac.getInstance(CLDRLocale.ROOT);
 		}
 
 		public CachedSource(String locale) {
@@ -105,7 +105,7 @@ public class CLDRFileCache {
 				System.err.println("## " + serno + " subspawn " + locale
 						+ " @ " + cacheDir.getAbsolutePath());
 			setLocaleID(locale);
-			subSource = realSource.make(locale);
+			subSource = srcfac.getInstance(locale);
 		}
 		
 		@Override
@@ -113,20 +113,6 @@ public class CLDRFileCache {
 		void setLocaleID(String locale) {
 			super.setLocaleID(locale);
 			this.loc = CLDRLocale.getInstance(locale);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.unicode.cldr.util.XMLSource#make(java.lang.String)
-		 */
-		@Override
-		public XMLSource make(String localeID) {
-			if (DEBUG_INSANE)
-				System.err.println("## " + serno + " make " + localeID + " @ "
-						+ cacheDir.getAbsolutePath());
-			// TODO Auto-generated method stub
-			return new CachedSource(localeID);
 		}
 
 		private String getLocaleFileName() {
@@ -146,7 +132,7 @@ public class CLDRFileCache {
 		}
 
 		public File getSupplementalDirectory() {
-			return realSource.getSupplementalDirectory();
+			return srcfac.getAlternateSupplementalDirectory();
 		}
 
 		/* ------ overrides below here ------ */
@@ -159,7 +145,7 @@ public class CLDRFileCache {
 		@Override
 		public Set getAvailableLocales() {
 			// uses *subSource* which is
-			return realSource.getAvailableLocales();
+			return srcfac.getAvailable();
 		}
 
 		/*
@@ -647,7 +633,7 @@ public class CLDRFileCache {
 		 * Load from underlying source.
 		 */
 		protected void load() {
-			load(realSource.make(getLocaleID()));
+			load(srcfac.getInstance(getLocaleID()));
 		}
 
 		private File getCacheFile() {
@@ -723,25 +709,24 @@ public class CLDRFileCache {
 		}
 
 		protected void load() {
-			load(realVettedSource.make(getLocaleID()));
+			load(srcfac.getInstance(getLocaleID(), true));
 		}
 	}
 
 	private File cacheDir;
-	private XMLSource realSource, realVettedSource;
+	private CLDRDBSourceFactory srcfac;
 	private SurveyMain sm;
 
 	static int nextSerialNumber() {
 		return ++sernos;
 	}
 
-	public CLDRFileCache(XMLSource subSource, XMLSource subVettedSource,
+	public CLDRFileCache(CLDRDBSourceFactory srcfac,
 			File cacheParent, SurveyMain sm) {
 		serno = nextSerialNumber();
 		this.sm = sm;
 		this.cacheDir = cacheParent;
-		this.realSource = subSource;
-		this.realVettedSource = subVettedSource;
+		this.srcfac = srcfac;
 		validateCache();
 		if (DEBUG_INSANE)
 			System.err.println("## " + serno + " Cache Startup @ "
@@ -882,12 +867,12 @@ public class CLDRFileCache {
 
 	public XMLSource getCachedSource(String localeID) {
 		if (localeID.startsWith(CLDRFile.SUPPLEMENTAL_PREFIX)) {
-			return realSource.make(localeID);
+			return srcfac.getInstance(localeID);
 		}
 		File cacheFile = getLocaleFile(localeID);
 		XMLSource cachedFileSource = null;
 		try {
-			XMLSource src = realSource.make(localeID);
+			XMLSource src = srcfac.getInstance(localeID);
 			CLDRFile aFile = new CLDRFile(src);
 			FileOutputStream fos;
 			fos = new FileOutputStream(cacheFile);
@@ -942,8 +927,8 @@ public class CLDRFileCache {
 	 * Close out the connection
 	 */
 	public void closeConnection() {
-		if (realSource instanceof CLDRDBSource) {
+		//if (realSource instanceof CLDRDBSource) {
 			// ((CLDRDBSource)realSource).closeConnection();
-		}
+		//}
 	}
 }

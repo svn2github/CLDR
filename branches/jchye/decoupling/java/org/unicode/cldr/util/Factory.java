@@ -53,6 +53,16 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
     }
     
     /**
+     * Temporary wrapper for creating an XMLSource. This is a hack and should
+     * only be used in the Survey Tool for now.
+     * @param localeID
+     * @return
+     */
+    public final XMLSource makeSource(String localeID) {
+        return make(localeID, false).dataSource;
+    }
+    
+    /**
      * Creates a resolving source for the given locale ID.
      * @param localeID
      * @param madeWithMinimalDraftStatus
