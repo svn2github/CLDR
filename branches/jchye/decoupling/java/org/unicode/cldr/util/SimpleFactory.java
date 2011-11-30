@@ -109,9 +109,8 @@ public class SimpleFactory extends Factory {
      * @param localeName
      */
     public static CLDRFile makeSupplemental(String localeName) {
-        XMLSource source = new SimpleXMLSource(null, null);
+        XMLSource source = new SimpleXMLSource(null, localeName);
         CLDRFile result = new CLDRFile(source);
-        result.dataSource.setLocaleID(localeName);
         result.setNonInheriting(true);
         return result;
     }
@@ -124,8 +123,7 @@ public class SimpleFactory extends Factory {
      * @return
      */
     public static CLDRFile makeFile(String fileName, InputStream fis, CLDRFile.DraftStatus minimalDraftStatus) {
-        CLDRFile file = makeFile("und").load(fileName, "und", fis, minimalDraftStatus);
-        file.dataSource.setLocaleID(file.getLocaleIDFromIdentity());
+        CLDRFile file = makeFile(null).load(fileName, null, fis, minimalDraftStatus);
         return file;
     }
 
@@ -139,7 +137,8 @@ public class SimpleFactory extends Factory {
     }
 
     public static CLDRFile makeFile(String localeName, String dir, CLDRFile.DraftStatus minimalDraftStatus) {
-        return makeFromFile(dir + File.separator + localeName + ".xml", localeName, minimalDraftStatus);
+        CLDRFile file = makeFromFile(dir + File.separator + localeName + ".xml", localeName, minimalDraftStatus);
+        return file;
     }
 
     /**
@@ -148,10 +147,8 @@ public class SimpleFactory extends Factory {
      * @param localeName
      */
     public static CLDRFile makeFile(String localeName) {
-        XMLSource source = new SimpleXMLSource(null, null);
-        CLDRFile result = new CLDRFile(source);
-        result.dataSource.setLocaleID(localeName);
-        return result;
+        XMLSource source = new SimpleXMLSource(null, localeName);
+        return new CLDRFile(source);
     }
 
     /**

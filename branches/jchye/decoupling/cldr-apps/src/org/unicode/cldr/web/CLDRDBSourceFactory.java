@@ -76,7 +76,7 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 		        source = getInstance(CLDRLocale.getInstance(localeID), false);
 	            if(dbEntry!=null) dbEntry.add(source);
 		    }
-			return new CLDRFile(source);
+			return new CLDRFile(source).setAlternateSupplementalDirectory(getAlternateSupplementalDirectory());
 		}
 
 		@Override
@@ -377,6 +377,7 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
     public CLDRDBSourceFactory(SurveyMain sm, String theDir, Logger xlogger, File cacheDir) throws SQLException {
 		this.xpt = sm.xpt;
 		this.dir = theDir;
+		setAlternateSupplementalDirectory(new File(dir + "/../"+"supplemental"));
 		Connection sconn = sm.dbUtils.getDBConnection();
 		CLDRDBSourceFactory.sm = sm;
 		logger = xlogger; // set static
@@ -1289,13 +1290,6 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 			return CLDRDBSourceFactory.this.getSourceRevision(srcId); // TODO: awkward
 		}
 
-		/**
-		 * Return the path to supplemental data.
-		 */
-		public File getSupplementalDirectory() {
-			File suppDir =  new File(dir+"/../"+"supplemental");
-			return suppDir;
-		}
 		public void putFullPathAtDPath(String distinguishingXPath, String fullxpath) { 
 			complain_about_slower_api();
 			putValueAtPath(fullxpath, this.getValueAtDPath(distinguishingXPath));
@@ -2166,11 +2160,13 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
     @Override
     protected CLDRFile handleMake(String localeID, boolean resolved,
             DraftStatus madeWithMinimalDraftStatus) {
+        CLDRFile file;
         if (resolved) {
-            return new CLDRFile(makeResolvingSource(localeID, madeWithMinimalDraftStatus));
+            file = new CLDRFile(makeResolvingSource(localeID, madeWithMinimalDraftStatus));
         } else {
-            return new CLDRFile(getInstance(CLDRLocale.getInstance(localeID), false));
+            file = new CLDRFile(getInstance(CLDRLocale.getInstance(localeID), false));
         }
+        return file.setAlternateSupplementalDirectory(getAlternateSupplementalDirectory());
     }
 
     @Override

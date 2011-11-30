@@ -78,15 +78,6 @@ public class MuxedSource extends XMLSource {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.unicode.cldr.util.XMLSource#getSupplementalDirectory()
-	 */
-	@Override
-	public File getSupplementalDirectory() {
-		// TODO Auto-generated method stub
-		return dbSource.getSupplementalDirectory();
-	}
-
-	/* (non-Javadoc)
 	 * @see org.unicode.cldr.util.XMLSource#getValueAtDPath(java.lang.String)
 	 */
 	@Override

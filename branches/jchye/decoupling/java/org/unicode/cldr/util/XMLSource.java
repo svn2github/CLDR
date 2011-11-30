@@ -587,14 +587,6 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
     }
 
     /**
-     * Return a directory to supplemental data used by this source.
-     * If the source is not normally disk-based, the returned directory may be temporary 
-     * and not guaranteed to exist past the lifetime of the XMLSource. The directory
-     * should be considered read-only.
-     */
-    public abstract File getSupplementalDirectory();
-
-    /**
      * Internal class for doing resolution
      * @author davis
      *
@@ -1006,12 +998,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
         public Comments getXpathComments() {
             return currentSource.getXpathComments();
         }
-        /**
-         * Pass the supplemental information from the original XMLSource
-         */
-        public File getSupplementalDirectory() {
-            return currentSource.getSupplementalDirectory();
-        }
+
         public void setXpathComments(Comments path) {
             throw new UnsupportedOperationException("Resolved CLDRFiles are read-only");        
         }

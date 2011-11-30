@@ -36,13 +36,7 @@ public class SimpleXMLSource extends XMLSource {
     public String getValueAtDPath(String xpath) {
       return (String)xpath_value.get(xpath);
     }
-    public File getSupplementalDirectory() {
-      final File result = new File(factory.getSourceDirectory(), "../supplemental/");
-      if (result.isDirectory()) {
-        return result;
-      }
-      return new File(CldrUtility.DEFAULT_SUPPLEMENTAL_DIRECTORY);
-    }
+
     public String getFullPathAtDPath(String xpath) {
       String result = (String) xpath_fullXPath.get(xpath);
       if (result != null) return result;

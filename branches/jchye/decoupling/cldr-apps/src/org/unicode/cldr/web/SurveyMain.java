@@ -7569,7 +7569,7 @@ o	            		}*/
     		curThread.setName(threadName + ":" + ctx.getLocale() );
     	}
     	try {
-	    	XMLSource ourSrc = dbsrcfac.getInstance(ctx.getLocale(),false);
+	    	XMLSource ourSrc = makeDBSource(ctx.getLocale(),false);
 	    	CLDRFile cf = new CLDRFile(ourSrc);
 	    	entry = dbsrcfac.openEntry(ourSrc);
 	    	

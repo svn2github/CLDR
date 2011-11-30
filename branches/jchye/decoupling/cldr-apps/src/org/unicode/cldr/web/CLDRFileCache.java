@@ -131,10 +131,6 @@ public class CLDRFileCache {
 			return cachedFileSource;
 		}
 
-		public File getSupplementalDirectory() {
-			return srcfac.getAlternateSupplementalDirectory();
-		}
-
 		/* ------ overrides below here ------ */
 
 		/*
