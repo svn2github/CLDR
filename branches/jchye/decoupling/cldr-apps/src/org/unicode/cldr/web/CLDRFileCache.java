@@ -273,8 +273,8 @@ public class CLDRFileCache {
 		// return new WinningXMLSource(this);
 		// }
 
-		public CacheableXMLSource(Factory factory, CLDRLocale locale) {
-			super(factory, locale.toString());
+		public CacheableXMLSource(CLDRLocale locale) {
+			super(locale.toString());
 		}
 		
 		@Override
@@ -289,7 +289,7 @@ public class CLDRFileCache {
 		 * @param copyAsLockedFrom
 		 */
 		protected CacheableXMLSource(CacheableXMLSource copyAsLockedFrom) {
-			super(factory, copyAsLockedFrom.getLocaleID());
+			super(copyAsLockedFrom.getLocaleID());
 			this.winningXpaths = copyAsLockedFrom.winningXpaths;
 			this.token = copyAsLockedFrom.token;
 			this.putAll(copyAsLockedFrom, 0);
@@ -646,8 +646,8 @@ public class CLDRFileCache {
 		// }
 		// }
 
-		public WinningXMLSource(Factory f, CLDRLocale localeID) {
-			super(f, localeID);
+		public WinningXMLSource(CLDRLocale localeID) {
+			super(localeID);
 		}
 
 		// public String getValueAtDPath(String dpath) {
@@ -842,9 +842,9 @@ public class CLDRFileCache {
 			boolean isVetted) {
 		CacheableXMLSource wxs;
 		if (!isVetted) {
-			wxs = new CacheableXMLSource(factory, locale);
+			wxs = new CacheableXMLSource(locale);
 		} else {
-			wxs = new WinningXMLSource(factory, locale);
+			wxs = new WinningXMLSource(locale);
 		}
 		wxs.initialize();
 		return wxs;
@@ -868,14 +868,14 @@ public class CLDRFileCache {
 			if (DEBUG_INSANE)
 				System.err.println("## " + serno + " 1getsrc " + localeID
 						+ "  @ " + cacheFile.getAbsolutePath());
-			cachedFileSource = new SimpleXMLSource(factory, localeID);
+			cachedFileSource = new SimpleXMLSource(localeID);
 
 			/* Cause load */
 			CLDRFile f = new CLDRFile(cachedFileSource);
 			f.loadFromFile(cacheFile, localeID,
 					CLDRFile.DraftStatus.unconfirmed);
 
-			CacheableXMLSource wxs = new CacheableXMLSource(factory, CLDRLocale
+			CacheableXMLSource wxs = new CacheableXMLSource(CLDRLocale
 					.getInstance(localeID));
 			CLDRFile g = new CLDRFile(wxs);
 			g.loadFromFile(cacheFile, localeID,

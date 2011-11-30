@@ -1094,7 +1094,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
             { "traditional", "collation" },
             { "unihan", "collation" } };
         private static final boolean SKIP_SINGLEZONES = false;
-        private static XMLSource constructedItems = new SimpleXMLSource(null, null);
+        private static XMLSource constructedItems = new SimpleXMLSource(CODE_FALLBACK_ID);
 
         static {
             StandardCodes sc = StandardCodes.make();

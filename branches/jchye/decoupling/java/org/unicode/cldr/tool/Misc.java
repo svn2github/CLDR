@@ -1323,7 +1323,7 @@ public class Misc {
 			if (!name.endsWith(".txt")) continue;
 			String fixedName = name.substring(name.length()-4);
 			BufferedReader input = BagFormatter.openUTF8Reader(file.getParent() + File.pathSeparator, name);
-			SimpleXMLSource source = new SimpleXMLSource(null, null);
+			SimpleXMLSource source = new SimpleXMLSource(null);
 			CLDRFile outFile = new CLDRFile(source);
 			int count = 0;
 			while (true) {

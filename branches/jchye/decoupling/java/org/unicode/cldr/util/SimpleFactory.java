@@ -81,7 +81,6 @@ public class SimpleFactory extends Factory {
                 final String dir = CLDRFile.isSupplementalName(localeName) ? sourceDirectory.replace("incoming/vetted/","common/") + File.separator + "../supplemental/" : sourceDirectory;
                 result = makeFile(localeName, dir, minimalDraftStatus);
                 SimpleXMLSource mySource = (SimpleXMLSource)result.dataSource;
-                mySource.factory = this;
                 mySource.madeWithMinimalDraftStatus = minimalDraftStatus;
                 result.freeze();
             }
@@ -109,7 +108,7 @@ public class SimpleFactory extends Factory {
      * @param localeName
      */
     public static CLDRFile makeSupplemental(String localeName) {
-        XMLSource source = new SimpleXMLSource(null, localeName);
+        XMLSource source = new SimpleXMLSource(localeName);
         CLDRFile result = new CLDRFile(source);
         result.setNonInheriting(true);
         return result;
@@ -147,7 +146,7 @@ public class SimpleFactory extends Factory {
      * @param localeName
      */
     public static CLDRFile makeFile(String localeName) {
-        XMLSource source = new SimpleXMLSource(null, localeName);
+        XMLSource source = new SimpleXMLSource(localeName);
         return new CLDRFile(source);
     }
 
