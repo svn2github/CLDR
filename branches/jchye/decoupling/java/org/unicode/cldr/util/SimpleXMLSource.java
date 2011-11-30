@@ -4,14 +4,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.XPathParts.Comments;
 
 public class SimpleXMLSource extends XMLSource {
     private HashMap<String,String> xpath_value = new HashMap<String,String>(); // TODO change to HashMap, once comparator is gone
     private HashMap<String,String> xpath_fullXPath = new HashMap<String,String>();
     private Comments xpath_comments = new Comments(); // map from paths to comments.
-    public DraftStatus madeWithMinimalDraftStatus = DraftStatus.unconfirmed;
 
     public SimpleXMLSource(String localeID) {
       this.setLocaleID(localeID);
@@ -24,7 +22,6 @@ public class SimpleXMLSource extends XMLSource {
       this.xpath_value = copyAsLockedFrom.xpath_value;
       this.xpath_fullXPath = copyAsLockedFrom.xpath_fullXPath;
       this.xpath_comments = copyAsLockedFrom.xpath_comments;
-      this.madeWithMinimalDraftStatus = copyAsLockedFrom.madeWithMinimalDraftStatus;
       this.setLocaleID(copyAsLockedFrom.getLocaleID());
       locked=true;
     }

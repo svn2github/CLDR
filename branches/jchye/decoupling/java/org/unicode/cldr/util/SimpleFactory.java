@@ -80,8 +80,6 @@ public class SimpleFactory extends Factory {
             } else {
                 final String dir = CLDRFile.isSupplementalName(localeName) ? sourceDirectory.replace("incoming/vetted/","common/") + File.separator + "../supplemental/" : sourceDirectory;
                 result = makeFile(localeName, dir, minimalDraftStatus);
-                SimpleXMLSource mySource = (SimpleXMLSource)result.dataSource;
-                mySource.madeWithMinimalDraftStatus = minimalDraftStatus;
                 result.freeze();
             }
             cache.put(localeName, result);
