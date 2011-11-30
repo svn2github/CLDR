@@ -2258,10 +2258,6 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
       return dataSource.isResolving();
   }
 
-  public Set getAvailableLocales() {
-    return dataSource.getAvailableLocales();
-  }
-
   // WARNING: this must go AFTER attributeOrdering is set; otherwise it uses a null comparator!!
   private static final DistinguishedXPath distinguishedXPath = new DistinguishedXPath();
 

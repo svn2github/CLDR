@@ -494,10 +494,6 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
      * @return an iterator over the distinguished paths
      */
     abstract public Iterator<String> iterator();
-    /**
-     * @return all localeIDs for which make(...) returns a non-null value
-     */
-    abstract public Set getAvailableLocales();
 
     /**
      * @return an iterator over the distinguished paths that start with the prefix.
@@ -1206,9 +1202,7 @@ public abstract class XMLSource implements Freezable, Iterable<String> {
                 allowDuplicates.put(distinguishingPath, code);
             }
         }
-        public Set getAvailableLocales() {  // TODO: Move to Factory.
-            return currentSource.getAvailableLocales();
-        }
+
         @Override
         public boolean isHere(String path) {
             return currentSource.isHere(path); // only test one level

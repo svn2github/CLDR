@@ -1,6 +1,5 @@
 package org.unicode.cldr.util;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -83,8 +82,4 @@ public class SimpleXMLSource extends XMLSource {
     public void putValueAtDPath(String distinguishingXPath, String value) {
       xpath_value.put(distinguishingXPath, value);
     }
-
-    public Set<String> getAvailableLocales() {
-      return factory.getAvailable();
-    }
-  }
+}

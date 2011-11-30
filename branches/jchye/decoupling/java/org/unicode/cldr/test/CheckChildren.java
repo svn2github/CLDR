@@ -61,7 +61,7 @@ public class CheckChildren extends FactoryCheckCLDR {
     
 		super.setCldrFileToCheck(cldrFileToCheck, options, possibleErrors);
 		Matcher myLocalePlus = Pattern.compile(cldrFileToCheck.getLocaleID() + "_[^_]*").matcher("");
-		Set children = cldrFileToCheck.getAvailableLocales();
+		Set children = getFactory().getAvailable();
 		List iChildren = new ArrayList();
 		for (Iterator it = children.iterator(); it.hasNext();) {
 			String locale = (String)it.next();

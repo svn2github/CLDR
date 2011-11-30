@@ -42,7 +42,6 @@ import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.LruMap;
-import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.VettingViewer.ErrorChecker;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
@@ -267,8 +266,6 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 	 */
 	public static SurveyMain sm = null;
 
-	protected XMLSource rootDbSource = null;
-	protected XMLSource rootDbSourceV = null;
 	private List<CLDRLocale> needUpdate = new ArrayList<CLDRLocale>();
 	File cacheDir = null;
 	boolean vetterReady = false;
@@ -1749,31 +1746,6 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 		}
 
 		/**
-		 * Get a list of which locales are available to this source, as per the underlying data store.
-		 * @return set of available locales
-		 */
-		public Set getAvailableLocales() {
-			// TODO: optimize
-			File inFiles[] = getInFiles();
-			Set<String> s = new HashSet<String>();
-			if(inFiles == null) {
-				return null;
-				//            throw new RuntimeException("Can't load CLDR data files from " + dir);
-			}
-			int nrInFiles = inFiles.length;
-
-			for(int i=0;i<nrInFiles;i++) {
-				String localeName = inFiles[i].getName();
-				int dot = localeName.indexOf('.');
-				if(dot !=  -1) {
-					localeName = localeName.substring(0,dot);
-					s.add(localeName);
-				}
-			}
-			return s;
-		}
-
-		/**
 		 * Cache of iterators over various things
 		 */
 		Hashtable keySets = new Hashtable();
@@ -2178,7 +2150,24 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
     @SuppressWarnings("unchecked")
     @Override
     protected Set<String> handleGetAvailable() {
-        return (Set<String>)rootDbSource.getAvailableLocales();
+        // TODO: optimize
+        File inFiles[] = getInFiles();
+        Set<String> s = new HashSet<String>();
+        if(inFiles == null) {
+            return null;
+            //            throw new RuntimeException("Can't load CLDR data files from " + dir);
+        }
+        int nrInFiles = inFiles.length;
+
+        for(int i=0;i<nrInFiles;i++) {
+            String localeName = inFiles[i].getName();
+            int dot = localeName.indexOf('.');
+            if(dot !=  -1) {
+                localeName = localeName.substring(0,dot);
+                s.add(localeName);
+            }
+        }
+        return s;
     }
     
     private ErrorCheckManager ecm = null;

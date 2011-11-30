@@ -54,11 +54,6 @@ public class TestXMLSource extends TestFmwk {
         public Iterator<String> iterator() {
             return valueMap.keySet().iterator();
         }
-
-        @Override
-        public Set getAvailableLocales() {
-            return null;
-        }
     }
 
     public static void main(String[] args) {

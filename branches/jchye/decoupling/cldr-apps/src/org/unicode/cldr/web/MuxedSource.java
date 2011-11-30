@@ -49,14 +49,6 @@ public class MuxedSource extends XMLSource {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.unicode.cldr.util.XMLSource#getAvailableLocales()
-	 */
-	@Override
-	public Set getAvailableLocales() {
-		return dbSource.getAvailableLocales();
-	}
-
-	/* (non-Javadoc)
 	 * @see org.unicode.cldr.util.XMLSource#getFullPathAtDPath(java.lang.String)
 	 */
 	@Override

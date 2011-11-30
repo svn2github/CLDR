@@ -136,17 +136,6 @@ public class CLDRFileCache {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.unicode.cldr.util.XMLSource#getAvailableLocales()
-		 */
-		@Override
-		public Set getAvailableLocales() {
-			// uses *subSource* which is
-			return srcfac.getAvailable();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
 		 * @see
 		 * org.unicode.cldr.util.XMLSource#getFullPathAtDPath(java.lang.String)
 		 */

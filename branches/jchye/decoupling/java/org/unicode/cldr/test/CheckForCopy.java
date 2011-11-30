@@ -222,7 +222,7 @@ public class CheckForCopy extends FactoryCheckCLDR {
         // find the names of langauges that are the same in themselves as in English
         SupplementalDataInfo supplementalData = SupplementalDataInfo.getInstance(cldrFileToCheck.getSupplementalDirectory());
 
-        Set<String> locales = cldrFileToCheck.getAvailableLocales();
+        Set<String> locales = getFactory().getAvailable();
         for (String locale : locales) {
             if (locale.contains("_") || locale.equals("en")) continue;
             CLDRFile nativeFile = getFactory().make(locale, false);
