@@ -98,7 +98,7 @@ public class SimpleFactory extends Factory {
      */
     // TODO make the directory a URL  
     public static CLDRFile makeFromFile(String fullFileName, String localeName, DraftStatus minimalDraftStatus) {
-        return makeFile(localeName).loadFromFile(fullFileName, localeName, minimalDraftStatus);
+        return CLDRFile.loadFromFile(new File(fullFileName), localeName, minimalDraftStatus);
     }
 
     /**
@@ -120,7 +120,7 @@ public class SimpleFactory extends Factory {
      * @return
      */
     public static CLDRFile makeFile(String fileName, InputStream fis, CLDRFile.DraftStatus minimalDraftStatus) {
-        CLDRFile file = makeFile(null).load(fileName, null, fis, minimalDraftStatus);
+        CLDRFile file = CLDRFile.load(fileName, null, fis, minimalDraftStatus);
         return file;
     }
 
@@ -130,7 +130,7 @@ public class SimpleFactory extends Factory {
      * @param fis
      */
     public static CLDRFile makeFile(String fileName, String localeName, InputStream fis, CLDRFile.DraftStatus minimalDraftStatus) {
-        return makeFile(localeName).load(fileName,localeName, fis, minimalDraftStatus);
+        return CLDRFile.load(fileName,localeName, fis, minimalDraftStatus);
     }
 
     public static CLDRFile makeFile(String localeName, String dir, CLDRFile.DraftStatus minimalDraftStatus) {

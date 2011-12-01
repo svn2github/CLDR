@@ -871,15 +871,13 @@ public class CLDRFileCache {
 			cachedFileSource = new SimpleXMLSource(localeID);
 
 			/* Cause load */
-			CLDRFile f = new CLDRFile(cachedFileSource);
-			f.loadFromFile(cacheFile, localeID,
-					CLDRFile.DraftStatus.unconfirmed);
+			CLDRFile f = CLDRFile.loadFromFile(cacheFile, localeID,
+					CLDRFile.DraftStatus.unconfirmed, cachedFileSource);
 
 			CacheableXMLSource wxs = new CacheableXMLSource(CLDRLocale
 					.getInstance(localeID));
-			CLDRFile g = new CLDRFile(wxs);
-			g.loadFromFile(cacheFile, localeID,
-					CLDRFile.DraftStatus.unconfirmed);
+			CLDRFile g = CLDRFile.loadFromFile(cacheFile, localeID,
+					CLDRFile.DraftStatus.unconfirmed, wxs);
 			wxs.save(new File(cacheFile.getParentFile(), localeID + ".xpt"));
 			// g.freeze();
 			// f.freeze();

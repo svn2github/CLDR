@@ -146,32 +146,36 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     this.dataSource = dataSource;
     //source.xpath_value = isSupplemental ? new TreeMap() : new TreeMap(ldmlComparator);
   }
+  
+  public static CLDRFile loadFromFile(File f, String localeName, DraftStatus minimalDraftStatus, XMLSource source) {
+      String fullFileName = f.getAbsolutePath();
+      try {
+        fullFileName = f.getCanonicalPath();
+        if (DEBUG_LOGGING) {
+          System.out.println("Parsing: " + fullFileName);
+          Log.logln(LOG_PROGRESS, "Parsing: " + fullFileName);
+        }
+        FileInputStream fis = new FileInputStream(f);
+        CLDRFile cldrFile = load(fullFileName, localeName, fis, minimalDraftStatus, source);
+        fis.close();
+        return cldrFile;
+      } catch (Exception e) {
+        //e.printStackTrace();
+        throw (IllegalArgumentException)new IllegalArgumentException("Can't read " + fullFileName).initCause(e);
+      }
+  }
 
   /**
    * Produce a CLDRFile from a localeName, given a directory. (Normally a Factory is used to create CLDRFiles.)
    * @param localeName
    * @param dir directory 
    */
-  public CLDRFile loadFromFile(File f, String localeName, DraftStatus minimalDraftStatus) {
-    String fullFileName = f.getAbsolutePath();
-    try {
-      fullFileName = f.getCanonicalPath();
-      if (DEBUG_LOGGING) {
-        System.out.println("Parsing: " + fullFileName);
-        Log.logln(LOG_PROGRESS, "Parsing: " + fullFileName);
-      }
-      FileInputStream fis = new FileInputStream(f);
-      load(fullFileName, localeName, fis, minimalDraftStatus);
-      fis.close();
-      return this;
-    } catch (Exception e) {
-      //e.printStackTrace();
-      throw (IllegalArgumentException)new IllegalArgumentException("Can't read " + fullFileName).initCause(e);
-    }
+  public static CLDRFile loadFromFile(File f, String localeName, DraftStatus minimalDraftStatus) {
+      return loadFromFile(f, localeName, minimalDraftStatus, new SimpleXMLSource(localeName));
   }
 
-  public CLDRFile loadFromFile(String fullFileName, String localeName, DraftStatus minimalDraftStatus) {
-    return loadFromFile(new File(fullFileName), localeName, minimalDraftStatus);
+ static CLDRFile load(String fileName, String localeName, InputStream fis, DraftStatus minimalDraftStatus) {
+      return load(fileName, localeName, fis, minimalDraftStatus, new SimpleXMLSource(localeName));
   }
 
   /**
@@ -179,10 +183,11 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
    * @param localeName
    * @param fis
    */
-  public CLDRFile load(String fileName, String localeName, InputStream fis, DraftStatus minimalDraftStatus) {
+  private static CLDRFile load(String fileName, String localeName, InputStream fis, DraftStatus minimalDraftStatus, XMLSource source) {
     try {
       fis = new StripUTF8BOMInputStream(fis);
-      MyDeclHandler DEFAULT_DECLHANDLER = new MyDeclHandler(this, minimalDraftStatus);
+      CLDRFile cldrFile = new CLDRFile(source);
+      MyDeclHandler DEFAULT_DECLHANDLER = new MyDeclHandler(cldrFile, minimalDraftStatus);
 
       // now fill it.
 
@@ -197,14 +202,14 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
       if (DEFAULT_DECLHANDLER.isSupplemental < 0) {
         throw new IllegalArgumentException("root of file must be either ldml or supplementalData");
       }
-      this.setNonInheriting(DEFAULT_DECLHANDLER.isSupplemental > 0);
+      cldrFile.setNonInheriting(DEFAULT_DECLHANDLER.isSupplemental > 0);
       if (DEFAULT_DECLHANDLER.overrideCount > 0) {
         throw new IllegalArgumentException("Internal problems, mostly likely bug in isDistinguishing() or isOrdered(): " + DEFAULT_DECLHANDLER.overrideCount);
       }
       if (localeName == null) {
-          dataSource.setLocaleID(getLocaleIDFromIdentity());
+          cldrFile.dataSource.setLocaleID(cldrFile.getLocaleIDFromIdentity());
       }
-      return this;
+      return cldrFile;
     } catch (SAXParseException e) {
       //System.out.println(CLDRFile.showSAX(e));
       throw (IllegalArgumentException)new IllegalArgumentException("Can't read " + localeName + "\t" + CLDRFile.showSAX(e)).initCause(e);
