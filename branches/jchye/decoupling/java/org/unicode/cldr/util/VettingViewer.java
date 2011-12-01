@@ -316,7 +316,7 @@ public class VettingViewer<T> {
         private Factory                 factory;
         
         public DefaultErrorStatus(Factory cldrFactory) {
-            this.factory = factory;
+            this.factory = cldrFactory;
         }
 
         @Override
