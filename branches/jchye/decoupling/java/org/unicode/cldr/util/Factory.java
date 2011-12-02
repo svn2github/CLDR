@@ -17,14 +17,14 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
    */
   public abstract class Factory {
 
-    private File alternateSupplementalDirectory = null;
+    private File supplementalDirectory = null;
 
     public abstract String getSourceDirectory();
 
     protected abstract CLDRFile handleMake(String localeID, boolean resolved, DraftStatus madeWithMinimalDraftStatus);
 
     public CLDRFile make(String localeID, boolean resolved, DraftStatus madeWithMinimalDraftStatus) {
-      return handleMake(localeID, resolved, madeWithMinimalDraftStatus).setAlternateSupplementalDirectory(alternateSupplementalDirectory);
+      return handleMake(localeID, resolved, madeWithMinimalDraftStatus).setSupplementalDirectory(supplementalDirectory);
     }
 
     public CLDRFile make(String localeID, boolean resolved, boolean includeDraft) {
@@ -142,12 +142,18 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
       return result;
     }
 
-    public File getAlternateSupplementalDirectory() {
-      return alternateSupplementalDirectory;
+    public File getSupplementalDirectory() {
+      return supplementalDirectory;
     }
 
-    public Factory setAlternateSupplementalDirectory(File alternateSupplementalDirectory) {
-      this.alternateSupplementalDirectory = alternateSupplementalDirectory;
+    /**
+     * Sets the supplemental directory to be used by this Factory and CLDRFiles
+     * created by this Factory.
+     * @param supplementalDirectory
+     * @return
+     */
+    public Factory setSupplementalDirectory(File supplementalDirectory) {
+      this.supplementalDirectory = supplementalDirectory;
       return this;
     }
 
@@ -156,7 +162,7 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
       try {
         return make("supplementalData", false);
       } catch (RuntimeException e) {
-        return Factory.make(getAlternateSupplementalDirectory().getPath(), ".*").make("supplementalData", false);
+        return Factory.make(getSupplementalDirectory().getPath(), ".*").make("supplementalData", false);
       }
     }
     
@@ -164,7 +170,7 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
       try {
         return make("supplementalMetadata", false);
       } catch (RuntimeException e) {
-        return Factory.make(getAlternateSupplementalDirectory().getPath(), ".*").make("supplementalMetadata", false);
+        return Factory.make(getSupplementalDirectory().getPath(), ".*").make("supplementalMetadata", false);
       }
     }
   }

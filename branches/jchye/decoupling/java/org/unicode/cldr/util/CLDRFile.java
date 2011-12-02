@@ -103,7 +103,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
   XMLSource dataSource;  // TODO(jchye): make private
   private String dtdVersion;
 
-  private File alternateSupplementalDirectory;
+  private File supplementalDirectory;
 
   public enum DraftStatus {unconfirmed, provisional, contributed, approved};
 
@@ -1124,14 +1124,14 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
    * should be considered read-only.
    */
   public File getSupplementalDirectory() {
-    if (alternateSupplementalDirectory == null) {
-        alternateSupplementalDirectory = new File(CldrUtility.DEFAULT_SUPPLEMENTAL_DIRECTORY);
+    if (supplementalDirectory == null) {
+        supplementalDirectory = new File(CldrUtility.DEFAULT_SUPPLEMENTAL_DIRECTORY);
     }
-    return alternateSupplementalDirectory;
+    return supplementalDirectory;
   }
 
-  public CLDRFile setAlternateSupplementalDirectory(File alternateSupplementalDirectory) {
-    this.alternateSupplementalDirectory = alternateSupplementalDirectory;
+  public CLDRFile setSupplementalDirectory(File supplementalDirectory) {
+    this.supplementalDirectory = supplementalDirectory;
     return this;
   }
 

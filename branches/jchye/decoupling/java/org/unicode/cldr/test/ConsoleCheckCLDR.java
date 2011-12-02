@@ -280,13 +280,13 @@ public class ConsoleCheckCLDR {
 
         // set up the test
         Factory cldrFactory = Factory.make(sourceDirectory, factoryFilter)
-        .setAlternateSupplementalDirectory(new File(CldrUtility.SUPPLEMENTAL_DIRECTORY));
+        .setSupplementalDirectory(new File(CldrUtility.SUPPLEMENTAL_DIRECTORY));
         CheckCLDR checkCldr = CheckCLDR.getCheckAll(cldrFactory, checkFilter);
         try {
             english = cldrFactory.make("en", true);
         } catch (Exception e1) {
             Factory backCldrFactory = Factory.make(CldrUtility.MAIN_DIRECTORY, factoryFilter)
-            .setAlternateSupplementalDirectory(new File(CldrUtility.SUPPLEMENTAL_DIRECTORY));
+            .setSupplementalDirectory(new File(CldrUtility.SUPPLEMENTAL_DIRECTORY));
             english = backCldrFactory.make("en", true);
         }
         checkCldr.setDisplayInformation(english);

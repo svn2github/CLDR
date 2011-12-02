@@ -75,7 +75,7 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 		        source = getInstance(CLDRLocale.getInstance(localeID), false);
 	            if(dbEntry!=null) dbEntry.add(source);
 		    }
-			return new CLDRFile(source).setAlternateSupplementalDirectory(getAlternateSupplementalDirectory());
+			return new CLDRFile(source).setSupplementalDirectory(getSupplementalDirectory());
 		}
 
 		@Override
@@ -374,7 +374,7 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
     public CLDRDBSourceFactory(SurveyMain sm, String theDir, Logger xlogger, File cacheDir) throws SQLException {
 		this.xpt = sm.xpt;
 		this.dir = theDir;
-		setAlternateSupplementalDirectory(new File(dir + "/../"+"supplemental"));
+		setSupplementalDirectory(new File(dir + "/../"+"supplemental"));
 		Connection sconn = sm.dbUtils.getDBConnection();
 		CLDRDBSourceFactory.sm = sm;
 		logger = xlogger; // set static
@@ -2138,7 +2138,7 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
         } else {
             file = new CLDRFile(getInstance(CLDRLocale.getInstance(localeID), false));
         }
-        return file.setAlternateSupplementalDirectory(getAlternateSupplementalDirectory());
+        return file.setSupplementalDirectory(getSupplementalDirectory());
     }
 
     @Override
