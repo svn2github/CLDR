@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
+import org.unicode.cldr.icu.LDMLConstants;
 import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.ExampleGenerator;
@@ -19,7 +21,10 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.CLDRLocale;
+import org.unicode.cldr.util.VoteResolver;
+import org.unicode.cldr.util.VoteResolver.Status;
 import org.unicode.cldr.util.XMLSource;
+import org.unicode.cldr.util.XPathParts;
 import org.unicode.cldr.util.XPathParts.Comments;
 import org.unicode.cldr.web.UserRegistry.User;
 
@@ -28,8 +33,32 @@ import org.unicode.cldr.web.UserRegistry.User;
  *
  */
 public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.User> {
+	public static abstract class DoIfNotRecent {
+		public abstract void handleDo();
+		private long lastTime = 0;
+		private long every = 0;
+		public void doIf() {
+			long now = System.currentTimeMillis();
+			if((now-lastTime)>every) {
+				try {
+					handleDo();
+					lastTime = now;
+				} finally {
+					//
+				}
+			}
+		}
+		protected DoIfNotRecent(long every) {
+			this.every = every;
+		}
+	}
+
 	private static void readonly() {
 		throw new InternalError("This is a readonly instance.");
+	}
+
+	private static void unimp() {
+		throw new InternalError("NOT YET IMPLEMENTED - TODO!.");
 	}
 
 	/**
@@ -163,8 +192,11 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	}
 
 	public class DataBackedSource extends ReadOnlyAliasTo {
+		PerLocaleData ballotBox;
 		public DataBackedSource(PerLocaleData makeFrom) {		
 			super(new CLDRFile.SimpleXMLSource(sm.getFactory(),makeFrom.getLocale().getBaseName()));
+			ballotBox = makeFrom;
+			ballotBox.aliasOf = aliasOf;
 		}
 
 		
@@ -208,9 +240,14 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		 */
 		@Override
 		public String getValueAtDPath(String path) {
-			String v =  aliasOf.getValueAtDPath(path);
-			//System.err.println(path+"="+v);
-			return v;
+			Map<User,String> m = ballotBox.peekXpathToVotes(path);
+			if(m==null || m.isEmpty()) {
+				return aliasOf.getValueAtDPath(path);
+			} else {
+				return ballotBox.getResolver(m,path).getWinningValue();
+//				System.err.println("Note: DBS.getValueAtDPath() blindly returning 1st value,  todo!!");
+//				return m.entrySet().iterator().next().getValue();
+			}
 		}
 
 		/* (non-Javadoc)
@@ -218,7 +255,26 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		 */
 		@Override
 		public String getFullPathAtDPath(String path) {
-			return aliasOf.getFullPathAtDPath(path);
+			Map<User,String> m = ballotBox.peekXpathToVotes(path);
+			if(m==null || m.isEmpty()) {
+				return aliasOf.getFullPathAtDPath(path);
+			} else {
+				System.err.println("Note: DBS.getFullPathAtDPath() todo!!");
+				return aliasOf.getFullPathAtDPath(path);
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see org.unicode.cldr.util.XMLSource#iterator()
+		 */
+		@Override
+		public Iterator<String> iterator() {
+			if(ballotBox.xpathToVotes == null || ballotBox.xpathToVotes.isEmpty()) {
+				return aliasOf.iterator();
+			} else {
+				System.err.println("Note: DBS.iterator() todo!!");
+				return aliasOf.iterator();
+			}
 		}
 
 		/* (non-Javadoc)
@@ -237,13 +293,6 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 			readonly();
 		}
 
-		/* (non-Javadoc)
-		 * @see org.unicode.cldr.util.XMLSource#iterator()
-		 */
-		@Override
-		public Iterator<String> iterator() {
-			return aliasOf.iterator();
-		}
 
 		/* (non-Javadoc)
 		 * @see org.unicode.cldr.util.XMLSource#make(java.lang.String)
@@ -310,7 +359,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	/**
 	 * The infamous back-pointer.
 	 */
-	SurveyMain sm = null;
+	public SurveyMain sm = null;
 	
 	/**
 	 * Construct one.
@@ -336,7 +385,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		return new CLDRFile(makeSource(localeID, resolved),resolved);
 	}
 
-	private XMLSource makeSource(String localeID, boolean resolved) {
+	public XMLSource makeSource(String localeID, boolean resolved) {
 		if(localeID==null) return null; // ?!
 		return get(localeID).makeSource(resolved);
 	}
@@ -354,12 +403,12 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	 */
 	@Override
 	protected Set<String> handleGetAvailable() {
-		// TODO Auto-generated method stub
 		return sm.getFactory().getAvailable();
 	}
 
 	@SuppressWarnings("unchecked")
 	public CheckCLDR getCheck(CLDRLocale loc) {
+		System.err.println("TODO:  STFactory.getCheck()  - slow and bad.");
 		CheckCLDR cc = sm.createCheck();
 		cc.setCldrFileToCheck(handleMake(loc.getBaseName(),true,getMinimalDraftStatus()), SurveyMain.basicOptionsMap(), new ArrayList<CheckStatus>());
 		return cc;
@@ -398,13 +447,17 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	private class PerLocaleData implements Comparable<PerLocaleData>, BallotBox<User>  {
 		private CLDRLocale locale;
 		private XMLSource xmlsource;
+		public XMLSource aliasOf;
 		private boolean readonly;
+		private CLDRFile oldFile;
+		
 		
 		PerLocaleData(CLDRLocale locale) {
 			this.locale = locale;
 			readonly = isReadOnlyLocale(locale);
+			oldFile = sm.getOldFactory().make(locale.getBaseName(), true);
 		}
-		
+
 		public XMLSource makeSource(boolean resolved) {
 			XMLSource source = makeSource();
 			if(resolved==true) {
@@ -500,6 +553,60 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 			}
 			return m;
 		}
+
+		@Override
+		public Set<User> getVotesForValue(String xpath, String value) {
+			Map<User,String> m = peekXpathToVotes(xpath);
+			if(m==null) {
+				return null;
+			} else {
+				TreeSet<User> ts = new TreeSet<User>();
+				for(Map.Entry<User,String> e : m.entrySet()) {
+					if(e.getValue().equals(value)) {
+						ts.add(e.getKey());
+					}
+				}
+				if(ts.isEmpty()) return null;
+				return ts;
+			}
+		}
+		
+		@Override
+		public Set<String> getValues(String xpath) {
+			Map<User,String> m = peekXpathToVotes(xpath);
+			if(m==null) {
+				return null;
+			} else {
+				Set<String> ts = new TreeSet<String>();
+				ts.addAll(m.values());
+				return ts;
+			}
+		}
+		
+		public VoteResolver<String> getResolver(Map<User, String> m, String path) {
+			if(m==null) return null;
+			updateVoteInfo.doIf();
+			VoteResolver<String> r = new VoteResolver<String>();
+			XPathParts xpp = new XPathParts(null,null);
+			xpp.set(oldFile.getFullXPath(path));
+			r.setLastRelease(oldFile.getStringValue(path), VoteResolver.Status.fromString(xpp.getAttributeValue(-1, LDMLConstants.DRAFT)));
+			if(m!=null) {
+				for(Map.Entry<User, String>e : m.entrySet()) {
+					r.add(e.getValue(), e.getKey().id);
+				}
+			} else {
+				System.err.println("m is null for " + path + " , but last release value is " + oldFile.getStringValue(path));
+			}
+			System.err.println("RESOLVER for " + path + " --> " + r.toString());
+			return r;
+		}
+		
+		@Override
+		public VoteResolver<String> getResolver(String path) {
+			return getResolver(peekXpathToVotes(path),path);
+		}
+
+		
 	};
 	
 	/**
@@ -529,5 +636,13 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	public BallotBox<User> ballotBoxForLocale(CLDRLocale locale) {
 		return get(locale);
 	}
-
+	
+	DoIfNotRecent updateVoteInfo = new DoIfNotRecent(1000*60*5) {
+		@Override
+		public void handleDo() {
+			// update voter info
+    		VoteResolver.setVoterToInfo(sm.reg.getVoterToInfo());	
+		}
+	};
+	
 }

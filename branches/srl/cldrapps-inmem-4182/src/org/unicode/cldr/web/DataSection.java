@@ -35,6 +35,7 @@ import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.PathUtilities;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
+import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
 import org.unicode.cldr.web.CLDRDBSourceFactory.DBEntry;
@@ -56,7 +57,7 @@ public class DataSection extends Registerable {
     /**
      * Trace in detail time taken to populate?
      */
-    private static final boolean TRACE_TIME=false;
+    private static final boolean TRACE_TIME=true;
     
     /**
      * Show time taken to populate?
@@ -112,7 +113,9 @@ public class DataSection extends Registerable {
     
     public String intgroup;
 
-    private String ptype; 
+    private String ptype;
+
+	private BallotBox<User> ballotBox; 
     DataSection(SurveyMain sm, CLDRLocale loc, String prefix, String ptype) {
         super(sm.lcr,loc); // initialize call to LCR
 
@@ -121,6 +124,7 @@ public class DataSection extends Registerable {
         xpathPrefix = prefix;
         fieldHash =  CookieSession.cheapEncode(sm.xpt.getByXpath(prefix));
         intgroup = loc.getLanguage(); // calculate interest group
+        ballotBox = sm.stFactory.ballotBoxForLocale(locale);
     }
     private static int n =0;
     protected static synchronized int getN() { return ++n; } // serial number
@@ -191,6 +195,17 @@ public class DataSection extends Registerable {
      *
      */
     public class DataRow {
+    	private VoteResolver<String> voteResolver;
+    	String baseXpathString;
+		private DataRow(int base_xpath, String type) {
+    		this.type = type;
+    		this.base_xpath=base_xpath;
+    		baseXpathString = getXpath();
+    		if(baseXpathString==null) {
+    			System.err.println("ERR: null xpath for " + base_xpath);
+    		}
+    		voteResolver = ballotBox.getResolver(baseXpathString);
+    	}
 
 		DataRow parentRow = this; // parent - defaults to self if it is a "super" (i.e. parent without any alternate)
         
@@ -210,20 +225,20 @@ public class DataSection extends Registerable {
         public String altType = null; // alt type (NOT to be confused with -proposedn)
         int base_xpath = -1;
 
-	public String getXpath() {
-		return sm.xpt.getById(base_xpath);
-	}
-	public int getXpathId() {
-		return base_xpath;
-	}
-	private String pp = null;
-	public String getPrettyPath() {
-		if(pp==null) {
-			pp=sm.xpt.getPrettyPath(base_xpath);
-		}
-		return pp;
-	}
-        
+        public String getXpath() {
+        	return sm.xpt.getById(base_xpath);
+        }
+        public int getXpathId() {
+        	return base_xpath;
+        }
+        private String pp = null;
+        public String getPrettyPath() {
+        	if(pp==null) {
+        		pp=sm.xpt.getPrettyPath(base_xpath);
+        	}
+        	return pp;
+        }
+
         // true even if only the non-winning subitems have tests.
         boolean hasTests = false;
 
@@ -280,7 +295,8 @@ public class DataSection extends Registerable {
             public Set<UserRegistry.User> getVotes() {
                 if(!checkedVotes) {
                     if(!isFallback) {
-                        votes = sm.vet.gatherVotes(locale, xpath);
+                    	System.err.println("TODO: DateSection.....getVotes()");
+                        votes = ballotBox.getVotesForValue(xpath,value);
                     }
                     checkedVotes = true;
                 }
@@ -406,11 +422,10 @@ public class DataSection extends Registerable {
                         return myCollator.compare(p1.altProposed, p2.altProposed);
                     }
                 });
-        public CandidateItem addItem(String value, String altProposed, List tests) {
+        public CandidateItem addItem(String value, String altProposed) {
             CandidateItem pi = new CandidateItem();
             pi.value = value;
             pi.altProposed = altProposed;
-            pi.tests = tests;
             items.add(pi);
 ///*srl*/            if(type.indexOf("Chicago")>-1) {
 //               System.out.println("@@ "+type+"  v: " + pi.value);
@@ -447,7 +462,7 @@ public class DataSection extends Registerable {
         
         Hashtable<String,DataRow> subRows = null;
 
-        public DataRow getSubDataRow(String altType) {
+        public DataRow getSubDataRow(int base_xpath,String altType) {
             if(altType == null) {
                 return this;
             }
@@ -457,8 +472,7 @@ public class DataSection extends Registerable {
 
             DataRow p = subRows.get(altType);
             if(p==null) {
-                p = new DataRow();
-                p.type = type;
+                p = new DataRow(base_xpath,type);
                 p.altType = altType;
                 p.parentRow = this;
                 subRows.put(altType, p);
@@ -758,14 +772,17 @@ public class DataSection extends Registerable {
                 List<DataSection.DataRow.CandidateItem> currentItems = new ArrayList<DataSection.DataRow.CandidateItem>();
                 List<DataSection.DataRow.CandidateItem> proposedItems = new ArrayList<DataSection.DataRow.CandidateItem>();
 
+                
+                String winningValue =null;
+                if(voteResolver!= null) {
+                	winningValue = voteResolver.getWinningValue();
+                }
+                Set<String> allValues = new TreeSet<String>();
+                
                 for (CandidateItem item : items) {
                 	if(sm.isUnofficial && DEBUG) System.err.println("Considering: " + item+", xpid="+item.xpathId+", result="+resultXpath_id+", base="+this.base_xpath+", ENO="+errorNoOutcome);
                 	// item.toString()
-                	if (((item.xpathId == resultXpath_id) || (resultXpath_id == -1
-                			&& item.xpathId == this.base_xpath && !errorNoOutcome))
-                			&& // do NOT add as current, if vetting said 'no' to
-                			// current item.
-                			!(item.isFallback || (item.inheritFrom != null))) {
+                	if(winningValue!=null && item.value==winningValue) {
                 		if(!currentItems.isEmpty()) {
                 			throw new InternalError(this.toString()+": can only have one candidate item, not " + currentItems.get(0) +" and " + item);
                 		}
@@ -773,6 +790,15 @@ public class DataSection extends Registerable {
                 	} else {
                 		proposedItems.add(item);
                 	}
+                	allValues.add(item.value);
+                }
+                Set<String> allValuesVotedOn = ballotBox.getValues(getXpath());
+                if(allValuesVotedOn!=null) {
+	                for(String aValue : allValuesVotedOn) {
+	                	if(!allValues.contains(aValue)) {
+	                		proposedItems.add(addItem(aValue,""));
+	                	}
+	                }
                 }
                 // if there is an inherited value available - see if we need to
                 // show it.
@@ -820,7 +846,7 @@ public class DataSection extends Registerable {
 		 */
 		public List<CandidateItem> getProposedItems() {
 			if(currentItems==null) {
-				getCurrentItems();
+				getCurrentItem();
 			}
 			return proposedItems;
 		}
@@ -834,17 +860,14 @@ public class DataSection extends Registerable {
 		public CandidateItem getVotesForUser(int userId) {
 		    UserRegistry.User infoForUser = sm.reg.getInfo(userId); /* see gatherVotes - getVotes() is populated with a set drawn from the getInfo() singletons. */
 		    if(infoForUser==null) return null;
-            for(CandidateItem item: getCurrentItems()) {
-                Set<User> votes = item.getVotes();
-                if(votes!=null && votes.contains(infoForUser)) {
-                    return item;
-                }
+        	String myVote = sm.stFactory.ballotBoxForLocale(locale).getVoteValue(infoForUser,this.getXpath());
+        	if(myVote==null) return null;
+        	{
+            	CandidateItem item = getCurrentItem();
+                if(item.value.equals(item.value)) return item;
             }
 		    for(CandidateItem item: getProposedItems()) {
-		        Set<User> votes = item.getVotes();
-		        if(votes!=null && votes.contains(infoForUser)) {
-		            return item;
-		        }
+                if(item.value.equals(item.value)) return item;
 		    }
 		    return null; /* not found. */
 		}
@@ -991,9 +1014,16 @@ public class DataSection extends Registerable {
 	 * @param simple if true, means that data is simply xpath+type. If false, all xpaths under prefix.
 	 */
     public static DataSection make(WebContext ctx, CLDRLocale locale, String prefix, boolean simple, String ptype) {
+		com.ibm.icu.dev.test.util.ElapsedTimer met = null;
+		if(SHOW_TIME) {
+			met= new com.ibm.icu.dev.test.util.ElapsedTimer();
+			System.err.println("Begin DS. make of " + locale + " // " + prefix+":" );
+		}
     	DataSection section = new DataSection(ctx.sm, locale, prefix, ptype);
     	//        section.simple = simple;
-
+		if(SHOW_TIME) {
+			System.err.println("c'tor: @  " + met);
+		}
     	final String[] prefixesWithExamples = { "currencies", "calendars", "codePatterns", "numbers", "localeDisplayPattern"};
     	for ( String s : prefixesWithExamples ) {
     		if ( prefix.contains(s)) {
@@ -1005,10 +1035,19 @@ public class DataSection extends Registerable {
     		section.hasExamples = true;
     	}
     	
+		if(SHOW_TIME) {
+			System.err.println("prefixes: @  " + met);
+		}
     	CLDRFile cf = ctx.sm.stFactory.make(locale,true);
+		if(SHOW_TIME) {
+			System.err.println("cf: @  " + met);
+		}
     	
     	synchronized(ctx.session) {
     		CheckCLDR checkCldr = ctx.sm.stFactory.getCheck(locale);
+    		if(SHOW_TIME) {
+    			System.err.println("gotCheck: @  " + met);
+    		}
     		if(checkCldr == null) {
     			throw new InternalError("checkCldr == null");
     		}
@@ -1033,6 +1072,9 @@ public class DataSection extends Registerable {
     			int allCount = section.getAll().size();
     			System.err.println("Populate+complete " + locale + " // " + prefix +":"+section.getPtype()+ " = " + cet + " - Count: " + popCount+"+"+(allCount-popCount)+"="+allCount);
     		}
+    	}
+    	if(SHOW_TIME) {
+    		System.err.println("Make all: " + met);
     	}
     	return section;
     }
@@ -1484,13 +1526,12 @@ public class DataSection extends Registerable {
 
         		// Load the 'data row' which represents one user visible row of options 
         		// (may be nested in the case of alt types)
-        		DataRow p = getDataRow(type, altType);
-        		p.base_xpath = base_xpath;
+        		DataRow p = getDataRow(base_xpath,type, altType);
         		p.winningXpathId = base_xpath; //sm.dbsrcfac.getWinningPathId(base_xpath, locale, false);
 
         		p.coverageValue=coverageValue;
 
-        		DataRow superP = getDataRow(type);  // the 'parent' row (sans alt) - may be the same object
+        		DataRow superP = getDataRow(base_xpath,type);  // the 'parent' row (sans alt) - may be the same object
         		superP.coverageValue=coverageValue;
         		peaSuffixXpath = fullSuffixXpath; // for now...
 
@@ -1705,7 +1746,7 @@ public class DataSection extends Registerable {
                 value = newValue;
             }*/
         		if(TRACE_TIME) System.err.println("n08  (check) "+(System.currentTimeMillis()-nextTime));
-        		myItem = p.addItem( value, altProposed, null);
+        		myItem = p.addItem( value, altProposed);
         		//if("gsw".equals(type)) System.err.println(myItem + " - # " + p.items.size());
 
         		myItem.xpath = xpath;
@@ -1907,14 +1948,11 @@ public class DataSection extends Registerable {
                         continue;
                     }
                     
-                    DataSection.DataRow myp = getDataRow(rowXpath);
-                    
+                    DataSection.DataRow myp = getDataRow(sm.xpt.getByXpath(base_xpath_string),rowXpath);
+                    int base_xpath = myp.base_xpath;
                     myp.coverageValue = coverageValue;
                     
-                    // set it up..
-                    int base_xpath = sm.xpt.getByXpath(base_xpath_string);
-                    myp.base_xpath = base_xpath;
-                    
+                    // set it up..                    
                     if(myp.xpathSuffix == null) {
                         myp.xpathSuffix = ourSuffix+suff;
                         
@@ -1936,7 +1974,7 @@ public class DataSection extends Registerable {
     }
 // ==
 
-    public DataRow getDataRow(String type) {
+    public DataRow getDataRow(int base_xpath,String type) {
         if(type == null) {
             throw new InternalError("type is null");
         }
@@ -1945,19 +1983,18 @@ public class DataSection extends Registerable {
         }
         DataRow p = (DataRow)rowsHash.get(type);
         if(p == null) {
-            p = new DataRow();
-            p.type = type;
+            p = new DataRow(base_xpath,type);
             addDataRow(p);
         }
         return p;
     }
     
-    private DataRow getDataRow(String type, String altType) {
+    private DataRow getDataRow(int base_xpath, String type, String altType) {
         if(altType == null) {
-            return getDataRow(type);
+            return getDataRow(base_xpath,type);
         } else {
-            DataRow superDataRow = getDataRow(type);
-            return superDataRow.getSubDataRow(altType);
+            DataRow superDataRow = getDataRow(base_xpath,type);
+            return superDataRow.getSubDataRow(base_xpath,altType);
         }
     }
     

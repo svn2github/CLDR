@@ -3,6 +3,11 @@
  */
 package org.unicode.cldr.web;
 
+import java.util.Set;
+
+import org.unicode.cldr.util.VoteResolver;
+import org.unicode.cldr.web.UserRegistry.User;
+
 /**
  * @author srl
  * This is an abstract interface for allowing SurveyTool-like input to a CLDRFile.
@@ -26,4 +31,10 @@ public interface BallotBox<T> {
 	 * @return
 	 */
 	public String getVoteValue(T user, String distinguishingXpath);
+
+	public Set<User> getVotesForValue(String xpath, String value);
+
+	Set<String> getValues(String xpath);
+
+	VoteResolver<String> getResolver(String path);
 }

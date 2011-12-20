@@ -1257,7 +1257,11 @@ public class WebContext implements Cloneable, Appendable {
 
     	synchronized(this) {
     		println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='Checking cache';</script>"); flush();
-    		section = getExistingSection(prefix, ptype);
+    		if(false) {
+    			section = getExistingSection(prefix, ptype);
+    		} else {
+    			System.err.println("WebContext.getSection() - never re-using.");
+    		}
     		if((section != null) && (!section.isValid())) {
     			section = null;
     			loadString = "data was re-loaded due to a new user submission.";

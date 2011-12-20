@@ -303,7 +303,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     /**
      * @see WebContext#prefCodesPerPage()
      */
-    static final int CODES_PER_PAGE = 80;  // This is only a default.
+    static final int CODES_PER_PAGE = 999999999;  // This is only a default.
     static final int PAGER_SHORTEN_WIDTH = 25   ; // # of chars in the 'pager' list before they are shortened
     static final int REFS_SHORTEN_WIDTH = 120;
 
@@ -6755,6 +6755,8 @@ o	            		}*/
             options.put("phase", "final_testing");
         }
         
+        System.err.println("basicOptionsMap: requesting SHOW_TIMES");
+        options.put("SHOW_TIMES","true");
         return options;
     }
 
@@ -6768,7 +6770,9 @@ o	            		}*/
             //if(phaseVetting) {
             //    checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             //} else {
-            checkCldr = CheckCLDR.getCheckAll("(?!.*(CheckCoverage).*).*");
+     if(false)       checkCldr = CheckCLDR.getCheckAll("(?!.*(CheckCoverage).*).*");
+    if(true)            checkCldr = CheckCLDR.getCheckAll("(?!.*(CheckCoverage|CheckConsistentCasing).*).*");
+    System.err.println("createCheck: skipping CheckConsistentCasing");
 //                checkCldr = CheckCLDR.getCheckAll("(?!.*DisplayCollisions.*).*" /*  ".*" */);
             //}
 
@@ -8013,7 +8017,7 @@ o	            		}*/
 		/* find the item.  Could fail if the HTML is stale. */
         for(Iterator j = p.items.iterator();j.hasNext();) {
             DataSection.DataRow.CandidateItem item = (DataSection.DataRow.CandidateItem)j.next();
-            if(oldVoteValue.equals(item.value)) {
+            if(oldVoteValue!=null && oldVoteValue.equals(item.value)) {
             	if(oldVoteItem!=null) {
             		System.err.println("?? Multiple items for vote value ["+section.locale+"/"+fullPathFull+"/'"+oldVoteValue+"'] - " + item.id + " and " + oldVoteItem.id);
             	}
@@ -8332,7 +8336,7 @@ o	            		}*/
         
         // let's see what's inside.
         // TODO: move this into the DataPod itself?
-        List<DataSection.DataRow.CandidateItem> currentItems = p.getCurrentItems();
+        DataSection.DataRow.CandidateItem currentItem = p.getCurrentItem();
         List<DataSection.DataRow.CandidateItem> proposedItems = p.getProposedItems();
         
         
@@ -8342,7 +8346,7 @@ o	            		}*/
         }
         
         // calculate the max height of the current row.
-        int rowSpan = Math.max(proposedItems.size(),currentItems.size()); // what is the rowSpan needed for general items?
+        int rowSpan = Math.max(proposedItems.size(),1); // what is the rowSpan needed for general items?
         rowSpan = Math.max(rowSpan,1);
         
         /*  TOP BAR */
@@ -8467,8 +8471,8 @@ o	            		}*/
         // calculate winner
         // ##5 current control ---
         DataSection.DataRow.CandidateItem topCurrent = null;
-        if(currentItems.size() > 0) {
-            topCurrent = currentItems.get(0);
+        if(currentItem != null) {
+            topCurrent = currentItem;
         }
         if((topCurrent == null) && inheritedValueHasTestForCurrent) { // bring in the inheritedValue if it has a meaningful test..
             topCurrent = p.inheritedValue;
@@ -8647,8 +8651,8 @@ o	            		}*/
                 DataSection.DataRow.CandidateItem item = null;
 
                 // current item
-                if(currentItems.size() > row) {
-                    item = currentItems.get(row);
+                if(currentItem!=null && 1 > row) {
+                    item = currentItem;
                     printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,zoomedIn, numberedItemsList, refsList, exampleContext);
                 } else {
                     item = null;
@@ -10647,7 +10651,7 @@ if(r == null) throw new InternalError("Not reimplemented yet.");
 
     public DBUtils dbUtils= null;
 
-	STFactory stFactory;
+	public STFactory stFactory;
     
     private void doStartupDB()
     {
