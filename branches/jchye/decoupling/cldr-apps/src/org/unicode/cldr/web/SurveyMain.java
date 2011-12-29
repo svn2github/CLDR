@@ -175,7 +175,6 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     public Vetting      vet = null;
     public SurveyForum  fora = null;
     public CLDRDBSourceFactory dbsrcfac = null;
-    public LocaleChangeRegistry lcr = new LocaleChangeRegistry();
     static ElapsedTimer uptime = new ElapsedTimer("uptime: {0}");
     ElapsedTimer startupTime = new ElapsedTimer("{0} until first GET/POST");
     public static String isBusted = null;
@@ -1394,7 +1393,6 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                             n = vet.updateResults(false); // don't RE update.
                             //ctx.println("Done updating "+n+" vote results in: " + et + "<br>");
                             progress.update(" Invalidate ROOT");
-                            lcr.invalidateLocale(CLDRLocale.ROOT);
                             // 5: update status
                             progress.update(" Update Status");
                             et = new ElapsedTimer();
@@ -1807,7 +1805,6 @@ o	            		}*/
 			ElapsedTimer et = new ElapsedTimer();
 			int n = vet.updateResults(reupdate);
 			System.err.println("Done updating "+n+" vote results in: " + et + "<br>");
-			lcr.invalidateLocale(CLDRLocale.ROOT);
 			ElapsedTimer zet = new ElapsedTimer();
 			int zn = vet.updateStatus();
 			System.err.println("Done updating "+zn+" statuses [locales] in: " + zet + "<br>");
@@ -1855,7 +1852,6 @@ o	            		}*/
             					ElapsedTimer et = new ElapsedTimer();
             					int n = vet.updateResults(loc,conn);
             					ctx.println("Done updating "+n+" vote results for " + loc + " in: " + et + "<br>");
-            					lcr.invalidateLocale(loc);
             				}
             				ElapsedTimer zet = new ElapsedTimer();
             				int zn = vet.updateStatus(conn);
@@ -6795,7 +6791,7 @@ o	            		}*/
      * @author srl
      *
      */
-    public class UserLocaleStuff extends Registerable {
+    public class UserLocaleStuff {
     	private DBEntry dbEntry = null;
         public CLDRFile cldrfile = null;
         private CLDRFile cachedCldrFile = null; /* If not null: use this for tests. Readonly. */
@@ -6803,8 +6799,8 @@ o	            		}*/
         public XMLSource resolvedSource = null;
         public Hashtable hash = new Hashtable();
         private ExampleGenerator exampleGenerator = null;
-        private Registerable exampleIsValid = new Registerable(lcr, locale);
 		private int use;
+		private CLDRLocale locale;
 		CLDRFile resolvedFile = null;
 		CLDRFile baselineFile;
 
@@ -6814,7 +6810,7 @@ o	            		}*/
 		}
         
         public ExampleGenerator getExampleGenerator() {
-        	if(exampleGenerator==null || !exampleIsValid.isValid() ) {
+        	if(exampleGenerator==null) {
         		//                if(CACHE_VXML_FOR_EXAMPLES) {
         		//                    fileForGenerator = getCLDRFileCache().getCLDRFile(locale, true);
         		//                } else {
@@ -6827,10 +6823,6 @@ o	            		}*/
         		exampleGenerator = new ExampleGenerator(resolvedFile, baselineFile, fileBase + "/../supplemental/");
         		exampleGenerator.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
         		//System.err.println("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
-        		exampleIsValid.setValid();
-        		//System.err.println(" >> "+locale + " - " + exampleIsValid + " in " + this);
-        		exampleIsValid.register();
-        		//System.err.println(" >>> "+locale + " - " + exampleIsValid + " in " + this);
         	}
             return exampleGenerator;
         }
@@ -6869,8 +6861,7 @@ o	            		}*/
         }
 
 		public UserLocaleStuff(CLDRLocale locale) {
-            super(lcr, locale);
-            exampleIsValid.register();
+            this.locale = locale;
 //    System.err.println("Adding ULS:"+locale);
             synchronized(allUserLocaleStuffs) {
             	allUserLocaleStuffs.add(this);
@@ -6884,7 +6875,6 @@ o	            		}*/
             cldrfile=null;
             dbSource=null;
             hash.clear();
-            setValid();
         }
         
         public CheckCLDR getCheck(String ptype, Map<String,String> options) {
@@ -6926,7 +6916,7 @@ o	            		}*/
         
         CLDRFile makeCachedCLDRFile(XMLSource dbSource) {
             if(CACHE_VXML_FOR_TESTS) {
-                return getCLDRFileCache().getCLDRFile(locale());
+                return getCLDRFileCache().getCLDRFile(locale);
             } else {
 //                System.err.println(" !CACHE_VXML_FOR_TESTS");
                 return null;
@@ -8115,17 +8105,16 @@ o	            		}*/
             }
         }
         if(someDidChange) {
-        	System.err.println("SomeDidChange: " + oldSection.locale());
+        	System.err.println("SomeDidChange: " + oldSection.locale);
     		int updcount = dbsrcfac.update();
-    		int updcount2 = dbsrcfac.sm.vet.updateResults(oldSection.locale());
-    		System.err.println("Results updated: " + updcount + ", " + updcount2 + " for " + oldSection.locale());
-            updateLocale(oldSection.locale());
+    		int updcount2 = dbsrcfac.sm.vet.updateResults(oldSection.locale);
+    		System.err.println("Results updated: " + updcount + ", " + updcount2 + " for " + oldSection.locale);
+            updateLocale(oldSection.locale);
         }
         return someDidChange;
     }
 
     public void updateLocale(CLDRLocale locale) {
-        lcr.invalidateLocale(locale);
         int n = vet.updateImpliedVotes(locale); // first implied votes
         System.err.println("updateLocale:"+locale.toString()+":  vet_imp:"+n);
     }

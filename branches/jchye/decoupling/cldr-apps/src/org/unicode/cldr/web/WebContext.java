@@ -1249,10 +1249,6 @@ public class WebContext implements Cloneable, Appendable {
     	synchronized(this) {
     		println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='Checking cache';</script>"); flush();
     		section = getExistingSection(prefix, ptype);
-    		if((section != null) && (!section.isValid())) {
-    			section = null;
-    			loadString = "data was re-loaded due to a new user submission.";
-    		}
     		if(section == null) {
     			CLDRProgressTask progress = sm.openProgress("Loading");
     			try {
@@ -1290,7 +1286,6 @@ public class WebContext implements Cloneable, Appendable {
     			}
     			println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='';</script>"); flush();
     		}
-    		section.register();
     		//                    SoftReference sr = (SoftReference)getByLocaleStatic(DATA_POD+prefix+":"+ptype);  // GET******
     	}
     	putByLocaleStatic(DATA_POD+prefix+":"+ptype, new SoftReference<DataSection>(section)); // PUT******

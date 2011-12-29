@@ -103,8 +103,6 @@ public class CLDRDBSourceFactory extends Factory {
     public class DBEntry implements org.unicode.cldr.web.DBUtils.ConnectionHolder,org.unicode.cldr.web.DBUtils.DBCloseable {
     	private Connection conn = null;
     	
-    	private Set<CLDRDBSource> allSources = new HashSet<CLDRDBSource>();
-    	private Set<SubFactory> allFactories = new HashSet<SubFactory>();
 		public DBEntry(CLDRDBSource x) {
 			add(x);
 			allOpen.add(this);
@@ -124,11 +122,9 @@ public class CLDRDBSourceFactory extends Factory {
 		
 		public void add(CLDRDBSource x) {
 			x.setDBEntry(this);
-			allSources.add(x);
 		}
 		public void add(SubFactory x) {
 			x.setDBEntry(this);
-			allFactories.add(x);
 		}
 		
 		@Override
@@ -155,41 +151,7 @@ public class CLDRDBSourceFactory extends Factory {
 			return "{DBEntry: (conn:"+conn+"), isInAllOpen:"+allOpen.contains(this)+", }";
 		}
 		
-		private final class LocaleEntry extends Registerable{
-			protected LocaleEntry(LocaleChangeRegistry lcr, CLDRLocale locale) {
-				super(lcr, locale);
-				register();
-			}
-
-			public Map<String,Object> entries = new TreeMap<String,Object>();
-		}
-		private Map<CLDRLocale,LocaleEntry> stuff = new HashMap<CLDRLocale,LocaleEntry>();
-		
 		public String stack = DEBUG?StackTracker.currentStack():null;
-		
-		public final Map<String,Object> get(CLDRLocale loc) {
-			LocaleEntry rr = stuff.get(loc);
-			if(rr==null||!rr.isValid()) { 
-				// TODO: revalidate (save an obj)
-				rr = new LocaleEntry(sm.lcr,loc);
-				stuff.put(loc, rr);
-			}
-			return rr.entries;
-		}
-		public final Object get(CLDRLocale loc, String key) {
-			return get(loc).get(key);
-		}
-		public final Object put(CLDRLocale loc, String key, Object o) {
-			return get(loc).put(key, o);
-		}
-
-		public final Object get(String locale, Key oldkeyset) {
-			return get(CLDRLocale.getInstance(locale),oldkeyset.name());
-		}
-
-		public final Object put(String locale, Key oldkeyset,Object o) {
-			return put(CLDRLocale.getInstance(locale),oldkeyset.name(),o);
-		}
 	}
     
 	private static final boolean DEBUG = CldrUtility.getProperty("TEST", false);
@@ -737,7 +699,6 @@ public class CLDRDBSourceFactory extends Factory {
 		logger.severe("srcupdate: " +loc + " - deleted " + r + " rows of data, and deactivated " + j + " rows of src ( id " + id +"). committing.. ");
 		s.close();
 		conn.commit();
-		sm.lcr.invalidateLocale(loc); // force a reload.
 	}
 
 	public int manageSourceUpdates(WebContext ctx, SurveyMain sm) {
@@ -1592,15 +1553,12 @@ public class CLDRDBSourceFactory extends Factory {
 		}
 
 		/**
-		 * Reset per-locale cache, re-register.
+		 * Reset contents of source and any caches.
 		 */
 		private void reset() {
 			origXpaths.clear();
-			token = new Registerable(sm.lcr, CLDRLocale.getInstance(getLocaleID()));
-			token.register();
+			// TODO(jchye): Clear caches.
 		}
-
-		Registerable token = null;
 
 		/**
 		 * get the 'original' xpath from a path-id#
@@ -1612,9 +1570,6 @@ public class CLDRDBSourceFactory extends Factory {
 			if(!USE_XPATH_CACHE) {
 				return getOrigXpath(pathid, finalData);
 			} else {
-				if(token==null||!token.isValid()) {
-					reset();
-				}
 				Integer orig = origXpaths.get(pathid);
 				if(orig == null) {
 					orig = getOrigXpathId(pathid, finalData);
@@ -1765,14 +1720,6 @@ public class CLDRDBSourceFactory extends Factory {
 			try {
 				Set<String> s = null;
 				
-				if(dbEntry!=null) {
-					s = (Set<String>) dbEntry.get(locale,Key.OLDKEYSET);
-					if(s!=null) {
-						//if(DEBUG) System.err.println("Re-used keyset");
-						return s;
-					}
-				}
-				
 				ps = prepareStatement(conn, finalData ? keyVettingSet : keySet);
 				ps.setString(1, locale);
 				rs = ps.executeQuery();
@@ -1795,9 +1742,6 @@ public class CLDRDBSourceFactory extends Factory {
 					s.add(xpath); // xpath
 				}
 				
-				if(dbEntry!=null) {
-					dbEntry.put(locale, Key.OLDKEYSET, s);
-				}
 				// if(finalData) System.err.println("@@ end KS of "+locale);
 				/*
 			// keySet has  prov/unc already.

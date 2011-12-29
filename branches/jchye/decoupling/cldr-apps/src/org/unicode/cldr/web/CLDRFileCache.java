@@ -264,9 +264,6 @@ public class CLDRFileCache {
 	public class CacheableXMLSource extends SimpleXMLSource {
 		private static final int COOKIE = 9295467;
 		CLDRLocale loc;
-		private Registerable token = new Registerable(sm.lcr, CLDRLocale
-				.getInstance(this.getLocaleID())) {
-		};
 		protected HashMap<String, String> winningXpaths = new HashMap<String, String>();
 
 		// public CacheableXMLSource createFinalData() {
@@ -291,7 +288,6 @@ public class CLDRFileCache {
 		protected CacheableXMLSource(CacheableXMLSource copyAsLockedFrom) {
 			super(copyAsLockedFrom.getLocaleID());
 			this.winningXpaths = copyAsLockedFrom.winningXpaths;
-			this.token = copyAsLockedFrom.token;
 			this.putAll(copyAsLockedFrom, 0);
 		}
 
@@ -427,55 +423,22 @@ public class CLDRFileCache {
 			}
 			dis.close();
 			fis.close();
-			fileTime = newTime;
-			if(DEBUG_INSANE) System.err.println("##" + f + " - read " + (n - 1) + " records. fileTime:" + fileTime);
+			if(DEBUG_INSANE) System.err.println("##" + f + " - read " + (n - 1) + " records.");
 		}
 
 		/**
 		 * Notify that we are done loading, and notify.
 		 */
 		public void poke() {
-			token.register();
-			// this.freeze();
+			//TODO(jchye)
 		}
 		
 		long lastDbCheck = -1;
 
 		public boolean invalid() {
-			if(!token.isValid()) return true;
-			
-			
-			
-			long now = System.currentTimeMillis();
-			if((now-lastDbCheck)<100) {
-				//if(DEBUG_INSANE) System.err.println("Not redoing db check @ " + (now-lastDbCheck) + " ms ");
-				//:" + StackTracker.currentStack());
-				return false;
-			}
-			
-			lastDbCheck =now;
-			return forceCheckInvalid();
-			
-		}
-		public boolean forceCheckInvalid() {
-			Timestamp ts = null;
-			try {
-				ts = sm.getLocaleTime(loc);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				System.err.println("Error trying to get locale time of " + loc + " - " + DBUtils.unchainSqlException(e));
-			}
-			
-			if(ts.after(fileTime)) {
-				token.invalidate();
-				if(DEBUG_INSANE) System.err.println("Discovered out of date: " + loc + " - ");
-				return true;
-			}
-			
+			//TODO(jchye)
 			return false;
 		}
-		
-		Timestamp fileTime = null;
 
 		/**
 		 * Load (copy) from another source.
@@ -513,9 +476,8 @@ public class CLDRFileCache {
 			} finally {
 				progress.close();
 			}
-			fileTime=newTime;
 			if(DEBUG_INSANE) System.err.println("## WXP load " + this.getLocaleID() + " from "
-					+ from.getClass().getName() + "  - loaded " + n + " fileTime now: " + fileTime);
+					+ from.getClass().getName() + "  - loaded " + n);
 		}
 
 		Timestamp getFileTime() {
@@ -554,9 +516,8 @@ public class CLDRFileCache {
 				// + fxpath + "\n$>- "+wxpath+"\n<<< "+bxpath);
 				// }
 			}
-			fileTime = newTime;
 			if(DEBUG_INSANE) System.err.println("## WXP reload win " + this.getLocaleID()
-					+ " from " + from.getClass().getName() + "  - loaded " + n + " time: " + fileTime);
+					+ " from " + from.getClass().getName() + "  - loaded " + n);
 		}
 
 		public void initialize() {

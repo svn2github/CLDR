@@ -2348,11 +2348,12 @@ if(true == true)    throw new InternalError("removed from use.");
         public int type;
     }
 
-    private class CachedVettingData extends Registerable {
+    private class CachedVettingData {
         Integer status = null;
+        private CLDRLocale locale;
+
         public CachedVettingData(CLDRLocale locale) {
-            super(sm.lcr, locale);
-            register();
+            this.locale = locale;
         }
         IntHash<WinType> winningXpathCache = null;
 
@@ -2400,9 +2401,7 @@ if(true == true)    throw new InternalError("removed from use.");
     private CachedVettingData getCachedLocaleData(CLDRLocale locale) {
         synchronized(cachedData) {
             CachedVettingData vd = cachedData.get(locale);
-            if(vd == null || !vd.isValid()) {
-                if(vd!=null) // reduce noise first time thru
-                      System.err.println(((vd==null)?"":"Re-")+"loading vet cache for " + locale);
+            if(vd == null) {
                 vd = new CachedVettingData(locale);
                 cachedData.put(locale, vd);
             }
@@ -2412,7 +2411,7 @@ if(true == true)    throw new InternalError("removed from use.");
     public void deleteCachedLocaleData(CLDRLocale locale) {
         synchronized(cachedData) {
             CachedVettingData vd = cachedData.get(locale);
-            if(vd!=null && !vd.isValid()) {
+            if(vd!=null) {
             	cachedData.remove(locale);
             }
         }
@@ -2964,12 +2963,6 @@ if(true == true)    throw new InternalError("removed from use.");
         if(ref != null) {
             d = ref.get();
         }
-        if(d != null) {
-            if(!d.isValid()) {
-//                System.err.println("vetting::checker STALE " + locale);
-                d.reset();
-            }
-        }
         if(d == null) {
             if(ref != null) {
 //                System.err.println("vetting::checker EXPIRED " + locale);
@@ -2980,15 +2973,15 @@ if(true == true)    throw new InternalError("removed from use.");
         return d;
     }
 
-    public class DataTester extends Registerable {
+    public class DataTester {
 
         //////
-        
         CLDRFile file;
         CheckCLDR check;
         List overallResults = new ArrayList();
         List individualResults = new ArrayList();
         Map options = sm.basicOptionsMap();
+        CLDRLocale locale;
         
         void reset() {
         	XMLSource dbSource = sm.makeDBSource( locale);
@@ -3000,13 +2993,11 @@ if(true == true)    throw new InternalError("removed from use.");
         	overallResults.clear();
         	check = sm.createCheckWithoutCollisions();
         	check.setCldrFileToCheck(file, options, overallResults);
-        	setValid();
-        	register();
         }
         
         private DataTester(CLDRLocale locale) 
         {
-            super(sm.lcr, locale);
+            this.locale = locale;
 
             options.put("CheckCoverage.requiredLevel","minimal");
             options.put("CoverageLevel.localeType","");
@@ -3015,7 +3006,7 @@ if(true == true)    throw new InternalError("removed from use.");
         }
         DataTester(CLDRLocale locale, XMLSource src) 
         {
-            super(sm.lcr, locale);
+            this.locale = locale;
 
             options.put("CheckCoverage.requiredLevel","minimal");
             options.put("CoverageLevel.localeType","");

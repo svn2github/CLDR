@@ -48,7 +48,7 @@ import com.ibm.icu.text.Collator;
  * This class was formerly, and unfortunately, named DataPod
  **/
 
-public class DataSection extends Registerable {
+public class DataSection {
     private static final boolean DEBUG = false || CldrUtility.getProperty("TEST", false);
 
     /**
@@ -105,6 +105,7 @@ public class DataSection extends Registerable {
     
     private String fieldHash; // prefix string used for calculating html fields
     private SurveyMain sm;
+    CLDRLocale locale;
     
     public boolean hasExamples = false;
     
@@ -112,7 +113,7 @@ public class DataSection extends Registerable {
 
     private String ptype; 
     DataSection(SurveyMain sm, CLDRLocale loc, String prefix, String ptype) {
-        super(sm.lcr,loc); // initialize call to LCR
+        this.locale = loc;
 
         this.sm = sm;
         this.ptype = ptype;
