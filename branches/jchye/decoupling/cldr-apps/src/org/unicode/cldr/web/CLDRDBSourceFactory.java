@@ -50,9 +50,8 @@ import org.unicode.cldr.web.CLDRFileCache.CacheableXMLSource;
 import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.DBUtils.ConnectionHolder;
 import org.unicode.cldr.web.ErrorCheckManager.CachingErrorChecker;
-import org.unicode.cldr.web.MuxedSource.MuxFactory;
 
-public class CLDRDBSourceFactory extends Factory implements MuxFactory {
+public class CLDRDBSourceFactory extends Factory {
 	public class SubFactory extends Factory {
 		public boolean finalData = false;
 		private DBEntry dbEntry = null;
@@ -471,11 +470,6 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 	    return getInstance(localeID, false);
 	}
 
-	/**
-	 * The Muxed sources automatically are cached on read, and update on write.
-	 */
-	Map<CLDRLocale, MuxedSource> mux = new HashMap<CLDRLocale, MuxedSource>();
-
     private LruMap<String, XMLSource>[] sourceCache = new LruMap[] {
         new LruMap<String, XMLSource>(5),
         new LruMap<String, XMLSource>(5)
@@ -525,30 +519,6 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 
 	public XMLSource getInstance(CLDRLocale locale, boolean finalData) {
 	    return getInstance(locale.toString(), finalData);
-	}
-
-	@Override
-	public MuxedSource getMuxedInstance(CLDRLocale locale) {
-		//synchronized(mux) {
-			MuxedSource src = mux.get(locale);
-			if(src!=null && src.invalid()) {
-				src = null; // invalid
-				mux.remove(locale);
-			}
-			if(src == null) {
-				CLDRLocale parent = locale.getParent();
-				if(parent != null) {
-					MuxedSource ignored = mux.get(parent);
-					if(ignored == null || ignored.invalid()) {
-						if(DEBUG) System.err.println("First loading parent locale "+locale.toString()+"->" + parent.toString());
-						ignored = getMuxedInstance(parent);
-					}
-				}
-				src = new MuxedSource(this, locale, false);
-				mux.put(locale, src);
-			}
-			return src;
-			//}
 	}
 
 	/** 
@@ -2184,7 +2154,6 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
 		return new CachingErrorChecker(sm);
 	}
 
-	@Override
 	public CacheableXMLSource getSourceFromCache(CLDRLocale locale,
 			boolean finalData) {
 		// TODO Auto-generated method stub
