@@ -193,8 +193,8 @@ public class VettingViewerQueue {
 						return;
 					}
 					status="Beginning Process, Calculating";
-		            SubFactory ourFactory = sm.dbsrcfac.getFactory(false);
-		            dbEntry = sm.dbsrcfac.openEntry(ourFactory);
+		            SubFactory ourFactory = sm.getDBSourceFactory().getFactory(false);
+		            dbEntry = sm.getDBSourceFactory().openEntry(ourFactory);
 		            
 		            vv = new VettingViewer<VoteResolver.Organization>(
 		                    sm.getSupplementalDataInfo(), ourFactory, sm.getOldFactory(),
@@ -437,7 +437,7 @@ public class VettingViewerQueue {
             private Vetting.DataTester getTester(CLDRLocale loc) {
             	Vetting.DataTester tester = testMap.get(loc);
             	if(tester==null) {
-                	final XMLSource fac = sm.dbsrcfac.getInstance(loc);
+                	final XMLSource fac = sm.getDBSourceFactory().getInstance(loc);
                 	entry.add(fac);
             		tester = sm.vet.getTester(fac);
             		testMap.put(loc, tester);

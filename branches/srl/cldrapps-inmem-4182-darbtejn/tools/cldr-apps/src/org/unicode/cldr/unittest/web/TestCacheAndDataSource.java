@@ -273,7 +273,7 @@ public class TestCacheAndDataSource  extends TestFmwk {
 			sm.fileBase = CldrUtility.MAIN_DIRECTORY;
 			CLDRDBSourceFactory fac = new CLDRDBSourceFactory(sm, sm.fileBase, Logger.getAnonymousLogger(), cacheDir);
 			logln("Setting up DB");
-			sm.dbsrcfac=fac;
+			sm.setDBSourceFactory(fac);
 			fac.setupDB(DBUtils.getInstance().getDBConnection());
 			logln("Vetter Ready (this will take a while..)");
 			fac.vetterReady(TestAll.getProgressIndicator(this));

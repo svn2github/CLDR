@@ -1174,7 +1174,7 @@ public class DataSection extends Registerable {
         	if(parentLoc != null) {
         		XMLSource vettedParentSource = sm.makeDBSource(parentLoc, true /*finalData*/, true);            
         		vettedParent = new CLDRFile(vettedParentSource);
-        		vettedParentEntry = sm.dbsrcfac.openEntry(vettedParentSource.getUnresolving());
+        		vettedParentEntry = sm.getDBSourceFactory().openEntry(vettedParentSource.getUnresolving());
         	}
 
         	int pn;
@@ -1487,7 +1487,7 @@ public class DataSection extends Registerable {
         		// (may be nested in the case of alt types)
         		DataRow p = getDataRow(type, altType);
         		p.base_xpath = base_xpath;
-        		p.winningXpathId = sm.dbsrcfac.getWinningPathId(base_xpath, locale, false);
+        		p.winningXpathId = sm.getDBSourceFactory().getWinningPathId(base_xpath, locale, false);
 
         		p.coverageValue=coverageValue;
 
@@ -1723,7 +1723,7 @@ public class DataSection extends Registerable {
         		/*
                 Was this item submitted via SurveyTool? Let's find out.
         		 */
-        		myItem.submitter = sm.dbsrcfac.getSubmitterId(locale, myItem.xpathId);
+        		myItem.submitter = sm.getDBSourceFactory().getSubmitterId(locale, myItem.xpathId);
         		if(myItem.submitter != -1) {
         			///*srl*/                System.err.println("submitter set: " + myItem.submitter + " @ " + locale + ":"+ xpath);
         		}

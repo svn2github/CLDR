@@ -1080,8 +1080,8 @@ public class Vetting {
     				conn.commit();
     			}            
     			
-    			src = sm.dbsrcfac.getInstance(locale);
-    			entry = sm.dbsrcfac.openEntry(src);
+    			src = sm.getDBSourceFactory().getInstance(locale);
+    			entry = sm.getDBSourceFactory().openEntry(src);
 
     			//dataByUserAndBase.setString(3, locale);
     			missingResults.setString(1,locale.toString());

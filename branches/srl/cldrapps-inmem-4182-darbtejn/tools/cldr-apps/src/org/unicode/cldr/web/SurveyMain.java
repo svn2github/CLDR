@@ -174,7 +174,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     public XPathTable   xpt = null;
     public Vetting      vet = null;
     public SurveyForum  fora = null;
-    public CLDRDBSourceFactory dbsrcfac = null;
+    private CLDRDBSourceFactory dbsrcfac = null;
     public LocaleChangeRegistry lcr = new LocaleChangeRegistry();
     static ElapsedTimer uptime = new ElapsedTimer("uptime: {0}");
     ElapsedTimer startupTime = new ElapsedTimer("{0} until first GET/POST");
@@ -1079,7 +1079,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         	ctx.println("CLDRFile.distinguishedXPathStats(): " + CLDRFile.distinguishedXPathStats() + "<br>");
         	
         	try {
-				dbsrcfac.stats(ctx).append("<br>");
+				getDBSourceFactory().stats(ctx).append("<br>");
 	        	dbUtils.stats(ctx).append("<br>");
 			} catch (IOException e) {
 				ctx.println("Error " + e + " loading other stats<br/>");
@@ -1374,7 +1374,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                             try {
                                 //                CLDRDBSource mySrc = makeDBSource(conn, null, CLDRLocale.ROOT);
                                 resetLocaleCaches();
-                                System.out.println("Update count: " + dbsrcfac.manageSourceUpdates(fakeContext, fakeContext.sm, true)); // do a quiet 'update all'
+                                System.out.println("Update count: " + getDBSourceFactory().manageSourceUpdates(fakeContext, fakeContext.sm, true)); // do a quiet 'update all'
                             } finally {
                                 //                SurveyMain.closeDBConnection(conn);
                             }
@@ -1488,7 +1488,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                         XPathParts xpp = new XPathParts(null,null);
 
                         OnceWarner warner = new OnceWarner();
-                        XMLSource stSource = dbsrcfac.getInstance(loc);
+                        XMLSource stSource = getDBSourceFactory().getInstance(loc);
 
                         progress.update(nn++, loc.toString());
                         for(String x : c) {
@@ -1720,11 +1720,11 @@ o	            		}*/
                             ctx.println("Updating: ");
                             for(CLDRLocale toul : toUpdate) {
                                 this.updateLocale(toul);
-                                dbsrcfac.needUpdate(toul);
+                                getDBSourceFactory().needUpdate(toul);
                                 ctx.println(toul+" ");
                             }
                             ctx.println("<br>");
-                            ctx.println("Clearing cache: #"+dbsrcfac.update()+"<br>");
+                            ctx.println("Clearing cache: #"+getDBSourceFactory().update()+"<br>");
                         }
                         toUpdate.clear();
 
@@ -1938,7 +1938,7 @@ o	            		}*/
             try {
 //                CLDRDBSource mySrc = makeDBSource(conn, null, CLDRLocale.ROOT);
                 resetLocaleCaches();
-                dbsrcfac.manageSourceUpdates(actionCtx, this); // What does this button do?
+                getDBSourceFactory().manageSourceUpdates(actionCtx, this); // What does this button do?
                 ctx.println("<br>");
             } finally {
 //                SurveyMain.closeDBConnection(conn);
@@ -2109,7 +2109,7 @@ o	            		}*/
             ctx.println("<br>");
 //            XMLSource mySrc = makeDBSource(ctx, null, CLDRLocale.ROOT);
             ElapsedTimer aTimer = new ElapsedTimer();
-            dbsrcfac.doDbUpdate(subCtx, this); 
+            getDBSourceFactory().doDbUpdate(subCtx, this); 
             ctx.println("<br>(dbupdate took " + aTimer+")");
             ctx.println("<br>");
 		} else if(action.equals("srl_vxport")) {
@@ -2513,7 +2513,7 @@ o	            		}*/
 	                    //                    }
 
 	                    CLDRLocale locale = CLDRLocale.getInstance(localeName);
-	                    dbsrcfac.getInstance(locale);
+	                    getDBSourceFactory().getInstance(locale);
 	                    //                        WebContext xctx = new WebContext(false);
 	                    //                        xctx.setLocale(locale);
 	                    //makeCLDRFile(makeDBSource(connx, null, locale));  // orphan result
@@ -2533,7 +2533,7 @@ o	            		}*/
 	        //        closeDBConnection(connx);
 	        logger.info("Loaded all. " + allTime);
 	        //	        if(ctx!=null) ctx.println("Loaded all." + allTime + "<br>");
-	        int n = dbsrcfac.update(surveyTask, null);
+	        int n = getDBSourceFactory().update(surveyTask, null);
 	        logger.info("Updated "+n+". " + allTime);
 	        //	        if(ctx!=null) ctx.println("Updated "+n+"." + allTime + "<br>");
 	    } finally {
@@ -6390,7 +6390,7 @@ o	            		}*/
      */
     public void doMain(WebContext ctx) {
         //SLOW: String diskVer = LDMLUtilities.loadFileRevision(fileBase, ctx.getLocale().toString() + ".xml"); // just get ver of the latest file.
-        String dbVer = dbsrcfac.getSourceRevision(ctx.getLocale());
+        String dbVer = getDBSourceFactory().getSourceRevision(ctx.getLocale());
         
         // what should users be notified about?
         if(isPhaseSubmit() || isPhaseVetting() || isPhaseVettingClosed()) {
@@ -6621,6 +6621,20 @@ o	            		}*/
     }
 
     
+    /**
+     * @return the dbsrcfac
+     * @deprecated phase out DBSrcFac in favor of getSTFactory
+     */
+    public CLDRDBSourceFactory getDBSourceFactory() {
+        return dbsrcfac;
+    }
+    /**
+     * @param dbsrcfac the dbsrcfac to set
+     */
+    public void setDBSourceFactory(CLDRDBSourceFactory dbsrcfac) {
+        this.dbsrcfac = dbsrcfac;
+    }
+
     private Factory gOldFactory = null;
     
     /**
@@ -6769,7 +6783,7 @@ o	            		}*/
             //if(phaseVetting) {
             //    checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             //} else {
-            checkCldr = CheckCLDR.getCheckAll(dbsrcfac, "(?!.*(CheckCoverage).*).*");
+            checkCldr = CheckCLDR.getCheckAll(getDBSourceFactory(), "(?!.*(CheckCoverage).*).*");
 //                checkCldr = CheckCLDR.getCheckAll("(?!.*DisplayCollisions.*).*" /*  ".*" */);
             //}
 
@@ -6789,9 +6803,9 @@ o	            		}*/
             //    checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             //} else {
             if(false) {  // show ALL ?
-                checkCldr = CheckCLDR.getCheckAll(dbsrcfac, ".*");
+                checkCldr = CheckCLDR.getCheckAll(getDBSourceFactory(), ".*");
             } else {
-                checkCldr = CheckCLDR.getCheckAll(dbsrcfac, "(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
+                checkCldr = CheckCLDR.getCheckAll(getDBSourceFactory(), "(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             }
 
             checkCldr.setDisplayInformation(getBaselineFile());
@@ -6956,7 +6970,7 @@ o	            		}*/
             if(cldrfile == null) {
                 resolvedSource = makeDBSource(locale, false, true); // use context's connection.
                 dbSource = resolvedSource.getUnresolving();
-            	dbEntry= dbsrcfac.openEntry(dbSource);
+            	dbEntry= getDBSourceFactory().openEntry(dbSource);
                 cldrfile = makeCLDRFile(dbSource);
                 cachedCldrFile = makeCachedCLDRFile(dbSource);
         		resolvedFile = new CLDRFile(resolvedSource);
@@ -7015,16 +7029,16 @@ o	            		}*/
 //        }
         uf.open(); // incr count.
         
-        int n = dbsrcfac.update();
+        int n = getDBSourceFactory().update();
         if(n>0) System.err.println("getUserFile() updated " + n + " locales.");
         return uf;
     }
     XMLSource makeDBSource(CLDRLocale locale) {
-        XMLSource dbSource = dbsrcfac.getInstance(locale);
+        XMLSource dbSource = getDBSourceFactory().getInstance(locale);
         return dbSource;
     }
     XMLSource makeDBSource(CLDRLocale locale, boolean finalData) {
-        XMLSource dbSource = dbsrcfac.getInstance(locale, finalData);
+        XMLSource dbSource = getDBSourceFactory().getInstance(locale, finalData);
         return dbSource;
     }
     XMLSource makeDBSource(CLDRLocale locale, boolean finalData, boolean resolved) {
@@ -7035,12 +7049,12 @@ o	            		}*/
             List<XMLSource> sources = new ArrayList<XMLSource>();
             CLDRLocale curLocale = locale;
             while(curLocale != null) {
-                sources.add(dbsrcfac.getInstance(curLocale, finalData));
+                sources.add(getDBSourceFactory().getInstance(curLocale, finalData));
                 curLocale = curLocale.getParent();
             }
             return Factory.makeResolvingSource(sources);
         } else {
-            return dbsrcfac.getInstance(locale, finalData);
+            return getDBSourceFactory().getInstance(locale, finalData);
         }
     }
     static CLDRFile makeCLDRFile(XMLSource dbSource) {
@@ -7583,7 +7597,7 @@ o	            		}*/
     	try {
 	    	XMLSource ourSrc = makeDBSource(ctx.getLocale(),false);
 	    	CLDRFile cf = new CLDRFile(ourSrc);
-	    	entry = dbsrcfac.openEntry(ourSrc);
+	    	entry = getDBSourceFactory().openEntry(ourSrc);
 	    	
             String fullThing = xpath + "/" + lastElement;
         //    boolean isTz = xpath.equals("timeZoneNames");
@@ -7606,7 +7620,7 @@ o	            		}*/
 	                        DataSection oldSection = ctx.getExistingSection(fullThing);
 	                        if(processPeaChanges(ctx, oldSection, cf, ourSrc, new DefaultDataSubmissionResultHandler(ctx))) {
 	                            int j = vet.updateResults(oldSection.locale,entry.getConnectionAlias()); // bach 'em
-	                            int d = this.dbsrcfac.update(entry.getConnectionAlias()); // then the fac so it can update
+	                            int d = this.getDBSourceFactory().update(entry.getConnectionAlias()); // then the fac so it can update
 	                            System.err.println("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
 	                            ctx.println("<br> You submitted data or vote changes, <!-- and " + j + " results were updated. As a result, --> your items may show up under the 'priority' or 'proposed' categories.<br>");
 	                        }
@@ -8128,8 +8142,8 @@ o	            		}*/
         }
         if(someDidChange) {
         	System.err.println("SomeDidChange: " + oldSection.locale());
-    		int updcount = dbsrcfac.update();
-    		int updcount2 = dbsrcfac.sm.vet.updateResults(oldSection.locale());
+    		int updcount = getDBSourceFactory().update();
+    		int updcount2 = getDBSourceFactory().sm.vet.updateResults(oldSection.locale());
     		System.err.println("Results updated: " + updcount + ", " + updcount2 + " for " + oldSection.locale());
             updateLocale(oldSection.locale());
         }
@@ -10389,7 +10403,7 @@ o	            		}*/
 	    }
 		DBEntry dbEntry = null;
 		try {
-			dbEntry = dbsrcfac.openEntry(dbSource);
+			dbEntry = getDBSourceFactory().openEntry(dbSource);
 			File outFile = getDataFile(kind, loc);
 			PrintWriter u8out = new PrintWriter(
 					new OutputStreamWriter(
@@ -10992,7 +11006,7 @@ o	            		}*/
             // note: make xpt before CLDRDBSource..
             progress.update("Create CLDR_DATA"); // restore
             try {
-                dbsrcfac = new CLDRDBSourceFactory(this, fileBase, logger, new File(homeFile, "vxpt"));
+                setDBSourceFactory(new CLDRDBSourceFactory(this, fileBase, logger, new File(homeFile, "vxpt")));
             } catch (SQLException e) {
                 busted("On CLDRDBSource startup", e);
                 return;
@@ -11007,7 +11021,7 @@ o	            		}*/
             }
             progress.update("Tell DBFac the Vetter is Ready"); // restore
             try {
-                dbsrcfac.vetterReady();
+                getDBSourceFactory().vetterReady();
             } catch (Throwable e) {
                 e.printStackTrace();
                 busted("On Tell DBFac the Vetter is Ready startup", e);
@@ -11045,7 +11059,7 @@ o	            		}*/
         	
         	closeOpenUserLocaleStuff(true);
         	
-        	dbsrcfac.closeAllEntries();
+        	getDBSourceFactory().closeAllEntries();
             // shut down other connections
             try {
                 CookieSession.shutdownDB();
