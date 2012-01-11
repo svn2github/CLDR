@@ -19,8 +19,9 @@ String myLanguageXpath = "//ldml/localeDisplayNames/languages/language[@type=\""
 String myCountry = myLoc.getCountry();
 String myCountryXpath = "//ldml/localeDisplayNames/territories/territory[@type=\""+myLoc.getCountry()+"\"]";
 
-CLDRFile file1 = subCtx.cldrFile();
-CLDRFile file2 = file1.getResolved();
+//CLDRFile file1 = subCtx.cldrFile();
+CLDRFile file2 = subCtx.cldrFile(); // resolved
+//if(true) throw new InternalError("file2 should be resolved...");
 
 if(myCountry!=null&&myCountry.length()>0&&null==file2.getStringValue(myCountryXpath)) {
      %>	 <%= subCtx.iconHtml("stop",null) %> <i>The Survey Tool doesn't have any data for your territory or region, <tt><%= myCountry %></tt>.

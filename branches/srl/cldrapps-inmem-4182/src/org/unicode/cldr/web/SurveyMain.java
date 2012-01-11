@@ -76,8 +76,10 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CachingEntityResolver;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.PathUtilities;
+import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalData;
 import org.unicode.cldr.util.SupplementalDataInfo;
@@ -171,7 +173,6 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     public XPathTable   xpt = null;
     public Vetting      vet = null;
     public SurveyForum  fora = null;
-    public CLDRDBSourceFactory dbsrcfac = null;
     public LocaleChangeRegistry lcr = new LocaleChangeRegistry();
     static ElapsedTimer uptime = new ElapsedTimer("uptime: {0}");
     ElapsedTimer startupTime = new ElapsedTimer("{0} until first GET/POST");
@@ -910,6 +911,11 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
      */
     Hashtable twidHash = new Hashtable();
 
+    /**
+     * @deprecated
+     */
+    public static CLDRDBSourceFactory dbsrcfac = null;
+
     boolean showToggleTwid(WebContext ctx, String pref, String what) {
 		String qKey = "twidb_"+pref;
 		String nVal = ctx.field(qKey);
@@ -1078,7 +1084,6 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         	ctx.println("CLDRFile.distinguishedXPathStats(): " + CLDRFile.distinguishedXPathStats() + "<br>");
         	
         	try {
-				dbsrcfac.stats(ctx).append("<br>");
 	        	dbUtils.stats(ctx).append("<br>");
 			} catch (IOException e) {
 				ctx.println("Error " + e + " loading other stats<br/>");
@@ -1372,7 +1377,6 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                             try {
                                 //                CLDRDBSource mySrc = makeDBSource(conn, null, CLDRLocale.ROOT);
                                 resetLocaleCaches();
-                                System.out.println("Update count: " + dbsrcfac.manageSourceUpdates(fakeContext, fakeContext.sm, true)); // do a quiet 'update all'
                             } finally {
                                 //                SurveyMain.closeDBConnection(conn);
                             }
@@ -1483,12 +1487,12 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                         DisplayAndInputProcessor processor = new DisplayAndInputProcessor(loc.toULocale());
                         ctx.println("<a name=\""+loc+"\"><h2>"+file.getName()+" - "+loc.getDisplayName(ctx.displayLocale)+"</h2></a>");
 
-                        CLDRFile c = new CLDRFile(null, false);
+                        CLDRFile c = new CLDRFile(null /* false */ );
                         c.loadFromFile(file.getPath(), loc.getBaseName(), CLDRFile.DraftStatus.unconfirmed);
                         XPathParts xpp = new XPathParts(null,null);
 
                         OnceWarner warner = new OnceWarner();
-                        XMLSource stSource = dbsrcfac.getInstance(loc);
+                        XMLSource stSource = dbsrcfac .getInstance(loc);
 
                         progress.update(nn++, loc.toString());
                         for(String x : c) {
@@ -6604,19 +6608,19 @@ o	            		}*/
     private static CLDRFile gBaselineFile = null;
     private static ExampleGenerator gBaselineExample = null;
 
-    private CLDRFile.Factory gFactory = null;
+    private Factory gFactory = null;
 
     /**
      * Get the factory returning the 'current' (svn) data.
      * @return
      */
-    public synchronized CLDRFile.Factory getFactory() {
+    public synchronized Factory getFactory() {
         if(gFactory == null) {
-            gFactory = CLDRFile.SimpleFactory.make(fileBase,".*");
+            gFactory = SimpleFactory.make(fileBase,".*");
         }
         return gFactory;
     }
-    private CLDRFile.Factory gOldFactory = null;
+    private Factory gOldFactory = null;
     
     /**
      * Return the actual XML file on disk (from svn)
@@ -6631,7 +6635,7 @@ o	            		}*/
      * Get the xml files for the old version
      * @return a factory returning old-version data
      */
-    synchronized CLDRFile.Factory getOldFactory() {
+    synchronized Factory getOldFactory() {
         if(gOldFactory == null) {
             File oldBase = new File(fileBaseOld);
             File oldCommon = new File(oldBase,"common/main");
@@ -6643,7 +6647,7 @@ o	            		}*/
                 busted(msg);
                 throw new InternalError(msg);
             }
-            gOldFactory = CLDRFile.SimpleFactory.make(oldCommon.getAbsolutePath(),".*");
+            gOldFactory = SimpleFactory.make(oldCommon.getAbsolutePath(),".*");
         }
         return gOldFactory;
     }
@@ -6694,7 +6698,7 @@ o	            		}*/
 
     public synchronized ExampleGenerator getBaselineExample() {
         if(gBaselineExample == null) {
-            gBaselineExample = new ExampleGenerator(getBaselineFile(), fileBase + "/../supplemental/");
+            gBaselineExample = new ExampleGenerator(getBaselineFile(), getBaselineFile(), fileBase + "/../supplemental/");
         }
         gBaselineExample.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
         return gBaselineExample;
@@ -6770,8 +6774,8 @@ o	            		}*/
             //if(phaseVetting) {
             //    checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             //} else {
-     if(false)       checkCldr = CheckCLDR.getCheckAll("(?!.*(CheckCoverage).*).*");
-    if(true)            checkCldr = CheckCLDR.getCheckAll("(?!.*(CheckCoverage|CheckConsistentCasing).*).*");
+     if(false)       checkCldr = CheckCLDR.getCheckAll(getFactory(),"(?!.*(CheckCoverage).*).*");
+    if(true)            checkCldr = CheckCLDR.getCheckAll(getFactory(),"(?!.*(CheckCoverage|CheckConsistentCasing).*).*");
     System.err.println("createCheck: skipping CheckConsistentCasing");
 //                checkCldr = CheckCLDR.getCheckAll("(?!.*DisplayCollisions.*).*" /*  ".*" */);
             //}
@@ -6865,22 +6869,6 @@ o	            		}*/
 //        	return getCheck(ctx.getEffectiveCoverageLevel(), ctx.getOptionsMap(basicOptionsMap()));
 //        }
         
-
-    //private CLDRFileCache cldrFileCache = null; // LOCAL to UserFile.
-    
-    public synchronized CLDRFileCache getCLDRFileCache() {
-//        if(cldrFileCache == null) {
-//        
-//            Connection conn = getDBConnection();
-//            XMLSource dbSource = makeDBSource(conn, null, CLDRLocale.ROOT, false);
-//            XMLSource dbSourceV = makeDBSource(conn, null, CLDRLocale.ROOT, true);
-//            cldrFileCache = new CLDRFileCache(dbSource, dbSourceV, new File(homeFile, "vxpt"), this);
-//        }
-//        return null;
-        throw new InternalError("getCLDRFileCache: not imp");
-//        return dbsrcfac.getCLDRFileCache();
-    }
-
 
     /**
      * reset the "list of locales".  

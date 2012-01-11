@@ -67,7 +67,7 @@ import com.ibm.icu.dev.test.util.ElapsedTimer;
 					return status;
 				}
 			}
-			DefaultErrorStatus des = new DefaultErrorStatus();
+			DefaultErrorStatus des;
 			IntHash<StatusString> hash=null;
 			private SurveyMain sm;
 			/**
@@ -75,6 +75,7 @@ import com.ibm.icu.dev.test.util.ElapsedTimer;
 			 */
 			public CachingErrorChecker(SurveyMain sm) {
 				this.sm = sm;
+				des =   new DefaultErrorStatus(sm.stFactory);
 			}
 
 			/* (non-Javadoc)
@@ -194,9 +195,9 @@ import com.ibm.icu.dev.test.util.ElapsedTimer;
 				try {
 					IntHash<Status> hash = new IntHash<Status>();
 
-					DefaultErrorStatus des = new DefaultErrorStatus();
+					DefaultErrorStatus des = new DefaultErrorStatus(sm.stFactory);
 					// TODO: DBSRC entry
-					CLDRFile cldrFile = new CLDRFile(sm.dbsrcfac.getInstance(loc),true);
+					CLDRFile cldrFile = new CLDRFile(sm.dbsrcfac.getInstance(loc)/*,true*/);
 					des.initErrorStatus(cldrFile);
 					
 	

@@ -23,7 +23,6 @@ import org.unicode.cldr.util.VoteResolver.Organization;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.web.CLDRDBSourceFactory.DBEntry;
 import org.unicode.cldr.web.CLDRDBSourceFactory.SubFactory;
-import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 
 import com.ibm.icu.dev.test.util.ElapsedTimer;
 import com.ibm.icu.util.ULocale;
@@ -192,11 +191,11 @@ public class VettingViewerQueue {
 						return;
 					}
 					status="Beginning Process, Calculating";
-		            SubFactory ourFactory = sm.dbsrcfac.getFactory(false);
-		            dbEntry = sm.dbsrcfac.openEntry(ourFactory);
+		            //SubFactory ourFactory = sm.dbsrcfac.getFactory(false);
+		            //dbEntry = sm.dbsrcfac.openEntry(ourFactory);
 		            
 		            vv = new VettingViewer<VoteResolver.Organization>(
-		                    sm.getSupplementalDataInfo(), ourFactory, sm.getOldFactory(),
+		                    sm.getSupplementalDataInfo(), sm.stFactory, sm.getOldFactory(),
 		                    getUsersChoice(sm, dbEntry), "CLDR "+sm.getOldVersion(), "Winning "+sm.getNewVersion());
 		            vv.setBaseUrl(baseUrl);
 					progress.update("Got VettingViewer");
@@ -266,8 +265,8 @@ public class VettingViewerQueue {
 			} catch (RuntimeException re) {
 				// We're done.
 			} finally {
-				if(dbEntry!=null) dbEntry.close();
-				dbEntry=null;
+//				if(dbEntry!=null) dbEntry.close();
+//				dbEntry=null;
 				if(progress!=null) progress.close();
 				vv=null; // release vv
 			}

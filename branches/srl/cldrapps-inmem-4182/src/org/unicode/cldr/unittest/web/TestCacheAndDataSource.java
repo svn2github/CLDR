@@ -10,15 +10,14 @@ import org.unicode.cldr.unittest.web.TestAll.WebTestInfo;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.web.CLDRDBSourceFactory;
-import org.unicode.cldr.web.CLDRFileCache;
 import org.unicode.cldr.web.CLDRProgressIndicator;
 import org.unicode.cldr.web.CookieSession;
 import org.unicode.cldr.web.UserRegistry;
 import org.unicode.cldr.web.Vetting;
 import org.unicode.cldr.web.XPathTable;
-import org.unicode.cldr.web.CLDRDBSourceFactory.CLDRDBSource;
 import org.unicode.cldr.web.DBUtils;
 import org.unicode.cldr.web.SurveyMain;
 
@@ -47,7 +46,7 @@ public class TestCacheAndDataSource  extends TestFmwk {
 		int n= dbsrcfac.update();
 		logln("update: " + n);
 		
-		CLDRFile.Factory f = testInfo.getCldrFactory();
+		Factory f = testInfo.getCldrFactory();
 		
 		//for(CLDRLocale l : dbsrcfac.sm.getLocales() ) {
 		

@@ -19,8 +19,9 @@ import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.ExampleGenerator;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
-import org.unicode.cldr.util.CLDRFile.Factory;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.CLDRLocale;
+import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.VoteResolver.Status;
 import org.unicode.cldr.util.XMLSource;
@@ -71,7 +72,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		public ReadOnlyAliasTo(XMLSource makeFrom) {			
 			aliasOf=makeFrom;
 			setLocaleID(aliasOf.getLocaleID());
-			CLDRFile loader = new CLDRFile(aliasOf,false);
+			CLDRFile loader = new CLDRFile(aliasOf/*,false*/);
 			loader.loadFromFile(new File(SurveyMain.fileBase,getLocaleID()+".xml"), getLocaleID(), getMinimalDraftStatus());
 //			System.out.println("Our id: " + this.getLocaleID());
 //			System.out.println("Parent = " + LocaleIDParser.getParent(this.getLocaleID()));
@@ -156,31 +157,31 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 			return aliasOf.iterator();
 		}
 
-		/* (non-Javadoc)
-		 * @see org.unicode.cldr.util.XMLSource#make(java.lang.String)
-		 */
-		@Override
-		public XMLSource make(String localeID) {
-			return makeSource(localeID, this.isResolving());
-		}
+//		/* (non-Javadoc)
+//		 * @see org.unicode.cldr.util.XMLSource#make(java.lang.String)
+//		 */
+//		@Override
+//		public XMLSource make(String localeID) {
+//			return makeSource(localeID, this.isResolving());
+//		}
 
-		/* (non-Javadoc)
-		 * @see org.unicode.cldr.util.XMLSource#getAvailableLocales()
-		 */
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Set getAvailableLocales() {
-			return handleGetAvailable();
-		}
+//		/* (non-Javadoc)
+//		 * @see org.unicode.cldr.util.XMLSource#getAvailableLocales()
+//		 */
+//		@SuppressWarnings("rawtypes")
+//		@Override
+//		public Set getAvailableLocales() {
+//			return handleGetAvailable();
+//		}
 
-		/* (non-Javadoc)
-		 * @see org.unicode.cldr.util.XMLSource#getSupplementalDirectory()
-		 */
-		@Override
-		public File getSupplementalDirectory() {
-			File suppDir =  new File(getSourceDirectory()+"/../"+"supplemental");
-			return suppDir;
-		}
+//		/* (non-Javadoc)
+//		 * @see org.unicode.cldr.util.XMLSource#getSupplementalDirectory()
+//		 */
+//		@Override
+//		public File getSupplementalDirectory() {
+//			File suppDir =  new File(getSourceDirectory()+"/../"+"supplemental");
+//			return suppDir;
+//		}
 		
 		
 //		@Override
@@ -193,8 +194,8 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 
 	public class DataBackedSource extends ReadOnlyAliasTo {
 		PerLocaleData ballotBox;
-		public DataBackedSource(PerLocaleData makeFrom) {		
-			super(new CLDRFile.SimpleXMLSource(sm.getFactory(),makeFrom.getLocale().getBaseName()));
+		public DataBackedSource(PerLocaleData makeFrom) {
+			super(new SimpleXMLSource(makeFrom.getLocale().getBaseName()));
 			ballotBox = makeFrom;
 			ballotBox.aliasOf = aliasOf;
 		}
@@ -294,31 +295,31 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		}
 
 
-		/* (non-Javadoc)
-		 * @see org.unicode.cldr.util.XMLSource#make(java.lang.String)
-		 */
-		@Override
-		public XMLSource make(String localeID) {
-			return makeSource(localeID, this.isResolving());
-		}
+//		/* (non-Javadoc)
+//		 * @see org.unicode.cldr.util.XMLSource#make(java.lang.String)
+//		 */
+//		@Override
+//		public XMLSource make(String localeID) {
+//			return makeSource(localeID, this.isResolving());
+//		}
 
-		/* (non-Javadoc)
-		 * @see org.unicode.cldr.util.XMLSource#getAvailableLocales()
-		 */
-		@SuppressWarnings("rawtypes")
-		@Override
-		public Set getAvailableLocales() {
-			return handleGetAvailable();
-		}
+//		/* (non-Javadoc)
+//		 * @see org.unicode.cldr.util.XMLSource#getAvailableLocales()
+//		 */
+//		@SuppressWarnings("rawtypes")
+//		@Override
+//		public Set getAvailableLocales() {
+//			return handleGetAvailable();
+//		}
 
-		/* (non-Javadoc)
-		 * @see org.unicode.cldr.util.XMLSource#getSupplementalDirectory()
-		 */
-		@Override
-		public File getSupplementalDirectory() {
-			File suppDir =  new File(getSourceDirectory()+"/../"+"supplemental");
-			return suppDir;
-		}
+//		/* (non-Javadoc)
+//		 * @see org.unicode.cldr.util.XMLSource#getSupplementalDirectory()
+//		 */
+//		@Override
+//		public File getSupplementalDirectory() {
+//			File suppDir =  new File(getSourceDirectory()+"/../"+"supplemental");
+//			return suppDir;
+//		}
 		
 		
 //		@Override
@@ -369,7 +370,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	}
 
 	/* (non-Javadoc)
-	 * @see org.unicode.cldr.util.CLDRFile.Factory#getSourceDirectory()
+	 * @see org.unicode.cldr.util.Factory#getSourceDirectory()
 	 */
 	@Override
 	public String getSourceDirectory() {
@@ -377,12 +378,13 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	}
 
 	/* (non-Javadoc)
-	 * @see org.unicode.cldr.util.CLDRFile.Factory#handleMake(java.lang.String, boolean, org.unicode.cldr.util.CLDRFile.DraftStatus)
+	 * @see org.unicode.cldr.util.Factory#handleMake(java.lang.String, boolean, org.unicode.cldr.util.CLDRFile.DraftStatus)
 	 */
 	@Override
-	protected CLDRFile handleMake(String localeID, boolean resolved,
+	protected CLDRFile handleMake(String localeID,
+	        boolean resolved,
 			DraftStatus madeWithMinimalDraftStatus) {
-		return new CLDRFile(makeSource(localeID, resolved),resolved);
+		return new CLDRFile(makeSource(localeID,resolved));
 	}
 
 	public XMLSource makeSource(String localeID, boolean resolved) {
@@ -391,7 +393,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	}
 
 	/* (non-Javadoc)
-	 * @see org.unicode.cldr.util.CLDRFile.Factory#getMinimalDraftStatus()
+	 * @see org.unicode.cldr.util.Factory#getMinimalDraftStatus()
 	 */
 	@Override
 	protected DraftStatus getMinimalDraftStatus() {
@@ -399,7 +401,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	}
 
 	/* (non-Javadoc)
-	 * @see org.unicode.cldr.util.CLDRFile.Factory#handleGetAvailable()
+	 * @see org.unicode.cldr.util.Factory#handleGetAvailable()
 	 */
 	@Override
 	protected Set<String> handleGetAvailable() {
@@ -429,7 +431,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     		if(fileForGenerator==null) {
     			System.err.println("Err: fileForGenerator is null for " );
     		}
-    		ExampleGenerator exampleGenerator = new ExampleGenerator(fileForGenerator, SurveyMain.fileBase + "/../supplemental/");
+    		ExampleGenerator exampleGenerator = new ExampleGenerator(fileForGenerator, sm.getBaselineFile(), SurveyMain.fileBase + "/../supplemental/");
     		exampleGenerator.setVerboseErrors(sm.twidBool("ExampleGenerator.setVerboseErrors"));
     		//System.err.println("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
     		//exampleIsValid.setValid();
@@ -459,11 +461,11 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		}
 
 		public XMLSource makeSource(boolean resolved) {
-			XMLSource source = makeSource();
 			if(resolved==true) {
-				return source.getResolving();
+			    unimp(); return null;
+			    //return new Factory.ResolvingSource(source);
 			} else {
-				return source;
+				return makeSource();
 			}
 		}
 		
@@ -471,7 +473,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 			if(xmlsource == null) {
 				XMLSource s;
 				if(readonly) {
-					s = new ReadOnlyAliasTo(new CLDRFile.SimpleXMLSource(sm.getFactory(),locale.getBaseName()));
+					s = new ReadOnlyAliasTo(new SimpleXMLSource(locale.getBaseName()));
 				} else {
 					s = new DataBackedSource(this);
 				}
