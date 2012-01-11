@@ -1406,8 +1406,13 @@ public class WebContext implements Cloneable, Appendable {
      * Clone (copy construct) the context
      * @see #WebContext(WebContext)
      */
-    public Object clone() throws CloneNotSupportedException {
-        Object o = super.clone();
+    public Object clone() {
+        Object o;
+        try {
+            o = super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new InternalError();
+        }
         WebContext n = (WebContext)o;
         n.init(this);
 

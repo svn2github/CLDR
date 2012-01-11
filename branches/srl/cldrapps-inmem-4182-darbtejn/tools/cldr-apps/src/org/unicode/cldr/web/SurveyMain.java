@@ -6642,6 +6642,7 @@ o	            		}*/
         if(gBaselineFile == null) {
             try {
                 CLDRFile file = getFactory().make(BASELINE_LOCALE.toString(), true);
+                file.setSupplementalDirectory(supplementalDataDir); // so the icuServiceBuilder doesn't blow up.
                 file.freeze(); // so it can be shared.
                 gBaselineFile = file;
             } catch (Throwable t) {
@@ -9995,6 +9996,8 @@ o	            		}*/
      */
     SurveyProgressManager progressManager = new SurveyProgressManager();
 
+    private File supplementalDataDir;
+
 
     /**
      * Startup function. Called from another thread.
@@ -10140,9 +10143,9 @@ o	            		}*/
             CachingEntityResolver.createAndEmptyCacheDir();
 
             progress.update("Setup supplemental..");
-
-            supplemental = new SupplementalData(fileBase + "/../supplemental/");
-            supplementalDataInfo = SupplementalDataInfo.getInstance(fileBase + "/../supplemental/");
+            supplementalDataDir = new File(fileBase,"../supplemental/");
+            supplemental = new SupplementalData(supplementalDataDir.getCanonicalPath());
+            supplementalDataInfo = SupplementalDataInfo.getInstance(supplementalDataDir);
             supplementalDataInfo.setAsDefaultInstance();
     
             try {

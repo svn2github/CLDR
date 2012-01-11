@@ -482,8 +482,9 @@ public class CLDRDBSourceFactory extends Factory implements MuxFactory {
     public XMLSource getInstance(String localeID, boolean finalData) {
         if(localeID == null) return null; // ???
         XMLSource result = null;
+        Map<String, XMLSource>  cache = null;
         if(MAKE_CACHE) {
-            Map<String, XMLSource>  cache = sourceCache[finalData ? 1 : 0];
+            cache = sourceCache[finalData ? 1 : 0];
             result = cache.get(localeID);
         }
         if(result == null) {
