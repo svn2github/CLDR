@@ -1461,7 +1461,7 @@ public class SurveyForum {
 			return true;
 		}
 
-		DateFormat dateParser = new SimpleDateFormat(DATE_FORMAT);
+//		DateFormat dateParser = new SimpleDateFormat(DATE_FORMAT);
 
 		try {
 			SyndFeed feed = new SyndFeedImpl();

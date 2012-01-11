@@ -157,17 +157,18 @@ public static void main(String[] args) {
   
   public static final String CLDR_WEBTEST_DIR = "cldr_webtest_dir";
   static File baseDir = null;
-  public static File getBaseDir() {
+  public synchronized static File getBaseDir() {
 	  if(baseDir==null) {
 		  String where = System.getProperty(CLDR_WEBTEST_DIR, System.getProperty("user.home")+File.separator+"cldr_db_test");
-		  baseDir = new File(where);
-		  if(!baseDir.exists()) {
-			  baseDir.mkdir();
+		  File newBaseDir = new File(where);
+		  if(!newBaseDir.exists()) {
+		      newBaseDir.mkdir();
 		  }
-		  if(!baseDir.isDirectory()) {
-			  throw new IllegalArgumentException("Bad dir ["+CLDR_WEBTEST_DIR+"]: " + baseDir.getAbsolutePath());
+		  if(!newBaseDir.isDirectory()) {
+			  throw new IllegalArgumentException("Bad dir ["+CLDR_WEBTEST_DIR+"]: " + newBaseDir.getAbsolutePath());
 		  }
-		  System.err.println("Note: using test dir ["+CLDR_WEBTEST_DIR+"]: "+baseDir.getAbsolutePath());
+		  System.err.println("Note: using test dir ["+CLDR_WEBTEST_DIR+"]: "+newBaseDir.getAbsolutePath());
+		  baseDir = newBaseDir;
 	  }
 	  return baseDir;
   }

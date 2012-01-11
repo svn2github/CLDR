@@ -131,8 +131,6 @@ public class Race {
         public int score = 0;
         public String value = null;
 
-        public String refs = null;
-
         public Set<OrgVote> orgsDefaultFor = null; // if non-null: this
                                                         // Chad is the default
                                                         // choice for the org[s]
@@ -350,23 +348,12 @@ public class Race {
         if(full_xpath_string==null) {
         	throw new InternalError("full string for " + full_xpath + " not found for vote_xpath " + vote_xpath);
         }
-        String theReferences = null;
         if (full_xpath_string.indexOf(LDMLConstants.REFERENCES) >= 0) {
             XPathParts xpp = new XPathParts(null, null);
             xpp.initialize(full_xpath_string);
             String lelement = xpp.getElement(-1);
             // String eAlt = xpp.findAttributeValue(lelement,
             // LDMLConstants.ALT);
-            theReferences = xpp.findAttributeValue(lelement, LDMLConstants.REFERENCES);
-            if (theReferences != null) {
-                // disambiguate it from the other value
-                valueForLookup = valueForLookup + " [" + theReferences + "]";
-                // if(value==null) {
-                // value = "";
-                // }
-                // value = value + "&nbsp;<i title='This item has a
-                // Reference.'>(reference)</i>";
-            }
         }
 
         Chad valueChad = chadsByValue.get(valueForLookup); // merge equivalent values
@@ -374,7 +361,7 @@ public class Race {
             return valueChad;
         } else {
             Chad otherChad = chadsByValue2.get(nonEmptyValue);
-            if (otherChad != null && otherChad.refs != theReferences) { // TODO: should be String.equals() ? 
+            if (otherChad != null) { // TODO: should be String.equals() ? 
                 refConflicts.add(nonEmptyValue);
             }
         }
@@ -386,7 +373,6 @@ public class Race {
             chads.put(vote_xpath_int, c);
             chadsByValue.put(valueForLookup, c);
             chadsByValue2.put(nonEmptyValue, c);
-            c.refs = theReferences;
         }
         return c;
     }

@@ -421,7 +421,7 @@ public class VettingViewerQueue {
     	return entry;
 	}
 	
-	private QueueEntry getSummaryEntry() {
+	private synchronized QueueEntry getSummaryEntry() {
     	QueueEntry entry = summaryEntry;
     	if(summaryEntry==null) {
     		entry=summaryEntry = new QueueEntry();

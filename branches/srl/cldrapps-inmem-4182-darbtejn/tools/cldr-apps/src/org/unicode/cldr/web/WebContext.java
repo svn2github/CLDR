@@ -175,25 +175,7 @@ public class WebContext implements Cloneable, Appendable {
         if((other instanceof URLWebContext) && !(this instanceof URLWebContext)) {
             throw new InternalError("Can't slice a URLWebContext - use clone()");
         }
-        doc = other.doc;
-        docLocale = other.docLocale;
-        displayLocale = other.displayLocale;
-        out = other.out;
-        pw = other.pw;
-        outQuery = other.outQuery;
-//        localeName = other.localeName;
-        locale = other.locale;
-//        if(locale != null) {
-//            localeString = locale.getBaseName();
-//        }
-        session = other.session;
-        outQueryMap = (TreeMap<String, String>)other.outQueryMap.clone();
-        dontCloseMe = true;
-        request = other.request;
-        response = other.response;
-        sm = other.sm;
-        processor = other.processor;
-        temporaryStuff = other.temporaryStuff;
+        init(other);
     }
     
     /**
@@ -1424,11 +1406,36 @@ public class WebContext implements Cloneable, Appendable {
      * Clone (copy construct) the context
      * @see #WebContext(WebContext)
      */
-    public Object clone() {
-        return new WebContext(this);
-        // TODO: call super.clone()
+    public Object clone() throws CloneNotSupportedException {
+        Object o = super.clone();
+        WebContext n = (WebContext)o;
+        n.init(this);
+
+        return o;
     }
     
+    private void init(WebContext other) {
+        doc = other.doc;
+        docLocale = other.docLocale;
+        displayLocale = other.displayLocale;
+        out = other.out;
+        pw = other.pw;
+        outQuery = other.outQuery;
+//        localeName = other.localeName;
+        locale = other.locale;
+//        if(locale != null) {
+//            localeString = locale.getBaseName();
+//        }
+        session = other.session;
+        outQueryMap = (TreeMap<String, String>)other.outQueryMap.clone();
+        dontCloseMe = true;
+        request = other.request;
+        response = other.response;
+        sm = other.sm;
+        processor = other.processor;
+        temporaryStuff = other.temporaryStuff;
+    }
+
     /**
      * Include a template fragment from /WEB-INF/tmpl
      * @param filename

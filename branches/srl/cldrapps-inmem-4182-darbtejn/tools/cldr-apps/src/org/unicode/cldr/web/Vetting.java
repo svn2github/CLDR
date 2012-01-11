@@ -2533,7 +2533,7 @@ if(true == true)    throw new InternalError("removed from use.");
 	void doDisputePage(WebContext ctx) {
 		Map<String, Map<String, Set<String>>> m = new  TreeMap<String, Map<String, Set<String>>> ();
 		Set<String> badLocales = new TreeSet<String>(); 
-		WebContext subCtx = (WebContext)ctx.clone();
+		WebContext subCtx = new WebContext(ctx);
 		subCtx.setQuery("do","");
 		
 		CLDRLocale onlyLoc = ctx.getLocale();
@@ -3063,7 +3063,7 @@ if(true == true)    throw new InternalError("removed from use.");
     	}
 
     	String locale = source.getLocaleID();
-    	XPathParts xpp = new XPathParts(null,null);
+//    	XPathParts xpp = new XPathParts(null,null);
     	boolean isResolved = source.isResolving();
     	String oldVersion = SurveyMain.getOldVersion();
     	String newVersion = SurveyMain.getNewVersion();
