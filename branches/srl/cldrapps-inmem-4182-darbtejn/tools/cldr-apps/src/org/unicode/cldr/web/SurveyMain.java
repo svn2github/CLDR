@@ -6604,12 +6604,23 @@ o	            		}*/
 
     private Factory gFactory = null;
 
-    private synchronized Factory getFactory() {
+    synchronized Factory getDiskFactory() {
         if(gFactory == null) {
             gFactory = SimpleFactory.make(fileBase,".*");
         }
         return gFactory;
     }
+
+    private STFactory gSTFactory = null;
+
+    public final synchronized STFactory getSTFactory() {
+        if(gSTFactory == null) {
+            gSTFactory = new STFactory(this);
+        }
+        return gSTFactory;
+    }
+
+    
     private Factory gOldFactory = null;
     
     /**
@@ -6641,7 +6652,7 @@ o	            		}*/
     public synchronized CLDRFile getBaselineFile(/*CLDRDBSource ourSrc*/) {
         if(gBaselineFile == null) {
             try {
-                CLDRFile file = getFactory().make(BASELINE_LOCALE.toString(), true);
+                CLDRFile file = getDiskFactory().make(BASELINE_LOCALE.toString(), true);
                 file.setSupplementalDirectory(supplementalDataDir); // so the icuServiceBuilder doesn't blow up.
                 file.freeze(); // so it can be shared.
                 gBaselineFile = file;
@@ -10147,6 +10158,7 @@ o	            		}*/
             supplemental = new SupplementalData(supplementalDataDir.getCanonicalPath());
             supplementalDataInfo = SupplementalDataInfo.getInstance(supplementalDataDir);
             supplementalDataInfo.setAsDefaultInstance();
+            CldrUtility.DEFAULT_SUPPLEMENTAL_DIRECTORY = supplementalDataDir.getCanonicalPath();
     
             try {
             	supplemental.defaultContentToParent("mt_MT");

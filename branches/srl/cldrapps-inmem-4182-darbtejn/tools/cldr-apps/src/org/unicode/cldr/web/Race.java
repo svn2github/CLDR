@@ -105,7 +105,7 @@ public class Race {
     }
 
     // All votes for a particular item
-    class Chad implements Comparable {
+    class Chad implements Comparable<Chad> {
     	
     	/**
     	 * Used for VoteResolver's compare
@@ -207,11 +207,11 @@ public class Race {
         public boolean equals(Object other) {
         	if(other==this) return true;
         	if(!(other instanceof Chad)) return false;
-        	return(compareTo(other)==0);
+        	return(compareTo((Chad)other)==0);
         }
 
         @Override
-        public int compareTo(Object o) {
+        public int compareTo(Chad o) {
             if (o == this) {
                 return 0;
             }
@@ -234,6 +234,12 @@ public class Race {
                     return value.compareTo(other.value);
                 }
             }
+        }
+        
+        @Override
+        public
+        int hashCode() {
+            return value.hashCode();
         }
     }
 
