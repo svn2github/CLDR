@@ -8837,12 +8837,10 @@ o	            		}*/
                 ctx.println(changetoBox);
             }
             
-            ctx.print("<td width='25%' class='noborder' rowspan='"+rowSpan+"' valign='top'>");
-            
             boolean badInputBox = false;
             
-            
             if(areShowingInputBox) {
+                ctx.print("<td width='25%' class='noborder' rowspan='"+rowSpan+"' valign='top'>");
                 String oldValue = (String)ctx.temporaryStuff.get(fieldHash+QUERY_VALUE_SUFFIX);
                 String fClass = "inputbox";
                 if(oldValue==null) {
@@ -8895,10 +8893,9 @@ o	            		}*/
                
                   
                 ctx.println("</td>");
-            } else  {
-                if(!zoomedIn && p.zoomOnly) {
-                    ctx.println("<i>Must zoom in to edit</i>");
-                }
+            } else if(!zoomedIn && p.zoomOnly) {
+                ctx.print("<td width='25%' class='noborder' rowspan='"+rowSpan+"' valign='top'>");
+                ctx.println("<i>Must zoom in to edit</i>");
                 ctx.println("</td>");
             }
 

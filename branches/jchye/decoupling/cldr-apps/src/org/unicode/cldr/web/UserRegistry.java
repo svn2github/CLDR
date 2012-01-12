@@ -1259,6 +1259,8 @@ public class UserRegistry {
         if((sm.isLocaleAliased(locale)!=null) ||
             sm.supplemental.defaultContentToParent(locale.toString())!=null) return false; // it's a defaultcontent locale or a pure alias.
 
+        // Don't allow editing of English or root.
+        if(locale.equals(CLDRLocale.ROOT) || locale.equals(CLDRLocale.getInstance("en"))) return false;
         if(userIsAdmin(u)) return true; // Admin can modify all
         if(userIsTC(u)) return true; // TC can modify all
         if((SurveyMain.phase() == SurveyMain.Phase.VETTING_CLOSED)) {
