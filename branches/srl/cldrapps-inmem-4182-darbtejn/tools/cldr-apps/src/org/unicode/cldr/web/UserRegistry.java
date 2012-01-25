@@ -127,7 +127,7 @@ public class UserRegistry {
      * This nested class is the representation of an individual user. 
      * It may not have all fields filled out, if it is simply from the cache.
      */
-    public class User {
+    public class User implements Comparable<User> {
         public int    id;  // id number
         public int    userlevel=LOCKED;    // user level
         public String password;       // password
@@ -173,7 +173,7 @@ public class UserRegistry {
             UserRegistry.printPasswordLink(ctx, email, password);
         }
         public String toString() {
-            return email + "("+org+")-" + levelAsStr(userlevel)+"#"+userlevel;
+            return email + "("+org+")-" + levelAsStr(userlevel)+"#"+userlevel + " - " + name;
         }
         public String toHtml(User forUser) {
             if(forUser==null||!userIsTC(forUser)) {
@@ -294,6 +294,15 @@ public class UserRegistry {
             boolean adminOrRelevantTc = UserRegistry.userIsAdmin(this) || 
                         ( UserRegistry.userIsTC(this) && (other!=null) && this.org.equals(other.org)); 
             return adminOrRelevantTc;
+        }
+        @Override
+        public int compareTo(User other) {
+            if(other==this || other.equals(this)) return 0;
+            if(this.id < other.id){
+                return -1;
+            } else {
+                return 1;
+            }
         }
     }
         

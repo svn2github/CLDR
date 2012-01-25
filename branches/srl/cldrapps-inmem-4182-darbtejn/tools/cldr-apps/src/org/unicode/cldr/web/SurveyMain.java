@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,6 +88,7 @@ import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
+import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.web.CLDRDBSourceFactory.DBEntry;
 import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.DataSection.DataRow;
@@ -6783,7 +6785,7 @@ o	            		}*/
             //if(phaseVetting) {
             //    checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             //} else {
-            checkCldr = CheckCLDR.getCheckAll(getDBSourceFactory(), "(?!.*(CheckCoverage).*).*");
+            checkCldr = CheckCLDR.getCheckAll(getSTFactory(), "(?!.*(CheckCoverage).*).*");
 //                checkCldr = CheckCLDR.getCheckAll("(?!.*DisplayCollisions.*).*" /*  ".*" */);
             //}
 
@@ -6803,9 +6805,9 @@ o	            		}*/
             //    checkCldr = CheckCLDR.getCheckAll("(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             //} else {
             if(false) {  // show ALL ?
-                checkCldr = CheckCLDR.getCheckAll(getDBSourceFactory(), ".*");
+                checkCldr = CheckCLDR.getCheckAll(getSTFactory(), ".*");
             } else {
-                checkCldr = CheckCLDR.getCheckAll(getDBSourceFactory(), "(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
+                checkCldr = CheckCLDR.getCheckAll(getSTFactory(), "(?!.*(DisplayCollisions|CheckCoverage).*).*" /*  ".*" */);
             }
 
             checkCldr.setDisplayInformation(getBaselineFile());
@@ -6883,7 +6885,9 @@ o	            		}*/
         public void internalClose() {
             this.dbSource=null;
             try {
-				this.dbEntry.close();
+                if(this.dbEntry!=null) {
+                    this.dbEntry.close();
+                }
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -6920,21 +6924,8 @@ o	            		}*/
                 
                 checkCldr = createCheck();
                 
-                CLDRFile fileForChecks = null;
-                
-                if(cachedCldrFile!=null) {
-                    fileForChecks = cachedCldrFile;
-                } else {
-                    fileForChecks = cldrfile;
-                }
-                
-                //cldrfile.write(new PrintWriter(System.out));
-                
-                if(cldrfile==null) {
-                    throw new InternalError("cldrfile was null.");
-                }
                 //long t0 = System.currentTimeMillis();
-                checkCldr.setCldrFileToCheck(fileForChecks, options, checkCldrResult);
+                checkCldr.setCldrFileToCheck(cldrfile, options, checkCldrResult);
                 //   logger.info("fileToCheck set . . . on "+ checkCldr.toString());
                 hash.put(CHECKCLDR+ptype, checkCldr);
                 if(!checkCldrResult.isEmpty()) {
@@ -6968,14 +6959,13 @@ o	            		}*/
         private void complete(CLDRLocale locale) {
             // TODO: refactor.
             if(cldrfile == null) {
-                resolvedSource = makeDBSource(locale, false, true); // use context's connection.
+                resolvedSource = getSTFactory().makeSource(locale.getBaseName(),true);
                 dbSource = resolvedSource.getUnresolving();
-            	dbEntry= getDBSourceFactory().openEntry(dbSource);
-                cldrfile = makeCLDRFile(dbSource);
-                cachedCldrFile = makeCachedCLDRFile(dbSource);
-        		resolvedFile = new CLDRFile(resolvedSource);
-        		XMLSource baseSource = makeDBSource(CLDRLocale.getInstance(BASELINE_LOCALE), false, true);
-        		baselineFile = new CLDRFile(baseSource);
+                cldrfile = getSTFactory().make(locale,true);
+//                cachedCldrFile = makeCachedCLDRFile(dbSource);
+        		resolvedFile = cldrfile;
+        		//XMLSource baseSource = makeDBSource(CLDRLocale.getInstance(BASELINE_LOCALE), false, true);
+        		baselineFile = getBaselineFile();
             }
         }
     };
@@ -7034,28 +7024,32 @@ o	            		}*/
         return uf;
     }
     XMLSource makeDBSource(CLDRLocale locale) {
-        XMLSource dbSource = getDBSourceFactory().getInstance(locale);
-        return dbSource;
+        return makeDBSource(locale,true,false);
+//        return getSTFactory().makeSource(locale.getBaseName());
+//        XMLSource dbSource = getDBSourceFactory().getInstance(locale);
+//        return dbSource;
     }
     XMLSource makeDBSource(CLDRLocale locale, boolean finalData) {
-        XMLSource dbSource = getDBSourceFactory().getInstance(locale, finalData);
-        return dbSource;
+        return makeDBSource(locale);
+//        XMLSource dbSource = getDBSourceFactory().getInstance(locale, finalData);
+//        return dbSource;
     }
     XMLSource makeDBSource(CLDRLocale locale, boolean finalData, boolean resolved) {
-        // HACK: CLDRDBSourceFactory has a "final data" source version so we have
-        // to create the XMLSources for resolution directly here. The factory
-        // should really be split into two factories.
-        if (resolved) {
-            List<XMLSource> sources = new ArrayList<XMLSource>();
-            CLDRLocale curLocale = locale;
-            while(curLocale != null) {
-                sources.add(getDBSourceFactory().getInstance(curLocale, finalData));
-                curLocale = curLocale.getParent();
-            }
-            return Factory.makeResolvingSource(sources);
-        } else {
-            return getDBSourceFactory().getInstance(locale, finalData);
-        }
+        return getSTFactory().makeSource(locale.getBaseName(),resolved);
+//        // HACK: CLDRDBSourceFactory has a "final data" source version so we have
+//        // to create the XMLSources for resolution directly here. The factory
+//        // should really be split into two factories.
+//        if (resolved) {
+//            List<XMLSource> sources = new ArrayList<XMLSource>();
+//            CLDRLocale curLocale = locale;
+//            while(curLocale != null) {
+//                sources.add(getDBSourceFactory().getInstance(curLocale, finalData));
+//                curLocale = curLocale.getParent();
+//            }
+//            return Factory.makeResolvingSource(sources);
+//        } else {
+//            return getDBSourceFactory().getInstance(locale, finalData);
+//        }
     }
     static CLDRFile makeCLDRFile(XMLSource dbSource) {
         return new CLDRFile(dbSource);
@@ -7595,9 +7589,10 @@ o	            		}*/
     		curThread.setName(threadName + ":" + ctx.getLocale() );
     	}
     	try {
-	    	XMLSource ourSrc = makeDBSource(ctx.getLocale(),false);
-	    	CLDRFile cf = new CLDRFile(ourSrc);
-	    	entry = getDBSourceFactory().openEntry(ourSrc);
+    	    CLDRFile cf = getSTFactory().make(ctx.getLocale().getBaseName(), false,DraftStatus.unconfirmed);
+    	    BallotBox<User> ballotBox = getSTFactory().ballotBoxForLocale(ctx.getLocale());
+
+	    	//entry = getDBSourceFactory().openEntry(ourSrc);
 	    	
             String fullThing = xpath + "/" + lastElement;
         //    boolean isTz = xpath.equals("timeZoneNames");
@@ -7618,10 +7613,11 @@ o	            		}*/
                         ctx.println("<i id='processPea'>Processing submitted data...</i><br/>");ctx.flush();
                         try {
 	                        DataSection oldSection = ctx.getExistingSection(fullThing);
-	                        if(processPeaChanges(ctx, oldSection, cf, ourSrc, new DefaultDataSubmissionResultHandler(ctx))) {
-	                            int j = vet.updateResults(oldSection.locale,entry.getConnectionAlias()); // bach 'em
-	                            int d = this.getDBSourceFactory().update(entry.getConnectionAlias()); // then the fac so it can update
-	                            System.err.println("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
+	                        if(processPeaChanges(ctx, oldSection, cf, ballotBox, new DefaultDataSubmissionResultHandler(ctx))) {
+//	                            int j = vet.updateResults(oldSection.locale,entry.getConnectionAlias()); // bach 'em
+//	                            int d = this.getDBSourceFactory().update(entry.getConnectionAlias()); // then the fac so it can update
+//	                            System.err.println("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
+	                            String j = "";
 	                            ctx.println("<br> You submitted data or vote changes, <!-- and " + j + " results were updated. As a result, --> your items may show up under the 'priority' or 'proposed' categories.<br>");
 	                        }
                         } finally {
@@ -7773,8 +7769,8 @@ o	            		}*/
                     DataSection.DataRow.CandidateItem refDataRowItem = refsItemHash.get(ref);
                     if((refDataRowItem != null)&&(refDataRow!=null)) {
                         ctx.print(refDataRowItem.value);
-                        if(refDataRow.displayName != null) {
-                            ctx.println("<br>"+refDataRow.displayName);
+                        if(refDataRow.getDisplayName() != null) {
+                            ctx.println("<br>"+refDataRow.getDisplayName());
                         }
                         //ctx.print(refPea.displayName);
                     } else {
@@ -7898,7 +7894,7 @@ o	            		}*/
                 int pn = 0;
                 for(int i=0;i<dSet.rows.length && (moveSkip==-1);i++) {
                 	DataSection.DataRow p = dSet.rows[i];
-                    if(p.base_xpath == xfind) {
+                    if(p.getXpathId() == xfind) {
                         moveSkip = pn;
                     }
                     pn++;
@@ -7977,36 +7973,28 @@ o	            		}*/
                 }
                 
                 try {
-                    if(section.xpath(p).startsWith(DataSection.EXEMPLAR_PARENT)) {
-                        String zone = p.type;
-                        int n = zone.lastIndexOf('/');
-                        if(n!=-1) {
-                            zone = zone.substring(0,n); //   blahblah/default/foo   ->  blahblah/default   ('foo' is lastType and will show up as the value)
-                        }
-                        showDataRow(ctx, section, p, uf, cf, ourSrc, canModify,ctx.base()+"?"+
-                                "_="+ctx.getLocale()+"&amp;x=timezones&amp;zone="+zone,refs,checkCldr, zoomedIn);                
-                    } else {
-                        showDataRow(ctx, section, p, uf, cf, ourSrc, canModify,null,refs,checkCldr, zoomedIn);
-                    }
+                    showDataRow(ctx, section, p, uf, cf, ourSrc, canModify,refs,checkCldr, zoomedIn);
+
                 } catch(Throwable t) {
                     // failed to show pea. 
                     ctx.println("<tr class='topbar'><td colspan='8'><b>"+section.xpath(p)+"</b><br>");
+                    logException(t,ctx);
                     ctx.print(t);
                     ctx.print("</td></tr>");
                 }
-                if(p.subRows != null) {
-                    for(Iterator e = p.subRows.values().iterator();e.hasNext();) {
-                        DataSection.DataRow subDataRow = (DataSection.DataRow)e.next();
-                        try {
-                            showDataRow(ctx, section, subDataRow, uf, cf, ourSrc, canModify, null,refs,checkCldr, zoomedIn);
-                        } catch(Throwable t) {
-                            // failed to show sub-pea.
-                            ctx.println("<tr class='topbar'><td colspan='8'>sub pea: <b>"+section.xpath(subDataRow)+"."+subDataRow.altType+"</b><br>");
-                            ctx.print(t);
-                            ctx.print("</td></tr>");
-                        }
-                    }
-                }
+//                if(p.subRows != null) {
+//                    for(Iterator e = p.subRows.values().iterator();e.hasNext();) {
+//                        DataSection.DataRow subDataRow = (DataSection.DataRow)e.next();
+//                        try {
+//                            showDataRow(ctx, section, subDataRow, uf, cf, ourSrc, canModify, null,refs,checkCldr, zoomedIn);
+//                        } catch(Throwable t) {
+//                            // failed to show sub-pea.
+//                            ctx.println("<tr class='topbar'><td colspan='8'>sub pea: <b>"+section.xpath(subDataRow)+"."+subDataRow.altType+"</b><br>");
+//                            ctx.print(t);
+//                            ctx.print("</td></tr>");
+//                        }
+//                    }
+//                }
             }
             if(!partialPeas) {
                 printSectionTableClose(ctx, section, canModify);
@@ -8033,6 +8021,38 @@ o	            		}*/
         }
     }
 
+    private static void logException(Throwable t, WebContext ctx) {
+        logException(t,"(exception)",StackTracker.stackToString(t.getStackTrace(), 0), ctx);
+    }
+    
+    private static void logException(Throwable t, String what, String stack) {
+        logException(t,what,stack,null);
+    }
+    
+    private static synchronized void logException(Throwable t, String what, String stack, WebContext ctx) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("** ST Exception:"+new Date()+", uptime " + uptime+"\n");
+        sb.append("EXCEPTION: " + t+"\n");
+        sb.append("STACK:\n" + stack);
+        sb.append("LOG SITE:\n" + StackTracker.currentStack()+"\n");
+        sb.append("CTX:" + ctx +"\n");
+        
+        // First, log to file
+        if(homeFile!=null) try {
+            File logFile = new File(homeFile, "exception.log");
+            OutputStream file = new FileOutputStream(logFile, false); // Append
+            PrintWriter pw = new PrintWriter(file);
+            pw.append(sb);
+            pw.close();
+            file.close();
+        } catch(IOException ioe) {
+            System.err.println("Err: " + ioe + " trying to log exceptions!");
+            ioe.printStackTrace();
+        }
+        
+        // then, to screen
+        System.err.println(sb);
+    }
     /**
      * Calculate the references and put them in temporary hash.
      * @param ctx context - to hold the temporary hash
@@ -8091,54 +8111,23 @@ o	            		}*/
      * @param ctx
      * @param oldSection
      * @param cf
-     * @param ourSrc
+     * @param ballotBox
      * @param dsrh 
      * @return
      */
-    boolean processPeaChanges(WebContext ctx, DataSection oldSection, CLDRFile cf, XMLSource ourSrc, DataSubmissionResultHandler dsrh) {
+    boolean processPeaChanges(WebContext ctx, DataSection oldSection, CLDRFile cf, BallotBox<User> ballotBox, DataSubmissionResultHandler dsrh) {
         boolean someDidChange = false;
         if(oldSection != null) {
             for(Iterator i = oldSection.getAll().iterator();i.hasNext();) {
                 DataSection.DataRow p = (DataSection.DataRow)i.next();
-                someDidChange = processDataRowChanges(ctx, oldSection, p, cf, ourSrc, dsrh) || someDidChange;
-                if(p.subRows != null) {
-                    for(Iterator e = p.subRows.values().iterator();e.hasNext();) {
-                        DataSection.DataRow subDataRow = (DataSection.DataRow)e.next();
-                        someDidChange = processDataRowChanges(ctx, oldSection, subDataRow, cf, ourSrc, dsrh) || someDidChange;
-                    }
-                }
+                someDidChange = processDataRowChanges(ctx, oldSection, p, cf, ballotBox, dsrh) || someDidChange;
+//                if(p.subRows != null) {
+//                    for(Iterator e = p.subRows.values().iterator();e.hasNext();) {
+//                        DataSection.DataRow subDataRow = (DataSection.DataRow)e.next();
+//                        someDidChange = processDataRowChanges(ctx, oldSection, subDataRow, cf, ballotBox, dsrh) || someDidChange;
+//                    }
+//                }
             }            
-            if(oldSection.xpathPrefix.indexOf("references")!=-1) {
-                String newRef = ctx.field(MKREFERENCE+QUERY_VALUE_SUFFIX);
-                String uri = ctx.field(MKREFERENCE+"_u");
-                if(newRef.length()>0) {
-                    String dup = null;
-                    for(Iterator i = oldSection.getAll().iterator();i.hasNext();) {
-                        DataSection.DataRow p = (DataSection.DataRow)i.next();
-                        DataSection.DataRow subDataRow = p;
-                        for(Iterator j = p.items.iterator();j.hasNext();) {
-                            DataSection.DataRow.CandidateItem item = (DataSection.DataRow.CandidateItem)j.next();
-                            if(item.value.equals(newRef)) {
-                                dup = p.type;
-                            } else {
-                            }
-                        }
-                    }            
-                    ctx.print("<b>Adding new reference...</b> ");
-                    if(dup != null) {
-                        ctx.println("Ref already exists, not adding: <tt class='codebox'>"+dup+"</tt> " + newRef + "<br>");
-                    } else {
-                        String newType =  DataSection.addReferenceToNextSlot(ourSrc, cf, ctx.getLocale().toString(), ctx.session.user.id, newRef, uri);
-                        if(newType == null) {
-                            ctx.print("<i>Error.</i>");
-                        } else {
-                            ctx.print("<tt class='codebox'>"+newType+"</tt>");
-                            ctx.print(" added.. " + newRef +" @ " +uri);
-                            someDidChange=true;
-                        }
-                    }
-                }
-            }
         }
         if(someDidChange) {
         	System.err.println("SomeDidChange: " + oldSection.locale());
@@ -8161,39 +8150,40 @@ o	            		}*/
      * @param section
      * @param p
      * @param cf
-     * @param ourSrc
+     * @param ballotBox
      * @param dsrh 
      * @return
      */
-    boolean processDataRowChanges(WebContext ctx, DataSection section, DataSection.DataRow p, CLDRFile cf, XMLSource ourSrc, DataSubmissionResultHandler dsrh) {
+    boolean processDataRowChanges(WebContext ctx, DataSection section, DataSection.DataRow p, CLDRFile cf, BallotBox<User> ballotBox, DataSubmissionResultHandler dsrh) {
         String fieldHash = section.fieldHash(p);
         String altType = p.altType;
         String choice = ctx.field(fieldHash); // checkmark choice
         
-//        System.err.println("CH["+fieldHash+"] -> " + choice);
         
         if(choice.length()==0) {
+            System.err.println("@@@@@  Unknown Hash: CH["+fieldHash+"]");
             return false; // nothing to see..
         }
-        
         String fullPathFull = section.xpath(p);
         int base_xpath = xpt.xpathToBaseXpathId(fullPathFull);
-        int oldVote = vet.queryVote(section.locale, ctx.session.user.id, base_xpath);
+        System.err.println("@@@@@ CH["+fieldHash+"] -> " + choice + " @ " + fullPathFull + " / " + base_xpath) ;
+        
+        String oldVote = ballotBox.getVoteValue(ctx.session.user, fullPathFull);
         // do modification here. 
         String choice_v = ctx.field(fieldHash+QUERY_VALUE_SUFFIX); // choice + value
-        String choice_r = ctx.field(fieldHash+"_r"); // choice + value
+        
+        System.err.println("@@@@@ v="+choice_v);
+        
+        
         String choice_refDisplay = ""; // display value for ref
         boolean canSubmit = UserRegistry.userCanSubmitAnyLocale(ctx.session.user) || p.hasProps || p.hasErrors || p.hasWarnings;
         
         //NOT a toggle.. proceed 'normally'
         
-        if(choice_r.length()>0) {
-            choice_refDisplay = " Ref: "+choice_r;
-        }
         if(!choice.equals(CHANGETO)) {
             choice_v=""; // so that the value is ignored, as it is not changing
         } else if (choiceNotEmptyOrAllowedEmpty(choice_v, fullPathFull)) {
-            choice_v = ctx.processor.processInput(xpt.getById(p.base_xpath),choice_v, null);
+            choice_v = ctx.processor.processInput(xpt.getById(p.getXpathId()),choice_v, null);
         }
         
 //        System.err.println("choice="+choice+", v="+choice_v);
@@ -8212,6 +8202,7 @@ o	            		}*/
         
         // . . .
         DataSection.DataRow.CandidateItem voteForItem = null;
+        DataSection.DataRow.CandidateItem oldVoteItem = null;
         Set<DataSection.DataRow.CandidateItem> deleteItems = null; // remove item
 		String[] deleteAlts = ctx.fieldValues(fieldHash+ACTION_DEL);
 		Set<String> deleteAltsSet = null;
@@ -8236,8 +8227,12 @@ o	            		}*/
 		}
         
 		/* find the item.  Could fail if the HTML is stale. */
+		
         for(Iterator j = p.items.iterator();j.hasNext();) {
             DataSection.DataRow.CandidateItem item = (DataSection.DataRow.CandidateItem)j.next();
+            if(oldVoteItem==null && oldVote!=null && oldVote.equals(item.value)) {
+                oldVoteItem = item;
+            }
             if(choice.equals(item.altProposed)) {
                 voteForItem = item;
 			} else if(choice.equals(CONFIRM)&&item.altProposed==null) {
@@ -8263,105 +8258,9 @@ o	            		}*/
                 choice = CHANGETO;
 //                System.err.println("v4i"+choice+" -> CHANGETO "+voteForItem.value);
                 choice_v = voteForItem.value;
-                choice_r = voteForItem.references;
-                if(choice_r==null) choice_r="";
         	}
         }
         
-        // OBSOLETE
-//        if(p.attributeChoice != null) {
-//            // it's not a toggle.. but it is an attribute choice.
-//
-//            String altPrefix =         XPathTable.altProposedPrefix(ctx.session.user.id);
-//            boolean unvote = false;
-//            String voteForChoice = null;
-//            boolean hadChange = false;
-//            
-//            if(voteForItem != null) {
-//                voteForChoice = voteForItem.value;
-//            } else if(choice.equals(DONTCARE)) {
-//                unvote = true;
-//            } else if(choice.equals(CHANGETO) && (choice_v.length()>0)) {
-//                voteForChoice = choice_v;
-//                for(Iterator j = p.items.iterator();j.hasNext();) {
-//                    DataSection.DataRow.CandidateItem item = (DataSection.DataRow.CandidateItem)j.next();
-//                    if(item.value.equals(voteForChoice)) {
-//                        voteForItem = item; // found an item
-//                    }
-//                }
-//            } else {
-//                return false;
-//            }
-//            
-//            if(unvote) {
-//                for(String v : p.valuesList) {
-//                    String unvoteXpath = p.attributeChoice.xpathForChoice(v);
-//                    int unvoteXpathId = xpt.xpathToBaseXpathId(unvoteXpath);                    
-//                    
-//                    int oldNoVote = vet.queryVote(section.locale, ctx.session.user.id, unvoteXpathId);
-//                    
-//                    if(oldNoVote != -1) {
-//                        doVote(ctx, section.locale, -1, unvoteXpathId);
-//                        hadChange = true;
-//                    }
-//                }
-//                if(hadChange) {
-//                    ctx.print("<tt class='codebox'>"+ p.displayName +"</tt>: Removing vote <br>");
-//                    return true;
-//                }
-//            } else {
-//                // vote for item
-//                boolean updateImpliedVotes = false;
-//                // yes vote first
-//                String yesPath = p.attributeChoice.xpathForChoice(voteForChoice);
-//                int yesId = xpt.xpathToBaseXpathId(yesPath);
-//                if(voteForItem == null) {
-//                    // no item existed - create it.
-//                    String yesPathMinusAlt = XPathTable.removeAlt(yesPath);
-//                    String newProp = ourSrc.addDataToNextSlot(cf, section.locale, yesPathMinusAlt, p.altType, 
-//                        altPrefix, ctx.session.user.id, voteForChoice, choice_r); // removal
-//                    doUnVote(ctx, section.locale, yesId); // remove explicit vote - the implied votes will pick up the vote
-//                    updateImpliedVotes = true;
-//                    hadChange = true;
-//                    ctx.print("<tt class='codebox'>"+ p.displayName +"</tt>:creating new item "+voteForChoice+" <br>");
-//                } else {
-//                    // voting for an existing item.
-//                    int oldYesVote = vet.queryVote(section.locale, ctx.session.user.id, yesId);
-//                    if(oldYesVote != voteForItem.xpathId) {
-//                        doVote(ctx, section.locale, voteForItem.xpathId, yesId);
-//                        hadChange = true;
-//                    }
-//                }
-//                
-//                // vote REMOVE on the rest
-//                for(String v : p.valuesList) {
-//                    if(v.equals(voteForChoice)) continue; // skip the new item
-//                    String noPath = p.attributeChoice.xpathForChoice(v);
-//                    int noId = xpt.xpathToBaseXpathId(noPath);
-//                    
-//                    int oldNoVote = vet.queryVote(section.locale, ctx.session.user.id, noId);
-//                    // remove vote
-//                    
-//                    if(oldNoVote != -1) {
-//                        hadChange = true;
-//                        doVote(ctx, section.locale, -1, noId);
-//                    }
-//                }
-//
-//
-//                if(hadChange) {
-//                    ctx.print("<tt class='codebox'>"+ p.displayName +"</tt>: vote succeeded <br>");
-//                    return true;
-//                }
-//            }            
-//
-//            return false;
-//        }
-        
-        // handle a change of REFERENCE.
-        // If there was a reference - see if they MIGHT be changing reference
-//        if(choice_r.length()>0) {
-//        }
         
 		
 		boolean didSomething = false;  // Was any item modified?
@@ -8380,7 +8279,8 @@ o	            		}*/
 						choice = DONTCARE;
 						voteForItem = null;
 					}
-					ourSrc.removeValueAtDPath(xpt.getById(item.xpathId));
+			        String xpathIdToRemove = xpt.getById(item.xpathId);
+                    ballotBox.voteForValue(ctx.session.user, xpathIdToRemove, null);
 					didSomething = true;
 				} else {
 					dsrh.handleNoPermission(p, item, "remove");
@@ -8393,7 +8293,7 @@ o	            		}*/
 		        for(UserRegistry.User voter : item.getVotes()) {
 		            if(voter.org.equals(ctx.session.user.org)) {
 		                
-                        boolean did = doAdminRemoveVote(ctx, ctx.getLocale(), p.base_xpath, voter.id);
+                        boolean did = doAdminRemoveVote(ctx, ctx.getLocale(), p.getXpathId(), voter.id);
                         if(did) {
                         	dsrh.handleRemoveVote(p, voter, item);
     	                    didSomething = true;
@@ -8422,28 +8322,6 @@ o	            		}*/
 //                ctx.println(ctx.iconHtml("stop","alias")+" You are not allowed to submit data against this alias item. Contact your CLDR-TC representative.<br>");
                 return didSomething;
             }
-            for(Iterator j = p.items.iterator();j.hasNext();) {
-                DataSection.DataRow.CandidateItem item = (DataSection.DataRow.CandidateItem)j.next();
-                if(choice_v.equals(item.value)  && 
-                		(item.pathWhereFound==null) &&
-                    !((item.altProposed==null) && (item.inheritFrom!=null) &&  XMLSource.CODE_FALLBACK_ID.equals(item.inheritFrom))) { // OK to override code fallbacks
-                    String theirReferences = item.references;
-                    if(theirReferences == null) {
-                        theirReferences="";
-                    }
-                    if(theirReferences.equals(choice_r)) {
-                        if(oldVote != item.xpathId) {
-                        	dsrh.warnAcceptedAsVoteFor(p, item);
-                            return doVote(ctx, section.locale, item.xpathId) || didSomething;
-                        } else {
-                        	dsrh.warnAlreadyVotingFor(p, item);
-							return didSomething;
-                        }
-                    } else {
-//                        ctx.println(ctx.iconHtml("warn","duplicate")+"<i>Note, differs only in references</i> ("+theirReferences+")<br>");
-                    }
-                }
-            }
             String altPrefix = null;
             // handle FFT        
             altPrefix = XPathTable.altProposedPrefix(ctx.session.user.id);
@@ -8453,7 +8331,7 @@ o	            		}*/
             if(newAlt.length()>0) {
                 altType = newAlt;
             }
-            String aDisplayName = p.displayName;
+            String aDisplayName = p.getDisplayName();
             if(section.xpath(p).startsWith("//ldml/characters") && 
                 ((aDisplayName == null) || "null".equals(aDisplayName))) {
                 aDisplayName = "standard";
@@ -8520,9 +8398,7 @@ o	            		}*/
             
             String newProp = null;
 //            synchronized(vet) { // make sure that no-one else grabs our slot.
-                newProp = DataSection.addDataToNextSlot(ourSrc, cf, section.locale, fullPathMinusAlt, altType, 
-                    altPrefix, ctx.session.user.id, choice_v, choice_r);
-//            }
+            String newXpath = ballotBox.voteForValue(ctx.session.user, fullPathFull, choice_v);
             // update implied vote
 //            ctx.print(" &nbsp;&nbsp; <tt class='proposed'>" + newProp+"</tt>");
             if(HAVE_REMOVE&&choice.equals(REMOVE)) {
@@ -8530,23 +8406,21 @@ o	            		}*/
             } else {
             	dsrh.handleNewValue(p, choice_v, doFail);
             }
-            doUnVote(ctx, section.locale, base_xpath);
-            //ctx.println("updated " + n + " implied votes due to new data submission.");
             return true;
         } else if(choice.equals(CONFIRM)) {
-            if(oldVote != base_xpath) {
-            	dsrh.handleVote(p, oldVote, base_xpath);
+            if(oldVoteItem != voteForItem) {
+            	dsrh.handleVote(p, oldVote, voteForItem.value);
                 return doVote(ctx, section.locale, base_xpath) || didSomething; // vote with xpath
             }
         } else if (choice.equals(DONTCARE)) {
-            if(oldVote != -1) {
-            	dsrh.handleVote(p, oldVote, -1);
+            if(oldVote != null) {
+            	dsrh.handleVote(p, oldVote, null);
                 return doVote(ctx, section.locale, -1, base_xpath) || didSomething;
             }
         } else if(voteForItem != null)  {
             DataSection.DataRow.CandidateItem item = voteForItem;
-            if(oldVote != item.xpathId) {
-            	dsrh.handleVote(p, oldVote, item.xpathId);
+            if(oldVoteItem != item) {
+            	dsrh.handleVote(p, oldVote, voteForItem.value);
                 return doVote(ctx, section.locale, item.xpathId) || didSomething;
             } else {
                 return didSomething; // existing vote.
@@ -8588,11 +8462,11 @@ o	            		}*/
         return rs;
     }
 
-    void showDataRow(WebContext ctx, DataSection section, DataSection.DataRow p, UserLocaleStuff uf, CLDRFile cf, 
-        XMLSource ourSrc, boolean canModify, String specialUrl, String refs[], CheckCLDR checkCldr)  {
-        showDataRow(ctx,section,p,uf, cf,ourSrc,canModify,specialUrl,refs,checkCldr,false);
-    }
-
+//    void showDataRow(WebContext ctx, DataSection section, DataSection.DataRow p, UserLocaleStuff uf, CLDRFile cf, 
+//        XMLSource ourSrc, boolean canModify, String specialUrl, String refs[], CheckCLDR checkCldr)  {
+//        showDataRow(ctx,section,p,uf, cf,ourSrc,canModify,specialUrl,refs,checkCldr,false);
+//    }
+//
     /**
      * Show a row of limited data.
      * @param ctx
@@ -8606,16 +8480,47 @@ o	            		}*/
         }
         ctx.includeFragment(whichFragment);
     }
+    
+    private String getSpecialURL(WebContext ctx, DataSection section, DataSection.DataRow p) {
+        if(section.xpath(p).startsWith(DataSection.EXEMPLAR_PARENT)) {
+            String zone = p.prettyPath;
+            int n = zone.lastIndexOf('/');
+            if(n!=-1) {
+                zone = zone.substring(0,n); //   blahblah/default/foo   ->  blahblah/default   ('foo' is lastType and will show up as the value)
+            }
+            return ctx.base()+"?"+
+                    "_="+ctx.getLocale()+"&amp;x=timezones&amp;zone="+zone;                
+            /*
+             *                     if(section.xpath(p).startsWith(DataSection.EXEMPLAR_PARENT)) {
+                        String zone = p.prettyPath;
+                        int n = zone.lastIndexOf('/');
+                        if(n!=-1) {
+                            zone = zone.substring(0,n); //   blahblah/default/foo   ->  blahblah/default   ('foo' is lastType and will show up as the value)
+                        }
+                        showDataRow(ctx, section, p, uf, cf, ourSrc, canModify,ctx.base()+"?"+
+                                "_="+ctx.getLocale()+"&amp;x=timezones&amp;zone="+zone,refs,checkCldr, zoomedIn);                
+                    } else {
+                    }
+
+             */
+        }
+        return null;
+
+    }
 
     /**
      * Show a single pea
      */
     void showDataRow(WebContext ctx, DataSection section, DataSection.DataRow p, UserLocaleStuff uf, CLDRFile cf, 
-        XMLSource ourSrc, boolean canModify, String specialUrl, String refs[], CheckCLDR checkCldr, boolean zoomedIn) {
+        XMLSource ourSrc, boolean canModify, String refs[], CheckCLDR checkCldr, boolean zoomedIn) {
+        
+        String specialUrl = getSpecialURL(ctx,section,p);
+        
         String ourAlign = "left";
         if(ctx.getDirectionForLocale().equals(HTMLDirection.RIGHT_TO_LEFT)) {
             ourAlign = "right";
         }
+        
         
         boolean canSubmit = UserRegistry.userCanSubmitAnyLocale(ctx.session.user)  // formally able to submit
             || (canModify/*&&p.hasProps*/); // or, there's modified data.
@@ -8681,7 +8586,6 @@ o	            		}*/
         boolean foundWarning = p.hasWarnings;
         
         List<DataSection.DataRow.CandidateItem> numberedItemsList = new ArrayList<DataSection.DataRow.CandidateItem>();
-        List<String> refsList = (List<String>) ctx.temporaryStuff.get("references");
 
         String draftIcon = "";
         switch (p.confirmStatus) {
@@ -8753,7 +8657,7 @@ o	            		}*/
             if(specialUrl != null) {
                 ctx.print("<a class='notselected' "+ctx.atarget()+" href='"+specialUrl+"'>"+statusIcon+"</a>");
             } else {
-                fora.showForumLink(ctx,section,p,p.parentRow.base_xpath,statusIcon);
+                fora.showForumLink(ctx,section,p,p.parentRow.getXpathId(),statusIcon);
             }
         } else {
             ctx.print(statusIcon);
@@ -8813,16 +8717,16 @@ o	            		}*/
                     zoomedIn?ExampleGenerator.Zoomed.IN:ExampleGenerator.Zoomed.OUT, exampleContext, ExampleType.NATIVE);
         }
 
-        String baseExample = getBaselineExample().getExampleHtml(fullPathFull, p.displayName, zoomedIn?ExampleGenerator.Zoomed.IN:ExampleGenerator.Zoomed.OUT,
+        String baseExample = getBaselineExample().getExampleHtml(fullPathFull, p.getDisplayName(), zoomedIn?ExampleGenerator.Zoomed.IN:ExampleGenerator.Zoomed.OUT,
                 exampleContext, ExampleType.ENGLISH);
         int baseCols = 1;
 
         ctx.println("<th rowspan='"+rowSpan+"'  style='padding-left: 4px;' colspan='"+baseCols+"' valign='top' align='left' class='botgray'>");
-        if(p.displayName != null) {
+        if(p.getDisplayName() != null) {
 			if(p.uri != null) {
 				ctx.print("<a class='refuri' href='"+p.uri+"'>");
 			}
-            ctx.print(p.displayName); // ##3 display/Baseline
+            ctx.print(p.getDisplayName()); // ##3 display/Baseline
 			if(p.uri != null) {
 				ctx.print("</a>");
 			}
@@ -8839,7 +8743,7 @@ o	            		}*/
                 ctx.print("<td rowspan='"+rowSpan+"' >" + "</td>"); // empty box for baseline
             }
         }
-        printCells(ctx,section,p,topCurrent,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, refsList, exampleContext);
+        printCells(ctx,section,p,topCurrent,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, exampleContext);
 
         // ## 6.1, 6.2 - Print the top proposed item. Can be null if there aren't any.
         DataSection.DataRow.CandidateItem topProposed = null;
@@ -8847,7 +8751,7 @@ o	            		}*/
             topProposed = proposedItems.get(0);
         }
         if(topProposed != null) {
-            printCells(ctx,section,p,topProposed,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, refsList, exampleContext);
+            printCells(ctx,section,p,topProposed,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, exampleContext);
         } else {
             printEmptyCells(ctx, section, p, ourAlign, zoomedIn);
         }
@@ -8889,13 +8793,6 @@ o	            		}*/
                     //fClass = "badinputbox";
                     badInputBox = true;
                 }
-                /* if((p.toggleWith != null)&&(p.toggleValue == true)) {
-                    ctx.print("<select onclick=\"document.getElementById('"+fieldHash+"_ch').click()\" name='"+fieldHash+"_v'>");
-                    ctx.print("  <option value=''></option> ");
-                    ctx.print("  <option value='true'>true</option> ");
-                    ctx.print("  <option value='false'>false</option> ");
-                    ctx.println("</select>");
-                } else */ 
                 if(p.valuesList != null) {
                     ctx.print("<select onclick=\"document.getElementById('"+fieldHash+"_ch').click()\" name='"+fieldHash+"_v'>");
                     ctx.print("  <option value=''></option> ");
@@ -8978,7 +8875,7 @@ o	            		}*/
                 // current item
                 if(currentItems.size() > row) {
                     item = currentItems.get(row);
-                    printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, refsList, exampleContext);
+                    printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, exampleContext);
                 } else {
                     item = null;
                     printEmptyCells(ctx, section, p, ourAlign, zoomedIn);
@@ -8987,7 +8884,7 @@ o	            		}*/
                 // #6.1, 6.2 - proposed items
                 if(proposedItems.size() > row) {
                     item = proposedItems.get(row);
-                    printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, refsList, exampleContext);
+                    printCells(ctx,section, p,item,fieldHash,p.getResultXpath(),ourVoteXpath,canModify,ourAlign,uf,zoomedIn, numberedItemsList, exampleContext);
                 } else {
                     item = null;
                     printEmptyCells(ctx, section, p, ourAlign, zoomedIn);
@@ -9066,9 +8963,6 @@ o	            		}*/
                             
                             ctx.println(" For help, see <a " + ctx.atarget(WebContext.TARGET_DOCS) + 
                             		" href='http://cldr.org/translation/fixing-errors'>Fixing Errors and Warnings</a>");
-//                            if(cls != null) {
-//                                ctx.printHelpLink("/"+cls+"","Help");
-//                            }
                             ctx.print("<br>");
                         }
                     }
@@ -9089,7 +8983,7 @@ o	            		}*/
                             }
                             ctx.println("<br>");
                         } else {                        
-                            String theMenu = PathUtilities.xpathToMenu(xpt.getById(p.parentRow.base_xpath));
+                            String theMenu = PathUtilities.xpathToMenu(xpt.getById(p.parentRow.getXpathId()));
                             if(theMenu==null) {
                                 theMenu="raw";
                             }
@@ -9118,274 +9012,7 @@ o	            		}*/
 	    ctx.print("<th colspan=2>Votes</th>");
 	    ctx.print("<td colspan="+(PODTABLE_WIDTH-2)+">");
 		
-	    Vetting.DataTester tester  = null;
-	    try {
-	    	tester = vet.getTester(uf.dbSource);
-	    	Race r =  vet.getRace(section.locale, p.base_xpath,uf.dbEntry.getConnectionAlias(),tester);
-	    	ctx.println("<i>Voting results by organization:</i><br>");
-	    	ctx.print("<table class='list' border=1 summary='voting results by organization'>");
-	    	ctx.print("<tr class='heading'><th>Organization</th><th>Organization's Vote</th><th>Item</th><th>Score</th><th>Conflicting Votes</th></tr>");
-	    	int onn=0;
-	    	for(Race.OrgVote org : r.orgVotes.values()) {
-	    		Race.Chad orgVote = r.getOrgVote(org.name);				    
-	    		Map<Chad,Long> o2c = r.getOrgToVotes(org.name);
-	    		
-	    		Map<Integer,Long>o2v = new TreeMap<Integer,Long>();
-	    		
-	    		for(Map.Entry<Chad, Long> e : o2c.entrySet()) {
-	    			o2v.put(e.getKey().xpath, e.getValue());
-	    		}
-	    		ctx.println("<tr class='row"+(onn++ % 2)+"'>");
-	    		long score=0;
-
-	    		CandidateItem oitem = null;
-	    		int on = -1;
-	    		if(orgVote != null)
-	    		{
-	    			int nn=0;
-	    			for(CandidateItem citem : numberedItemsList) {
-	    				nn++;
-	    				if(citem==null) continue;
-	    				if(orgVote.xpath==citem.xpathId) {
-	    					oitem = citem;
-	    					on=nn;
-	    				}
-	    			}
-	    			if(oitem!=null) {
-	    				Long l = o2v.get(oitem.xpathId);
-	    				if(l != null) {
-	    					score = l;
-	    					//				    System.err.println(org.name+": ox " + oitem.xpathId + " -> l " + l + ", nn="+nn);
-	    					if(on>=0) {
-	    						totals[on-1]+=score;
-	    					}
-	    				}
-	    			}
-	    		}
-
-	    		ctx.print("<th>"+org.name+"</th>");
-	    		ctx.print("<td>");
-	    		if(orgVote == null) {
-	    			ctx.print("<i>(No vote.)</i>");
-	    			if(org.dispute) {
-	    				ctx.print("<br>");
-	    				if((ctx.session.user != null) && (org.name.equals(ctx.session.user.org))) {
-	    					ctx.print(ctx.iconHtml("disp","Vetter Dispute"));
-	    				}
-	    				ctx.print(" (Dispute among "+org.name+" vetters) ");
-	    			}
-	    		} else {
-	    			String theValue = orgVote.value;
-	    			if(theValue == null) {  
-	    				if(orgVote.xpath == r.base_xpath) {
-	    					theValue = "<i>(Old Vote for Status Quo)</i>";
-	    				} else {
-	    					theValue = "<strike>(Old Vote for Other Item)</strike>";
-	    				}
-	    			}
-	    			if(orgVote.disqualified) {
-	    				ctx.print("<strike>");
-	    			}
-	    			ctx.print("<span dir='"+ctx.getDirectionForLocale()+"'>");
-	    			//						ctx.print(VoteResolver.getOrganizationToMaxVote(section.locale).
-	    			//						            get(VoteResolver.Organization.valueOf(org.name)).toString().replaceAll("street","guest")
-	    			ctx.print(ctx.iconHtml("vote","#"+orgVote.xpath)+theValue+"</span>");
-	    			if(orgVote.disqualified) {
-	    				ctx.print("</strike>");
-	    			}
-	    			if(org.votes.isEmpty()/* && (r.winner.orgsDefaultFor!=null) && (r.winner.orgsDefaultFor.contains(org))*/) {
-	    				ctx.print(" (default vote)");
-	    			}
-	    			if(true||UserRegistry.userIsTC(ctx.session.user)) {
-	    				ctx.print("<br>");
-	    				for(UserRegistry.User u:orgVote.voters) {
-	    					if(!u.voterOrg().equals(org.name)) continue;
-	    					ctx.print(u.toHtml(ctx.session.user)+", ");
-	    				}
-	    			}
-	    		}
-	    		ctx.print("</td>");
-
-	    		ctx.print("<td class='warningReference'>#"+on);
-	    		if(on==-1) {
-	    			ctx.print("<br/><b class='graybox'>Error: this value is missing.</b>");
-	    		}
-	    		ctx.print("</td> ");
-
-	    		ctx.print("<td>"+score+"</td>");
-
-	    		ctx.print("<td>");
-	    		if(!org.votes.isEmpty()) for(Race.Chad item : org.votes) {
-	    			if(item==orgVote) continue;
-
-	    			String theValue = item.value;
-	    			if(theValue == null) {  
-	    				if(item.xpath == r.base_xpath) {
-	    					theValue = "<i>(Old Vote for Status Quo)</i>";
-	    				} else {
-	    					theValue = "<strike>(Old Vote for Other Item"+")</strike>";
-	    				}
-	    			}
-	    			if(item.disqualified) {
-	    				ctx.print("<strike>");
-	    			}
-	    			ctx.print("<span dir='"+ctx.getDirectionForLocale()+"' class='notselected' title='#"+item.xpath+"'>"+theValue+"</span>");
-	    			if(item.disqualified) {
-	    				ctx.print("</strike>");
-	    			}
-	    			ctx.print("<br>");
-	    			for(UserRegistry.User u : item.voters)  { 
-	    				if(!u.voterOrg().equals(org.name)) continue;
-	    				ctx.print(u.toHtml(ctx.session.user)+", ");
-	    			}
-	    			ctx.println("<hr>");
-	    		}
-	    		ctx.println("</td>");
-	    		ctx.print("</tr>");
-	    	}
-	    	ctx.print("</table>"); // end of votes-by-organization
-
-	    	if(isUnofficial || UserRegistry.userIsTC(ctx.session.user)) {
-	    		ctx.println("<div class='graybox'>"+r.resolverToString());
-	    		ctx.print("</div>");
-	    	}
-
-
-	    	if((r.nexthighest > 0) && (r.winner!=null)&&(r.winner.score==0)) {
-	    		// This says that the optimal value was NOT the numeric winner.
-	    		ctx.print("<i>not enough votes to overturn approved item</i><br>");
-	    	} else if(!r.disputes.isEmpty()) {
-	    		ctx.print(" "+ctx.iconHtml("warn","Warning")+"Disputed with: ");
-	    		for(Race.Chad disputor : r.disputes) {
-	    			ctx.print("<span title='#"+disputor.xpath+"'>"+disputor.value+"</span> ");
-	    		}
-	    		ctx.print("");
-	    		ctx.print("<br>");
-	    	} else if(r.hadDisqualifiedWinner) {
-	    		ctx.print("<br><b>"+ctx.iconHtml("warn","Warning")+"Original winner of votes was disqualified due to errors.</b><br>");
-	    	}
-	    	if(isUnofficial && r.hadOtherError) {
-	    		ctx.print("<br><b>"+ctx.iconHtml("warn","Warning")+"Had Other Error.</b><br>");
-	    	}
-
-	    	ctx.print("<br><hr><i>Voting results by item:</i>");
-	    	ctx.print("<table class='list' border=1 summary='voting results by item'>");
-	    	ctx.print("<tr class='heading'><th>Value</th><th>Item</th><th>Score</th><th>O/N</th><th>Status "+oldVersion+"</th><th>Status "+newVersion+"</th></tr>");
-	    	int nn=0;
-
-	    	int lastReleaseXpath = r.getLastReleaseXpath();
-	    	String lastReleaseStatus = r.getLastReleaseStatus().toString();
-
-	    	for(CandidateItem citem : numberedItemsList) {
-	    		ctx.println("<tr class='row"+(nn++ % 2)+"'>");
-	    		if(citem==null) {ctx.println("</tr>"); continue; } 
-	    		String theValue = citem.value;
-	    		String title="X#"+citem.xpathId;
-
-	    		// find Chad item that matches citem
-
-	    		long score = -1;
-	    		Race.Chad item = null;
-	    		if(citem.inheritFrom==null) {
-	    			for(Race.Chad anitem : r.chads.values()) {
-	    				if(anitem.xpath==citem.xpathId) {
-	    					item = anitem;
-	    					title="#"+item.xpath;
-	    				}
-	    			}
-	    		}
-
-	    		//for(Race.Chad item : r.chads.values()) {
-	    		if(item!=null&&theValue == null) {  
-	    			if(item.xpath == r.base_xpath) {
-	    				theValue = "<i>(Old Vote for Status Quo)</i>";
-	    			} else {
-	    				theValue = "<strike>(Old Vote for Other Item"+")</strike>";
-	    			}
-	    		}
-
-	    		ctx.print("<td>");
-	    		if(item!=null) {
-	    			if(item == r.winner) {
-	    				ctx.print("<b>");
-	    			}
-	    			if(item.disqualified) {
-	    				ctx.print("<strike>");
-	    			}
-	    		}
-	    		ctx.print("<span dir='"+ctx.getDirectionForLocale()+"' title='"+title+"'>"+theValue+"</span> ");
-	    		if(item!=null) {
-	    			if(item.disqualified) {
-	    				ctx.print("</strike>");
-	    			}
-	    			if(item == r.winner) {
-	    				ctx.print("</b>");
-	    			}
-	    			if(item == r.existing) {
-	    				ctx.print(ctx.iconHtml("star","existing item"));
-	    			}
-	    		}
-	    		ctx.print("</td>");
-
-	    		ctx.println("<th class='warningReference'>#"+nn+"</th>");
-	    		if(item!=null) {
-	    			ctx.print("<td>"+ totals[nn-1] +"</td>");
-	    			if(item == r.Ochad) {
-	    				ctx.print("<td>O</td>");
-	    			} else if(item == r.Nchad) {
-	    				ctx.print("<td>N</td>");
-	    			} else {
-	    				ctx.print("<td></td>");
-	    			}
-	    			if(item.xpath == lastReleaseXpath) {
-	    				ctx.print("<td>"+lastReleaseStatus.toString().toLowerCase()+"</td>");
-	    			} else {
-	    				ctx.print("<td></td>");
-	    			}
-	    			if(item == r.winner) {
-	    				ctx.print("<td>"+r.vrstatus.toString().toLowerCase()+"</td>");
-	    			} else {
-	    				ctx.print("<td></td>");
-	    			}
-
-	    		} else {
-	    			/* no item */
-	    			if(citem.inheritFrom!=null) {
-	    				ctx.println("<td colspan=4><i>Inherited from "+citem.inheritFrom+"</i></td>");
-	    			} else {
-	    				ctx.println("<td colspan=4><i>Item not found!</i>");
-		    			if(isUnofficial) {
-		    				ctx.println("Looking for xpid " + citem.xpathId+"=="+xpt.getById(citem.xpathId)+"<br/>");
-		    				for(Race.Chad anitem : r.chads.values()) {
-		    					ctx.println(anitem+"="+anitem.xpath+"=="+xpt.getById(anitem.xpath)+"<br/>");
-			    			}
-		    			}
-	    				ctx.println("</td>");
-	    			}
-	    		}
-	    		ctx.print("</tr>");
-	    	}
-	    	ctx.print("</table>");
-	    	//if(UserRegistry.userIsTC(ctx.session.user)) {
-	    	if(r.winner != null ) {
-	    		CandidateItem witem = null;
-	    		int wn = -1;
-	    		nn=0;
-	    		for(CandidateItem citem : numberedItemsList) {
-	    			nn++;
-	    			if(citem == null) continue;
-	    			if(r.winner.xpath==citem.xpathId) {
-	    				witem = citem;
-	    				wn=nn;
-	    			}
-	    		}
-	    		ctx.print("<b class='selected'>Optimal field</b>: #"+wn+" <span dir='"+ctx.getDirectionForLocale()+"' class='winner' title='#"+r.winner.xpath+"'>"+r.winner.value+"</span>, " + r.vrstatus + ", <!-- score: "+r.winner.score +" -->");
-	    	}
-
-	    	ctx.println("For more information, see <a href='http://cldr.unicode.org/index/process#Voting_Process'>Voting Process</a><br>");
-	    } catch (SQLException se) {
-		ctx.println("<div class='ferrbox'>Error fetching vetting results:<br><pre>"+se.toString()+"</pre></div>");
-	    }
+	    showVotingResults(ctx, section, p, numberedItemsList, totals);
             
 	    ctx.println("</td></tr>");
             
@@ -9412,6 +9039,273 @@ o	            		}*/
             }
 		}
     }
+    /**
+     * @param ctx
+     * @param section
+     * @param p
+     * @param numberedItemsList
+     * @param totals
+     */
+    private void showVotingResults(WebContext ctx, DataSection section,
+            DataSection.DataRow p,
+            List<DataSection.DataRow.CandidateItem> numberedItemsList,
+            long[] totals) {
+        ctx.println("<i>no voting results available-TODO</i>");
+        // ( Byte code err 47 (!!) in the following code...)
+//        else {
+//            Vetting.DataTester tester  = null;
+//            /*try */ {
+//                //tester = vet.getTester(uf.dbSource);
+//                //Race r =  null; // vet.getRace(section.locale, p.getXpathId(),uf.dbEntry.getConnectionAlias(),tester);
+//                Race r = new Race(getSTFactory().ballotBoxForLocale(section.locale()),p.getXpath());
+//                ctx.println("<i>Voting results by organization:</i><br>");
+//                ctx.print("<table class='list' border=1 summary='voting results by organization'>");
+//                ctx.print("<tr class='heading'><th>Organization</th><th>Organization's Vote</th><th>Item</th><th>Score</th><th>Conflicting Votes</th></tr>");
+//                int onn=0;
+//                EnumSet<VoteResolver.Organization> conflictedOrgs;
+//                if(r!=null)  conflictedOrgs= r.resolver.getConflictedOrganizations();
+//                if(r!=null)  for(VoteResolver.Organization org : VoteResolver.Organization.values()) {
+//                    String orgVote = r.getOrgVote(org);
+//                    Map<String,Long> o2c = r.getOrgToVotes(org);
+//
+//                    ctx.println("<tr class='row"+(onn++ % 2)+"'>");
+//                    long score=0;
+//
+//                    CandidateItem oitem = null;
+//                    int on = -1;
+//                    if(orgVote != null)
+//                    {
+//                        int nn=0;
+//                        for(CandidateItem citem : numberedItemsList) {
+//                            nn++;
+//                            if(citem==null) continue;
+//                            if(citem.value.equals(orgVote)) {
+//                                oitem = citem;
+//                                on=nn;
+//                            }
+//                        }
+//                        if(oitem!=null) {
+//                            Long l = o2c.get(oitem.value);
+//                            if(l != null) {
+//                                score = l;
+//                                //				    System.err.println(org.name+": ox " + oitem.xpathId + " -> l " + l + ", nn="+nn);
+//                                if(on>=0) {
+//                                    totals[on-1]+=score;
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    ctx.print("<th>"+org.name()+"</th>");
+//                    ctx.print("<td>");
+//                    if(orgVote == null) {
+//                        ctx.print("<i>(No vote.)</i>");
+//                        if(conflictedOrgs.contains(org)) {
+//                            ctx.print("<br>");
+//                            ctx.print(ctx.iconHtml("disp","Vetter Dispute"));
+//                            ctx.print(" (Dispute among "+org.name()+" vetters) ");
+//                        }
+//                    } else {
+//                        //	    			String theValue = orgVote;
+//                        //	    			if(theValue == null) {  
+//                        //	    				if(orgVote.xpath == r.base_xpath) {
+//                        //	    					theValue = "<i>(Old Vote for Status Quo)</i>";
+//                        //	    				} else {
+//                        //	    					theValue = "<strike>(Old Vote for Other Item)</strike>";
+//                        //	    				}
+//                        //	    			}
+//                        //	    			if(orgVote.disqualified) {
+//                        //	    				ctx.print("<strike>");
+//                        //	    			}
+//                        ctx.print("<span dir='"+ctx.getDirectionForLocale()+"'>");
+//                        //						ctx.print(VoteResolver.getOrganizationToMaxVote(section.locale).
+//                        //						            get(VoteResolver.Organization.valueOf(org.name)).toString().replaceAll("street","guest")
+//                        ctx.print(ctx.iconHtml("vote","#")+orgVote+"</span>");
+//                        //	    			if(orgVote.disqualified) {
+//                        //	    				ctx.print("</strike>");
+//                        //	    			}
+//                        //	    			if(org.votes.isEmpty()/* && (r.winner.orgsDefaultFor!=null) && (r.winner.orgsDefaultFor.contains(org))*/) {
+//                        //	    				ctx.print(" (default vote)");
+//                        //	    			}
+//                        // TODO: print which users voted here.
+//
+//                    }
+//                    ctx.print("</td>");
+//
+//                    ctx.print("<td class='warningReference'>#"+on);
+//                    if(on==-1) {
+//                        ctx.print("<br/><b class='graybox'>Error: this value is missing.</b>");
+//                    }
+//                    ctx.print("</td> ");
+//
+//                    ctx.print("<td>"+score+"</td>");
+//
+//                    ctx.print("<td>");
+//                    if(!o2c.isEmpty()) for(Map.Entry<String,Long> item : o2c.entrySet()) {
+//                        if(item.getKey().equals(orgVote)) continue;
+//
+//                        ctx.print("<span dir='"+ctx.getDirectionForLocale()+"' class='notselected' title='#"+""+"'>"+item.getKey()+"</span>");
+//                        ctx.print("<br>");
+//                        ctx.print(" - Score:"+item.getValue());
+//                        //	    			for(UserRegistry.User u : item.voters)  { 
+//                        //	    				if(!u.voterOrg().equals(org.name)) continue;
+//                        //	    				ctx.print(u.toHtml(ctx.session.user)+", ");
+//                        //	    			}
+//                        // TODO: print which users voted
+//                        ctx.println("<hr>");
+//                    }
+//                    ctx.println("</td>");
+//                    ctx.print("</tr>");
+//                }
+//                ctx.print("</table>"); // end of votes-by-organization
+//
+//                if(isUnofficial || UserRegistry.userIsTC(ctx.session.user)) {
+//                    ctx.println("<div class='graybox'>"+r.resolverToString());
+//                    ctx.print("</div>");
+//                }
+//                //
+//                // TODO: explain teh winning.
+//                //
+//                //	    	if((r.nexthighest > 0) && (r.winner!=null)&&(r.winner.score==0)) {
+//                //	    		// This says that the optimal value was NOT the numeric winner.
+//                //	    		ctx.print("<i>not enough votes to overturn approved item</i><br>");
+//                //	    	} else if(!r.disputes.isEmpty()) {
+//                //	    		ctx.print(" "+ctx.iconHtml("warn","Warning")+"Disputed with: ");
+//                //	    		for(Race.Chad disputor : r.disputes) {
+//                //	    			ctx.print("<span title='#"+disputor.xpath+"'>"+disputor.value+"</span> ");
+//                //	    		}
+//                //	    		ctx.print("");
+//                //	    		ctx.print("<br>");
+//                //	    	} else if(r.hadDisqualifiedWinner) {
+//                //	    		ctx.print("<br><b>"+ctx.iconHtml("warn","Warning")+"Original winner of votes was disqualified due to errors.</b><br>");
+//                //	    	}
+//                //	    	if(isUnofficial && r.hadOtherError) {
+//                //	    		ctx.print("<br><b>"+ctx.iconHtml("warn","Warning")+"Had Other Error.</b><br>");
+//                //	    	}
+//
+//                //	    	ctx.print("<br><hr><i>Voting results by item:</i>");
+//                //	    	ctx.print("<table class='list' border=1 summary='voting results by item'>");
+//                //	    	ctx.print("<tr class='heading'><th>Value</th><th>Item</th><th>Score</th><th>O/N</th><th>Status "+oldVersion+"</th><th>Status "+newVersion+"</th></tr>");
+//                //	    	int nn=0;
+//                //
+//                //	    	int lastReleaseValue= r.getLastReleaseValue();
+//                //	    	String lastReleaseStatus = r.getLastReleaseStatus().toString();
+//                //
+//                //	    	for(CandidateItem citem : numberedItemsList) {
+//                //	    		ctx.println("<tr class='row"+(nn++ % 2)+"'>");
+//                //	    		if(citem==null) {ctx.println("</tr>"); continue; } 
+//                //	    		String theValue = citem.value;
+//                //	    		String title="X#"+citem.xpathId;
+//                //
+//                //	    		// find Chad item that matches citem
+//                //
+//                //	    		long score = -1;
+//                //	    		Race.Chad item = null;
+//                //	    		if(citem.inheritFrom==null) {
+//                //	    			for(Race.Chad anitem : r.chads.values()) {
+//                //	    				if(anitem.xpath==citem.xpathId) {
+//                //	    					item = anitem;
+//                //	    					title="#"+item.xpath;
+//                //	    				}
+//                //	    			}
+//                //	    		}
+//                //
+//                //	    		//for(Race.Chad item : r.chads.values()) {
+//                //	    		if(item!=null&&theValue == null) {  
+//                //	    			if(item.xpath == r.base_xpath) {
+//                //	    				theValue = "<i>(Old Vote for Status Quo)</i>";
+//                //	    			} else {
+//                //	    				theValue = "<strike>(Old Vote for Other Item"+")</strike>";
+//                //	    			}
+//                //	    		}
+//                //
+//                //	    		ctx.print("<td>");
+//                //	    		if(item!=null) {
+//                //	    			if(item == r.winner) {
+//                //	    				ctx.print("<b>");
+//                //	    			}
+//                //	    			if(item.disqualified) {
+//                //	    				ctx.print("<strike>");
+//                //	    			}
+//                //	    		}
+//                //	    		ctx.print("<span dir='"+ctx.getDirectionForLocale()+"' title='"+title+"'>"+theValue+"</span> ");
+//                //	    		if(item!=null) {
+//                //	    			if(item.disqualified) {
+//                //	    				ctx.print("</strike>");
+//                //	    			}
+//                //	    			if(item == r.winner) {
+//                //	    				ctx.print("</b>");
+//                //	    			}
+//                //	    			if(item == r.existing) {
+//                //	    				ctx.print(ctx.iconHtml("star","existing item"));
+//                //	    			}
+//                //	    		}
+//                //	    		ctx.print("</td>");
+//                //
+//                //	    		ctx.println("<th class='warningReference'>#"+nn+"</th>");
+//                //	    		if(item!=null) {
+//                //	    			ctx.print("<td>"+ totals[nn-1] +"</td>");
+//                //	    			if(item == r.Ochad) {
+//                //	    				ctx.print("<td>O</td>");
+//                //	    			} else if(item == r.Nchad) {
+//                //	    				ctx.print("<td>N</td>");
+//                //	    			} else {
+//                //	    				ctx.print("<td></td>");
+//                //	    			}
+//                //	    			if(item.xpath == lastReleaseXpath) {
+//                //	    				ctx.print("<td>"+lastReleaseStatus.toString().toLowerCase()+"</td>");
+//                //	    			} else {
+//                //	    				ctx.print("<td></td>");
+//                //	    			}
+//                //	    			if(item == r.winner) {
+//                //	    				ctx.print("<td>"+r.vrstatus.toString().toLowerCase()+"</td>");
+//                //	    			} else {
+//                //	    				ctx.print("<td></td>");
+//                //	    			}
+//                //
+//                //	    		} else {
+//                //	    			/* no item */
+//                //	    			if(citem.inheritFrom!=null) {
+//                //	    				ctx.println("<td colspan=4><i>Inherited from "+citem.inheritFrom+"</i></td>");
+//                //	    			} else {
+//                //	    				ctx.println("<td colspan=4><i>Item not found!</i>");
+//                //		    			if(isUnofficial) {
+//                //		    				ctx.println("Looking for xpid " + citem.xpathId+"=="+xpt.getById(citem.xpathId)+"<br/>");
+//                //		    				for(Race.Chad anitem : r.chads.values()) {
+//                //		    					ctx.println(anitem+"="+anitem.xpath+"=="+xpt.getById(anitem.xpath)+"<br/>");
+//                //			    			}
+//                //		    			}
+//                //	    				ctx.println("</td>");
+//                //	    			}
+//                //	    		}
+//                //	    		ctx.print("</tr>");
+//                //	    	}
+//                //	    	ctx.print("</table>");
+//
+//
+//                //if(UserRegistry.userIsTC(ctx.session.user)) {
+//                //	    	if()
+//                //	    	if(r.winner != null ) {
+//                //	    		CandidateItem witem = null;
+//                //	    		int wn = -1;
+//                //	    		nn=0;
+//                //	    		for(CandidateItem citem : numberedItemsList) {
+//                //	    			nn++;
+//                //	    			if(citem == null) continue;
+//                //	    			if(r.winner.xpath==citem.xpathId) {
+//                //	    				witem = citem;
+//                //	    				wn=nn;
+//                //	    			}
+//                //	    		}
+//                ctx.print("<b class='selected'>Optimal field</b>: "+r.resolver.getWinningStatus()+" <span dir='"+ctx.getDirectionForLocale()+"' class='winner' title='#'>"+r.resolver.getWinningValue()+"</span>");
+//                //	    	}
+//
+//                ctx.println("For more information, see <a href='http://cldr.unicode.org/index/process#Voting_Process'>Voting Process</a><br>");
+//                //	    } catch (SQLException se) {
+//                //		ctx.println("<div class='ferrbox'>Error fetching vetting results:<br><pre>"+se.toString()+"</pre></div>");
+//            }
+//        }
+    }
     
     /**
      * Print empty cells. Not the equivalent of printCells(..., null), which will still print an example.
@@ -9421,8 +9315,6 @@ o	            		}*/
      */
     void printEmptyCells(WebContext ctx, DataSection section, DataSection.DataRow p, String ourAlign, boolean zoomedIn) {
         int colspan = zoomedIn?1:1;
-        boolean haveTests = false;
-        boolean haveReferences = false; // no item
         ctx.print("<td  colspan='"+colspan+"' class='propcolumn' align='"+ourAlign+"' dir='"+ctx.getDirectionForLocale()+"' valign='top'>");
         ctx.println("</td>");    
         if(zoomedIn) {
@@ -9441,14 +9333,13 @@ o	            		}*/
      * @param numberedItemsList All items are added here.
      */ 
     void printCells(WebContext ctx, DataSection section, DataSection.DataRow p, DataSection.DataRow.CandidateItem item, String fieldHash, String resultXpath, String ourVoteXpath,
-        boolean canModify, String ourAlign, UserLocaleStuff uf, boolean zoomedIn, List<DataSection.DataRow.CandidateItem> numberedItemsList, List<String> refsList,
+        boolean canModify, String ourAlign, UserLocaleStuff uf, boolean zoomedIn, List<DataSection.DataRow.CandidateItem> numberedItemsList, 
         ExampleContext exampleContext) {
         // ##6.1 proposed - print the TOP item
         
         int colspan = 1;
         String itemExample = null;
         boolean haveTests = false;
-        boolean haveReferences = (item != null) && (item.references!=null) && (refsList != null);
         
         if(item != null) {
             itemExample = uf.getExampleGenerator().getExampleHtml(item.xpath, item.value,
@@ -9468,7 +9359,7 @@ o	            		}*/
         ctx.println("</td>");    
         // 6.3 - If we are zoomed in, we WILL have an additional column withtests and/or references.
         if(zoomedIn) {
-            if(true || haveTests || haveReferences) {
+            if(true || haveTests) {
                 if(true || item.tests != null) {
                     ctx.println("<td nowrap class='warncell'>");
                     ctx.println("<span class='warningReference'>");
@@ -9481,18 +9372,6 @@ o	            		}*/
                     numberedItemsList.add(item);
                     int mySuperscriptNumber = numberedItemsList.size();  // which # is this item?
                     ctx.println("#"+mySuperscriptNumber+"</span>");
-                    if(haveReferences) {
-                        ctx.println("<br>");
-                    }
-                }
-                if(haveReferences) {
-                    int myNumber = refsList.indexOf(item.references);
-                    if(myNumber == -1) {                
-                        myNumber = refsList.size();
-                        refsList.add(item.references);
-                    }
-                    myNumber++; // 1 based
-                    ctx.print("<span class='referenceReference'><img src='http://unicode.org/cldr/data/dropbox/misc/images/reference.jpg'>#"+myNumber+"</span>");
                 }
                 ctx.println("</td>");
             } else {
@@ -9518,17 +9397,17 @@ o	            		}*/
     void printItemTypeName(WebContext ctx, DataRow p, boolean canModify, boolean zoomedIn, String specialUrl)  {
         String disputeIcon = "";
         if(canModify) {
-            if(vet.queryOrgDispute(ctx.session.user.voterOrg(), p.getLocale(), p.base_xpath)) {
+            if(vet.queryOrgDispute(ctx.session.user.voterOrg(), p.getLocale(), p.getXpathId())) {
                 disputeIcon = ctx.iconHtml("disp","Vetter Dispute");
             }
         }
-        ctx.print("<tt title='"+xpt.getPrettyPath(p.base_xpath)+"' >");
-        String typeShown = p.type.replaceAll("/","/\u200b");
+        ctx.print("<tt title='"+xpt.getPrettyPath(p.getXpathId())+"' >");
+        String typeShown = p.prettyPath.replaceAll("/","/\u200b");
         if(!zoomedIn) {
             if(specialUrl != null) {
                 ctx.print("<a class='notselected' "+ctx.atarget()+" href='"+specialUrl+"'>"+typeShown+disputeIcon+"</a>");
             } else {
-                fora.showForumLink(ctx,p,p.parentRow.base_xpath,typeShown+disputeIcon);
+                fora.showForumLink(ctx,p,p.parentRow.getXpathId(),typeShown+disputeIcon);
             }
         } else {
             ctx.print(typeShown+disputeIcon);
@@ -9620,7 +9499,7 @@ o	            		}*/
         ctx.print("<span "+pClass+">");
         String processed = null;
         if(item.value.length()!=0) {
-            processed = ctx.processor.processForDisplay(xpt.getById(p.base_xpath),item.value);
+            processed = ctx.processor.processForDisplay(xpt.getById(p.getXpathId()),item.value);
             ctx.print(processed);
         } else {
             ctx.print("<i dir='ltr'>(empty)</i>");
@@ -9629,7 +9508,7 @@ o	            		}*/
         ctx.print("</span>");
         if((!fallback||((p.previousItem==null)&&item.isParentFallback)||  // it's either: not inherited OR not a "shim"  and..
             (item.pathWhereFound != null && !item.isFallback )) &&    // .. or it's an alias (that is still the 1.4 item)
-            item.xpathId == p.base_xpath) {   // its xpath is the base xpath.
+            item.xpathId == p.getXpathId()) {   // its xpath is the base xpath.
             ctx.print(ctx.iconHtml("star","CLDR "+getOldVersion()+" item"));
         } else if (isUnofficial && item.isParentFallback) {
 //            ctx.print(ctx.iconHtml("okay","parent fallback"));
@@ -10792,6 +10671,7 @@ o	            		}*/
     }
     
     protected static void busted(String what, Throwable t, String stack) {
+        logException(t,what,stack);
         System.err.println("SurveyTool busted: " + what + " ( after " +pages +"html+"+xpages+"xml pages served,  " + getGuestsAndUsers()  + ")");
         try {
             throw new InternalError("broke here");

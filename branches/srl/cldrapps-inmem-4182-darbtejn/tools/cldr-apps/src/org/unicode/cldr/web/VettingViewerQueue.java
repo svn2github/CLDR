@@ -462,12 +462,8 @@ public class VettingViewerQueue {
                 	
                 	r = sm.vet.getRace(loc, base_xpath, conn, tester);
                     VoteResolver.Organization org = (Organization) user;
-                    Race.Chad c =  r.getOrgVote(org);
-                    if(c==null) {
-                        //System.err.println("Error: organization " + org + " vote null for " + path + " [#"+base_xpath+"]");
-                        return null;
-                    }
-                    return c.value;
+                    
+                    return r.resolver.getOrgVote(org);
                 }catch (SQLException e) {
                     throw new RuntimeException(e);
                 } finally {

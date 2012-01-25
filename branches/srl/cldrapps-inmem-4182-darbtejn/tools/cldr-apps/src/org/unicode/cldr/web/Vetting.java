@@ -45,11 +45,13 @@ import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
+import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.web.CLDRDBSourceFactory.DBEntry;
 import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.DBUtils.ConnectionHolder;
 import org.unicode.cldr.web.DataSection.DataRow;
 import org.unicode.cldr.web.DataSection.DataRow.CandidateItem;
+import org.unicode.cldr.web.UserRegistry.User;
 import org.unicode.cldr.web.Vetting.DataTester;
 
 import com.ibm.icu.dev.test.util.ElapsedTimer;
@@ -1118,18 +1120,19 @@ public class Vetting {
 				        //queryValue.setString(1,locale.toString());
 				        
 				        // Step 0: gather all votes
-						Race r = new Race(this, locale);
-						r.setTester(tester);
-						r.clear(base_xpath, locale, -1);
-						resultXpath = r.optimal(conn);
-						
-				        racesToUpdate.add(r);
+//						Race r = new Race(this, locale);
+//						r.setTester(tester);
+//						r.clear(base_xpath, locale, -1);
+//						resultXpath = r.optimal(conn);
+//						
+//				        racesToUpdate.add(r);
+				        // TODO: nothign to do.
 				        
 						// make the Race update itself ( we don't do this if it's just investigatory)
-	                    synchronized (this) {
-	                        int rc = r.updateDB(conn);
-	                        updates |= rc;
-	                    }
+//	                    synchronized (this) {
+//	                        int rc = r.updateDB(conn);
+//	                        updates |= rc;
+//	                    }
 					}
     			}
     			//                System.err.println("Missing results "+ncount+" for " + locale + " updated in " + et_m.toString());
@@ -1198,10 +1201,10 @@ public class Vetting {
     private int correctErrors(Set<Race> errorRaces, Connection conn) throws SQLException {
         int n = 0;
 //        System.err.println(errorRaces.size() + " to correct");
-        for(Race r : errorRaces) {
-            r.updateDB(conn);
-            n++;
-        }
+//        for(Race r : errorRaces) {
+//            r.updateDB(conn);
+//            n++;
+//        }
         conn.commit();
 //        System.err.println(n+" items corrected");
         return n;
@@ -1557,14 +1560,8 @@ public class Vetting {
     	return getRace(locale,base_xpath,conn,null);
     }
     public Race getRace(CLDRLocale locale, int base_xpath,Connection conn, Vetting.DataTester tester) throws SQLException {
-    	// Step 0: gather all votes
-    	Race r = new Race(this, locale);
-    	if(tester!=null) {
-    		r.setTester(tester);
-    	}
-    	r.clear(base_xpath, locale);
-    	r.optimal(conn);
-    	return r;
+        // pass off to Race BallotBox delegate
+        return new Race(sm.getSTFactory().ballotBoxForLocale(locale),sm.xpt.getById(base_xpath));
     }
 		
     /**
@@ -2857,9 +2854,9 @@ if(true == true)    throw new InternalError("removed from use.");
 		 * Vote was accepted
 		 * @param p
 		 * @param oldVote
-		 * @param base_xpath
+		 * @param value
 		 */
-		void handleVote(DataRow p, int oldVote, int base_xpath);
+		void handleVote(DataRow p, String oldVote, String value);
 
 		/**
 		 * Internal error, an unknown choice was made.
@@ -2918,7 +2915,9 @@ if(true == true)    throw new InternalError("removed from use.");
 //            System.err.println("PPC["+podBase+"] - ges-> " + oldSection);
             
             SurveyMain.UserLocaleStuff uf = ctx.getUserFile();
-            CLDRFile cf = uf.cldrfile;
+
+            CLDRFile cf = sm.getSTFactory().make(ctx.getLocale().getBaseName(), false,DraftStatus.unconfirmed);
+            BallotBox<User> ballotBox = sm.getSTFactory().ballotBoxForLocale(ctx.getLocale());
             if(cf == null) {
                 throw new InternalError("CLDRFile is null!");
             }
@@ -2931,7 +2930,7 @@ if(true == true)    throw new InternalError("removed from use.");
                 // Set up checks
                 CheckCLDR checkCldr = (CheckCLDR)uf.getCheck(ctx); //make tests happen
             
-                if(sm.processPeaChanges(ctx, oldSection, cf, ourSrc,dsrh)) {
+                if(sm.processPeaChanges(ctx, oldSection, cf, ballotBox,dsrh)) {
             		Connection conn = null;
             		try {
             			conn = sm.dbUtils.getDBConnection();

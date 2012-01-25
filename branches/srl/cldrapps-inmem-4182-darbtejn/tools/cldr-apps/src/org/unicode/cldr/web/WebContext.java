@@ -15,6 +15,7 @@ import org.unicode.cldr.util.*;
 import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.SurveyAjax.AjaxType;
 import org.unicode.cldr.web.SurveyMain.UserLocaleStuff;
+import org.unicode.cldr.web.UserRegistry.User;
 import org.unicode.cldr.web.Vetting.DataSubmissionResultHandler;
 import org.unicode.cldr.web.WebContext.HTMLDirection;
 import org.unicode.cldr.test.*;
@@ -1648,6 +1649,14 @@ public class WebContext implements Cloneable, Appendable {
         }
     }
 
+    private User user() {
+        if(session!=null && session.user!=null) {
+            return session.user;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Get a certain cookie
      * @param id
@@ -1710,6 +1719,12 @@ public class WebContext implements Cloneable, Appendable {
             throws IOException {
         pw.append(csq,start,end);
         return this;
+    }
+
+    
+    @Override
+    public String toString() {
+        return "{ " + this.getClass().getName() + ": url="+url()+", ip="+this.userIP()+", user="+this.user()+"}";
     }
 
 }

@@ -34,7 +34,9 @@ import org.unicode.cldr.web.UserRegistry.User;
  *
  */
 public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.User> {
-	public static abstract class DoIfNotRecent {
+    private static final String SOME_KEY = "//ldml/localeDisplayNames/keys/key[@type=\"collation\"]";
+
+    public static abstract class DoIfNotRecent {
 		public abstract void handleDo();
 		private long lastTime = 0;
 		private long every = 0;
@@ -57,8 +59,20 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	private static void readonly() {
 		throw new InternalError("This is a readonly instance.");
 	}
+      /* (non-Javadoc)
+      * @see org.unicode.cldr.util.Factory#getSupplementalDirectory()
+      */
+     @Override
+     public File getSupplementalDirectory() {
+         File suppDir =  new File(getSourceDirectory()+"/../"+"supplemental");
+         return suppDir;
+     }
 
-	private static void unimp() {
+	/**
+	 * Throw an error. 
+	 */
+	@SuppressWarnings("unused")
+    static void unimp() {
 		throw new InternalError("NOT YET IMPLEMENTED - TODO!.");
 	}
 
@@ -69,14 +83,16 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	public class ReadOnlyAliasTo extends XMLSource {
 		protected XMLSource aliasOf;
 
-		public ReadOnlyAliasTo(XMLSource makeFrom) {			
-			aliasOf=makeFrom;
-			setLocaleID(aliasOf.getLocaleID());
-			CLDRFile loader = new CLDRFile(aliasOf/*,false*/);
-			loader.loadFromFile(new File(SurveyMain.fileBase,getLocaleID()+".xml"), getLocaleID(), getMinimalDraftStatus());
-//			System.out.println("Our id: " + this.getLocaleID());
+		public ReadOnlyAliasTo(CLDRLocale locale) {			
+            setLocaleID(locale.getBaseName());
+			aliasOf=sm.getDiskFactory().makeSource(locale.getBaseName()) /* .getUnresolving() */;
+//			//CLDRFile loader = new CLDRFile(aliasOf/*,false*/);
+//			CLDRFile loader = CLDRFile.loadFromFile(new File(SurveyMain.fileBase,getLocaleID()+".xml"), getLocaleID(), getMinimalDraftStatus(), aliasOf);
+			System.out.println("@@@@[roa2] Our id: " + this.getLocaleID() + ", ");
 //			System.out.println("Parent = " + LocaleIDParser.getParent(this.getLocaleID()));
-//			System.out.println("XParent = " + CLDRLocale.getInstance(this.getLocaleID()).getParent());
+			System.out.println("@@@@XParent = " + CLDRLocale.getInstance(this.getLocaleID()).getParent());
+//            System.err.println("@@@@ loader["+getLocaleID()+"].cl = " + loader.getStringValue(SOME_KEY));
+            System.err.println("@@@@ aliasOf["+getLocaleID()+"].cl = " + aliasOf.getValueAtPath(SOME_KEY));
 		}
 
 		
@@ -85,7 +101,6 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		 */
 		@Override
 		public Object freeze() {
-			// TODO Auto-generated method stub
 			readonly();
 			return null;
 		}
@@ -121,7 +136,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		@Override
 		public String getValueAtDPath(String path) {
 			String v =  aliasOf.getValueAtDPath(path);
-			//System.err.println(path+"="+v);
+System.err.println("@@@@ ("+this.getLocaleID()+")" + path+"="+v);
 			return v;
 		}
 
@@ -174,14 +189,6 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 //			return handleGetAvailable();
 //		}
 
-//		/* (non-Javadoc)
-//		 * @see org.unicode.cldr.util.XMLSource#getSupplementalDirectory()
-//		 */
-//		@Override
-//		public File getSupplementalDirectory() {
-//			File suppDir =  new File(getSourceDirectory()+"/../"+"supplemental");
-//			return suppDir;
-//		}
 		
 		
 //		@Override
@@ -195,7 +202,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	public class DataBackedSource extends ReadOnlyAliasTo {
 		PerLocaleData ballotBox;
 		public DataBackedSource(PerLocaleData makeFrom) {
-			super(new SimpleXMLSource(makeFrom.getLocale().getBaseName()));
+			super(makeFrom.getLocale());
 			ballotBox = makeFrom;
 			ballotBox.aliasOf = aliasOf;
 		}
@@ -206,7 +213,6 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		 */
 		@Override
 		public Object freeze() {
-			// TODO Auto-generated method stub
 			readonly();
 			return null;
 		}
@@ -243,9 +249,13 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		public String getValueAtDPath(String path) {
 			Map<User,String> m = ballotBox.peekXpathToVotes(path);
 			if(m==null || m.isEmpty()) {
-				return aliasOf.getValueAtDPath(path);
+                String res =  aliasOf.getValueAtDPath(path);
+			    System.err.println("@@@@ ("+this.getLocaleID()+")" + path+"= [alias] "+res);
+			    return res;
 			} else {
-				return ballotBox.getResolver(m,path).getWinningValue();
+				String res = ballotBox.getResolver(m,path).getWinningValue();
+                System.err.println("@@@@ ("+this.getLocaleID()+")" + path+"= [res] "+res);
+                return res;
 //				System.err.println("Note: DBS.getValueAtDPath() blindly returning 1st value,  todo!!");
 //				return m.entrySet().iterator().next().getValue();
 			}
@@ -384,7 +394,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	protected CLDRFile handleMake(String localeID,
 	        boolean resolved,
 			DraftStatus madeWithMinimalDraftStatus) {
-		return new CLDRFile(makeSource(localeID,resolved));
+		return get(localeID).getFile(resolved);
 	}
 
 	public XMLSource makeSource(String localeID, boolean resolved) {
@@ -447,23 +457,43 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	 *
 	 */
 	private class PerLocaleData implements Comparable<PerLocaleData>, BallotBox<User>  {
-		private CLDRLocale locale;
+        private CLDRLocale locale;
 		private XMLSource xmlsource;
 		public XMLSource aliasOf;
 		private boolean readonly;
 		private CLDRFile oldFile;
 		
+		private CLDRFile file = null, rFile = null;
 		
+		public synchronized CLDRFile getOldFile() {
+		    if(oldFile==null) {
+	            oldFile = sm.getOldFactory().make(locale.getBaseName(), true);
+		    }
+		    return oldFile;
+		}
 		PerLocaleData(CLDRLocale locale) {
 			this.locale = locale;
 			readonly = isReadOnlyLocale(locale);
-			oldFile = sm.getOldFactory().make(locale.getBaseName(), true);
 		}
 
-		public XMLSource makeSource(boolean resolved) {
+		public synchronized CLDRFile getFile(boolean resolved) {
+            if(resolved) {
+                if(rFile == null) {
+                    rFile = new CLDRFile(makeSource(true));
+                }
+                return rFile;
+            } else {
+                if(file == null) {
+                    file = new CLDRFile(makeSource());
+                }
+                return file;
+            }
+        }
+
+        public XMLSource makeSource(boolean resolved) {
 			if(resolved==true) {
-			    unimp(); return null;
-			    //return new Factory.ResolvingSource(source);
+System.err.println("@@@@ STFactory " + locale + " requested resolved. Stack:\n" + StackTracker.currentStack());
+			    return makeResolvingSource(locale.getBaseName(), getMinimalDraftStatus());
 			} else {
 				return makeSource();
 			}
@@ -473,10 +503,11 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 			if(xmlsource == null) {
 				XMLSource s;
 				if(readonly) {
-					s = new ReadOnlyAliasTo(new SimpleXMLSource(locale.getBaseName()));
+					s = new ReadOnlyAliasTo(locale);
 				} else {
 					s = new DataBackedSource(this);
 				}
+				System.err.println("@@@@ PLD("+locale+")="+s.getClass().getName()+", ro="+readonly+", cl="+s.getValueAtPath(SOME_KEY));				
 				xmlsource = s;
 			}
 			return xmlsource;
@@ -581,6 +612,10 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 			} else {
 				Set<String> ts = new TreeSet<String>();
 				ts.addAll(m.values());
+				
+				// include the alias value, if not present.
+				String fbValue = aliasOf.getValueAtDPath(xpath);
+				ts.add(fbValue);
 				return ts;
 			}
 		}
@@ -590,14 +625,14 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 			updateVoteInfo.doIf();
 			VoteResolver<String> r = new VoteResolver<String>();
 			XPathParts xpp = new XPathParts(null,null);
-			xpp.set(oldFile.getFullXPath(path));
-			r.setLastRelease(oldFile.getStringValue(path), VoteResolver.Status.fromString(xpp.getAttributeValue(-1, LDMLConstants.DRAFT)));
+			xpp.set(getOldFile().getFullXPath(path));
+			r.setLastRelease(getOldFile().getStringValue(path), VoteResolver.Status.fromString(xpp.getAttributeValue(-1, LDMLConstants.DRAFT)));
 			if(m!=null) {
 				for(Map.Entry<User, String>e : m.entrySet()) {
 					r.add(e.getValue(), e.getKey().id);
 				}
 			} else {
-				System.err.println("m is null for " + path + " , but last release value is " + oldFile.getStringValue(path));
+				System.err.println("m is null for " + path + " , but last release value is " + getOldFile().getStringValue(path));
 			}
 			System.err.println("RESOLVER for " + path + " --> " + r.toString());
 			return r;

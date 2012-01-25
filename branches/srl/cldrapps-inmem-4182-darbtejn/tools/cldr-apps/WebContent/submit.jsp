@@ -212,9 +212,9 @@ for(String x : all) {
 </table>
 
 <hr/>
-Recast <%= updCnt  %> votes.
+Recast <%= updCnt  %> votes. TODO: update
 <%
-	if(doFinal && updCnt>0) {
+/* 	if(doFinal && updCnt>0) {
 	 cs.sm.startupThread.addTask(new SurveyThread.SurveyTask("UpdateAfterBulk:"+loc){
 		    public void run() throws Throwable {
 				cs.sm.updateLocale(loc);
@@ -225,7 +225,7 @@ Recast <%= updCnt  %> votes.
 		 
 	 });		
 	}
-%>
+ */%>
 
 </body>
 </html>

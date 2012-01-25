@@ -32,9 +32,25 @@ public interface BallotBox<T> {
 	 */
 	public String getVoteValue(T user, String distinguishingXpath);
 
+	/**
+	 * Get all of the voters for this xpath which are for a certain value.
+	 * @param xpath
+	 * @param value
+	 * @return
+	 */
 	public Set<User> getVotesForValue(String xpath, String value);
 
+	/**
+	 * Get the possible user values at this path. Could be null.
+	 * @param xpath
+	 * @return
+	 */
 	Set<String> getValues(String xpath);
 
+	/**
+	 * Get the vote resolver for this path.
+	 * @param path
+	 * @return
+	 */
 	VoteResolver<String> getResolver(String path);
 }
