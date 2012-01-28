@@ -193,7 +193,7 @@ GaMjkHmsSEDFwWxhKzAeugXZvcL
     public enum Subtype {none, noUnproposedVariant, deprecatedAttribute, illegalPlural, invalidLocale, 
       incorrectCasing, valueAlwaysOverridden, nullChildFile, internalError, coverageLevel, 
       missingPluralInfo, currencySymbolTooWide, incorrectDatePattern, abbreviatedDateFieldTooWide, 
-      displayCollision, illegalExemplarSet, missingAuxiliaryExemplars, missingPlaceholders, shouldntHavePlaceholders,
+      displayCollision, illegalExemplarSet, missingAuxiliaryExemplars, extraPlaceholders, missingPlaceholders, shouldntHavePlaceholders,
       couldNotAccessExemplars, noExemplarCharacters, modifiedEnglishValue, invalidCurrencyMatchSet, 
       multipleMetazoneMappings, noMetazoneMapping, noMetazoneMappingAfter1970, noMetazoneMappingBeforeNow, 
       cannotCreateZoneFormatter, insufficientCoverage, missingLanguageTerritoryInfo, missingEuroCountryInfo,
@@ -504,11 +504,16 @@ GaMjkHmsSEDFwWxhKzAeugXZvcL
     private List filteredCheckList = new ArrayList();
 
     public CompoundCheckCLDR add(CheckCLDR item) {
-      checkList.add(item);
-      if (filter == null || filter.reset(item.getClass().getName()).matches()) {
-        filteredCheckList.add(item);
-      }
-      return this;
+        checkList.add(item);
+        if (filter == null) {
+            filteredCheckList.add(item);
+        } else {
+            final String className = item.getClass().getName();
+            if (filter.reset(className).matches()) {
+                filteredCheckList.add(item);
+            }
+        }
+        return this;
     }
     public CheckCLDR handleCheck(String path, String fullPath, String value,
             Map<String, String> options, List<CheckStatus> result) {
@@ -600,6 +605,10 @@ GaMjkHmsSEDFwWxhKzAeugXZvcL
         }
       }
       return this;
+    }
+    
+    public String getFilteredTests() {
+        return filteredCheckList.toString();
     }
   }
 

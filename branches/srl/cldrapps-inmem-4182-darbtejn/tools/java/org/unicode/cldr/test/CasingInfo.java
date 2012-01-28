@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.unicode.cldr.test.CheckConsistentCasing.FirstLetterType;
+import org.unicode.cldr.test.CheckConsistentCasing.CasingType;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
@@ -31,16 +32,19 @@ import com.ibm.icu.text.UnicodeSet;
  * @author jchye
  */
 public class CasingInfo {
-    private Map<String, Map<String, FirstLetterType>> casing;
+    private Map<String, Map<String, CasingType>> casing;
     private Map<String, Boolean> localeUsesCasing;
-    private String casingDir;
+    private File casingDir;
 
-    public CasingInfo(String casingDir) {
-        this.casingDir = casingDir;
-        casing = new HashMap<String, Map<String, FirstLetterType>>();
+    public CasingInfo(String dir) {
+        this.casingDir = new File(dir);
+        casing = new HashMap<String, Map<String, CasingType>>();
         localeUsesCasing = new HashMap<String, Boolean>();
     }
     
+    /**
+     * ONLY usable in command line tests.
+     */
     public CasingInfo() {
         this(CldrUtility.COMMON_DIRECTORY + "/casing");
     }
@@ -50,14 +54,16 @@ public class CasingInfo {
      * @param localeID
      * @return
      */
-    public Map<String, FirstLetterType> getLocaleCasing(String localeID) {
-        // If there isn't any casing information available for the locale,
+    public Map<String, CasingType> getLocaleCasing(String localeID) {
+        // If there isn a casing file available for the locale,
         // recurse over the locale's parents until something is found.
         if (!casing.containsKey(localeID)) {
             loadFromXml(localeID);
             if (!casing.containsKey(localeID)) {
                 String parentID = LocaleIDParser.getSimpleParent(localeID);
-                if (!parentID.equals("root")) {
+                if (parentID.equals("root")) {
+                    System.err.println("Casing file not found for " + localeID);
+                } else {
                     casing.put(localeID, getLocaleCasing(parentID));
                 }
             }
@@ -72,13 +78,13 @@ public class CasingInfo {
      * @param localeID
      */
     private void loadFromXml(String localeID) {
-        CasingHandler handler = new CasingHandler();
-        XMLFileReader xfr = new XMLFileReader().setHandler(handler);
         File casingFile = new File(casingDir, localeID + ".xml");
         if(casingFile.isFile()) {
+            CasingHandler handler = new CasingHandler();
+            XMLFileReader xfr = new XMLFileReader().setHandler(handler);
             xfr.read(casingFile.toString(), -1, true);
             handler.addParsedResult(casing);
-        }
+        } // Fail silently if file not found.
     }
 
     /**
@@ -150,9 +156,9 @@ public class CasingInfo {
             out.print(localeID);
             out.print(",");
             out.print(localeUsesCasing.get(localeID) ? "Y" : "N");
-            Map<String, FirstLetterType> types = casing.get(localeID);
+            Map<String, CasingType> types = casing.get(localeID);
             for (int i = 0; i < typeNames.length; i++) {
-                FirstLetterType value = types.get(typeNames[i]);
+                CasingType value = types.get(typeNames[i]);
                 out.print("," + value == null ? null : value.toString().charAt(0));
             }
             out.println();
@@ -165,7 +171,7 @@ public class CasingInfo {
      * Writes all casing information in memory to files in XML format.
      */
     private void createCasingXml() {
-        File outputDir = new File(casingDir);
+        File outputDir = casingDir;
         if (!outputDir.exists()) {
             outputDir.mkdir();
         }
@@ -173,14 +179,14 @@ public class CasingInfo {
         Set<String> locales = casing.keySet();
         String[] typeNames = CheckConsistentCasing.typeNames;
         for (String localeID : locales) {
-            Map<String, FirstLetterType> localeCasing = casing.get(localeID);
+            Map<String, CasingType> localeCasing = casing.get(localeID);
             CasingSource source = new CasingSource(localeID);
             for (int i = 0; i < typeNames.length; i++) {
                 String typeName = typeNames[i];
                 if (typeName.equals(CheckConsistentCasing.NOT_USED)) continue;
-                FirstLetterType type = localeCasing.get(typeName);
-                if (type != FirstLetterType.other) {
-                    source.putValueAtDPath("//ldml/behavior/casing[@type=\"" + typeName + "\"]", type.toString());
+                CasingType type = localeCasing.get(typeName);
+                if (type != CasingType.other) {
+                    source.putValueAtDPath("//ldml/metadata/casingData/casingItem[@type=\"" + typeName + "\"]", type.toString());
                 }
             }
             CLDRFile cldrFile = new CLDRFile(source);
@@ -215,13 +221,13 @@ public class CasingInfo {
      * XML handler for parsing casing files.
      */
     private class CasingHandler extends XMLFileReader.SimpleHandler {
-        private Pattern casingPattern = Pattern.compile("//ldml/behavior/casing\\[@type=\"([/\\-\\w]+)\"\\]");
+        private Pattern casingPattern = Pattern.compile("//ldml/metadata/casingData/casingItem\\[@type=\"([/\\-\\w]+)\"\\]");
         private Pattern localePattern = Pattern.compile("//ldml/identity/language\\[@type=\"(\\w+)\"\\]");
         private String localeID;
-        private Map<String, FirstLetterType> caseMap;
+        private Map<String, CasingType> caseMap;
         
         public CasingHandler() {
-            caseMap = new HashMap<String, FirstLetterType>();
+            caseMap = new HashMap<String, CasingType>();
         }
         
         @Override
@@ -229,7 +235,7 @@ public class CasingInfo {
             Matcher matcher = casingPattern.matcher(path);
             // Parse casing info.
             if (matcher.matches()) {
-                caseMap.put(matcher.group(1), FirstLetterType.valueOf(value));
+                caseMap.put(matcher.group(1), CasingType.valueOf(value));
             } else {
                 // Parse the locale that the casing is for.
                 matcher = localePattern.matcher(path);
@@ -239,7 +245,7 @@ public class CasingInfo {
             }
         }
         
-        public void addParsedResult(Map<String, Map<String, FirstLetterType>> map) {
+        public void addParsedResult(Map<String, Map<String, CasingType>> map) {
             map.put(localeID, caseMap);
         }
     }

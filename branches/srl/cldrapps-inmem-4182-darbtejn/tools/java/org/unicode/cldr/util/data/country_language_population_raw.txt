@@ -86,7 +86,6 @@ Botswana	BW	"1,842,323"	81%	"25,680,000,000"		Afrikaans	af	"6,000"
 Botswana	BW	"1,842,323"	81%	"25,680,000,000"	official	English	en	81%		"https://www.cia.gov/cia/publications/factbook/geos/bc.html English official, 81% literacy; the figure is derived from literacy * lang pop"	
 Botswana	BW	"1,842,323"	81%	"25,680,000,000"	official	Tswana	tn	62%			
 Bouvet Island	BV	1	0%	0		Unknown or Invalid Language	und	1			
-Brazil	BR	"196,342,592"	89%	"1,836,000,000,000"		§Amapá Creole	§amd	"27,400"			
 Brazil	BR	"196,342,592"	89%	"1,836,000,000,000"		German	de	"1,650,000"			
 Brazil	BR	"196,342,592"	89%	"1,836,000,000,000"		Guajajára	gub	"16,500"			
 Brazil	BR	"196,342,592"	89%	"1,836,000,000,000"		Italian	it	"548,000"			
@@ -332,7 +331,6 @@ Hungary	HU	"9,930,915"	99%	"191,300,000,000"		Slovak	sk	"11,400"
 Hungary	HU	"9,930,915"	99%	"191,300,000,000"		Slovenian	sl	"4,980"			
 Iceland	IS	"304,367"	99%	"12,140,000,000"		Danish	da	"2,250"			
 Iceland	IS	"304,367"	99%	"12,140,000,000"	official	Icelandic	is	100%		http://en.wikipedia.org/wiki/Iceland - Icelandic official	
-India	IN	"1,147,995,904"	61%	"2,989,000,000,000"		§Rajbanshi	§rjb	"3,020,000"			
 India	IN	"1,147,995,904"	61%	"2,989,000,000,000"	official_regional	Assamese	as	1.3%			
 India	IN	"1,147,995,904"	61%	"2,989,000,000,000"		Awadhi	awa	"21,300,000"	5%		
 India	IN	"1,147,995,904"	61%	"2,989,000,000,000"		Badaga	bfq	"261,000"			
@@ -663,7 +661,6 @@ Namibia	NA	"2,088,669"	85%	"10,720,000,000"		Ndonga	ng	21%
 Namibia	NA	"2,088,669"	85%	"10,720,000,000"		Tswana	tn	"6,050"			
 Nauru	NR	"13,770"	99%	"60,000,000"	official	English	en	99%			
 Nauru	NR	"13,770"	99%	"60,000,000"	official	Nauru	na	50%		http://en.wikipedia.org/wiki/Nauru_language almost all speakers bilingual in English	No literacy figures available for Nauru
-Nepal	NP	"29,519,114"	49%	"29,040,000,000"		§Rajbanshi	§rjb	"152,000"			
 Nepal	NP	"29,519,114"	49%	"29,040,000,000"		Awadhi	awa	"657,000"			
 Nepal	NP	"29,519,114"	49%	"29,040,000,000"		Bagheli	bfy	"160,000"			
 Nepal	NP	"29,519,114"	49%	"29,040,000,000"		Bantawa	bap	"435,000"			

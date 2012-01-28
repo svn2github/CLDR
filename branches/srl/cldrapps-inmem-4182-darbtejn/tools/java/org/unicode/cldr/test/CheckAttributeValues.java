@@ -56,6 +56,12 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
     public CheckCLDR handleCheck(String path, String fullPath, String value, Map<String, String> options, List<CheckStatus> result) {
         if (fullPath == null) return this; // skip paths that we don't have
         if (fullPath.indexOf('[') < 0) return this; // skip paths with no attributes
+        String locale = getCldrFileToCheck().getSourceLocaleID(path, null);
+        
+        // skip paths that are not in the immediate locale
+        if (!getCldrFileToCheck().getLocaleID().equals(locale)) {
+            return this;
+        }
         parts.set(fullPath);
         for (int i = 0; i < parts.size(); ++i) {
             if (parts.getAttributeCount(i) == 0) continue;
