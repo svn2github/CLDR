@@ -24,7 +24,7 @@ import org.unicode.cldr.util.XMLSource.ResolvingSource;
     protected abstract CLDRFile handleMake(String localeID, boolean resolved, DraftStatus madeWithMinimalDraftStatus);
 
     public CLDRFile make(String localeID, boolean resolved, DraftStatus madeWithMinimalDraftStatus) {
-      return handleMake(localeID, resolved, madeWithMinimalDraftStatus).setSupplementalDirectory(supplementalDirectory);
+      return handleMake(localeID, resolved, madeWithMinimalDraftStatus).setSupplementalDirectory(getSupplementalDirectory());
     }
 
     public CLDRFile make(String localeID, boolean resolved, boolean includeDraft) {
