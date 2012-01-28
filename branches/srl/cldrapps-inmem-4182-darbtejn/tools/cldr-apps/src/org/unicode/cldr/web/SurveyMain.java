@@ -38,13 +38,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,6 +72,7 @@ import org.unicode.cldr.test.ExampleGenerator.ExampleType;
 import org.unicode.cldr.test.ExampleGenerator.HelpMessages;
 import org.unicode.cldr.tool.ShowData;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CachingEntityResolver;
 import org.unicode.cldr.util.CldrUtility;
@@ -81,19 +80,15 @@ import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.PathUtilities;
 import org.unicode.cldr.util.SimpleFactory;
-import org.unicode.cldr.util.SimpleXMLSource;
+import org.unicode.cldr.util.StackTracker;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalData;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
-import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.web.CLDRDBSourceFactory.DBEntry;
-import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.DataSection.DataRow;
-import org.unicode.cldr.web.DataSection.DataRow.CandidateItem;
-import org.unicode.cldr.web.Race.Chad;
 import org.unicode.cldr.web.SurveyAjax.AjaxType;
 import org.unicode.cldr.web.SurveyThread.SurveyTask;
 import org.unicode.cldr.web.UserRegistry.User;
@@ -554,6 +549,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	        	doSession(ctx); // Session-based Survey main
 	        }
         } catch (Throwable t) {
+        	logException(t, ctx);
         	ctx.println("<div class='ferrbox'><h2>Error processing session: </h2><pre>" + t.toString()+"</pre></div>");
         	System.err.println("Failure with user: " + t);
         	t.printStackTrace();
@@ -732,6 +728,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 ctx.println("home: " + cldrHome);
                 doStartupDB();
             } catch(Throwable t) {
+            	logException(t, ctx);
                 ctx.println("Caught: " + t.toString()+"\n");
             }
             ctx.println("</pre>");
@@ -863,11 +860,13 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 
                 ctx.println("elapsed time: " + et + "<br>");
             } catch(SQLException se) {
+            	logException(se, ctx);
                 String complaint = "SQL err: " + DBUtils.unchainSqlException(se);
                 
                 ctx.println("<pre class='ferrbox'>" + complaint + "</pre>" );
                 logger.severe(complaint);
             } catch(Throwable t) {
+            	logException(t, ctx);
                 String complaint = t.toString();
 				t.printStackTrace();
                 ctx.println("<pre class='ferrbox'>" + complaint + "</pre>" );
@@ -876,11 +875,13 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 try {
                     s.close();
                 } catch(SQLException se) {
+                	logException(se, ctx);
                     String complaint = "in s.closing: SQL err: " + DBUtils.unchainSqlException(se);
                     
                     ctx.println("<pre class='ferrbox'> " + complaint + "</pre>" );
                     logger.severe(complaint);
                 } catch(Throwable t) {
+                	logException(t, ctx);
                     String complaint = t.toString();
                     ctx.println("<pre class='ferrbox'> " + complaint + "</pre>" );
                     logger.severe("Err in SQL close: " + complaint);
@@ -1084,6 +1085,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 				getDBSourceFactory().stats(ctx).append("<br>");
 	        	dbUtils.stats(ctx).append("<br>");
 			} catch (IOException e) {
+	        	logException(e, ctx);
 				ctx.println("Error " + e + " loading other stats<br/>");
 				e.printStackTrace();
 				
@@ -1272,6 +1274,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                     		t.interrupt();
                     		t.stop(new InternalError("Admin wants you to stop"));
                     	} catch(Throwable tt) {
+                        	logException(tt, ctx);
                     		ctx.println("[caught exception " + tt.toString()+"]<br>");
                     	}
                     }
@@ -1409,6 +1412,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                     }
                 });
             } catch (IOException e) {
+            	logException(e, ctx);
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 throw new InternalError("Couldn't create fakeContext for administration.");
@@ -1749,6 +1753,7 @@ o	            		}*/
                  ctx.println("<b>Err in bulk import </b> <pre>" + unchainSqlException(t)+"</pre>");
                  */
             } catch (Throwable t) {
+            	logException(t, ctx);
                 t.printStackTrace();
                 ctx.println("Err : " + t.toString() );
             }
@@ -1848,6 +1853,7 @@ o	            		}*/
             								"removed");
             							}
             						} catch(SQLException se) {
+            				        	logException(se, ctx);
             							se.printStackTrace();
             							ctx.println("<b>Err while trying to delete results for " + loc + ":</b> <pre>" + DBUtils.unchainSqlException(se)+"</pre>");
             						}
@@ -1866,6 +1872,7 @@ o	            		}*/
             				DBUtils.close(rmResultLoc,conn);
             			}
             		} catch (SQLException se) {
+                    	logException(se, ctx);
             			se.printStackTrace();
             			ctx.println("<b>Err while trying to delete results :</b> <pre>" + DBUtils.unchainSqlException(se)+"</pre>");
             		}
@@ -1977,9 +1984,11 @@ o	            		}*/
 						DBUtils.close(conn);
 					}
 				} catch (IOException e) {
+		        	logException(e, ctx);
 					ctx.println("<i>err getting locale counts: " + e +"</i><br>");
 					e.printStackTrace();
 				} catch(SQLException se) {
+		        	logException(se, ctx);
 					ctx.println("<i>err getting locale counts: " + dbUtils.unchainSqlException(se)+"</i><br>");
 				}
 			}
@@ -2139,6 +2148,7 @@ o	            		}*/
 				files.close();
 				
 				} catch(IOException exception){
+		        	logException(exception, ctx);
 				  System.err.println(exception);
 				  // TODO: log this ... 
 				}
@@ -2208,6 +2218,7 @@ o	            		}*/
 						        //            } catch (UnsupportedEncodingException e) {
 						        //                throw new InternalError("UTF8 unsupported?").setCause(e);
 		                    } catch (IOException e) {
+		                    	logException(e, ctx);
 		                    	System.err.println("While adding "+xmlFile.getAbsolutePath());
 		                        e.printStackTrace();
 		                        ctx.println(ctx.iconHtml("stop","err")+" Error While adding "+xmlFile.getAbsolutePath()+" - " + e.toString()+"<br><pre>");
@@ -2370,6 +2381,7 @@ o	            		}*/
                 rs.close();
                 s.close();
             } catch ( SQLException se ) {
+            	logException(se, ctx);
                 String complaint = " Couldn't query xpaths of " + test0 +" - " + DBUtils.unchainSqlException(se) + " - " + sql;
                 System.err.println(complaint);
                 ctx.println("<hr><font color='red'>ERR: "+complaint+"</font><hr>");
@@ -2520,6 +2532,7 @@ o	            		}*/
 	                    //                        xctx.setLocale(locale);
 	                    //makeCLDRFile(makeDBSource(connx, null, locale));  // orphan result
 	                } catch(Throwable t) {
+	                	logException(t, ctx);
 	                    t.printStackTrace();
 	                    String complaint = ("Error loading: " + localeName + " - " + t.toString() + " ...");
 	                    logger.severe("loading all: " + complaint);
@@ -2759,6 +2772,7 @@ o	            		}*/
             }
             ctx.println("| <a " + (isUnofficial?"title":"href") + "='" + bugFeedbackUrl("Feedback on URL ?" + u)+"'>Report Problem in Tool</a>");
         } catch (Throwable t) {
+        	logException(t, ctx);
             System.err.println(t.toString());
             t.printStackTrace();
         }
@@ -6349,7 +6363,7 @@ o	            		}*/
                     }
                 } else {
 //                    conn = getDBConnection();
-                    file = new CLDRFile(makeDBSource(locale, finalData, resolved));
+                    file = new CLDRFile(makeDBSource(locale, finalData, resolved)).setSupplementalDirectory(supplementalDataDir);
                 }
     //            file.write(WebContext.openUTF8Writer(response.getOutputStream()));
                 if(voteData) {
@@ -6852,6 +6866,14 @@ o	            		}*/
         		if(resolvedFile==null) {
         			System.err.println("Err: fileForGenerator is null for " + dbSource);
         		}
+        		
+        		if(resolvedFile.getSupplementalDirectory()==null) {
+        			throw new InternalError("?!!! resolvedFile has no supplemental dir.");
+        		}
+        		if(baselineFile.getSupplementalDirectory()==null) {
+        			throw new InternalError("?!!! baselineFile has no supplemental dir.");
+        		}
+        		
         		exampleGenerator = new ExampleGenerator(resolvedFile, baselineFile, fileBase + "/../supplemental/");
         		exampleGenerator.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
         		//System.err.println("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
@@ -6961,7 +6983,7 @@ o	            		}*/
             if(cldrfile == null) {
                 resolvedSource = getSTFactory().makeSource(locale.getBaseName(),true);
                 dbSource = resolvedSource.getUnresolving();
-                cldrfile = getSTFactory().make(locale,true);
+                cldrfile = getSTFactory().make(locale,true).setSupplementalDirectory(supplementalDataDir);
 //                cachedCldrFile = makeCachedCLDRFile(dbSource);
         		resolvedFile = cldrfile;
         		//XMLSource baseSource = makeDBSource(CLDRLocale.getInstance(BASELINE_LOCALE), false, true);
@@ -7052,7 +7074,7 @@ o	            		}*/
 //        }
     }
     static CLDRFile makeCLDRFile(XMLSource dbSource) {
-        return new CLDRFile(dbSource);
+        return new CLDRFile(dbSource).setSupplementalDirectory(supplementalDataDir);
     }
 
     /**
@@ -8021,8 +8043,15 @@ o	            		}*/
         }
     }
 
-    private static void logException(Throwable t, WebContext ctx) {
+    static void logException(Throwable t, WebContext ctx) {
         logException(t,"(exception)",StackTracker.stackToString(t.getStackTrace(), 0), ctx);
+    }
+    
+    static void logException(Throwable t) {
+    	logException(t,"");
+    }
+    static void logException(Throwable t, String what) {
+        logException(t,"(exception " + what + ")",StackTracker.stackToString(t.getStackTrace(), 0), null);
     }
     
     private static void logException(Throwable t, String what, String stack) {
@@ -8161,18 +8190,18 @@ o	            		}*/
         
         
         if(choice.length()==0) {
-            System.err.println("@@@@@  Unknown Hash: CH["+fieldHash+"]");
+            //System.err.println("@@@@@  Unknown Hash: CH["+fieldHash+"]");
             return false; // nothing to see..
         }
         String fullPathFull = section.xpath(p);
         int base_xpath = xpt.xpathToBaseXpathId(fullPathFull);
-        System.err.println("@@@@@ CH["+fieldHash+"] -> " + choice + " @ " + fullPathFull + " / " + base_xpath) ;
+        if(false) System.err.println("@@@@@ CH["+fieldHash+"] -> " + choice + " @ " + fullPathFull + " / " + base_xpath) ;
         
         String oldVote = ballotBox.getVoteValue(ctx.session.user, fullPathFull);
         // do modification here. 
         String choice_v = ctx.field(fieldHash+QUERY_VALUE_SUFFIX); // choice + value
         
-        System.err.println("@@@@@ v="+choice_v);
+        if(false) System.err.println("@@@@@ v="+choice_v);
         
         
         String choice_refDisplay = ""; // display value for ref
@@ -8410,18 +8439,21 @@ o	            		}*/
         } else if(choice.equals(CONFIRM)) {
             if(oldVoteItem != voteForItem) {
             	dsrh.handleVote(p, oldVote, voteForItem.value);
-                return doVote(ctx, section.locale, base_xpath) || didSomething; // vote with xpath
+                ballotBox.voteForValue(ctx.session.user,fullPathFull, voteForItem.value);
+                return true || didSomething;
             }
         } else if (choice.equals(DONTCARE)) {
             if(oldVote != null) {
             	dsrh.handleVote(p, oldVote, null);
-                return doVote(ctx, section.locale, -1, base_xpath) || didSomething;
+                ballotBox.voteForValue(ctx.session.user,fullPathFull, null);
+                return true || didSomething;
             }
         } else if(voteForItem != null)  {
             DataSection.DataRow.CandidateItem item = voteForItem;
             if(oldVoteItem != item) {
             	dsrh.handleVote(p, oldVote, voteForItem.value);
-                return doVote(ctx, section.locale, item.xpathId) || didSomething;
+                ballotBox.voteForValue(ctx.session.user,fullPathFull, item.value);
+                return true || didSomething;
             } else {
                 return didSomething; // existing vote.
             }
@@ -9050,7 +9082,7 @@ o	            		}*/
             DataSection.DataRow p,
             List<DataSection.DataRow.CandidateItem> numberedItemsList,
             long[] totals) {
-        ctx.println("<i>no voting results available-TODO</i>");
+        ctx.println("<i>no voting results available-TODO</i><br>resolver: " + getSTFactory().ballotBoxForLocale(section.locale()).getResolver(p.getXpath()));
         // ( Byte code err 47 (!!) in the following code...)
 //        else {
 //            Vetting.DataTester tester  = null;
@@ -9900,7 +9932,7 @@ o	            		}*/
      */
     SurveyProgressManager progressManager = new SurveyProgressManager();
 
-    private File supplementalDataDir;
+    static File supplementalDataDir;
 
 
     /**
@@ -10051,7 +10083,7 @@ o	            		}*/
             supplemental = new SupplementalData(supplementalDataDir.getCanonicalPath());
             supplementalDataInfo = SupplementalDataInfo.getInstance(supplementalDataDir);
             supplementalDataInfo.setAsDefaultInstance();
-            CldrUtility.DEFAULT_SUPPLEMENTAL_DIRECTORY = supplementalDataDir.getCanonicalPath();
+            //CldrUtility.DEFAULT_SUPPLEMENTAL_DIRECTORY = supplementalDataDir.getCanonicalPath();
     
             try {
             	supplemental.defaultContentToParent("mt_MT");
@@ -10269,10 +10301,10 @@ o	            		}*/
 			    isFlat=true;
 		} else if(kind.equals("rxml")) {
 			dbSource = makeDBSource(loc, true, true);
-	    	file = new CLDRFile(dbSource);
+	    	file = new CLDRFile(dbSource).setSupplementalDirectory(supplementalDataDir);
 	    } else if(kind.equals("xml")) {
 			dbSource = makeDBSource(loc, false);
-	    	file = new CLDRFile(dbSource);
+	    	file = new CLDRFile(dbSource).setSupplementalDirectory(supplementalDataDir);
 	    } else {
 	    	if(!isCacheableKind(kind)) {
 	    		throw new InternalError("Can't (yet) cache kind " + kind + " for loc " + loc);

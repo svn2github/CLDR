@@ -7,35 +7,46 @@
 //
 package org.unicode.cldr.web;
 
-import org.w3c.dom.Document;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.sql.SQLException;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
 
-import org.unicode.cldr.util.*;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.unicode.cldr.test.DisplayAndInputProcessor;
+import org.unicode.cldr.test.ExampleGenerator.HelpMessages;
+import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRLocale;
+import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
 import org.unicode.cldr.web.SurveyAjax.AjaxType;
 import org.unicode.cldr.web.SurveyMain.UserLocaleStuff;
 import org.unicode.cldr.web.UserRegistry.User;
-import org.unicode.cldr.web.Vetting.DataSubmissionResultHandler;
-import org.unicode.cldr.web.WebContext.HTMLDirection;
-import org.unicode.cldr.test.*;
-import org.unicode.cldr.test.ExampleGenerator.HelpMessages;
-
-import com.ibm.icu.util.ULocale;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.lang.ref.SoftReference;
-
-// servlet imports
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-
-// sql imports
-import java.sql.Connection;
-import java.sql.SQLException;
+import org.w3c.dom.Document;
 
 import com.ibm.icu.dev.test.util.ElapsedTimer;
+import com.ibm.icu.util.ULocale;
 
 /**
  * This is the per-client context passed to basically all functions
@@ -1255,14 +1266,17 @@ public class WebContext implements Cloneable, Appendable {
     				if((System.currentTimeMillis()-t0) > 10 * 1000) {
     					println("<i><b>" + waitString+"<br/>"+podTimer + "</b></i><br/>");
     				}
-    			} catch (OutOfMemoryError oom) {
-    				System.err.println("Error loading " + prefix + " / " + ptype + " in " + locale);
-    				oom.printStackTrace();
-    				this.println("Error loading " + prefix + " / " + ptype + " in " + locale + " - " + oom.toString());
-    			} catch (Throwable t) {
-    				System.err.println("Error loading " + prefix + " / " + ptype + " in " + locale);
-    				t.printStackTrace();
-    				this.println("Error loading " + prefix + " / " + ptype + " in " + locale + " - " + t.toString());
+    				/* no point in catching these. */
+//    			} catch (OutOfMemoryError oom) {
+//    				SurveyMain.logException(oom,this);
+//    				System.err.println("Error loading " + prefix + " / " + ptype + " in " + locale);
+//    				oom.printStackTrace();
+//    				this.println("Error loading " + prefix + " / " + ptype + " in " + locale + " - " + oom.toString());
+//    			} catch (Throwable t) {
+//    				SurveyMain.logException(t,this);
+//    				System.err.println("Error loading " + prefix + " / " + ptype + " in " + locale);
+//    				t.printStackTrace();
+//    				this.println("Error loading " + prefix + " / " + ptype + " in " + locale + " - " + t.toString());
     			} finally {
     				progress.close();
     				println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='';</script>"); flush();
@@ -1272,6 +1286,9 @@ public class WebContext implements Cloneable, Appendable {
     				System.err.println("Re-using cached section: " + section.toString());
     			}
     			println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='';</script>"); flush();
+    		}
+    		if(section==null) {
+    			throw new InternalError("No section.");
     		}
     		section.register();
     		//                    SoftReference sr = (SoftReference)getByLocaleStatic(DATA_POD+prefix+":"+ptype);  // GET******

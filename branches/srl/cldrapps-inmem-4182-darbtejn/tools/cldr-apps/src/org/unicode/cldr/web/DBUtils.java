@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2011 IBM Corporation and Others. All Rights Reserved.
+ * Copyright (C) 2004-2012 IBM Corporation and Others. All Rights Reserved.
  */
 package org.unicode.cldr.web;
 
@@ -29,6 +29,7 @@ import javax.sql.DataSource;
 
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.StackTracker;
 
 import com.ibm.icu.text.UnicodeSet;
 
@@ -238,9 +239,12 @@ public class DBUtils {
 	public static final String getStringUTF8(ResultSet rs, int which)
 			throws SQLException {
 		if (db_Derby) { // unicode
-			return rs.getString(which);
+			String str =  rs.getString(which);
+			if(rs.wasNull()) return null;
+			return str;
 		}
 		byte rv[] = rs.getBytes(which);
+		if(rs.wasNull()) return null;
 		if (rv != null) {
 			String unicode;
 			try {
@@ -340,11 +344,11 @@ public class DBUtils {
 		return rv;
 	}
 	
-	public String[] sqlQueryArray(Connection conn, String str) throws SQLException {
+	public static String[] sqlQueryArray(Connection conn, String str) throws SQLException {
 		return sqlQueryArrayArray(conn,str)[0];
 	}
 	
-	public String[][] sqlQueryArrayArray(Connection conn, String str) throws SQLException {
+	public static String[][] sqlQueryArrayArray(Connection conn, String str) throws SQLException {
 		Statement s  = null;
 		ResultSet rs  = null;
 		try {
@@ -373,12 +377,12 @@ public class DBUtils {
 //		}
 //		return ret;
 //	}
-	public String sqlQuery(Connection conn, String str) throws SQLException {
+	public  static String sqlQuery(Connection conn, String str) throws SQLException {
 		return sqlQueryArray(conn,str)[0];
 	}
 	
 
-	static int sqlUpdate(WebContext ctx, Connection conn, PreparedStatement ps) {
+	public static int sqlUpdate(WebContext ctx, Connection conn, PreparedStatement ps) {
 		int rv = -1;
 		try {
 			rv = ps.executeUpdate();
@@ -436,7 +440,7 @@ public class DBUtils {
 					c = datasource.getConnection();
 					DatabaseMetaData dmd = c.getMetaData();
 					dbInfo = dmd.getDatabaseProductName()+" v"+dmd.getDatabaseProductVersion();
-					loadSqlHacks();
+					setupSqlForServerType();
 					System.err.println("Metadata: "+ dbInfo);
 				}
 			} catch (SQLException  t) {
@@ -472,7 +476,7 @@ public class DBUtils {
 				c = datasource.getConnection();
 				DatabaseMetaData dmd = c.getMetaData();
 				dbInfo = dmd.getDatabaseProductName()+" v"+dmd.getDatabaseProductVersion();
-				loadSqlHacks();
+				setupSqlForServerType();
 				if(db_Derby) {
 					c.setAutoCommit(false);
 				}
@@ -499,8 +503,8 @@ public class DBUtils {
 				}
 		}
 	}
-	private void loadSqlHacks() {
-	    System.err.println("Loading hacks for " + dbInfo);
+	private void setupSqlForServerType() {
+	    System.err.println("setting up SQL for database type " + dbInfo);
         if (dbInfo.contains("Derby")) {
             db_Derby = true;
             System.err.println("Note: derby mode");
@@ -712,7 +716,7 @@ public class DBUtils {
 	 * @return
 	 * @throws SQLException
 	 */
-	public PreparedStatement prepareStatementWithArgs(Connection conn, String sql,
+	public static PreparedStatement prepareStatementWithArgs(Connection conn, String sql,
 			Object... args) throws SQLException {
 		PreparedStatement ps;
 		ps = conn.prepareStatement(sql);
@@ -738,14 +742,14 @@ public class DBUtils {
 		return ps;
 	}
     
-    private String[][] resultToArrayArray(ResultSet rs) throws SQLException {
+	public static String[][] resultToArrayArray(ResultSet rs) throws SQLException {
 		ArrayList<String[]> al = new ArrayList<String[]>();
 		while(rs.next()) {
 			al.add(arrayOfResult(rs));
 		}
 		return al.toArray(new String[al.size()][]);
 	}
-    private Object[][] resultToArrayArrayObj(ResultSet rs) throws SQLException {
+	public static Object[][] resultToArrayArrayObj(ResultSet rs) throws SQLException {
 		ArrayList<Object[]> al = new ArrayList<Object[]>();
 		ResultSetMetaData rsm = rs.getMetaData();
 		int colCount =rsm.getColumnCount();
@@ -785,14 +789,14 @@ public class DBUtils {
 		return m;
 	}
 
-	public String sqlQuery(Connection conn, String sql, Object... args) throws SQLException {
+	public static String sqlQuery(Connection conn, String sql, Object... args) throws SQLException {
 		return sqlQueryArray(conn,sql,args)[0];
 	}
 
-	public String[] sqlQueryArray(Connection conn, String sql, Object... args) throws SQLException {
+	public static String[] sqlQueryArray(Connection conn, String sql, Object... args) throws SQLException {
 		return sqlQueryArrayArray(conn,sql,args)[0];
 	}
-	public String[][] sqlQueryArrayArray(Connection conn, String str, Object... args) throws SQLException {
+	public static String[][] sqlQueryArrayArray(Connection conn, String str, Object... args) throws SQLException {
 		PreparedStatement ps= null;
 		ResultSet rs  = null;
 		try {
@@ -804,7 +808,7 @@ public class DBUtils {
 			DBUtils.close(rs,ps);
 		}
 	}
-	public Object[][] sqlQueryArrayArrayObj(Connection conn, String str, Object... args) throws SQLException {
+	public static Object[][] sqlQueryArrayArrayObj(Connection conn, String str, Object... args) throws SQLException {
 		PreparedStatement ps= null;
 		ResultSet rs  = null;
 		try {
@@ -816,7 +820,7 @@ public class DBUtils {
 			DBUtils.close(rs,ps);
 		}
 	}
-	public int sqlUpdate(Connection conn, String str, Object... args) throws SQLException {
+	public static int sqlUpdate(Connection conn, String str, Object... args) throws SQLException {
 		PreparedStatement ps= null;
 		try {
 			ps = prepareStatementWithArgs(conn, str, args);
@@ -840,7 +844,7 @@ public class DBUtils {
 			DBUtils.close(rs,ps);
 		}
 	}		
-	private String[] arrayOfResult(ResultSet rs) throws SQLException {
+	private static String[] arrayOfResult(ResultSet rs) throws SQLException {
 		ResultSetMetaData rsm = rs.getMetaData();
 		String ret[] = new String[rsm.getColumnCount()];
 		for(int i=0;i<ret.length;i++) {
@@ -848,7 +852,7 @@ public class DBUtils {
 		}
 		return ret;
 	}
-	private Object[] arrayOfResultObj(ResultSet rs, int colCount, ResultSetMetaData rsm) throws SQLException {
+	private static Object[] arrayOfResultObj(ResultSet rs, int colCount, ResultSetMetaData rsm) throws SQLException {
 		Object ret[] = new Object[colCount];
 		for(int i=0;i<ret.length;i++) {
 			if(rsm.getColumnType(i+1)==java.sql.Types.BLOB) {

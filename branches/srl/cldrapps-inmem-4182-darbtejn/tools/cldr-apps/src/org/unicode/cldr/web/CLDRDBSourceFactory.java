@@ -42,6 +42,7 @@ import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.LruMap;
+import org.unicode.cldr.util.StackTracker;
 import org.unicode.cldr.util.VettingViewer.ErrorChecker;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;

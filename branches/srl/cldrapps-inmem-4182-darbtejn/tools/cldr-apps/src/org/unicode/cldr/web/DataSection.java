@@ -121,6 +121,7 @@ public class DataSection extends Registerable {
         xpathPrefix = prefix;
         fieldHash =  CookieSession.cheapEncode(sm.xpt.getByXpath(prefix));
         intgroup = loc.getLanguage(); // calculate interest group
+    	ballotBox = sm.getSTFactory().ballotBoxForLocale(locale);
     }
     private static int n =0;
     protected static synchronized int getN() { return ++n; } // serial number
@@ -210,12 +211,21 @@ public class DataSection extends Registerable {
         int xpathId = -1;
 
         private String xpath;
+        private String winningValue;
 
         public DataRow(String xpath) {
             this.xpath = xpath;
             this.xpathId = sm.xpt.getByXpath(xpath);
             this.prettyPath = sm.xpt.getPrettyPath(xpathId);
             //this.setDisplayName(prettyPath);
+            
+            if(ballotBox==null) {
+            	throw new InternalError("ballotBox is null;");
+            }
+            if(ballotBox.getResolver(xpath)==null) {
+            	throw new InternalError(ballotBox.getClass().getName()+" [ballotBox].getResolver("+xpath+") is null");
+            }
+		    winningValue = ballotBox.getResolver(xpath).getWinningValue();
         }
         public String getXpath() {
             return xpath;
@@ -659,6 +669,9 @@ public class DataSection extends Registerable {
 		private int resultXpath_id = -1;
 		private boolean errorNoOutcome  = false;
 		
+		/**
+		 * @deprecated
+		 */
 		public String getResultXpath() {
 			if(resultXpath == null) {
 				if(xpathId==-1) return getXpath(); /* pseudo element. no real path */
@@ -674,29 +687,32 @@ public class DataSection extends Registerable {
 			return resultXpath;
 		}
 		
+		/**
+		 * @deprecated
+		 */
 		public int getResultType() {
 			getResultXpath();
 			return resultType[0];
 		}
 		
+		/**
+		 * @deprecated
+		 */
 		public int getResultXpathId() {
 			getResultXpath();
 			return resultXpath_id;
 		}
 		
+		/**
+		 * @deprecated
+		 */
 		public boolean getErrorNoOutcome() {
 			getResultXpath();
 			return errorNoOutcome;
 		}
 		
 		public String getWinningValue() {
-		    CandidateItem item = getWinningItem();
-		    
-		    if(item!=null) {
-		        return item.value;
-		    } else {
-		        return null;
-		    }
+			return winningValue;
 		}
 		
 		/**
@@ -735,15 +751,10 @@ public class DataSection extends Registerable {
 
                 List<DataSection.DataRow.CandidateItem> currentItems = new ArrayList<DataSection.DataRow.CandidateItem>();
                 List<DataSection.DataRow.CandidateItem> proposedItems = new ArrayList<DataSection.DataRow.CandidateItem>();
-
                 for (CandidateItem item : items) {
-                	if(true || (sm.isUnofficial && DEBUG)) System.err.println("Considering: " + item+", xpid="+item.xpathId+", result="+resultXpath_id+", base="+this.xpathId+", ENO="+errorNoOutcome);
+//                	if(true || (sm.isUnofficial && DEBUG)) System.err.println("Considering: " + item+", xpid="+item.xpathId+", result="+resultXpath_id+", base="+this.xpathId+", ENO="+errorNoOutcome);
                 	// item.toString()
-                	if (((item.xpathId == resultXpath_id) || (resultXpath_id == -1
-                			&& item.xpathId == this.xpathId && !errorNoOutcome))
-                			&& // do NOT add as current, if vetting said 'no' to
-                			// current item.
-                			!(item.isFallback || (item.inheritFrom != null))) {
+                	if (item.value.equals(winningValue) && !errorNoOutcome) {
                 		if(!currentItems.isEmpty()) {
                 			throw new InternalError(this.toString()+": can only have one candidate item, not " + currentItems.get(0) +" and " + item);
                 		}
@@ -986,32 +997,57 @@ public class DataSection extends Registerable {
     	if ( prefix.endsWith("ldml")) { // special check for the 'misc' section
     		section.hasExamples = true;
     	}
+    	if(ctx.sm.supplementalDataDir == null) {
+    		throw new InternalError("??!! ctx.sm.supplementalDataDir = null");
+    	}
     	
 //    	XMLSource ourSrc = uf.resolvedSource;
-    	CLDRFile ourSrc = ctx.sm.getSTFactory().make(locale.getBaseName(), true, true);
-    	BallotBox<User> ballotBox = ctx.sm.getSTFactory().ballotBoxForLocale(locale);
+    	CLDRFile ourSrc = ctx.sm.getSTFactory().make(locale.getBaseName(), true, true).setSupplementalDirectory(ctx.sm.supplementalDataDir);
+    	if(ourSrc.getSupplementalDirectory()==null) {
+    		throw new InternalError("?!! ourSrc hsa no supplemental dir!");
+    	}
     	synchronized(ctx.session) {
     		CheckCLDR checkCldr = uf.getCheck(ctx);
+        	if(ourSrc.getSupplementalDirectory()==null) {
+        		throw new InternalError("?!! ourSrc hsa no supplemental dir!");
+        	}
     		if(checkCldr == null) {
     			throw new InternalError("checkCldr == null");
     		}
+        	if(ourSrc.getSupplementalDirectory()==null) {
+        		throw new InternalError("?!! ourSrc hsa no supplemental dir!");
+        	}
     		String workingCoverageLevel = section.getPtype();
     		com.ibm.icu.dev.test.util.ElapsedTimer cet = null;
     		if(SHOW_TIME) {
     			cet= new com.ibm.icu.dev.test.util.ElapsedTimer();
     			System.err.println("Begin populate of " + locale + " // " + prefix+":"+workingCoverageLevel + " - is:" + ourSrc.getClass().getName());
     		}
+        	if(ourSrc.getSupplementalDirectory()==null) {
+        		throw new InternalError("?!! ourSrc hsa no supplemental dir!");
+        	}
     		CLDRFile baselineFile = ctx.sm.getBaselineFile();
+        	if(ourSrc.getSupplementalDirectory()==null) {
+        		throw new InternalError("?!! ourSrc hsa no supplemental dir!");
+        	}
     		section.skippedDueToCoverage=0;
+        	if(ourSrc.getSupplementalDirectory()==null) {
+        		throw new InternalError("?!! ourSrc hsa no supplemental dir!");
+        	}
     		ctx.println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='Populating...';</script>"); ctx.flush();
-
-    		section.populateFrom(ourSrc, ballotBox, checkCldr, baselineFile,ctx.getOptionsMap(), workingCoverageLevel);
+        	if(ourSrc.getSupplementalDirectory()==null) {
+        		throw new InternalError("?!! ourSrc hsa no supplemental dir!");
+        	}
+        	if(ourSrc.getSupplementalDirectory()==null) {
+        		throw new InternalError("?!! ourSrc hsa no supplemental dir!");
+        	}
+    		section.populateFrom(ourSrc, checkCldr, baselineFile, ctx.getOptionsMap(),workingCoverageLevel);
     		int popCount = section.getAll().size();
     		/*            if(SHOW_TIME) {
 	                System.err.println("DP: Time taken to populate " + locale + " // " + prefix +":"+ctx.defaultPtype()+ " = " + et + " - Count: " + pod.getAll().size());
 	            }*/
     		ctx.println("<script type=\"text/javascript\">document.getElementById('loadSection').innerHTML='Completing..."+popCount+" items';</script>"); ctx.flush();
-    		section.ensureComplete(ourSrc,  ballotBox, checkCldr, baselineFile, ctx.getOptionsMap(), workingCoverageLevel);
+    		section.ensureComplete(ourSrc,  checkCldr, baselineFile, ctx.getOptionsMap(), workingCoverageLevel);
     		if(SHOW_TIME) {
     			int allCount = section.getAll().size();
     			System.err.println("Populate+complete " + locale + " // " + prefix +":"+section.getPtype()+ " = " + cet + " - Count: " + popCount+"+"+(allCount-popCount)+"="+allCount);
@@ -1131,8 +1167,10 @@ public class DataSection extends Registerable {
      * Divider denoting a specific Continent division.
      */
 	public static final String CONTINENT_DIVIDER = "\u2603";
+
+	private BallotBox<User> ballotBox;
     
-    private void populateFrom(CLDRFile ourSrc, BallotBox<User> ballotBox, CheckCLDR checkCldr, CLDRFile baselineFile, Map<String,String> options, String workingCoverageLevel) {
+    private void populateFrom(CLDRFile ourSrc, CheckCLDR checkCldr, CLDRFile baselineFile, Map<String,String> options, String workingCoverageLevel) {
         //if (!ourSrc.isResolving()) throw new IllegalArgumentException("CLDRFile must be resolved");
         DBEntry vettedParentEntry = null;
         try  {
@@ -1158,7 +1196,7 @@ public class DataSection extends Registerable {
         	CLDRLocale parentLoc = locale.getParent();
         	if(parentLoc != null) {
         		XMLSource vettedParentSource = sm.makeDBSource(parentLoc, true /*finalData*/, true);            
-        		vettedParent = new CLDRFile(vettedParentSource);
+        		vettedParent = new CLDRFile(vettedParentSource).setSupplementalDirectory(sm.supplementalDataDir);
         		vettedParentEntry = sm.getDBSourceFactory().openEntry(vettedParentSource.getUnresolving());
         	}
 
@@ -1255,6 +1293,9 @@ public class DataSection extends Registerable {
         	Set<String> extraXpaths = new HashSet<String>();
 
         	allXpaths.addAll(baseXpaths);
+        	if(aFile.getSupplementalDirectory()==null) {
+        		throw new InternalError("?!! aFile hsa no supplemental dir!");
+        	}
         	aFile.getExtraPaths(workPrefix,extraXpaths);
         	extraXpaths.removeAll(baseXpaths);
         	allXpaths.addAll(extraXpaths);
@@ -1283,7 +1324,6 @@ public class DataSection extends Registerable {
         		///*srl*/  if(xpath.indexOf("Adak")!=-1)
         		///*srl*/   {ndebug=true;System.err.println("p] "+xpath + " - xtz = "+excludeTimeZones+"..");}
 
-System.err.println("@@@@ x: " + xpath    );
 
         		if(SHOW_TIME) {
         			count++;
@@ -1329,7 +1369,6 @@ System.err.println("@@@@ x: " + xpath    );
 
         		if(CheckCLDR.skipShowingInSurvey.matcher(xpath).matches()) {
         			//if(TRACE_TIME)                System.err.println("ns1 8 "+(System.currentTimeMillis()-nextTime) + " " + xpath);
-if(true) System.err.println("@@@@ CheckCLDR.skipShowingInSurvey match for "+xpath);
         			continue;
         		}
 
@@ -1344,7 +1383,6 @@ if(true) System.err.println("@@@@ CheckCLDR.skipShowingInSurvey match for "+xpat
         			if ( coverageValue <= 100 ) {
         				skippedDueToCoverage++;
         			} // else: would never be shown, don't care
-if(true) System.err.println("@@@@ skipped due to coverage " + coverageValue + "  for "+xpath);
         			continue;
         		}
 
@@ -1372,8 +1410,7 @@ if(true) System.err.println("@@@@ skipped due to coverage " + coverageValue + " 
         		String type;
         		
                 String value = isExtraPath?null:aFile.getStringValue(xpath);
-System.err.println("@@@@ x: " + xpath   + " = " + value  );
-String peaSuffixXpath = null; // if non null:  write to suffixXpath
+                String peaSuffixXpath = null; // if non null:  write to suffixXpath
 
 
                 if(true) {
@@ -1587,7 +1624,6 @@ String peaSuffixXpath = null; // if non null:  write to suffixXpath
         		// Inherit display names.
         		if((superP != p) && (p.getDisplayName() == null)) {
         			p.setDisplayName(baselineFile.getStringValue(baseXpath)); 
-System.err.println("@@@@ base: " + p.getDisplayName());
         			if(p.getDisplayName() == null) {
         				p.setDisplayName(superP.getDisplayName()); // too: unscramble this a little bit
         			}
@@ -1750,9 +1786,8 @@ System.err.println("@@@@ base: " + p.getDisplayName());
     }
     /**
      * Makes sure this pod contains the peas we'd like to see.
-     * @param ballotBox 
      */
-    private void ensureComplete(CLDRFile ourSrc, BallotBox<User> ballotBox, CheckCLDR checkCldr, CLDRFile baselineFile, Map<String,String> options, String workingCoverageLevel) {
+    private void ensureComplete(CLDRFile ourSrc, CheckCLDR checkCldr, CLDRFile baselineFile, Map<String,String> options, String workingCoverageLevel) {
     	//if (!ourSrc.isResolving()) throw new IllegalArgumentException("CLDRFile must be resolved");
 //    	if(xpathPrefix.contains("@type")) {
 //    		if(DEBUG) System.err.println("Bailing- no reason to complete a type-specifix xpath");
