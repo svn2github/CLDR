@@ -811,6 +811,8 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		if(dbIsSetup) return;
 		dbIsSetup=true; // don't thrash.
 		Connection conn = null;
+		String sql ="(none)"; // this points to 
+		Statement s = null;
 		try {
 			conn = DBUtils.getInstance().getDBConnection();
 
@@ -818,8 +820,12 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 			if(!isNew) {
 				return; // nothing to setup
 			}
-			unimp();
 			
+			if(!DBUtils.db_Mysql) {
+				String amsg = "*** Danger Will Robinson.  STFactory SQL hasn't been tested on Derby yet. \n";
+				System.err.println(amsg);
+				sm.specialHeader = sm.specialHeader + amsg;
+			}
 			/*				
 				    CREATE TABLE  cldr_votevalue (
 				        locale VARCHAR(20),
@@ -830,53 +836,30 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 				
 				     CREATE UNIQUE INDEX cldr_votevalue_unique ON cldr_votevalue (locale,xpath,submitter);
 			 */
-			/*
-		synchronized(sconn) {
-			String sql; // this points to 
-			Statement s = sconn.createStatement();
+			s = conn.createStatement();
 
-			sql = "create table " + CLDR_VBV + " (" + xpath INT not null, " + // normal
-			"txpath INT not null, " + // tiny
-			"locale varchar(20), " +
-			"source INT, " +
-			"origxpath INT not null, " + // full
-			"alt_proposed varchar(50), " +
-			"alt_type varchar(50), " +
-			"type varchar(50), " +
-			"value "+DBUtils.DB_SQL_UNICODE+" not null, " +
-			"submitter INT, " +
-			"modtime TIMESTAMP, " +
-			// new additions, April 2006
-			"base_xpath INT NOT NULL "+DBUtils.DB_SQL_WITHDEFAULT+" -1 " + // alter table CLDR_DATA add column base_xpath INT NOT NULL WITH DEFAULT -1
+			sql = "create table " + CLDR_VBV + "( " +
+			"locale VARCHAR(20), " + 
+			"xpath  INT NOT NULL, " +
+			"submitter INT NOT NULL, " +
+			"value "+DBUtils.DB_SQL_UNICODE+" " +
+			  ", PRIMARY KEY (`locale`,`submitter`,`xpath`) " +
+
 			" )";
 			//            System.out.println(sql);
 			s.execute(sql);
-			sql = "create table " + CLDR_SRC + " (id INT NOT NULL "+DBUtils.DB_SQL_IDENTITY+", " +
-			"locale varchar(20), " +
-			"tree varchar(20) NOT NULL, " +
-			"rev varchar(20), " +
-			"modtime TIMESTAMP, "+
-			"inactive INT)";
-			// System.out.println(sql);
+			
+			sql = "CREATE UNIQUE INDEX  " + CLDR_VBV + " ON cldr_votevalue (locale,xpath,submitter)";
 			s.execute(sql);
-			// s.execute("CREATE UNIQUE INDEX unique_xpath on " + CLDR_DATA +"(xpath)");
-			s.execute("CREATE INDEX "+CLDR_DATA+"_qxpath on " + CLDR_DATA + "(locale,xpath)");
-			// New for April 2006.
-			s.execute("create INDEX "+CLDR_DATA+"_qbxpath on "+CLDR_DATA+"(locale,base_xpath)");
-			s.execute("CREATE INDEX "+CLDR_SRC+"_src on " + CLDR_SRC + "(locale,tree)");
-			s.execute("CREATE INDEX "+CLDR_SRC+"_src_id on " + CLDR_SRC + "(id)");
 			s.close();
-			sconn.commit();
-		}
-
-
+			s = null; //don't close twice.
+			conn.commit();
 		} catch(SQLException se) {
-			sm.logException(se, null);
-			sm.busted("Setting up DB for STFactory", se);
-
-		*/
+			sm.logException(se, "SQL: " + sql);
+			sm.busted("Setting up DB for STFactory, SQL: "  + sql, se);
+			throw new InternalError("Setting up DB for STFactory, SQL: " + sql);
 		} finally {
-			DBUtils.close(conn);
+			DBUtils.close(s,conn);
 		}
 	}
 }
