@@ -1720,7 +1720,7 @@ public class UserRegistry {
 		        out.println("\"/>");
 		    }            
 		}/*end synchronized(reg)*/ } catch(SQLException se) {
-		    SurveyMain.logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
+		    SurveyLog.logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
 		    out.println("<!-- Failure: " + DBUtils.unchainSqlException(se) + " -->");
 		} finally {
 			DBUtils.close(conn);

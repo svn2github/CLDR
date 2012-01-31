@@ -36,7 +36,7 @@ public class TestXPathTable extends TestFmwk {
 
 	public void TestPutGet() throws SQLException {
 		Connection conn = DBUtils.getInstance().getDBConnection();
-		XPathTable xpt = XPathTable.createTable(null, conn, new SurveyMain());
+		XPathTable xpt = XPathTable.createTable(conn, new SurveyMain());
 		DBUtils.closeDBConnection(conn);
 		HashMap<Integer,String> s = new HashMap<Integer,String>();
 		for(int i=0;i<TEST_COUNT;i++) {

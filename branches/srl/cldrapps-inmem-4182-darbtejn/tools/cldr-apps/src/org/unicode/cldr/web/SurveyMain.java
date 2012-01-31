@@ -52,7 +52,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletConfig;
@@ -161,8 +160,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     // ===== Configuration state
 	private static final boolean DEBUG=CldrUtility.getProperty("TEST", false);
     private static Phase currentPhase = null; /** set by CLDR_PHASE property. **/
-    private static String oldVersion;
-    private static String newVersion;
+    private static String oldVersion = "OLDVERSION";
+    private static String newVersion = "NEWVERSION";
     public static       boolean isUnofficial = true;  /** set to true for all but the official installation of ST. **/
 
     // ==== caches and general state
@@ -236,7 +235,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     public static  String vetweb = System.getProperty("CLDR_VET_WEB"); // dir for web data
     public static  String cldrLoad = System.getProperty("CLDR_LOAD_ALL"); // preload all locales?
     public static String fileBase = null; // not static - may change later
-    static String fileBaseOld = null; // fileBase + oldVersion
+    private static String fileBaseOld = null; // fileBase + oldVersion
     static String specialMessage = System.getProperty("CLDR_MESSAGE"); //  static - may change later
     static String specialHeader = System.getProperty("CLDR_HEADER"); //  static - may change later
     public static String lockOut = System.getProperty("CLDR_LOCKOUT"); //  static - may change later
@@ -246,9 +245,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     public static String cldrHome = null;
     public static File homeFile = null;
 
-    // Logging
-    public static Logger logger = Logger.getLogger("org.unicode.cldr.SurveyMain");
-    public static java.util.logging.Handler loggingHandler = null;
+    
             
 //    public static final String LOGFILE = "cldr.log";        // log file of all changes
 
@@ -346,7 +343,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         try {
             return surveyToolSystemMessages.find(msg);
         } catch(Throwable t) {
-            System.err.println("Err " + t.toString() + " while trying to load sysmsg " + msg);
+            SurveyLog.logger.warning("Err " + t.toString() + " while trying to load sysmsg " + msg);
             return "[MISSING MSG: " + msg+"]";
         }
     }
@@ -377,7 +374,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         });
         
         startupThread.start();
-        System.err.println("Startup thread launched");
+        SurveyLog.logger.warning("Startup thread launched");
     }
 
     public SurveyMain() {
@@ -433,7 +430,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	                return; 
 	            }
             } catch(Throwable t) {
-               	System.err.println("Error on doRawXML: " + t.toString());
+               	SurveyLog.logger.warning("Error on doRawXML: " + t.toString());
                	t.printStackTrace();
                	response.setContentType("text/plain");
                	ServletOutputStream os = response.getOutputStream();
@@ -549,9 +546,9 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	        	doSession(ctx); // Session-based Survey main
 	        }
         } catch (Throwable t) {
-        	logException(t, ctx);
+        	SurveyLog.logException(t, ctx);
         	ctx.println("<div class='ferrbox'><h2>Error processing session: </h2><pre>" + t.toString()+"</pre></div>");
-        	System.err.println("Failure with user: " + t);
+        	SurveyLog.logger.warning("Failure with user: " + t);
         	t.printStackTrace();
         } finally {
         	Thread.currentThread().setName(baseThreadName);
@@ -678,16 +675,16 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 	    		if(cldrHome == null) {
 	    			cldrHome = System.getProperty(prop);
 	    			if(cldrHome!=null) {
-	    				System.err.println(" Using " + prop + " = " + cldrHome);
+	    				SurveyLog.logger.warning(" Using " + prop + " = " + cldrHome);
 	    			} else {
-	    				System.err.println(" Unset: " + prop);
+	    				SurveyLog.logger.warning(" Unset: " + prop);
 	    			}
 	    		}
 	    	}
 	        if(cldrHome == null) {  
 	            busted("Could not find cldrHome. please set catalina.home, user.dir, etc, or set a servlet parameter cldr.home");
 //	            for(Object qq : System.getProperties().keySet()) {
-//	            	System.err.println("  >> "+qq+"="+System.getProperties().get(qq));
+//	            	SurveyLog.logger.warning("  >> "+qq+"="+System.getProperties().get(qq));
 //	            }
 	        } 
     	}
@@ -728,7 +725,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 ctx.println("home: " + cldrHome);
                 doStartupDB();
             } catch(Throwable t) {
-            	logException(t, ctx);
+            	SurveyLog.logException(t, ctx);
                 ctx.println("Caught: " + t.toString()+"\n");
             }
             ctx.println("</pre>");
@@ -750,7 +747,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
         ctx.println("</form>");
 
         if(q.length()>0) {
-            logger.severe("Raw SQL: " + q);
+            SurveyLog.logger.severe("Raw SQL: " + q);
             ctx.println("<hr>");
             ctx.println("query: <tt>" + q + "</tt><br><br>");
             Connection conn = null;
@@ -860,31 +857,31 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                 
                 ctx.println("elapsed time: " + et + "<br>");
             } catch(SQLException se) {
-            	logException(se, ctx);
+            	SurveyLog.logException(se, ctx);
                 String complaint = "SQL err: " + DBUtils.unchainSqlException(se);
                 
                 ctx.println("<pre class='ferrbox'>" + complaint + "</pre>" );
-                logger.severe(complaint);
+                SurveyLog.logger.severe(complaint);
             } catch(Throwable t) {
-            	logException(t, ctx);
+            	SurveyLog.logException(t, ctx);
                 String complaint = t.toString();
 				t.printStackTrace();
                 ctx.println("<pre class='ferrbox'>" + complaint + "</pre>" );
-                logger.severe("Err in SQL execute: " + complaint);
+                SurveyLog.logger.severe("Err in SQL execute: " + complaint);
             } finally {
                 try {
                     s.close();
                 } catch(SQLException se) {
-                	logException(se, ctx);
+                	SurveyLog.logException(se, ctx);
                     String complaint = "in s.closing: SQL err: " + DBUtils.unchainSqlException(se);
                     
                     ctx.println("<pre class='ferrbox'> " + complaint + "</pre>" );
-                    logger.severe(complaint);
+                    SurveyLog.logger.severe(complaint);
                 } catch(Throwable t) {
-                	logException(t, ctx);
+                	SurveyLog.logException(t, ctx);
                     String complaint = t.toString();
                     ctx.println("<pre class='ferrbox'> " + complaint + "</pre>" );
-                    logger.severe("Err in SQL close: " + complaint);
+                    SurveyLog.logger.severe("Err in SQL close: " + complaint);
                 }
                 DBUtils.closeDBConnection(conn);
             }
@@ -906,7 +903,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     }
     
     private static final void freeMem(int pages, int xpages) {
-        System.err.println("pages: " + pages+"+"+xpages + ", "+freeMem()+".<br/>");
+        SurveyLog.logger.warning("pages: " + pages+"+"+xpages + ", "+freeMem()+".<br/>");
     }
 	
     /** Hash of twiddlable (toggleable) parameters
@@ -1085,7 +1082,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
 				getDBSourceFactory().stats(ctx).append("<br>");
 	        	dbUtils.stats(ctx).append("<br>");
 			} catch (IOException e) {
-	        	logException(e, ctx);
+	        	SurveyLog.logException(e, ctx);
 				ctx.println("Error " + e + " loading other stats<br/>");
 				e.printStackTrace();
 				
@@ -1274,7 +1271,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                     		t.interrupt();
                     		t.stop(new InternalError("Admin wants you to stop"));
                     	} catch(Throwable tt) {
-                        	logException(tt, ctx);
+                        	SurveyLog.logException(tt, ctx);
                     		ctx.println("[caught exception " + tt.toString()+"]<br>");
                     	}
                     }
@@ -1379,7 +1376,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                             try {
                                 //                CLDRDBSource mySrc = makeDBSource(conn, null, CLDRLocale.ROOT);
                                 resetLocaleCaches();
-                                System.out.println("Update count: " + getDBSourceFactory().manageSourceUpdates(fakeContext, fakeContext.sm, true)); // do a quiet 'update all'
+                                SurveyLog.logger.info("Update count: " + getDBSourceFactory().manageSourceUpdates(fakeContext, fakeContext.sm, true)); // do a quiet 'update all'
                             } finally {
                                 //                SurveyMain.closeDBConnection(conn);
                             }
@@ -1404,7 +1401,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                             progress.update(" Update Status");
                             et = new ElapsedTimer();
                             n = vet.updateStatus();
-                            System.err.println("Done updating "+n+" statuses [locales] in: " + et + "<br>");
+                            SurveyLog.logger.warning("Done updating "+n+" statuses [locales] in: " + et + "<br>");
                             SurveyMain.specialHeader = "Data update done! Please log off. Administrator: Please restart your Survey Tool.";
                         } finally {
                             progress.close();
@@ -1412,7 +1409,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
                     }
                 });
             } catch (IOException e) {
-            	logException(e, ctx);
+            	SurveyLog.logException(e, ctx);
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 throw new InternalError("Couldn't create fakeContext for administration.");
@@ -1545,7 +1542,7 @@ o	            		}*/
                             } else {
                                 Set<String> lotsOfPaths = new HashSet<String>();
                                 stSource.getPathsWithValue(val, baseNoAlt, lotsOfPaths);
-//                                System.err.println("pwv["+val+","+baseNoAlt+",)="+lotsOfPaths.size());
+//                                SurveyLog.logger.warning("pwv["+val+","+baseNoAlt+",)="+lotsOfPaths.size());
                                 if(!lotsOfPaths.isEmpty()) {
                                     for(String s : lotsOfPaths) {
                                         String alt2 = XPathTable.getAlt(s, xpp);
@@ -1553,7 +1550,7 @@ o	            		}*/
                                             String altPieces2[] = LDMLUtilities.parseAlt(alt2);
                                             if(altPieces2[0]!=null && altPieces[0].equals(altPieces[0])) {
                                                 resultPaths.add(s);
-//                                                System.err.println("==match: " + s);
+//                                                SurveyLog.logger.warning("==match: " + s);
                                             }
                                         }
                                     }
@@ -1753,7 +1750,7 @@ o	            		}*/
                  ctx.println("<b>Err in bulk import </b> <pre>" + unchainSqlException(t)+"</pre>");
                  */
             } catch (Throwable t) {
-            	logException(t, ctx);
+            	SurveyLog.logException(t, ctx);
                 t.printStackTrace();
                 ctx.println("Err : " + t.toString() );
             }
@@ -1813,11 +1810,11 @@ o	            		}*/
 		    public void run() throws Throwable {
 			ElapsedTimer et = new ElapsedTimer();
 			int n = vet.updateResults(reupdate);
-			System.err.println("Done updating "+n+" vote results in: " + et + "<br>");
+			SurveyLog.logger.warning("Done updating "+n+" vote results in: " + et + "<br>");
 			lcr.invalidateLocale(CLDRLocale.ROOT);
 			ElapsedTimer zet = new ElapsedTimer();
 			int zn = vet.updateStatus();
-			System.err.println("Done updating "+zn+" statuses [locales] in: " + zet + "<br>");
+			SurveyLog.logger.warning("Done updating "+zn+" statuses [locales] in: " + zet + "<br>");
 			
 		    }
 		    });
@@ -1849,11 +1846,11 @@ o	            		}*/
             								rmResultLoc.setString(1,loc.toString());
             								int del = DBUtils.sqlUpdate(ctx, conn, rmResultLoc);
             								ctx.println("<em>"+del+" results of "+loc+" locale removed</em><br>");
-            								System.err.println("update: "+del+" results of "+loc+" locale " +
+            								SurveyLog.logger.warning("update: "+del+" results of "+loc+" locale " +
             								"removed");
             							}
             						} catch(SQLException se) {
-            				        	logException(se, ctx);
+            				        	SurveyLog.logException(se, ctx);
             							se.printStackTrace();
             							ctx.println("<b>Err while trying to delete results for " + loc + ":</b> <pre>" + DBUtils.unchainSqlException(se)+"</pre>");
             						}
@@ -1872,7 +1869,7 @@ o	            		}*/
             				DBUtils.close(rmResultLoc,conn);
             			}
             		} catch (SQLException se) {
-                    	logException(se, ctx);
+                    	SurveyLog.logException(se, ctx);
             			se.printStackTrace();
             			ctx.println("<b>Err while trying to delete results :</b> <pre>" + DBUtils.unchainSqlException(se)+"</pre>");
             		}
@@ -1984,11 +1981,11 @@ o	            		}*/
 						DBUtils.close(conn);
 					}
 				} catch (IOException e) {
-		        	logException(e, ctx);
+		        	SurveyLog.logException(e, ctx);
 					ctx.println("<i>err getting locale counts: " + e +"</i><br>");
 					e.printStackTrace();
 				} catch(SQLException se) {
-		        	logException(se, ctx);
+		        	SurveyLog.logException(se, ctx);
 					ctx.println("<i>err getting locale counts: " + dbUtils.unchainSqlException(se)+"</i><br>");
 				}
 			}
@@ -2124,7 +2121,7 @@ o	            		}*/
             ctx.println("<br>(dbupdate took " + aTimer+")");
             ctx.println("<br>");
 		} else if(action.equals("srl_vxport")) {
-			System.err.println("vxport");
+			SurveyLog.logger.warning("vxport");
 			File inFiles[] = getInFiles();
 			int nrInFiles = inFiles.length;
 			boolean found = false;
@@ -2135,7 +2132,7 @@ o	            		}*/
 				String localeName = inFiles[i].getName();
 				int dot = localeName.indexOf('.');
 				theLocale = localeName.substring(0,dot);
-				System.err.println("#vx "+theLocale);
+				SurveyLog.logger.warning("#vx "+theLocale);
 				XMLSource dbSource = makeDBSource(CLDRLocale.getInstance(theLocale), true);
 				CLDRFile file = makeCLDRFile(dbSource);
 				  OutputStream files = new FileOutputStream(new File(outdir,localeName),false); // Append
@@ -2148,9 +2145,7 @@ o	            		}*/
 				files.close();
 				
 				} catch(IOException exception){
-		        	logException(exception, ctx);
-				  System.err.println(exception);
-				  // TODO: log this ... 
+		        	SurveyLog.logException(exception, ctx);
 				}
 			}
 		} else if(action.equals("add_locale")) {
@@ -2218,8 +2213,8 @@ o	            		}*/
 						        //            } catch (UnsupportedEncodingException e) {
 						        //                throw new InternalError("UTF8 unsupported?").setCause(e);
 		                    } catch (IOException e) {
-		                    	logException(e, ctx);
-		                    	System.err.println("While adding "+xmlFile.getAbsolutePath());
+		                    	SurveyLog.logException(e, ctx);
+		                    	SurveyLog.logger.warning("While adding "+xmlFile.getAbsolutePath());
 		                        e.printStackTrace();
 		                        ctx.println(ctx.iconHtml("stop","err")+" Error While adding "+xmlFile.getAbsolutePath()+" - " + e.toString()+"<br><pre>");
 		                        ctx.print(e);
@@ -2266,7 +2261,7 @@ o	            		}*/
 	                	loadAllLocales(null,this);
 	                    ElapsedTimer et = new ElapsedTimer();
 	                    int n = vet.updateStatus();
-	                    System.err.println("Done updating "+n+" statuses [locales] in: " + et + "<br>");
+	                    SurveyLog.logger.warning("Done updating "+n+" statuses [locales] in: " + et + "<br>");
 	                }
             	});
 		ctx.println("<h2>Task Queued.</h2>");
@@ -2381,9 +2376,9 @@ o	            		}*/
                 rs.close();
                 s.close();
             } catch ( SQLException se ) {
-            	logException(se, ctx);
+            	SurveyLog.logException(se, ctx);
                 String complaint = " Couldn't query xpaths of " + test0 +" - " + DBUtils.unchainSqlException(se) + " - " + sql;
-                System.err.println(complaint);
+                SurveyLog.logger.warning(complaint);
                 ctx.println("<hr><font color='red'>ERR: "+complaint+"</font><hr>");
             }
             ctx.print("Collected "+paths.size()+" paths, " + et + "<br>");
@@ -2501,7 +2496,7 @@ o	            		}*/
 	    File[] inFiles = getInFiles();
 	    int nrInFiles = inFiles.length;
 	    com.ibm.icu.dev.test.util.ElapsedTimer allTime = new com.ibm.icu.dev.test.util.ElapsedTimer("Time to load all: {0}");
-	    logger.info("Loading all..");            
+	    SurveyLog.logger.info("Loading all..");            
 	    //        Connection connx = null;
 	    int ti = 0;
 	    CLDRProgressTask progress = null;
@@ -2518,7 +2513,7 @@ o	            		}*/
 	                    progress.update(i,localeName);
 	                }
 	                if((i>0)&&((i%50)==0)) {
-	                    logger.info("   "+ i + "/" + nrInFiles + ". " + usedK() + "K mem used");
+	                    SurveyLog.logger.info("   "+ i + "/" + nrInFiles + ". " + usedK() + "K mem used");
 	                    //if(ctx!=null) ctx.println("   "+ i + "/" + nrInFiles + ". " + usedK() + "K mem used<br>");
 	                }
 	                try {
@@ -2532,24 +2527,24 @@ o	            		}*/
 	                    //                        xctx.setLocale(locale);
 	                    //makeCLDRFile(makeDBSource(connx, null, locale));  // orphan result
 	                } catch(Throwable t) {
-	                	logException(t, ctx);
+	                	SurveyLog.logException(t, ctx);
 	                    t.printStackTrace();
 	                    String complaint = ("Error loading: " + localeName + " - " + t.toString() + " ...");
-	                    logger.severe("loading all: " + complaint);
+	                    SurveyLog.logger.severe("loading all: " + complaint);
 	                    throw new InternalError("loading all: " + complaint);
 	                }
 	            }
 	        }
 	        if(surveyTask!=null&&!surveyTask.running()) {
-	            System.err.println("LoadAll: no longer running!\n");
+	            SurveyLog.logger.warning("LoadAll: no longer running!\n");
 	        }
 	        if(surveyTask != null && surveyTask.running()) {
 	        }
 	        //        closeDBConnection(connx);
-	        logger.info("Loaded all. " + allTime);
+	        SurveyLog.logger.info("Loaded all. " + allTime);
 	        //	        if(ctx!=null) ctx.println("Loaded all." + allTime + "<br>");
 	        int n = getDBSourceFactory().update(surveyTask, null);
-	        logger.info("Updated "+n+". " + allTime);
+	        SurveyLog.logger.info("Updated "+n+". " + allTime);
 	        //	        if(ctx!=null) ctx.println("Updated "+n+"." + allTime + "<br>");
 	    } finally {
 	       if(progress != null) {
@@ -2580,7 +2575,7 @@ o	            		}*/
 /*
         if(showedComplaint == false) {
             showedComplaint = true;
-            System.err.println("**** noindex,nofollow is disabled");
+            SurveyLog.logger.warning("**** noindex,nofollow is disabled");
         }
         */
         ctx.println("<META NAME=\"ROBOTS\" CONTENT=\"NOINDEX,NOFOLLOW\"> "); // NO index
@@ -2772,8 +2767,8 @@ o	            		}*/
             }
             ctx.println("| <a " + (isUnofficial?"title":"href") + "='" + bugFeedbackUrl("Feedback on URL ?" + u)+"'>Report Problem in Tool</a>");
         } catch (Throwable t) {
-        	logException(t, ctx);
-            System.err.println(t.toString());
+        	SurveyLog.logException(t, ctx);
+            SurveyLog.logger.warning(t.toString());
             t.printStackTrace();
         }
         if(!SurveyMain.isUnofficial) {
@@ -2898,15 +2893,15 @@ o	            		}*/
             }
         }
         UserRegistry.User user;
-//        /*srl*/ System.err.println("isBusted: " + isBusted + ", reg: " + reg);
+//        /*srl*/ SurveyLog.logger.warning("isBusted: " + isBusted + ", reg: " + reg);
 	
-//        System.err.println("reg.get  pw="+password+", email="+email+", lmi="+ctx.field("letmein")+", lmigood="+vap.equals(ctx.field("letmein")));
+//        SurveyLog.logger.warning("reg.get  pw="+password+", email="+email+", lmi="+ctx.field("letmein")+", lmigood="+vap.equals(ctx.field("letmein")));
 
         user = reg.get(password,email,ctx.userIP(), letmein);
         if(user!=null) {
             user.touch();
         }
-	//	System.err.println("user= "+user);
+	//	SurveyLog.logger.warning("user= "+user);
 
         if(ctx.request == null && ctx.session != null) {
             return "using canned session"; // already set - for testing
@@ -3482,7 +3477,7 @@ o	            		}*/
             // #level $name $email $org
             rs.close();
         }/*end synchronized(reg)*/ } catch(SQLException se) {
-            logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
+            SurveyLog.logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
             ctx.println("<i>Failure: " + DBUtils.unchainSqlException(se) + "</i><br>");
         } finally {
     		DBUtils.close(psMySubmit,psMyVet,psnSubmit,psnVet,conn);
@@ -3538,16 +3533,16 @@ o	            		}*/
             if((group != null) &&
                 // Not sure why we did this... jce (!"basic".equals(group)) && // exclude it for being basic
                 (null==supplemental.defaultContentToParent(group)) ) {
-                //System.err.println("getGroup("+lang+", " + missingLocalesForOrg + ") = " + group);
+                //SurveyLog.logger.warning("getGroup("+lang+", " + missingLocalesForOrg + ") = " + group);
                 if(!isValidLocale(lang)) {
-                    //System.err.println("-> not in lm: " + lang);
+                    //SurveyLog.logger.warning("-> not in lm: " + lang);
                     languagesNotInCLDR.add(lang);
                 } else {
                     if(!s.contains(lang)) {
-                     //   System.err.println("-> not in S: " + lang);
+                     //   SurveyLog.logger.warning("-> not in S: " + lang);
                         languagesMissing.add(lang);
                     } else {
-                       // System.err.println("in lm && s: " + lang);
+                       // SurveyLog.logger.warning("in lm && s: " + lang);
                     }
                 }
             }
@@ -3804,7 +3799,7 @@ o	            		}*/
                 ctx.println("\t</user>");
             }            
         }/*end synchronized(reg)*/ } catch(SQLException se) {
-            logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
+            SurveyLog.logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
             ctx.println("<!-- Failure: " + DBUtils.unchainSqlException(se) + " -->");
         } finally {
     		DBUtils.close(conn);
@@ -4614,7 +4609,7 @@ o	            		}*/
 				}
 			}/* end synchronized(reg) */
 		} catch(SQLException se) {
-            logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
+            SurveyLog.logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
             ctx.println("<i>Failure: " + DBUtils.unchainSqlException(se) + "</i><br>");
         } finally {
     		DBUtils.close(conn);
@@ -5526,7 +5521,7 @@ o	            		}*/
                                 message);
             ctx.println("<br>"+ctx.iconHtml("okay","mail sent")+"Mail sent to " + theirEmail + " from " + from + " via " + smtp + "<br/>\n");
         }
-        logger.info( "Mail sent to " + theirEmail + "  from " + from + " via " + smtp + " - "+subject);
+        SurveyLog.logger.info( "Mail sent to " + theirEmail + "  from " + from + " via " + smtp + " - "+subject);
         /* some debugging. */
     }
     
@@ -5744,7 +5739,7 @@ o	            		}*/
     						showTimeZones(subCtx);
     					} catch(Throwable t) {
     						t.printStackTrace();
-    						System.err.println("Err showing timezones: " + t);                    		
+    						SurveyLog.logger.warning("Err showing timezones: " + t);                    		
     						ctx.println("Error: " + t.toString());
     					}
     				} else {
@@ -5938,7 +5933,7 @@ o	            		}*/
             throw new InternalError("Can't create voteDir " + voteDir.getAbsolutePath());
         }
         
-        System.err.println("Writing " + kind);
+        SurveyLog.logger.warning("Writing " + kind);
         long lastTime = System.currentTimeMillis();
         long countStart = lastTime;
         if(sql) {
@@ -5983,7 +5978,7 @@ o	            		}*/
                 progress.close();
             }
         }
-        System.err.println("output: " + kind + " - DONE, files: " + nrOutFiles);
+        SurveyLog.logger.warning("output: " + kind + " - DONE, files: " + nrOutFiles);
         return nrOutFiles;
     }
     
@@ -6049,7 +6044,7 @@ o	            		}*/
 		    long nextTime = System.currentTimeMillis();
 		    if((nextTime - lastTime) > 10000) { // denote, every 10 seconds
 		        lastTime = nextTime;
-		        System.err.println("output: " + kind + " / " + localeName + ": #"+i+"/"+nrInFiles+", or "+
+		        SurveyLog.logger.warning("output: " + kind + " / " + localeName + ": #"+i+"/"+nrInFiles+", or "+
 		            (((double)(System.currentTimeMillis()-countStart))/i)+"ms per.");
 		    }
 		    
@@ -6071,7 +6066,7 @@ o	            		}*/
 			        throw new InternalError("IO Exception "+e.toString());
 			    } finally {
 			        if(lastfile != null) {
-			            System.err.println("Last file written: " + kind + " / " + lastfile);
+			            SurveyLog.logger.warning("Last file written: " + kind + " / " + lastfile);
 			        }
 			    }
 		    }
@@ -6102,7 +6097,7 @@ o	            		}*/
 		        throw new InternalError("SQL Exception on vote file "+DBUtils.unchainSqlException(e));
 		    } finally {
 		        if(lastfile != null) {
-		            System.err.println("Last  vote file written: " + kind + " / " + lastfile);
+		            SurveyLog.logger.warning("Last  vote file written: " + kind + " / " + lastfile);
 		        }
 		    }
 
@@ -6113,7 +6108,7 @@ o	            		}*/
 		lastfile = "xpathTable.xml" + " - xpath table";
 		// write voteFile
 		File xpathFile = new File(voteDir,"xpathTable.xml");
-		System.err.println("Writting xpath @ " + voteDir.getAbsolutePath());
+		SurveyLog.logger.warning("Writting xpath @ " + voteDir.getAbsolutePath());
 		try {
 		    PrintWriter utf8OutStream = new PrintWriter(
 		        new OutputStreamWriter(
@@ -6129,7 +6124,7 @@ o	            		}*/
 		    throw new InternalError("IO Exception on vote file "+e.toString());
 		} finally {
 		    if(lastfile != null) {
-		        System.err.println("Last  vote file written: " + kind + " / " + lastfile);
+		        SurveyLog.logger.warning("Last  vote file written: " + kind + " / " + lastfile);
 		    }
 		}
 		return nrOutFiles;
@@ -6185,7 +6180,7 @@ o	            		}*/
 		       */
 		    }            
 		} } catch(SQLException se) {
-		    logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
+		    SurveyLog.logger.log(java.util.logging.Level.WARNING,"Query for org " + org + " failed: " + DBUtils.unchainSqlException(se),se);
 		    out.println("# Failure: " + DBUtils.unchainSqlException(se) + " -->");
 		}finally {
 				DBUtils.close(conn);
@@ -6372,7 +6367,7 @@ o	            		}*/
                     } catch (SQLException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
-                        System.err.println("<!-- exception: "+e+" -->");
+                        SurveyLog.logger.warning("<!-- exception: "+e+" -->");
                     }
                 } else {
 			if(!isKvp) {
@@ -6636,6 +6631,15 @@ o	            		}*/
         return gSTFactory;
     }
 
+    /**
+     * destroy the ST Factory - testing use only!
+     * @internal
+     */
+    public final synchronized STFactory TESTING_removeSTFactory() {
+    	STFactory oldFactory = gSTFactory;
+    	gSTFactory = null;
+    	return oldFactory;
+    }
     
     /**
      * @return the dbsrcfac
@@ -6664,11 +6668,11 @@ o	            		}*/
 
     synchronized Factory getOldFactory() {
         if(gOldFactory == null) {
-            File oldBase = new File(fileBaseOld);
+            File oldBase = new File(getFileBaseOld());
             File oldCommon = new File(oldBase,"common/main");
             if(!oldCommon.isDirectory()) {
                 String verAsMilestone = "release-"+oldVersion.replaceAll("\\.", "-");
-                String msg = ("Could not read old data: you might do 'svn export http://unicode.org/repos/cldr/tags/"+verAsMilestone + "/common "+ oldBase.getAbsolutePath() + "/common' - or check " + getOldVersionParam() + " and CLDR_OLDVERSION parameters. ");
+                String msg = ("Could not read old data - " + oldCommon.getAbsolutePath() + ": you might do 'svn export http://unicode.org/repos/cldr/tags/"+verAsMilestone + "/common "+ oldBase.getAbsolutePath() + "/common' - or check " + getOldVersionParam() + " and CLDR_OLDVERSION parameters. ");
                 //svn export http://unicode.org/repos/cldr/tags/release-1-8 1.8
                 
                 busted(msg);
@@ -6738,29 +6742,29 @@ o	            		}*/
     
     public synchronized String getDirectionalityFor(CLDRLocale id) {
         final boolean DDEBUG=false;
-        if (DDEBUG) System.err.println("Checking directionality for " + id);
+        if (DDEBUG) SurveyLog.logger.warning("Checking directionality for " + id);
         if(aliasMap==null) {
             checkAllLocales();
         }
         while(id != null) {
             // TODO use iterator
             CLDRLocale aliasTo = isLocaleAliased(id);
-            if (DDEBUG) System.err.println("Alias -> "+aliasTo);
+            if (DDEBUG) SurveyLog.logger.warning("Alias -> "+aliasTo);
             if(aliasTo != null 
                     && !aliasTo.equals(id)) { // prevent loops
                 id = aliasTo;
-                if (DDEBUG) System.err.println(" -> "+id);
+                if (DDEBUG) SurveyLog.logger.warning(" -> "+id);
                 continue;
             }
             String dir = directionMap.get(id);
-            if (DDEBUG) System.err.println(" dir:"+dir);
+            if (DDEBUG) SurveyLog.logger.warning(" dir:"+dir);
             if(dir!=null) {
                 return dir;
             }
             id = id.getParent();
-            if (DDEBUG) System.err.println(" .. -> :"+id);
+            if (DDEBUG) SurveyLog.logger.warning(" .. -> :"+id);
         }
-        if (DDEBUG) System.err.println("err: could not get directionality of root");
+        if (DDEBUG) SurveyLog.logger.warning("err: could not get directionality of root");
         return "left-to-right"; //fallback
     }
 
@@ -6852,7 +6856,7 @@ o	            		}*/
 
 		public void open() {
 			use++;
-			System.err.println("uls: open="+use);
+			SurveyLog.logger.warning("uls: open="+use);
 		}
         
         public ExampleGenerator getExampleGenerator() {
@@ -6860,11 +6864,11 @@ o	            		}*/
         		//                if(CACHE_VXML_FOR_EXAMPLES) {
         		//                    fileForGenerator = getCLDRFileCache().getCLDRFile(locale, true);
         		//                } else {
-        		//   System.err.println("!CACHE_VXML_FOR_EXAMPLES");
+        		//   SurveyLog.logger.warning("!CACHE_VXML_FOR_EXAMPLES");
         		//              }
 
         		if(resolvedFile==null) {
-        			System.err.println("Err: fileForGenerator is null for " + dbSource);
+        			SurveyLog.logger.warning("Err: fileForGenerator is null for " + dbSource);
         		}
         		
         		if(resolvedFile.getSupplementalDirectory()==null) {
@@ -6876,11 +6880,11 @@ o	            		}*/
         		
         		exampleGenerator = new ExampleGenerator(resolvedFile, baselineFile, fileBase + "/../supplemental/");
         		exampleGenerator.setVerboseErrors(twidBool("ExampleGenerator.setVerboseErrors"));
-        		//System.err.println("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
+        		//SurveyLog.logger.warning("-revalid exgen-"+locale + " - " + exampleIsValid + " in " + this);
         		exampleIsValid.setValid();
-        		//System.err.println(" >> "+locale + " - " + exampleIsValid + " in " + this);
+        		//SurveyLog.logger.warning(" >> "+locale + " - " + exampleIsValid + " in " + this);
         		exampleIsValid.register();
-        		//System.err.println(" >>> "+locale + " - " + exampleIsValid + " in " + this);
+        		//SurveyLog.logger.warning(" >>> "+locale + " - " + exampleIsValid + " in " + this);
         	}
             return exampleGenerator;
         }
@@ -6893,7 +6897,7 @@ o	            		}*/
         	}
 			use--;
 			closeStack = DEBUG?StackTracker.currentStack():null;
-			System.err.println("uls: close="+use);
+			SurveyLog.logger.warning("uls: close="+use);
         	if(use>0) {
         		return;
         	}
@@ -6923,7 +6927,7 @@ o	            		}*/
 		public UserLocaleStuff(CLDRLocale locale) {
             super(lcr, locale);
             exampleIsValid.register();
-//    System.err.println("Adding ULS:"+locale);
+//    SurveyLog.logger.warning("Adding ULS:"+locale);
             synchronized(allUserLocaleStuffs) {
             	allUserLocaleStuffs.add(this);
             }
@@ -6967,7 +6971,7 @@ o	            		}*/
             if(CACHE_VXML_FOR_TESTS) {
                 return getCLDRFileCache().getCLDRFile(locale());
             } else {
-//                System.err.println(" !CACHE_VXML_FOR_TESTS");
+//                SurveyLog.logger.warning(" !CACHE_VXML_FOR_TESTS");
                 return null;
             }
         }
@@ -7042,7 +7046,7 @@ o	            		}*/
         uf.open(); // incr count.
         
         int n = getDBSourceFactory().update();
-        if(n>0) System.err.println("getUserFile() updated " + n + " locales.");
+        if(n>0) SurveyLog.logger.warning("getUserFile() updated " + n + " locales.");
         return uf;
     }
     XMLSource makeDBSource(CLDRLocale locale) {
@@ -7097,7 +7101,7 @@ o	            		}*/
         		DBUtils.close(conn);
         	}
         } catch(SQLException se) {
-        	System.err.println("On resetLocaleCaches().reloadLocales: " + DBUtils.unchainSqlException(se));
+        	SurveyLog.logger.warning("On resetLocaleCaches().reloadLocales: " + DBUtils.unchainSqlException(se));
         	this.busted("trying to reset locale caches @ fora", se);
         }
     }
@@ -7137,14 +7141,14 @@ o	            		}*/
                 is.close();
             } catch(java.io.IOException ioe) {
                 /*throw new UnavailableException*/
-                logger.log(java.util.logging.Level.SEVERE, "Couldn't load XML Cache file from '" + cldrHome + "/" + XML_CACHE_PROPERTIES + ": ",ioe);
+                SurveyLog.logger.log(java.util.logging.Level.SEVERE, "Couldn't load XML Cache file from '" + cldrHome + "/" + XML_CACHE_PROPERTIES + ": ",ioe);
                 busted("Couldn't load XML Cache file from '" + cldrHome + "/" + XML_CACHE_PROPERTIES + ": ", ioe);
                 return;
             }
 
             int n=0;
             int cachehit=0;
-            System.err.println("Parse " + locales.size() + " locales from XML to look for aliases or errors...");
+            SurveyLog.logger.warning("Parse " + locales.size() + " locales from XML to look for aliases or errors...");
             for(CLDRLocale loc : locales) {
                 String locString = loc.toString();
                 //            ULocale uloc = new ULocale(locString);
@@ -7155,7 +7159,7 @@ o	            		}*/
                     String fileHash = fileHash(f);
                     String aliasTo = null;
                     String direction = null;
-                    //System.err.println(fileHash);
+                    //SurveyLog.logger.warning(fileHash);
 
                     String oldHash = xmlCacheProps.getProperty(locString);
                     if(useCache && oldHash != null && oldHash.equals(fileHash)) {
@@ -7201,7 +7205,7 @@ o	            		}*/
                         xmlCachePropsNew.put(locString+".a", aliasTo);
                     }
                 } catch (Throwable t) {
-                    System.err.println("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
+                    SurveyLog.logger.warning("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
                     t.printStackTrace();
                     busted("isLocaleAliased: Failed load/validate on: " + loc + " - ", t);
                     throw new InternalError("isLocaleAliased: Failed load/validate on: " + loc + " - " + t.toString());
@@ -7222,12 +7226,12 @@ o	            		}*/
                 os.close();
             } catch(java.io.IOException ioe) {
                 /*throw new UnavailableException*/
-                logger.log(java.util.logging.Level.SEVERE, "Couldn't write "+xmlCache+" file from '" + cldrHome + "': ",ioe);
+                SurveyLog.logger.log(java.util.logging.Level.SEVERE, "Couldn't write "+xmlCache+" file from '" + cldrHome + "': ",ioe);
                 busted("Couldn't write "+xmlCache+" file from '" + cldrHome+"': ", ioe);
                 return;
             }
 
-            System.err.println("Finished verify+alias check of " + locales.size()+ ", " + aliasMapNew.size() + " aliased locales ("+cachehit+" in cache) found in " + et.toString());
+            SurveyLog.logger.warning("Finished verify+alias check of " + locales.size()+ ", " + aliasMapNew.size() + " aliased locales ("+cachehit+" in cache) found in " + et.toString());
             aliasMap = aliasMapNew;
             directionMap = directionMapNew;
         } finally {
@@ -7638,7 +7642,7 @@ o	            		}*/
 	                        if(processPeaChanges(ctx, oldSection, cf, ballotBox, new DefaultDataSubmissionResultHandler(ctx))) {
 //	                            int j = vet.updateResults(oldSection.locale,entry.getConnectionAlias()); // bach 'em
 //	                            int d = this.getDBSourceFactory().update(entry.getConnectionAlias()); // then the fac so it can update
-//	                            System.err.println("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
+//	                            SurveyLog.logger.warning("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
 	                            String j = "";
 	                            ctx.println("<br> You submitted data or vote changes, <!-- and " + j + " results were updated. As a result, --> your items may show up under the 'priority' or 'proposed' categories.<br>");
 	                        }
@@ -7647,7 +7651,7 @@ o	            		}*/
                         }
                     }
                     ctx.flush(); // give them some status.
-            //        System.out.println("Pod's full thing: " + fullThing);
+            //        SurveyLog.logger.info("Pod's full thing: " + fullThing);
                     DataSection section = ctx.getSection(fullThing); // we load a new pod here - may be invalid by the modifications above.
                     showPeas(ctx, section, canModify, matcher, false);
                 }
@@ -7657,7 +7661,7 @@ o	            		}*/
         	try {
         		if(entry!=null) entry.close();
         	} catch(SQLException se) {
-        		System.err.println("SQLException when closing dbEntry : " + DBUtils.unchainSqlException(se));
+        		SurveyLog.logger.warning("SQLException when closing dbEntry : " + DBUtils.unchainSqlException(se));
         	}
         	curThread.setName(threadName);
     	}
@@ -8000,7 +8004,7 @@ o	            		}*/
                 } catch(Throwable t) {
                     // failed to show pea. 
                     ctx.println("<tr class='topbar'><td colspan='8'><b>"+section.xpath(p)+"</b><br>");
-                    logException(t,ctx);
+                    SurveyLog.logException(t,ctx);
                     ctx.print(t);
                     ctx.print("</td></tr>");
                 }
@@ -8043,45 +8047,6 @@ o	            		}*/
         }
     }
 
-    static void logException(Throwable t, WebContext ctx) {
-        logException(t,"(exception)",StackTracker.stackToString(t.getStackTrace(), 0), ctx);
-    }
-    
-    static void logException(Throwable t) {
-    	logException(t,"");
-    }
-    static void logException(Throwable t, String what) {
-        logException(t,"(exception " + what + ")",StackTracker.stackToString(t.getStackTrace(), 0), null);
-    }
-    
-    private static void logException(Throwable t, String what, String stack) {
-        logException(t,what,stack,null);
-    }
-    
-    private static synchronized void logException(Throwable t, String what, String stack, WebContext ctx) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("** ST Exception:"+new Date()+", uptime " + uptime+"\n");
-        sb.append("EXCEPTION: " + t+"\n");
-        sb.append("STACK:\n" + stack);
-        sb.append("LOG SITE:\n" + StackTracker.currentStack()+"\n");
-        sb.append("CTX:" + ctx +"\n");
-        
-        // First, log to file
-        if(homeFile!=null) try {
-            File logFile = new File(homeFile, "exception.log");
-            OutputStream file = new FileOutputStream(logFile, false); // Append
-            PrintWriter pw = new PrintWriter(file);
-            pw.append(sb);
-            pw.close();
-            file.close();
-        } catch(IOException ioe) {
-            System.err.println("Err: " + ioe + " trying to log exceptions!");
-            ioe.printStackTrace();
-        }
-        
-        // then, to screen
-        System.err.println(sb);
-    }
     /**
      * Calculate the references and put them in temporary hash.
      * @param ctx context - to hold the temporary hash
@@ -8159,10 +8124,10 @@ o	            		}*/
             }            
         }
         if(someDidChange) {
-        	System.err.println("SomeDidChange: " + oldSection.locale());
+        	SurveyLog.logger.warning("SomeDidChange: " + oldSection.locale());
     		int updcount = getDBSourceFactory().update();
     		int updcount2 = getDBSourceFactory().sm.vet.updateResults(oldSection.locale());
-    		System.err.println("Results updated: " + updcount + ", " + updcount2 + " for " + oldSection.locale());
+    		SurveyLog.logger.warning("Results updated: " + updcount + ", " + updcount2 + " for " + oldSection.locale());
             updateLocale(oldSection.locale());
         }
         return someDidChange;
@@ -8171,7 +8136,7 @@ o	            		}*/
     public void updateLocale(CLDRLocale locale) {
         lcr.invalidateLocale(locale);
         int n = vet.updateImpliedVotes(locale); // first implied votes
-        System.err.println("updateLocale:"+locale.toString()+":  vet_imp:"+n);
+        SurveyLog.logger.warning("updateLocale:"+locale.toString()+":  vet_imp:"+n);
     }
     /**
      * Call from within  session lock
@@ -8190,18 +8155,18 @@ o	            		}*/
         
         
         if(choice.length()==0) {
-            //System.err.println("@@@@@  Unknown Hash: CH["+fieldHash+"]");
+            //SurveyLog.logger.warning("@@@@@  Unknown Hash: CH["+fieldHash+"]");
             return false; // nothing to see..
         }
         String fullPathFull = section.xpath(p);
         int base_xpath = xpt.xpathToBaseXpathId(fullPathFull);
-        if(false) System.err.println("@@@@@ CH["+fieldHash+"] -> " + choice + " @ " + fullPathFull + " / " + base_xpath) ;
+        if(false) SurveyLog.logger.warning("@@@@@ CH["+fieldHash+"] -> " + choice + " @ " + fullPathFull + " / " + base_xpath) ;
         
         String oldVote = ballotBox.getVoteValue(ctx.session.user, fullPathFull);
         // do modification here. 
         String choice_v = ctx.field(fieldHash+QUERY_VALUE_SUFFIX); // choice + value
         
-        if(false) System.err.println("@@@@@ v="+choice_v);
+        if(false) SurveyLog.logger.warning("@@@@@ v="+choice_v);
         
         
         String choice_refDisplay = ""; // display value for ref
@@ -8215,7 +8180,7 @@ o	            		}*/
             choice_v = ctx.processor.processInput(xpt.getById(p.getXpathId()),choice_v, null);
         }
         
-//        System.err.println("choice="+choice+", v="+choice_v);
+//        SurveyLog.logger.warning("choice="+choice+", v="+choice_v);
         
         /* handle inherited value */
         if(choice.equals(INHERITED_VALUE)) {
@@ -8226,7 +8191,7 @@ o	            		}*/
             // remap. Will cause the 2nd if branch to be followed, below.se
             choice = CHANGETO;
             choice_v = p.inheritedValue.value;
-         //   System.err.println("inherit -> CHANGETO");
+         //   SurveyLog.logger.warning("inherit -> CHANGETO");
         }
         
         // . . .
@@ -8285,7 +8250,7 @@ o	            		}*/
         	if(voteForItem.inheritFrom!=null || voteForItem.isFallback || voteForItem.isParentFallback || (voteForItem.pathWhereFound!=null&&voteForItem.pathWhereFound.length()>0)) {
                 // remap as a NEW ITEM.
                 choice = CHANGETO;
-//                System.err.println("v4i"+choice+" -> CHANGETO "+voteForItem.value);
+//                SurveyLog.logger.warning("v4i"+choice+" -> CHANGETO "+voteForItem.value);
                 choice_v = voteForItem.value;
         	}
         }
@@ -8587,7 +8552,7 @@ o	            		}*/
             ourVote = vet.queryVote(section.locale, ctx.session.user.id, 
                 base_xpath);
             
-            //System.err.println(base_xpath + ": vote is " + ourVote);
+            //SurveyLog.logger.warning(base_xpath + ": vote is " + ourVote);
             if(ourVote != -1) {
                 ourVoteXpath = xpt.getById(ourVote);
             }
@@ -9120,7 +9085,7 @@ o	            		}*/
 //                            Long l = o2c.get(oitem.value);
 //                            if(l != null) {
 //                                score = l;
-//                                //				    System.err.println(org.name+": ox " + oitem.xpathId + " -> l " + l + ", nn="+nn);
+//                                //				    SurveyLog.logger.warning(org.name+": ox " + oitem.xpathId + " -> l " + l + ", nn="+nn);
 //                                if(on>=0) {
 //                                    totals[on-1]+=score;
 //                                }
@@ -9815,7 +9780,7 @@ o	            		}*/
     static public boolean isSetup = false;
 
     private void createBasicCldr(File homeFile) {
-        System.err.println("Attempting to create /cldr  dir at " + homeFile.getAbsolutePath());
+        SurveyLog.logger.warning("Attempting to create /cldr  dir at " + homeFile.getAbsolutePath());
 
         try {
             homeFile.mkdir();
@@ -9866,7 +9831,7 @@ o	            		}*/
             file.close();
         }
         catch(IOException exception){
-          System.err.println("While writing "+homeFile.getAbsolutePath()+" props: "+exception);
+          SurveyLog.logger.warning("While writing "+homeFile.getAbsolutePath()+" props: "+exception);
           exception.printStackTrace();
         }
     }
@@ -9907,7 +9872,7 @@ o	            		}*/
 //							} catch (Throwable e) {
 //								// TODO Auto-generated catch block
 //								e.printStackTrace();
-//								System.err.println("Removing periodic task due to crash: " + st.name());
+//								SurveyLog.logger.warning("Removing periodic task due to crash: " + st.name());
 //								bads.add(st);
 //							}
 //				    	}
@@ -9963,7 +9928,7 @@ o	            		}*/
                 File propFile = new java.io.File(homeFile, "cldr.properties");
     
                 if(!propFile.exists()) {
-                    System.err.println("Does not exist: "+propFile.getAbsolutePath());
+                    SurveyLog.logger.warning("Does not exist: "+propFile.getAbsolutePath());
                     createBasicCldr(homeFile); // attempt to create
                 }
     
@@ -9974,7 +9939,7 @@ o	            		}*/
                 cldrHome = homeFile.getAbsolutePath();
             }
     
-            logger.info("SurveyTool starting up. root=" + new File(cldrHome).getAbsolutePath());
+            SurveyLog.logger.info("SurveyTool starting up. root=" + new File(cldrHome).getAbsolutePath());
             progress.update("Loading configurations");
     
             try {
@@ -9984,7 +9949,7 @@ o	            		}*/
                 is.close();
             } catch(java.io.IOException ioe) {
                 /*throw new UnavailableException*/
-                logger.log(java.util.logging.Level.SEVERE, "Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ",ioe);
+                SurveyLog.logger.log(java.util.logging.Level.SEVERE, "Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ",ioe);
                 busted("Couldn't load cldr.properties file from '" + cldrHome + "/cldr.properties': ", ioe);
                 return;
             }
@@ -10002,7 +9967,7 @@ o	            		}*/
                         currentPhase = (Phase.valueOf(phaseString));
                     }
                 } catch(IllegalArgumentException iae) {
-                    System.err.println("Error trying to parse CLDR_PHASE: " + iae.toString());
+                    SurveyLog.logger.warning("Error trying to parse CLDR_PHASE: " + iae.toString());
                 }
                 if(currentPhase == null) {
                     StringBuffer allValues = new StringBuffer();
@@ -10022,23 +9987,12 @@ o	            		}*/
             vetdir = new File(vetdata);
             if(!vetdir.isDirectory()) {
                 vetdir.mkdir();
-                System.err.println("## creating empty vetdir: " + vetdir.getAbsolutePath());
+                SurveyLog.logger.warning("## creating empty vetdir: " + vetdir.getAbsolutePath());
             }
             if(!vetdir.isDirectory()) {
                 busted("CLDR_VET_DATA isn't a directory: " + vetdata);
                 return;
             }
-    //        if(false && (loggingHandler == null)) { // TODO: switch? Java docs seem to be broken.. following doesn't work.
-    //            try {
-    //                loggingHandler = new java.util.logging.FileHandler(vetdata + "/"+LOGFILE,0,1,true);
-    //                loggingHandler.setFormatter(new java.util.logging.SimpleFormatter());
-    //                logger.addHandler(loggingHandler);
-    //                logger.setUseParentHandlers(false);
-    //            } catch(Throwable ioe){
-    //                busted("Couldn't add log handler for logfile (" + vetdata+"/"+LOGFILE +"): " + ioe.toString());
-    //                return;
-    //            }
-    //        }
     
             progress.update("Setup vap and message..");
             vap = survprops.getProperty("CLDR_VAP"); // Vet Access Password
@@ -10054,7 +10008,7 @@ o	            		}*/
             cldrLoad = survprops.getProperty("CLDR_LOAD_ALL"); // preload all locales?
             // System.getProperty("CLDR_COMMON") + "/main" is ignored.
             fileBase = survprops.getProperty("CLDR_COMMON",cldrHome+"/common") + "/main"; // not static - may change lager
-            fileBaseOld = survprops.getProperty(getOldVersionParam(),cldrHome+"/"+oldVersion); // not static - may change lager
+            setFileBaseOld(survprops.getProperty(getOldVersionParam(),cldrHome+"/"+oldVersion)); // not static - may change lager
             specialMessage = survprops.getProperty("CLDR_MESSAGE"); // not static - may change lager
             specialHeader = survprops.getProperty("CLDR_HEADER"); // not static - may change lager
             
@@ -10088,7 +10042,7 @@ o	            		}*/
             try {
             	supplemental.defaultContentToParent("mt_MT");
             } catch(InternalError ie) {
-            	System.err.println("can't do SupplementalData.defaultContentToParent() - " + ie);
+            	SurveyLog.logger.warning("can't do SupplementalData.defaultContentToParent() - " + ie);
             	ie.printStackTrace();
             	busted("can't do SupplementalData.defaultContentToParent() - " + ie, ie);
             }
@@ -10100,7 +10054,7 @@ o	            		}*/
                 return; // couldn't write the log
             }
             if ((specialMessage!=null)&&(specialMessage.length()>0)) {
-                logger.warning("SurveyTool with CLDR_MESSAGE: " + specialMessage);
+                SurveyLog.logger.warning("SurveyTool with CLDR_MESSAGE: " + specialMessage);
                 busted("message: " + specialMessage);
             }
             /*
@@ -10152,7 +10106,7 @@ o	            		}*/
             isLocaleAliased(CLDRLocale.ROOT);
         }
         
-        logger.info("SurveyTool ready for requests after "+setupTime+". Memory in use: " + usedK());
+        SurveyLog.logger.info("SurveyTool ready for requests after "+setupTime+". Memory in use: " + usedK());
         isSetup = true;
     }
     
@@ -10185,12 +10139,12 @@ o	            		}*/
 		if(theDate==null) {
 			return false; // no data (?)
 		}
-		//System.err.println(loc+" .. exists " + theFile + " vs " + theDate);
+		//SurveyLog.logger.warning(loc+" .. exists " + theFile + " vs " + theDate);
 		if(theFile!=null && !theFile.before(theDate)) {
-			//System.err.println(" .. OK, up to date.");
+			//SurveyLog.logger.warning(" .. OK, up to date.");
 			return false;
 		}
-		if(false) System.err.println("Out of Date: Must output " + loc + " / " + kind + " - @" + theFile + " vs  SQL " + theDate);
+		if(false) SurveyLog.logger.warning("Out of Date: Must output " + loc + " / " + kind + " - @" + theFile + " vs  SQL " + theDate);
 		return true;
     }
     
@@ -10336,7 +10290,7 @@ o	            		}*/
 				u8out.println("</properties>");
 			}
 			u8out.close();
-			System.err.println("Updater: Wrote: " + kind + "/" + loc + " - " +  ElapsedTimer.elapsedTime(st));
+			SurveyLog.logger.warning("Updater: Wrote: " + kind + "/" + loc + " - " +  ElapsedTimer.elapsedTime(st));
 			return outFile;
 		} catch (IOException e) {
 	    	e.printStackTrace();
@@ -10346,7 +10300,7 @@ o	            		}*/
 				try {
 					dbEntry.close();
 				} catch (SQLException e) {
-					System.err.println("Error in " + kind + "/" + loc + " _ " + e.toString());
+					SurveyLog.logger.warning("Error in " + kind + "/" + loc + " _ " + e.toString());
 					e.printStackTrace();
 				}
 	    	}
@@ -10374,7 +10328,7 @@ o	            		}*/
     				
     				for(int j=0;j< Math.min(16,locs.length);j++) { // Try 16 locales looking for one that doesn't exist. No more, due to load.
     					loc = locs[(spinner++)%locs.length]; // A new one each time.
-    					//System.err.println("Updater: Considering: "  +loc);
+    					//SurveyLog.logger.warning("Updater: Considering: "  +loc);
     					Timestamp localeTime = getLocaleTime(conn,loc);
     					if(!fileNeedsUpdate(localeTime,loc,"vxml") /*&& !fileNeedsUpdate(localeTime,loc,"xml")*/ ) {
     						loc=null;
@@ -10384,7 +10338,7 @@ o	            		}*/
 
     				if(loc==null) {
     					//progress.update(3, "None to update.");
-    					//    				System.err.println("All " + locs.length + " up to date.");
+    					//    				SurveyLog.logger.warning("All " + locs.length + " up to date.");
     					return; // nothing to do.
     				}
 					progress = openProgress("Updater", 3);
@@ -10396,7 +10350,7 @@ o	            		}*/
     				*/
 					progress.update(3, "Done:"  +loc);
     			} catch (SQLException e) {
-					System.err.println("While running Updater: " + DBUtils.unchainSqlException(e));
+					SurveyLog.logger.warning("While running Updater: " + DBUtils.unchainSqlException(e));
 				} catch (IOException e) {
 					e.printStackTrace();
 				} finally {
@@ -10415,7 +10369,7 @@ o	            		}*/
     public void destroy() {
         CLDRProgressTask progress = openProgress("shutting down");
         try {
-            logger.warning("SurveyTool shutting down..");
+            SurveyLog.logger.warning("SurveyTool shutting down..");
             if(startupThread!=null) {
                 progress.update("Attempting clean shutdown...");
             	startupThread.attemptCleanShutdown();
@@ -10621,7 +10575,7 @@ o	            		}*/
 								m.put(group, v);
 							}
 							v.add(u);
-							// System.err.println(group + " - " + u.email +
+							// SurveyLog.logger.warning(group + " - " + u.email +
 							// " (ALL)");
 						}
 					} else {
@@ -10633,7 +10587,7 @@ o	            		}*/
 								m.put(group, v);
 							}
 							v.add(u);
-							// System.err.println(group + " - " + u.email + "");
+							// SurveyLog.logger.warning(group + " - " + u.email + "");
 						}
 					}
 				}
@@ -10703,8 +10657,8 @@ o	            		}*/
     }
     
     protected static void busted(String what, Throwable t, String stack) {
-        logException(t,what,stack);
-        System.err.println("SurveyTool busted: " + what + " ( after " +pages +"html+"+xpages+"xml pages served,  " + getGuestsAndUsers()  + ")");
+        SurveyLog.logException(t,what,stack);
+        SurveyLog.logger.warning("SurveyTool busted: " + what + " ( after " +pages +"html+"+xpages+"xml pages served,  " + getGuestsAndUsers()  + ")");
         try {
             throw new InternalError("broke here");
         } catch(InternalError e) {
@@ -10719,9 +10673,9 @@ o	            		}*/
             isBustedThrowable = t;
             isBustedTimer = new ElapsedTimer();
         } else { 
-            System.err.println("[was already busted, not overriding old message.]");
+            SurveyLog.logger.warning("[was already busted, not overriding old message.]");
         }
-        logger.severe(what);
+        SurveyLog.logger.severe(what);
     }
 
     private void appendLog(WebContext ctx, String what) {
@@ -10730,11 +10684,11 @@ o	            		}*/
     }
 
     public void appendLog(String what) {
-        logger.info(what);
+        SurveyLog.logger.info(what);
     }
 
     public synchronized void appendLog(String what, String ipInfo) {
-        logger.info(what + " [@" + ipInfo + "]");
+        SurveyLog.logger.info(what + " [@" + ipInfo + "]");
     }
 
     TreeMap allXpaths = new TreeMap();    
@@ -10857,18 +10811,18 @@ o	            		}*/
                 xpathWarnings.put(result[0] + " /" + result[1], result[2]);
             }
         } catch (java.io.FileNotFoundException t) {
-            //            System.err.println(t.toString());
+            //            SurveyLog.logger.warning(t.toString());
             //            t.printStackTrace();
             //logger.warning("Warning: Can't read xpath warnings file.  " + cldrHome + "/surveyInfo.txt - To remove this warning, create an empty file there.");
             return true;
         }  catch (java.io.IOException t) {
-            System.err.println(t.toString());
+            SurveyLog.logger.warning(t.toString());
             t.printStackTrace();
             busted("Error: trying to read xpath warnings file.  " + cldrHome + "/surveyInfo.txt");
             return true;
         }
         
-        //        System.err.println("xpathWarnings" + ": " + lines + " lines read.");
+        //        SurveyLog.logger.warning("xpathWarnings" + ": " + lines + " lines read.");
         return true;
     }
 
@@ -10903,14 +10857,14 @@ o	            		}*/
             try {
                 progress.update("Setup  "+UserRegistry.CLDR_USERS); // restore
                 progress.update("Create UserRegistry  "+UserRegistry.CLDR_USERS); // restore
-                reg = UserRegistry.createRegistry(logger, this);
+                reg = UserRegistry.createRegistry(SurveyLog.logger, this);
             } catch (SQLException e) {
                 busted("On UserRegistry startup", e);
                 return;
             }
             progress.update( "Create XPT"); // restore
             try {
-                xpt = XPathTable.createTable(logger, dbUtils.getDBConnection(), this);
+                xpt = XPathTable.createTable(dbUtils.getDBConnection(), this);
             } catch (SQLException e) {
                 busted("On XPathTable startup", e);
                 return;
@@ -10918,14 +10872,14 @@ o	            		}*/
             // note: make xpt before CLDRDBSource..
             progress.update("Create CLDR_DATA"); // restore
             try {
-                setDBSourceFactory(new CLDRDBSourceFactory(this, fileBase, logger, new File(homeFile, "vxpt")));
+                setDBSourceFactory(new CLDRDBSourceFactory(this, fileBase, SurveyLog.logger, new File(homeFile, "vxpt")));
             } catch (SQLException e) {
                 busted("On CLDRDBSource startup", e);
                 return;
             }
             progress.update( "Create Vetting"); // restore
             try {
-                vet = Vetting.createTable(logger, this);
+                vet = Vetting.createTable(SurveyLog.logger, this);
             } catch (SQLException e) {
                 e.printStackTrace();
                 busted("On Vetting startup", e);
@@ -10941,7 +10895,7 @@ o	            		}*/
             }
             progress.update("Create fora"); // restore
             try {
-                fora = SurveyForum.createTable(logger, dbUtils.getDBConnection(), this);
+                fora = SurveyForum.createTable(SurveyLog.logger, dbUtils.getDBConnection(), this);
             } catch (SQLException e) {
                 busted("On Fora startup", e);
                 return;
@@ -10977,25 +10931,25 @@ o	            		}*/
                 CookieSession.shutdownDB();
             } catch(Throwable t) {
                 t.printStackTrace();
-                System.err.println("While shutting down cookiesession ");
+                SurveyLog.logger.warning("While shutting down cookiesession ");
             }
             try {
                 if(reg!=null) reg.shutdownDB();
             } catch(Throwable t) {
                 t.printStackTrace();
-                System.err.println("While shutting down reg ");
+                SurveyLog.logger.warning("While shutting down reg ");
             }
             try {
                 if(xpt!=null) xpt.shutdownDB();
             } catch(Throwable t) {
                 t.printStackTrace();
-                System.err.println("While shutting down xpt ");
+                SurveyLog.logger.warning("While shutting down xpt ");
             }
             try {
                 if(vet!=null) vet.shutdownDB();
             } catch(Throwable t) {
                 t.printStackTrace();
-                System.err.println("While shutting down vet ");
+                SurveyLog.logger.warning("While shutting down vet ");
             }
             
             dbUtils.doShutdown();
@@ -11004,13 +10958,13 @@ o	            		}*/
         catch (SQLException se)
         {
             gotSQLExc = true;
-            logger.info("DB: while shutting down: " + se.toString());
+            SurveyLog.logger.info("DB: while shutting down: " + se.toString());
         }
     }
 
     private void closeOpenUserLocaleStuff(boolean closeAll) {
     	if(allUserLocaleStuffs.isEmpty()) return;
-    	System.err.println("Closing " + allUserLocaleStuffs.size() + " user files.");
+    	SurveyLog.logger.warning("Closing " + allUserLocaleStuffs.size() + " user files.");
     	for(UserLocaleStuff uf : allUserLocaleStuffs) {
     		if(!uf.isClosed()) {
     			uf.internalClose();
@@ -11019,30 +10973,30 @@ o	            		}*/
 	}
     
 	public static void main(String args[]) {
-        System.out.println("Starting some test of SurveyTool locally....");
+        SurveyLog.logger.info("Starting some test of SurveyTool locally....");
         try{
             cldrHome=getHome()+"/cldr";
             vap="testingvap";
             SurveyMain sm=new SurveyMain();
-            System.out.println("sm created.");
+            SurveyLog.logger.info("sm created.");
             sm.doStartup();
-            System.out.println("sm started.");
+            SurveyLog.logger.info("sm started.");
             sm.doStartupDB();
-            System.out.println("DB started.");
+            SurveyLog.logger.info("DB started.");
             if(isBusted != null)  {
-                System.err.println("Survey Tool is down: " + isBusted);
+                SurveyLog.logger.warning("Survey Tool is down: " + isBusted);
                 return;
             }
             
-            System.err.println("--- Starting processing of requests ---");
-            System.err.println("Mem: "+freeMem());
+            SurveyLog.logger.warning("--- Starting processing of requests ---");
+            SurveyLog.logger.warning("Mem: "+freeMem());
             CookieSession cs = new CookieSession(true, "0.0.0.0");
             for ( String arg : args ) {
                 com.ibm.icu.dev.test.util.ElapsedTimer reqTimer = new com.ibm.icu.dev.test.util.ElapsedTimer();
-                System.err.println("***********\n* "+arg);
+                SurveyLog.logger.warning("***********\n* "+arg);
                 if(arg.equals("-wait")) {
                     try {
-                        System.err.println("*** WAITING ***");
+                        SurveyLog.logger.warning("*** WAITING ***");
                         System.in.read();
                     } catch(Throwable t) {}
                     continue;
@@ -11055,7 +11009,7 @@ o	            		}*/
 	                        com.ibm.icu.dev.test.util.ElapsedTimer qt = new com.ibm.icu.dev.test.util.ElapsedTimer(locale.getBaseName()+"#"+Integer.toString(jj));
 	                        xctx.setLocale(locale);
 	                    	DataSection.make(xctx, locale, SurveyMain.GREGO_XPATH, false, "modern");
-	                    	System.err.println("Made: " + qt.toString() + " -- " + freeMem());
+	                    	SurveyLog.logger.warning("Made: " + qt.toString() + " -- " + freeMem());
 	                    }
                     }
                     continue;
@@ -11071,7 +11025,7 @@ o	            		}*/
 	                        xctx.setLocale(locale);
 	                    	DataSection ds = DataSection.make(xctx, locale, SurveyMain.GREGO_XPATH, false,"modern");
 	                        DataSection.DisplaySet set = ds.createDisplaySet(SortMode.getInstance(SurveyMain.PREF_SORTMODE_CODE_CALENDAR), null);
-	                    	System.err.println("Made: " + qt.toString() + " -- " + freeMem());
+	                    	SurveyLog.logger.warning("Made: " + qt.toString() + " -- " + freeMem());
 //	                    }
                     }
                     continue;
@@ -11090,7 +11044,7 @@ o	            		}*/
                     		long nowTime = System.currentTimeMillis();
                     		long et = nowTime-startTime;
                     		double dps=  (((double)jj)/((double)et))*1000.0;
-                    		System.err.println("Made: " + qt.toString() + " -- " + freeMem() + " - " + set.rows.length + " - #"+jj + ":  "+dps+"/sec");
+                    		SurveyLog.logger.warning("Made: " + qt.toString() + " -- " + freeMem() + " - " + set.rows.length + " - #"+jj + ":  "+dps+"/sec");
                     	}
 	                }
 	                continue;
@@ -11102,7 +11056,7 @@ o	            		}*/
                     		long nowTime = System.currentTimeMillis();
                     		long et = nowTime-startTime;
                     		double dps=  (((double)jj)/((double)et))*1000.0;
-                    		System.err.println("ONE: - - #"+jj + ":  "+dps+"/sec");
+                    		SurveyLog.logger.warning("ONE: - - #"+jj + ":  "+dps+"/sec");
                     	}
 	                }
 	                startTime = System.currentTimeMillis();
@@ -11113,12 +11067,12 @@ o	            		}*/
                     		long nowTime = System.currentTimeMillis();
                     		long et = nowTime-startTime;
                     		double dps=  (((double)jj)/((double)et))*1000.0;
-                    		System.err.println("TWO: - - #"+jj + ":  "+dps+"/sec");
+                    		SurveyLog.logger.warning("TWO: - - #"+jj + ":  "+dps+"/sec");
                     	}
 	                }
 	                continue;
                 }
-                System.err.println("Mem: "+freeMem());
+                SurveyLog.logger.warning("Mem: "+freeMem());
                 WebContext xctx = new URLWebContext("http://127.0.0.1:8080/cldr-apps/survey" + arg);
                 xctx.sm = sm;
                 xctx.session=cs;
@@ -11137,14 +11091,14 @@ o	            		}*/
                 	}
                 }
                 //xctx.close();
-                System.err.println("\n\n"+reqTimer+" for " + arg);
+                SurveyLog.logger.warning("\n\n"+reqTimer+" for " + arg);
             }
-            System.err.println("--- Ending processing of requests ---");
+            SurveyLog.logger.warning("--- Ending processing of requests ---");
 
             /*
             String ourXpath = "//ldml/numbers";
             
-            System.out.println("xpath xpt.getByXpath("+ourXpath+") = " + sm.xpt.getByXpath(ourXpath));
+            SurveyLog.logger.info("xpath xpt.getByXpath("+ourXpath+") = " + sm.xpt.getByXpath(ourXpath));
             */
 /*            
             
@@ -11153,11 +11107,11 @@ o	            		}*/
                 xctx.sm = sm;
                 xctx.session=new CookieSession(true);
                 for(int i=0;i<arg.length;i++) {
-                    System.out.println("loading stuff for " + arg[i]);
+                    SurveyLog.logger.info("loading stuff for " + arg[i]);
                     xctx.setLocale(new ULocale(arg[i]));
                     
                     WebContext ctx = xctx;
-                    System.out.println("  - loading CLDRFile and stuff");
+                    SurveyLog.logger.info("  - loading CLDRFile and stuff");
                     UserLocaleStuff uf = sm.getUserFile(...
                     CLDRFile cf = sm.getUserFile(ctx, (ctx.session.user==null)?null:ctx.session.user, ctx.getLocale());
                     if(cf == null) {
@@ -11170,7 +11124,7 @@ o	            		}*/
                     CheckCLDR checkCldr =  (CheckCLDR)ctx.getByLocale(USER_FILE + CHECKCLDR+":"+ctx.defaultPtype());
                     if (checkCldr == null)  {
                         List checkCldrResult = new ArrayList();
-                        System.err.println("Initting tests . . .");
+                        SurveyLog.logger.warning("Initting tests . . .");
                         long t0 = System.currentTimeMillis();
         */
                       //  checkCldr = CheckCLDR.getCheckAll(/* "(?!.*Collision.*).*" */  ".*");
@@ -11180,7 +11134,7 @@ o	            		}*/
                             throw new InternalError("cf was null.");
                         }
                         checkCldr.setCldrFileToCheck(cf, ctx.getOptionsMap(basicOptionsMap()), checkCldrResult);
-                        System.err.println("fileToCheck set . . . on "+ checkCldr.toString());
+                        SurveyLog.logger.warning("fileToCheck set . . . on "+ checkCldr.toString());
                         ctx.putByLocale(USER_FILE + CHECKCLDR+":"+ctx.defaultPtype(), checkCldr);
                         {
                             // sanity check: can we get it back out
@@ -11193,39 +11147,39 @@ o	            		}*/
                             ctx.putByLocale(USER_FILE + CHECKCLDR_RES+":"+ctx.defaultPtype(), checkCldrResult); // don't bother if empty . . .
                         }
                         long t2 = System.currentTimeMillis();
-                        System.err.println("Time to init tests " + arg[i]+": " + (t2-t0));
+                        SurveyLog.logger.warning("Time to init tests " + arg[i]+": " + (t2-t0));
                     }
-                    System.err.println("getPod:");
+                    SurveyLog.logger.warning("getPod:");
                     xctx.getPod("//ldml/numbers");
 */
                 
                 /*
-                    System.out.println("loading dbsource for " + arg[i]);
+                    SurveyLog.logger.info("loading dbsource for " + arg[i]);
                     CLDRDBSource dbSource = CLDRDBSource.createInstance(sm.fileBase, sm.xpt, new ULocale(arg[i]),
                                                                         sm.getDBConnection(), null);            
-                    System.out.println("dbSource created for " + arg[i]);
+                    SurveyLog.logger.info("dbSource created for " + arg[i]);
                     CLDRFile my = new CLDRFile(dbSource,false);
-                    System.out.println("file created ");
+                    SurveyLog.logger.info("file created ");
                     CheckCLDR check = CheckCLDR.getCheckAll("(?!.*Collision.*).*");
-                    System.out.println("check created");
+                    SurveyLog.logger.info("check created");
                     List result = new ArrayList();
                     Map options = null;
                     check.setCldrFileToCheck(my, options, result); 
-                    System.out.println("file set .. done with " + arg[i]);
+                    SurveyLog.logger.info("file set .. done with " + arg[i]);
                 */
     /*
                 }
             } else {
-                System.out.println("No locales listed");
+                SurveyLog.logger.info("No locales listed");
             }
     */
             
-            System.out.println("done...");
+            SurveyLog.logger.info("done...");
             sm.doShutdownDB();
-            System.out.println("DB shutdown.");
+            SurveyLog.logger.info("DB shutdown.");
         } catch(Throwable t) {
-            System.out.println("Something bad happened.");
-            System.out.println(t.toString());
+            SurveyLog.logger.info("Something bad happened.");
+            SurveyLog.logger.info(t.toString());
             t.printStackTrace();
         }
     }
@@ -11301,7 +11255,7 @@ o	            		}*/
         long now = System.currentTimeMillis();
         
         if((now-externalErrorLastCheck) < 8000) {
-            //System.err.println("Not rechecking errfile- only been " + (now-externalErrorLastCheck) + " ms");
+            //SurveyLog.logger.warning("Not rechecking errfile- only been " + (now-externalErrorLastCheck) + " ms");
             if(externalErrorSet != null) {
                 return true;
             } else {
@@ -11315,7 +11269,7 @@ o	            		}*/
             File extFile = new File(externalErrorName);
             
             if(!extFile.isFile() && !extFile.canRead()) {
-                System.err.println("Can't read counts file: " + externalErrorName);
+                SurveyLog.logger.warning("Can't read counts file: " + externalErrorName);
                 externalErrorFailed = true;
                 return false;
             }
@@ -11323,7 +11277,7 @@ o	            		}*/
             long newMod = extFile.lastModified();
             
             if(newMod == externalErrorLastMod) {
-                //System.err.println("** e.e. file did not change");
+                //SurveyLog.logger.warning("** e.e. file did not change");
                 return true;
             }
             
@@ -11356,26 +11310,26 @@ o	            		}*/
                     } else if(what.equals("count:")) {
                         int theirCount = new Integer(val).intValue();
                         if(theirCount != aSet.size()) {
-                            System.err.println(loc + " - count says " + val + ", we got " + aSet.size());
+                            SurveyLog.logger.warning(loc + " - count says " + val + ", we got " + aSet.size());
                         }
                     } else {
                         throw new IllegalArgumentException("Unknown parameter: " + what);
                     }
                 } catch(Throwable t) {
-                    System.err.println("** " + externalErrorName +":"+ lines + " -  " + t.toString());
+                    SurveyLog.logger.warning("** " + externalErrorName +":"+ lines + " -  " + t.toString());
                     externalErrorFailed = true;
                     t.printStackTrace();
                     return false;  
                 }
             }
-            System.err.println(externalErrorName + " - " + lines + " and " + newSet.size() + " locales loaded.");
+            SurveyLog.logger.warning(externalErrorName + " - " + lines + " and " + newSet.size() + " locales loaded.");
             
             externalErrorSet = newSet;
             externalErrorLastMod = newMod;
             externalErrorFailed = false;
             return true;
         } catch(IOException ioe) {
-            System.err.println("Reading externalErrorFile: "  + "count.txt - " + ioe.toString());
+            SurveyLog.logger.warning("Reading externalErrorFile: "  + "count.txt - " + ioe.toString());
             ioe.printStackTrace();
             externalErrorFailed = true;
             return false;
@@ -11484,5 +11438,17 @@ o	            		}*/
 	}
 	public static String formatDate() {
 		return formatDate(new Date());
+	}
+	/**
+	 * @return the fileBaseOld
+	 */
+	static String getFileBaseOld() {
+		return fileBaseOld;
+	}
+	/**
+	 * @param fileBaseOld the fileBaseOld to set
+	 */
+	public static void setFileBaseOld(String fileBaseOld) {
+		SurveyMain.fileBaseOld = fileBaseOld;
 	}
 }
