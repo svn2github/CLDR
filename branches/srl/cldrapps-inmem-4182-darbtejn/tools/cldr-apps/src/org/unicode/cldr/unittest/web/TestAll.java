@@ -111,7 +111,8 @@ public TestAll() {
             		// use class.getName so we are in sync with name changes and removals (if not additions)
             	TestIntHash.class.getName(),
             	TestXPathTable.class.getName(),
-            	TestCacheAndDataSource.class.getName()
+            	//TestCacheAndDataSource.class.getName()
+                TestSTFactory.class.getName()
             },
     "All tests in CLDR Web");
   }
