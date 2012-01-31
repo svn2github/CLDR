@@ -198,6 +198,6 @@ public class TestSTFactory extends TestFmwk {
 	
 	static final Map<String,Object> noDtdPlease = new TreeMap<String,Object>();
 	static {
-		noDtdPlease.put("DTD_DIR", CldrUtility.COMMON_DIRECTORY+"/dtd/");
+		noDtdPlease.put("DTD_DIR", CldrUtility.COMMON_DIRECTORY+File.separator+"dtd" + File.separator);
 	}
 }
