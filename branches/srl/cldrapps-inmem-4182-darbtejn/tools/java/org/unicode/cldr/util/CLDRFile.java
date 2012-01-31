@@ -247,6 +247,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     }
     return this;
   }
+  
+  private final static Map<String,Object> nullOptions = Collections.unmodifiableMap(new TreeMap<String,Object>());
 
   /**
    * Write the corresponding XML file out, with the normal formatting and indentation.
@@ -254,6 +256,17 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
    * If the CLDRFile is empty, the DTD type will be //ldml.
    */
   public CLDRFile write(PrintWriter pw) {
+      return write(pw,nullOptions);
+  }
+
+  /**
+   * Write the corresponding XML file out, with the normal formatting and indentation.
+   * Will update the identity element, including generation, version, and other items.
+   * If the CLDRFile is empty, the DTD type will be //ldml.
+   * @param pw writer to print to
+   * @param options map of options for writing
+   */
+  public CLDRFile write(PrintWriter pw,Map<String,Object> options) {
     Set orderedSet = new TreeSet(ldmlComparator);
     CollectionUtilities.addAll(dataSource.iterator(), orderedSet);
 
@@ -271,7 +284,16 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     }
 
     pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-    pw.println("<!DOCTYPE " + dtdType + " SYSTEM \"../../common/dtd/" + dtdType + ".dtd\">");
+    if(!options.containsKey("DTD_OMIT")) {
+        String dtdDir = "../../common/dtd/";
+        if(options.containsKey("DTD_DIR")) {
+            dtdDir = options.get("DTD_DIR").toString();
+        }
+        pw.println("<!DOCTYPE " + dtdType + " SYSTEM \"" + dtdDir + dtdType + ".dtd\">");
+    }
+    if(options.containsKey("COMMENT")) {
+        pw.println("<!-- " + options.get("COMMENT") + " -->");
+    }
     /*
      <identity>
      <version number="1.2"/>
