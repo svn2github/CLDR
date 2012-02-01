@@ -76,6 +76,7 @@ public class DBUtils {
 	public static String DB_SQL_BINTRODUCER = "";
 	public static int db_number_open = 0;
 	public static int db_number_used = 0;
+	private static int db_UnicodeType =             java.sql.Types.VARCHAR; /* for setNull  - see java.sql.Types */
 	private static final StackTracker tracker = DEBUG?new StackTracker():null; // new StackTracker(); - enable, to track unclosed connections
 	
 	public Appendable stats(Appendable output) throws IOException {
@@ -288,6 +289,9 @@ public class DBUtils {
 
 	public static final void setStringUTF8(PreparedStatement s, int which,
 			String what) throws SQLException {
+		if(what==null) {
+			s.setNull(which,db_UnicodeType);
+		}
 		if (db_Derby) {
 			s.setString(which, what);
 		} else {
@@ -508,6 +512,7 @@ public class DBUtils {
         if (dbInfo.contains("Derby")) {
             db_Derby = true;
             System.err.println("Note: derby mode");
+            db_UnicodeType =             java.sql.Types.VARCHAR;
         } else if (dbInfo.contains("MySQL")) {
             System.err.println("Note: mysql mode");
             db_Mysql = true;
@@ -522,6 +527,7 @@ public class DBUtils {
             DB_SQL_MIDTEXT = "TEXT(1024)";
             DB_SQL_BIGTEXT = "TEXT(16384)";
             DB_SQL_UNICODE = "BLOB";
+            db_UnicodeType =             java.sql.Types.BLOB;
             DB_SQL_ALLTABLES = "show tables";
         } else {
             System.err.println("*** WARNING: Don't know what kind of database is "

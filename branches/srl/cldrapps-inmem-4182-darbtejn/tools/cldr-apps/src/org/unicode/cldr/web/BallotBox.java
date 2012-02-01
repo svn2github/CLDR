@@ -53,4 +53,6 @@ public interface BallotBox<T> {
 	 * @return
 	 */
 	VoteResolver<String> getResolver(String path);
+
+	public boolean userDidVote(User myUser, String somePath);
 }

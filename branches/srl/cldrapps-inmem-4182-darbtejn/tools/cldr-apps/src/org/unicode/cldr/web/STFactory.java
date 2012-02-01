@@ -217,6 +217,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		
 		/* SIMPLE IMP */
 		private Map<String, Map<User,String>> xpathToVotes = new HashMap<String,Map<User,String>>();
+		private Set <User> allVoters = new TreeSet<User>();;
 		
 		
 		PerLocaleData(CLDRLocale locale) {
@@ -490,9 +491,19 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 				getXpathToVotes(distinguishingXpath).put(user, value);
 				return distinguishingXpath;
 			} else {
-				getXpathToVotes(distinguishingXpath).remove(user);
+				getXpathToVotes(distinguishingXpath).remove(user); 
+				allVoters.add(user);
 				return null;
 			}
+		}
+
+		@Override
+		public boolean userDidVote(User myUser, String somePath) {
+			Map<User, String> x = getXpathToVotes(somePath);
+			if(x==null) return false;
+			if(x.containsKey(myUser)) return true;
+			if(allVoters.contains(myUser)) return true; // voted for null
+			return false;
 		}
 		
 

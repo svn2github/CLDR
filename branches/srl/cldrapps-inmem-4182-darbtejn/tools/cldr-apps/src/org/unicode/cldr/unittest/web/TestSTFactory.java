@@ -63,21 +63,30 @@ public class TestSTFactory extends TestFmwk {
 		String currentWinner = null;
 		String changedTo = null;
 		String nowIs = null;
+		boolean didVote = false;
 		
 		CLDRLocale locale = CLDRLocale.getInstance("mt");
 		{
 			CLDRFile mt = fac.make(locale, false);
 			BallotBox<User> box = fac.ballotBoxForLocale(locale);
+			didVote = box.userDidVote(getMyUser(),somePath);
 			originalValue = currentWinner = mt.getStringValue(somePath);
-			logln("for " + locale + " value " + somePath + " winner= " + currentWinner);
+			logln("for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
 			changedTo = "COLL_ATION!!!";
 			if(currentWinner.equals(changedTo)) {
 				errln("for " + locale + " value " + somePath + " winner is already= " + currentWinner);
 			}
+			if(didVote) {
+				errln("Hey, I didn't vote yet!");
+			}
 			logln("VoteFor: " + changedTo);
 			box.voteForValue(getMyUser(), somePath, changedTo);
 			currentWinner= mt.getStringValue(somePath);
-			logln("for " + locale + " value " + somePath + " winner= " + currentWinner);
+			didVote = box.userDidVote(getMyUser(),somePath);
+			logln("for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
+			if(!didVote) {
+				errln("Hey, I did vote!");
+			}
 			if(!changedTo.equals(currentWinner)) {
 				errln("for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + changedTo);
 			}
@@ -88,9 +97,12 @@ public class TestSTFactory extends TestFmwk {
 		{
 			CLDRFile mt = fac.make(locale, false);
 			BallotBox<User> box = fac.ballotBoxForLocale(locale);
-
 			currentWinner= mt.getStringValue(somePath);
-			logln("after reset: for " + locale + " value " + somePath + " winner= " + currentWinner);
+			didVote = box.userDidVote(getMyUser(),somePath);
+			logln("after reset " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
+			if(!didVote) {
+				errln("Hey, I did vote!");
+			}
 			if(!changedTo.equals(currentWinner)) {
 				errln("after reset: for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + changedTo);
 			}
@@ -98,9 +110,27 @@ public class TestSTFactory extends TestFmwk {
 			// unvote
 			box.voteForValue(getMyUser(), somePath, null);
 			currentWinner= mt.getStringValue(somePath);
-			logln("for " + locale + " value " + somePath + " winner= " + currentWinner);
+			didVote = box.userDidVote(getMyUser(),somePath);
+			logln("for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
+			if(!didVote) {
+				errln("Hey, I did vote, for null!");
+			}
 			if(!originalValue.equals(currentWinner)) {
 				errln("for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + originalValue);
+			}
+		}
+		fac = resetFactory();
+		{
+			CLDRFile mt = fac.make(locale, false);
+			BallotBox<User> box = fac.ballotBoxForLocale(locale);
+			currentWinner= mt.getStringValue(somePath);
+			didVote = box.userDidVote(getMyUser(),somePath);
+			logln("after reset- for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
+			if(!didVote) {
+				errln("after reset- Hey, I did vote, for null!");
+			}
+			if(!originalValue.equals(currentWinner)) {
+				errln("after reset - for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + originalValue);
 			}
 
 			// vote for ____2
@@ -108,7 +138,11 @@ public class TestSTFactory extends TestFmwk {
 			logln("VoteFor: " + changedTo);
 			box.voteForValue(getMyUser(), somePath, changedTo);
 			currentWinner= mt.getStringValue(somePath);
-			logln("for " + locale + " value " + somePath + " winner= " + currentWinner);
+			didVote = box.userDidVote(getMyUser(),somePath);
+			logln("for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
+			if(!didVote) {
+				errln("Hey, I did revote!");
+			}
 			if(!changedTo.equals(currentWinner)) {
 				errln("for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + changedTo);
 			}
@@ -181,7 +215,7 @@ public class TestSTFactory extends TestFmwk {
 			sm.fileBase = CldrUtility.MAIN_DIRECTORY;
 //			CLDRDBSourceFactory fac = new CLDRDBSourceFactory(sm, sm.fileBase, Logger.getAnonymousLogger(), cacheDir);
 //			logln("Setting up DB");
-//			sm.setDBSourceFactory(fac);
+//			sm.setDBSourceFactory(fac);ignore
 //			fac.setupDB(DBUtils.getInstance().getDBConnection());
 //			logln("Vetter Ready (this will take a while..)");
 //			fac.vetterReady(TestAll.getProgressIndicator(this));
@@ -192,6 +226,7 @@ public class TestSTFactory extends TestFmwk {
 	}
 	
 	private STFactory resetFactory() throws SQLException {
+		logln("--- resetting STFactory() ----- [simulate reload] ------------");
 		return gFac = getFactory().TESTING_shutdownAndRestart();
 	}
 
