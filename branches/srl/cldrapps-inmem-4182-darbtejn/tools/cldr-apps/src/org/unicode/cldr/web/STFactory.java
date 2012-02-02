@@ -675,7 +675,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	/**
 	 * These locales can not be modified.
 	 */
-	private static final String readOnlyLocales[] = { "root", "en" };
+	private static final String readOnlyLocales[] = { "root", "en", "en_ZZ" };
 
 	
 	//private static final String SOME_KEY = "//ldml/localeDisplayNames/keys/key[@type=\"collation\"]";
@@ -738,7 +738,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 	public STFactory(SurveyMain sm) {
 		super();
 		this.sm = sm;
-		setSupplementalDirectory(new File(getSourceDirectory()+"/../"+"supplemental"));
+		setSupplementalDirectory(sm.getDiskFactory().getSupplementalDirectory());
 	}
 
 	@Override

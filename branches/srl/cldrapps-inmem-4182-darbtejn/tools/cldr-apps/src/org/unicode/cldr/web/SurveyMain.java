@@ -98,6 +98,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.ibm.icu.dev.test.util.BagFormatter;
+import com.ibm.icu.dev.test.util.CollectionUtilities;
 import com.ibm.icu.dev.test.util.ElapsedTimer;
 import com.ibm.icu.dev.test.util.TransliteratorUtilities;
 import com.ibm.icu.text.DateFormat;
@@ -234,7 +235,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator {
     File vetdir = null;
     public static  String vetweb = System.getProperty("CLDR_VET_WEB"); // dir for web data
     public static  String cldrLoad = System.getProperty("CLDR_LOAD_ALL"); // preload all locales?
-    public static String fileBase = null; // not static - may change later
+    public static String fileBase = null; // not static - may change later. Common dir
+    public static String fileBaseSeed = null; // not static - may change later. Seed dir
     private static String fileBaseOld = null; // fileBase + oldVersion
     static String specialMessage = System.getProperty("CLDR_MESSAGE"); //  static - may change later
     static String specialHeader = System.getProperty("CLDR_HEADER"); //  static - may change later
@@ -2130,8 +2132,7 @@ o	            		}*/
 			for(int i=0;(!found) && (i<nrInFiles);i++) {
 			 try{
 				String localeName = inFiles[i].getName();
-				int dot = localeName.indexOf('.');
-				theLocale = localeName.substring(0,dot);
+				theLocale = fileNameToLocale(localeName).getBaseName();
 				SurveyLog.logger.warning("#vx "+theLocale);
 				XMLSource dbSource = makeDBSource(CLDRLocale.getInstance(theLocale), true);
 				CLDRFile file = makeCLDRFile(dbSource);
@@ -6312,8 +6313,7 @@ o	            		}*/
                 String localeName = inFiles[i].getName();
                 if(s.equals(localeName)) {
                     found=true;
-                    int dot = localeName.indexOf('.');
-                    theLocale = localeName.substring(0,dot);
+                    theLocale = fileNameToLocale(localeName).getBaseName();
                 }
             }
             if(!found) {
@@ -6395,6 +6395,16 @@ o	            		}*/
             DBUtils.closeDBConnection(conn);
         }
     }
+	/**
+	 * @param localeName
+	 * @return
+	 */
+	private CLDRLocale fileNameToLocale(String localeName) {
+		String theLocale;
+		int dot = localeName.indexOf('.');
+		theLocale = localeName.substring(0,dot);
+		return CLDRLocale.getInstance(theLocale);
+	}
 
     /**
     * Show the 'main info about this locale' (General) panel.
@@ -6617,7 +6627,8 @@ o	            		}*/
 
     synchronized Factory getDiskFactory() {
         if(gFactory == null) {
-            gFactory = SimpleFactory.make(fileBase,".*");
+        	final String list[] = { fileBase, fileBaseSeed };
+            gFactory = SimpleFactory.make(list,".*");
         }
         return gFactory;
     }
@@ -7149,12 +7160,12 @@ o	            		}*/
             int n=0;
             int cachehit=0;
             SurveyLog.logger.warning("Parse " + locales.size() + " locales from XML to look for aliases or errors...");
-            for(CLDRLocale loc : locales) {
+            for(File f : getInFiles()) {
+            	CLDRLocale loc = fileNameToLocale(f.getName());
                 String locString = loc.toString();
                 //            ULocale uloc = new ULocale(locString);
                 progress.update(n++, loc.toString() /* + " - " + uloc.getDisplayName(uloc) */);
                 try {
-                    File  f = new File(fileBase, loc.toString()+".xml");
                     //                String fileName = fileBase+"/"+loc.toString()+".xml";
                     String fileHash = fileHash(f);
                     String aliasTo = null;
@@ -9820,6 +9831,9 @@ o	            		}*/
             pw.println("## CLDR common data. Default value shown, uncomment to override");
             pw.println("CLDR_COMMON="+homeFile.getAbsolutePath()+"/common");
             pw.println();
+            pw.println("## CLDR seed data. Default value shown, uncomment to override");
+            pw.println("CLDR_SEED="+homeFile.getAbsolutePath()+"/seed");
+            pw.println();
             pw.println("## SMTP server. Mail is disabled by default.");
             pw.println("#CLDR_SMTP=127.0.0.1");
             pw.println();
@@ -10008,6 +10022,7 @@ o	            		}*/
             cldrLoad = survprops.getProperty("CLDR_LOAD_ALL"); // preload all locales?
             // System.getProperty("CLDR_COMMON") + "/main" is ignored.
             fileBase = survprops.getProperty("CLDR_COMMON",cldrHome+"/common") + "/main"; // not static - may change lager
+            fileBaseSeed = survprops.getProperty("CLDR_SEED",cldrHome+"/seed") + "/main"; // not static - may change lager
             setFileBaseOld(survprops.getProperty(getOldVersionParam(),cldrHome+"/"+oldVersion)); // not static - may change lager
             specialMessage = survprops.getProperty("CLDR_MESSAGE"); // not static - may change lager
             specialHeader = survprops.getProperty("CLDR_HEADER"); // not static - may change lager
@@ -10016,6 +10031,10 @@ o	            		}*/
             
             if(!new File(fileBase).isDirectory()) {
                 busted("CLDR_COMMON isn't a directory: " + fileBase);
+                return;
+            }
+            if(!new File(fileBaseSeed).isDirectory()) {
+                busted("CLDR_SEED isn't a directory: " + fileBaseSeed);
                 return;
             }
             
@@ -10451,15 +10470,30 @@ o	            		}*/
         };
     }
 
+    // TODO: seed
     static protected File[] getInFiles() {
-    	return getInFiles(fileBase);
+    	ElapsedTimer et = SurveyLog.DEBUG?new ElapsedTimer("getInFiles()"):null;
+    	Set<File> s = new HashSet<File>();
+    	for(File f : getInFiles(fileBase) ) {
+    		s.add(f);
+    	}
+    	for(File f : getInFiles(fileBaseSeed) ) {
+    		s.add(f);
+    	}
+    	File arr[] = s.toArray(new File[s.size()]);
+    	SurveyLog.debug(et);
+    	return arr;
     }
     
+    // TODO: seed
     static protected File[] getInFiles(String base) {
-        File baseDir = new File(fileBase);
+        File baseDir = new File(base);
         return getInFiles(baseDir);
     }
     
+    /*
+     * Note, do NOT use this with just the base dir, doesn't include seed.
+     */
     static protected File[] getInFiles(File baseDir) {
         // 1. get the list of input XML files
         FileFilter myFilter = getXmlFileFilter();

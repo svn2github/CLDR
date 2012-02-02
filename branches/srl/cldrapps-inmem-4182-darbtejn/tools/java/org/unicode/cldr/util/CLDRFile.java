@@ -896,23 +896,26 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
    * Utility to restrict to files matching a given regular expression. The expression does not contain ".xml".
    * Note that supplementalData is always skipped, and root is always included.
    */
-  public static Set<String> getMatchingXMLFiles(String sourceDir, Matcher m) {
-    Set<String> s = new TreeSet();
-    File dir = new File(sourceDir);
-    if (!dir.exists()) {
-      throw new IllegalArgumentException("Directory doesn't exist:\t" + sourceDir);
-    }
-    if (!dir.isDirectory()) {
-      throw new IllegalArgumentException("Input isn't a file directory:\t" + sourceDir);
-    }
-    File[] files = dir.listFiles();
-    for (int i = 0; i < files.length; ++i) {
-      String name = files[i].getName();
-      if (!name.endsWith(".xml")) continue;
-      //if (name.startsWith(SUPPLEMENTAL_NAME)) continue;
-      String locale = name.substring(0,name.length()-4); // drop .xml
-      if (!m.reset(locale).matches()) continue;
-      s.add(locale);
+  public static Set<String> getMatchingXMLFiles(String sourceDirs[], Matcher m) {
+    Set<String> s = new TreeSet<String>();
+    
+    for(String sourceDir : sourceDirs) {
+        File dir = new File(sourceDir);
+        if (!dir.exists()) {
+          throw new IllegalArgumentException("Directory doesn't exist:\t" + sourceDir);
+        }
+        if (!dir.isDirectory()) {
+          throw new IllegalArgumentException("Input isn't a file directory:\t" + sourceDir);
+        }
+        File[] files = dir.listFiles();
+        for (int i = 0; i < files.length; ++i) {
+          String name = files[i].getName();
+          if (!name.endsWith(".xml")) continue;
+          //if (name.startsWith(SUPPLEMENTAL_NAME)) continue;
+          String locale = name.substring(0,name.length()-4); // drop .xml
+          if (!m.reset(locale).matches()) continue;
+          s.add(locale);
+        }
     }
     return s;
   }
