@@ -22,7 +22,7 @@ public interface BallotBox<T> {
 	 * @param value new string value to vote for, or null for "unvote"
 	 * @return the full xpath of the user's vote, or null if not applicable.
 	 */
-	public String voteForValue(T user, String distinguishingXpath, String value);
+	public void voteForValue(T user, String distinguishingXpath, String value);
 	
 	/**
 	 * Return a vote for a value, as a string

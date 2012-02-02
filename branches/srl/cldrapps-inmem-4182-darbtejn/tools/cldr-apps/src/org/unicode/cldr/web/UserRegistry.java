@@ -1090,6 +1090,9 @@ public class UserRegistry {
 		if (ctx.session.user.userlevel > TC) {
 			return null;
 		}
+		logger.info("UR: Attempt newuser by " + ctx.session.user.email
+				+ ": of " + u.email + " @ " + ctx.userIP());
+
 		// prepare quotes
 		u.email = u.email.replace('\'', '_').toLowerCase();
 		u.org = u.org.replace('\'', '_');
@@ -1101,8 +1104,6 @@ public class UserRegistry {
 		try {
 			conn = sm.dbUtils.getDBConnection();
 			insertStmt = conn.prepareStatement(SQL_insertStmt);
-			logger.info("UR: Attempt newuser by " + ctx.session.user.email
-					+ ": of " + u.email + " @ " + ctx.userIP());
 			insertStmt.setInt(1, u.userlevel);
 			DBUtils.setStringUTF8(insertStmt, 2, u.name); // insertStmt.setString(2,
 															// u.name);

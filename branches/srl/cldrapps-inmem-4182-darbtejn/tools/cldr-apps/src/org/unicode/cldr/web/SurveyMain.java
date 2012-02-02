@@ -8392,7 +8392,7 @@ o	            		}*/
             
             String newProp = null;
 //            synchronized(vet) { // make sure that no-one else grabs our slot.
-            String newXpath = ballotBox.voteForValue(ctx.session.user, fullPathFull, choice_v);
+            ballotBox.voteForValue(ctx.session.user, fullPathFull, choice_v);
             // update implied vote
 //            ctx.print(" &nbsp;&nbsp; <tt class='proposed'>" + newProp+"</tt>");
             if(HAVE_REMOVE&&choice.equals(REMOVE)) {

@@ -54,42 +54,65 @@ public class TestSTFactory extends TestFmwk {
 		logln("Test done.");
 	}
 	
+	private static final String ANY = "*";
+	
+	
+	private String expect(String path,
+										String expectString,
+										boolean expectVoted,
+										
+										CLDRLocale locale,
+										CLDRFile file,
+										BallotBox<User> box) {
+		String currentWinner = file.getStringValue(path);
+		boolean didVote = box.userDidVote(getMyUser(),path);
+		StackTraceElement them =  Thread.currentThread().getStackTrace()[3];
+		String where = them.getFileName()+":"+them.getLineNumber()+": ";
+				
+		if(expectString!=ANY && !expectString.equals(currentWinner)) {
+			errln ("ERR:" + where+"Expected '"+expectString+"': " + locale+":"+path+" ='"+currentWinner+"', " +   votedToString(didVote) + box.getResolver(path));
+		} else if(expectVoted!=didVote) {
+			errln ("ERR:" + where+"Expected VOTING="+votedToString(expectVoted)+":  " + locale+":"+path+" ='"+currentWinner+"', " +   votedToString(didVote) + box.getResolver(path));
+		} else {
+			logln(where+locale+":"+path+" ='"+currentWinner+"', " +   votedToString(didVote) + box.getResolver(path));
+		}
+		return currentWinner;
+	}
+
+	/**
+	 * @param didVote
+	 * @return
+	 */
+	private String votedToString(boolean didVote) {
+		return didVote?"(I VOTED)":"( did NOT VOTE) ";
+	}
+	
 	public void TestVoteBasic() throws SQLException, IOException {
 		logln("Setting up factory..");
 		STFactory fac = getFactory();
 		
 		final String somePath =  "//ldml/localeDisplayNames/keys/key[@type=\"collation\"]";
 		String originalValue = null;
-		String currentWinner = null;
 		String changedTo = null;
-		String nowIs = null;
-		boolean didVote = false;
 		
 		CLDRLocale locale = CLDRLocale.getInstance("mt");
 		{
 			CLDRFile mt = fac.make(locale, false);
 			BallotBox<User> box = fac.ballotBoxForLocale(locale);
-			didVote = box.userDidVote(getMyUser(),somePath);
-			originalValue = currentWinner = mt.getStringValue(somePath);
-			logln("for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
+			
+			originalValue  = expect(somePath,ANY,false,
+					locale,mt,box);
+			
 			changedTo = "COLL_ATION!!!";
-			if(currentWinner.equals(changedTo)) {
-				errln("for " + locale + " value " + somePath + " winner is already= " + currentWinner);
+			
+			if(originalValue.equals(changedTo)) {
+				errln("for " + locale + " value " + somePath + " winner is already= " + originalValue);
 			}
-			if(didVote) {
-				errln("Hey, I didn't vote yet!");
-			}
-			logln("VoteFor: " + changedTo);
+
 			box.voteForValue(getMyUser(), somePath, changedTo);
-			currentWinner= mt.getStringValue(somePath);
-			didVote = box.userDidVote(getMyUser(),somePath);
-			logln("for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
-			if(!didVote) {
-				errln("Hey, I did vote!");
-			}
-			if(!changedTo.equals(currentWinner)) {
-				errln("for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + changedTo);
-			}
+			
+			expect(somePath,changedTo,true,
+					locale,mt,box);
 		}
 		
 		// Restart STFactory.
@@ -97,57 +120,34 @@ public class TestSTFactory extends TestFmwk {
 		{
 			CLDRFile mt = fac.make(locale, false);
 			BallotBox<User> box = fac.ballotBoxForLocale(locale);
-			currentWinner= mt.getStringValue(somePath);
-			didVote = box.userDidVote(getMyUser(),somePath);
-			logln("after reset " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
-			if(!didVote) {
-				errln("Hey, I did vote!");
-			}
-			if(!changedTo.equals(currentWinner)) {
-				errln("after reset: for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + changedTo);
-			}
+
+			expect(somePath,changedTo,true,
+					locale,mt,box);
 			
 			// unvote
 			box.voteForValue(getMyUser(), somePath, null);
-			currentWinner= mt.getStringValue(somePath);
-			didVote = box.userDidVote(getMyUser(),somePath);
-			logln("for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
-			if(!didVote) {
-				errln("Hey, I did vote, for null!");
-			}
-			if(!originalValue.equals(currentWinner)) {
-				errln("for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + originalValue);
-			}
+
+			expect(somePath,originalValue,true,
+					locale,mt,box);
 		}
 		fac = resetFactory();
 		{
 			CLDRFile mt = fac.make(locale, false);
 			BallotBox<User> box = fac.ballotBoxForLocale(locale);
-			currentWinner= mt.getStringValue(somePath);
-			didVote = box.userDidVote(getMyUser(),somePath);
-			logln("after reset- for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
-			if(!didVote) {
-				errln("after reset- Hey, I did vote, for null!");
-			}
-			if(!originalValue.equals(currentWinner)) {
-				errln("after reset - for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + originalValue);
-			}
+
+
+			expect(somePath,originalValue,true,
+					locale,mt,box);
 
 			// vote for ____2
 			changedTo = changedTo+"2";
+			
 			logln("VoteFor: " + changedTo);
 			box.voteForValue(getMyUser(), somePath, changedTo);
-			currentWinner= mt.getStringValue(somePath);
-			didVote = box.userDidVote(getMyUser(),somePath);
-			logln("for " + locale + " value " + somePath + " winner= " + currentWinner + ", ivoted = " + didVote + ", resolver: " + box.getResolver(somePath));
-			if(!didVote) {
-				errln("Hey, I did revote!");
-			}
-			if(!changedTo.equals(currentWinner)) {
-				errln("for " + locale + " value " + somePath + " winner is = " + currentWinner + " , should be " + changedTo);
-			}
-			
 
+			expect(somePath,changedTo,true,
+					locale,mt,box);
+			
 			logln("Write out..");
 			File targDir = TestAll.getEmptyDir(TestSTFactory.class.getName()+"_output");
 			File outFile = new File(targDir,locale.getBaseName()+".xml");
@@ -186,9 +186,13 @@ public class TestSTFactory extends TestFmwk {
 	}
 	String someLocales[] = { "mt" };
 
-	public UserRegistry.User getMyUser() throws SQLException {
+	public UserRegistry.User getMyUser()  {
 		if(gUser ==null) {
-			gUser = getFactory().sm.reg.get(null,"admin@","[::1]",true);
+			try {
+				gUser = getFactory().sm.reg.get(null,"admin@","[::1]",true);
+			} catch (SQLException e) {
+				handleException(e);
+			}
 		}
 		return gUser;
 	}
