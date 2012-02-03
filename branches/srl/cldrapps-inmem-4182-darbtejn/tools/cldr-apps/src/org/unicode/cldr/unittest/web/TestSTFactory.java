@@ -213,10 +213,10 @@ public class TestSTFactory extends TestFmwk {
 			
 			sm.xpt = XPathTable.createTable(conn, sm);
 			DBUtils.closeDBConnection(conn);
-			
-//			sm.vet = Vetting.createTable(sm.logger, sm);
+			//			sm.vet = Vetting.createTable(sm.logger, sm);
 			
 			sm.fileBase = CldrUtility.MAIN_DIRECTORY;
+			sm.fileBaseSeed = new File(CldrUtility.BASE_DIRECTORY,"seed/main/").getAbsolutePath();
 //			CLDRDBSourceFactory fac = new CLDRDBSourceFactory(sm, sm.fileBase, Logger.getAnonymousLogger(), cacheDir);
 //			logln("Setting up DB");
 //			sm.setDBSourceFactory(fac);ignore
