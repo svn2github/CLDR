@@ -117,9 +117,6 @@ public class SimpleFactory extends Factory {
                         break;
                     }
                 }
-                if(result==null) {
-                    throw (IllegalArgumentException)new IllegalArgumentException("Can't find " + localeName + ".xml  in any of  " + getSourceDirectoriesList());
-                }
             }
             cache.put(localeName, result);
         }

@@ -2928,7 +2928,7 @@ if(true == true)    throw new InternalError("removed from use.");
                 // Set up checks
                 CheckCLDR checkCldr = (CheckCLDR)uf.getCheck(ctx); //make tests happen
             
-                if(sm.processPeaChanges(ctx, oldSection, cf, ballotBox,dsrh)) {
+                if(sm.processChanges(ctx, oldSection, cf, ballotBox,dsrh)) {
             		Connection conn = null;
             		try {
             			conn = sm.dbUtils.getDBConnection();

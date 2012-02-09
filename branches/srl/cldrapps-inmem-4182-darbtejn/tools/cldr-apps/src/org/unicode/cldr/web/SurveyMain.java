@@ -7578,7 +7578,7 @@ o	            		}*/
                 
         printSectionTableOpen(ctx, section, true, canModify);
         // use a special matcher.
-        showPeas(ctx, section, canModify, XPathMatcher.regex(BaseAndPrefixMatcher.getInstance(XPathTable.NO_XPATH,zoneXpath),
+        showSection(ctx, section, canModify, XPathMatcher.regex(BaseAndPrefixMatcher.getInstance(XPathTable.NO_XPATH,zoneXpath),
         		 Pattern.compile(".*/((short)|(long))/.*")), true);
         printSectionTableClose(ctx, section, canModify);
         if(canModify) {
@@ -7650,7 +7650,7 @@ o	            		}*/
                         ctx.println("<i id='processPea'>Processing submitted data...</i><br/>");ctx.flush();
                         try {
 	                        DataSection oldSection = ctx.getExistingSection(fullThing);
-	                        if(processPeaChanges(ctx, oldSection, cf, ballotBox, new DefaultDataSubmissionResultHandler(ctx))) {
+	                        if(processChanges(ctx, oldSection, cf, ballotBox, new DefaultDataSubmissionResultHandler(ctx))) {
 //	                            int j = vet.updateResults(oldSection.locale,entry.getConnectionAlias()); // bach 'em
 //	                            int d = this.getDBSourceFactory().update(entry.getConnectionAlias()); // then the fac so it can update
 //	                            SurveyLog.logger.warning("sm:ppc:dbsrcfac: "+d+" deferred updates done.");
@@ -7664,7 +7664,7 @@ o	            		}*/
                     ctx.flush(); // give them some status.
             //        SurveyLog.logger.info("Pod's full thing: " + fullThing);
                     DataSection section = ctx.getSection(fullThing); // we load a new pod here - may be invalid by the modifications above.
-                    showPeas(ctx, section, canModify, matcher, false);
+                    showSection(ctx, section, canModify, matcher, false);
                 }
             }
         //}
@@ -7872,10 +7872,10 @@ o	            		}*/
      * @deprecated use a custom XPathmatcher
      */	
     void showPeas(WebContext ctx, DataSection section, boolean canModify, int only_base_xpath, String only_prefix_xpath, boolean zoomedIn) {
-    	showPeas(ctx, section, canModify, BaseAndPrefixMatcher.getInstance(only_base_xpath, only_prefix_xpath), zoomedIn);
+    	showSection(ctx, section, canModify, BaseAndPrefixMatcher.getInstance(only_base_xpath, only_prefix_xpath), zoomedIn);
     }
     
-    void showPeas(WebContext ctx, DataSection section, boolean canModify, XPathMatcher matcher, boolean zoomedIn) {
+    void showSection(WebContext ctx, DataSection section, boolean canModify, XPathMatcher matcher, boolean zoomedIn) {
         int count = 0;
         int skip = 0; // where the index points to
         int oskip = ctx.fieldInt("skip",0); // original skip from user.
@@ -8120,7 +8120,7 @@ o	            		}*/
      * @param dsrh 
      * @return
      */
-    boolean processPeaChanges(WebContext ctx, DataSection oldSection, CLDRFile cf, BallotBox<User> ballotBox, DataSubmissionResultHandler dsrh) {
+    boolean processChanges(WebContext ctx, DataSection oldSection, CLDRFile cf, BallotBox<User> ballotBox, DataSubmissionResultHandler dsrh) {
         boolean someDidChange = false;
         if(oldSection != null) {
             for(Iterator i = oldSection.getAll().iterator();i.hasNext();) {

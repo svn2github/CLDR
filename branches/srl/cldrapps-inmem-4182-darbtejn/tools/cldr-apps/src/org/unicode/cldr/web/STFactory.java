@@ -238,16 +238,19 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 		 * The on-disk data. May be == to xmlsource for readonly data.
 		 */
 		private XMLSource diskData = null;
+		private CLDRFile diskFile = null;
 		
 		/* SIMPLE IMP */
 		private Map<String, Map<User,String>> xpathToVotes = new HashMap<String,Map<User,String>>();
 		private Set <User> allVoters = new TreeSet<User>();
+		private boolean oldFileMissing;
 		
 		
 		PerLocaleData(CLDRLocale locale) {
 			this.locale = locale;
 			readonly = isReadOnlyLocale(locale);
 			diskData=(XMLSource)sm.getDiskFactory().makeSource(locale.getBaseName()).freeze();
+			diskFile = sm.getDiskFactory().make(locale.getBaseName(), true).freeze();
 		}
 
 		/**
@@ -326,20 +329,19 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
             }
         }
 
-		public CLDRLocale getLocale() { 
-			return locale;
-		}
-		
 		public synchronized CLDRFile getOldFile() {
-		    if(oldFile==null) {
-	            oldFile = sm.getOldFactory().make(locale.getBaseName(), true);
+		    if(oldFile==null && !oldFileMissing) {
+		    	oldFileMissing = !sm.getOldFactory().getAvailable().contains(locale.getBaseName());
+		    	if(!oldFileMissing) {
+		    		oldFile = sm.getOldFactory().make(locale.getBaseName(), true);
+		    	}
 		    }
 		    return oldFile;
 		}
-		
-		public VoteResolver<String> getResolver(Map<User, String> m, String path) {
-			return getResolver(m, path, null);
-		}
+
+//		public VoteResolver<String> getResolver(Map<User, String> m, String path) {
+//			return getResolver(m, path, null);
+//		}
 
 		public VoteResolver<String> getResolver(Map<User, String> m, String path, VoteResolver<String> r) {
 //			if(m==null) throw new InternalError("no Map for " + path);
@@ -351,10 +353,12 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
 				r.clear();
 			}
 			XPathParts xpp = new XPathParts(null,null);
-			String fullXPath = getOldFile().getFullXPath(path);
+			CLDRFile anOldFile = getOldFile();
+			if(anOldFile==null) anOldFile = diskFile;
+			String fullXPath = anOldFile.getFullXPath(path);
 			if(fullXPath==null) fullXPath = path; // throw new InternalError("null full xpath for " + path);
 			xpp.set(fullXPath);
-			final String lastValue = getOldFile().getStringValue(path);
+			final String lastValue = anOldFile.getStringValue(path);
 			final Status lastStatus = VoteResolver.Status.fromString(xpp.getAttributeValue(-1, LDMLConstants.DRAFT));
 			r.setLastRelease(lastValue, lastStatus);
 			r.add(diskData.getValueAtDPath(path)); /* add the current value. */
