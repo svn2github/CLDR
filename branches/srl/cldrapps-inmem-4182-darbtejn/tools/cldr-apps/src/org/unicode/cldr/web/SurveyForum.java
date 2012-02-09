@@ -804,7 +804,7 @@ public class SurveyForum {
 
 		DataSection section = ctx.getSection(podBase,Level.COMPREHENSIVE.toString()); // always use comprehensive - so no cov filtering
 
-		sm.showPeas(ctx, section, canModify, BaseAndPrefixMatcher.getInstance(base_xpath,null), true);
+		sm.showSection(ctx, section, canModify, BaseAndPrefixMatcher.getInstance(base_xpath,null), true);
 		sm.printPathListClose(ctx);
 
 		ctx.printHelpHtml(xpath);
