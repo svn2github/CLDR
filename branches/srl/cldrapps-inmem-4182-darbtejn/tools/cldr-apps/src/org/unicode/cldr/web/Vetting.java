@@ -2993,7 +2993,7 @@ if(true == true)    throw new InternalError("removed from use.");
         }
         
         void reset(XMLSource dbSource) {
-        	file = sm.makeCLDRFile(dbSource);
+        	file = sm.makeCLDRFile(dbSource).setSupplementalDirectory(sm.supplementalDataDir);
         	overallResults.clear();
         	check = sm.createCheckWithoutCollisions();
         	check.setCldrFileToCheck(file, options, overallResults);
