@@ -2135,7 +2135,7 @@ o	            		}*/
 				theLocale = fileNameToLocale(localeName).getBaseName();
 				SurveyLog.logger.warning("#vx "+theLocale);
 				XMLSource dbSource = makeDBSource(CLDRLocale.getInstance(theLocale), true);
-				CLDRFile file = makeCLDRFile(dbSource);
+				CLDRFile file = makeCLDRFile(dbSource).setSupplementalDirectory(supplementalDataDir);
 				  OutputStream files = new FileOutputStream(new File(outdir,localeName),false); // Append
 //				  PrintWriter pw = new PrintWriter(files);
 	//            file.write(WebContext.openUTF8Writer(response.getOutputStream()));
@@ -6040,7 +6040,7 @@ o	            		}*/
 		    // if i>5 break [ for testing ]
 		    
 		    XMLSource dbSource = makeDBSource( loc, vetted, resolved);
-		    CLDRFile file = makeCLDRFile(dbSource);
+		    CLDRFile file = makeCLDRFile(dbSource).setSupplementalDirectory(supplementalDataDir);
 
 		    long nextTime = System.currentTimeMillis();
 		    if((nextTime - lastTime) > 10000) { // denote, every 10 seconds
@@ -10267,10 +10267,10 @@ o	            		}*/
 	    boolean isFlat = false;
 		if(kind.equals("vxml")) {
 			dbSource = makeDBSource(loc, true);
-		    file = makeCLDRFile(dbSource);
+		    file = makeCLDRFile(dbSource).setSupplementalDirectory(supplementalDataDir);;
 		} else if(kind.equals("fxml")) {
 				dbSource = makeDBSource(loc, true);
-			    file = makeCLDRFile(dbSource);
+			    file = makeCLDRFile(dbSource).setSupplementalDirectory(supplementalDataDir);;
 			    isFlat=true;
 		} else if(kind.equals("rxml")) {
 			dbSource = makeDBSource(loc, true, true);
