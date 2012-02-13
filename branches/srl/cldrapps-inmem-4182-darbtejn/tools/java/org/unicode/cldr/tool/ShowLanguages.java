@@ -6,7 +6,6 @@
  */
 package org.unicode.cldr.tool;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -31,7 +30,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.unicode.cldr.test.ExampleGenerator.HelpMessages;
-import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.WinningChoice;
 import org.unicode.cldr.util.CldrUtility;
@@ -72,7 +70,7 @@ import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.ULocale;
 
 public class ShowLanguages {
-    public static final String CHART_DISPLAY_VERSION = "21β"; // "1.8\u03B2"; // \u03B2 is beta - β, \u03b1 is alpha - α
+    public static final String CHART_DISPLAY_VERSION = "21"; // "1.8\u03B2"; // \u03B2 is beta - β, \u03b1 is alpha - α
     private static final String CHART_TARGET_DIR = CldrUtility.CHART_DIRECTORY + "/supplemental/";
 
     private static final boolean SHOW_NATIVE = true;
