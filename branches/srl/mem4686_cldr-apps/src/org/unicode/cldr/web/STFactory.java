@@ -43,6 +43,8 @@ import org.unicode.cldr.web.UserRegistry.User;
 
 import com.ibm.icu.dev.test.util.CollectionUtilities;
 import com.ibm.icu.dev.test.util.ElapsedTimer;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 
 /**
  * @author srl
@@ -252,7 +254,6 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
             diskData=(XMLSource)sm.getDiskFactory().makeSource(locale.getBaseName()).freeze();
             sm.xpt.loadXPaths(diskData);
             diskFile = sm.getDiskFactory().make(locale.getBaseName(), true).freeze();
-            pathsForFile = phf.pathsForFile(diskFile); 
         }
 
         public final Stamp getStamp() {
@@ -616,11 +617,19 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
             return gTestCache.getBundle(locale, options);
         }
 
-        public Set<String> getPathsForFile() {
-            return pathsForFile;
+        public synchronized Set<String> getPathsForFile() {
+            Set<String> rv = null;
+            if(pathsForFile!=null) {
+                rv = pathsForFile.get();
+            }
+            if(rv==null) {
+               rv = phf.pathsForFile(diskFile); 
+               pathsForFile = new SoftReference<Set<String>>(rv);
+            }
+            return rv;
         }
         
-        private Set<String> pathsForFile = null;
+        private Reference<Set<String>> pathsForFile = null;
     }
 
     /**

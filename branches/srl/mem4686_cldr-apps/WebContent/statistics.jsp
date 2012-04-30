@@ -33,7 +33,7 @@
 </head>
 <body>
 <%@ include file="/WEB-INF/tmpl/stnotices.jspf" %>
-<span id="visitors"></span>
+<span id="visitors"></span><!-- needed for stnotices/ajax status -->
 <hr>
 
 <%@ include file="/WEB-INF/tmpl/ajax_status.jsp" %>

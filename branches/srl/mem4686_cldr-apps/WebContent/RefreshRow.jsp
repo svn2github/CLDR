@@ -2,11 +2,11 @@
 <%@page import="org.unicode.cldr.web.*"%><%@ page language="java" contentType="text/html; charset=UTF-8"
 	import="com.ibm.icu.util.ULocale,org.unicode.cldr.util.*,org.json.*"%><%--  Copyright (C) 2012 IBM and Others. All Rights Reserved  --%><%WebContext ctx = new WebContext(request, response);
 	ElapsedTimer et = new ElapsedTimer();
-			String what = request.getParameter(SurveyAjax.REQ_WHAT);
-			String sess = request.getParameter(SurveyMain.QUERY_SESSION);
-			String loc = request.getParameter(SurveyMain.QUERY_LOCALE);
-			CLDRLocale l;
-			ctx.setLocale(l=CLDRLocale.getInstance(loc));
+			final String what = request.getParameter(SurveyAjax.REQ_WHAT);
+			final String sess = request.getParameter(SurveyMain.QUERY_SESSION);
+			final String loc = request.getParameter(SurveyMain.QUERY_LOCALE);
+			final CLDRLocale l = CLDRLocale.getInstance(loc);
+			ctx.setLocale(l);
 			String xpath = WebContext.decodeFieldString(request.getParameter(SurveyForum.F_XPATH));
 			String voteinfo = request.getParameter("voteinfo");
 			String vhash = request.getParameter("vhash");
@@ -51,7 +51,7 @@
 			}
 			String xp = xpath;
 			XPathMatcher matcher = null;
-			PathHeader.PageId pageId = WebContext.getPageId(xp);
+			final PathHeader.PageId pageId = WebContext.getPageId(xp);
 			
 			if(pageId == null ) {
 				try {
@@ -67,7 +67,7 @@
 			ctx.session = mySession;
 			ctx.sm = ctx.session.sm;
 			ctx.setServletPath(ctx.sm.defaultServletPath);
-			CLDRLocale locale = CLDRLocale.getInstance(loc);
+			final CLDRLocale locale = l;
 			
 			ctx.setLocale(locale);
 
@@ -92,7 +92,7 @@
 								WebContext.LoadingShow.dontShowLoading);
                     }
 				} catch (Throwable t) {
-					SurveyLog.logException(t,"on loading " + locale+":"+ baseXp);
+					SurveyLog.logException(t,"on loading " + l+":"+ baseXp + " page " + pageId);
 					if(!isJson) {
 						response.sendError(500, "Exception on getSection:"+t.toString());
 					} else {

@@ -1404,7 +1404,7 @@ function popInfoInto(tr, theRow, theChild, immediate) {
 	stdebug('Got token ' + popShowingToken);
 //	var what = WHAT_GETROW;
 	var ourUrl = contextPath + "/RefreshRow.jsp?what=" + WHAT_GETROW
-			+ "&xpath=" + theRow.xpid + "&_=" + surveyCurrentLocale + "&fhash="
+			+ "&xpath=" + theRow.xpid + "&_=" + tr.theTable.locale + "&fhash="
 			+ theRow.rowHash + "&vhash=" + "&s=" + tr.theTable.session
 			+ "&voteinfo=t";
 	var errorHandler = function(err, ioArgs) {
@@ -1606,7 +1606,7 @@ function updateRow(tr, theRow) {
 			var go = document.createElement("a");
 			go.className="anch-go";
 			go.appendChild(document.createTextNode("zoom"));
-			go.href=window.location.pathname + "?_="+surveyCurrentLocale+"&x=r_rxt&xp="+theRow.xpid;
+			go.href=window.location.pathname + "?_="+tr.theTable.locale+"&x=r_rxt&xp="+theRow.xpid;
 			children[config.codecell].appendChild(go);
 			
 			var js = document.createElement("a");
@@ -1687,7 +1687,7 @@ function updateRow(tr, theRow) {
 		if(ticketOnly) {
 			children[config.changecell].className="d-change-confirmonly";
 			var link = createChunk(stui.str("file_a_ticket"),"a");
-			var newUrl = BUG_URL_BASE+"/newticket?component=data&summary="+surveyCurrentLocale+":"+theRow.xpath+"&locale="+surveyCurrentLocale+"&xpath="+theRow.xpstrid+"&version="+surveyVersion;
+			var newUrl = BUG_URL_BASE+"/newticket?component=data&summary="+tr.theTable.locale+":"+theRow.xpath+"&locale="+tr.theTable.locale+"&xpath="+theRow.xpstrid+"&version="+surveyVersion;
 				link.href = newUrl;
 				link.target = TARGET_DOCS;
 				theRow.proposedResults = createChunk(stui.str("file_ticket_must"), "a","fnotebox");
@@ -1891,6 +1891,7 @@ function setupSortmode(theTable) {
 	}
 }
 
+
 function insertRows(theDiv,xpath,session,json) {
 	var theTable = theDiv.theTable;
 
@@ -1900,7 +1901,8 @@ function insertRows(theDiv,xpath,session,json) {
 		theTable = cloneLocalizeAnon(dojo.byId('proto-datatable'));
 		localizeFlyover(theTable);
 		theTable.theadChildren = getTagChildren(theTable.getElementsByTagName("tr")[0]);
-		var toAdd = dojo.byId('proto-datarow');
+                theTable.locale = theDiv.locale;
+		var toAdd = dojo.byId('proto-datarow').cloneNode(true);
 		if(!theTable.config) {
 			var rowChildren = getTagChildren(toAdd);
 			theTable.config={};
@@ -2098,11 +2100,14 @@ function processHash() {
 }
 ////////
 /// showRows() ..
-function showRows(container,xpath,session,coverage) {
+function showRows(container,xpath,session,coverage,locale) {
+ if(!locale) {
+     locale = surveyCurrentLocale;
+ }
  dojo.ready(function(){
 	if(!coverage) coverage="";
 	var theDiv = dojo.byId(container);
-
+        theDiv.locale = locale;
 	theDiv.stui = loadStui();
 	theDiv.theLoadingMessage = createChunk(stui_str("loading"), "i", "loadingMsg");
 	theDiv.appendChild(theDiv.theLoadingMessage);
@@ -2173,7 +2178,7 @@ function showRows(container,xpath,session,coverage) {
 		           }
 		    };
 		    var xhrArgs = {
-		            url: contextPath + "/RefreshRow.jsp?json=t&_="+surveyCurrentLocale+"&s="+session+"&xpath="+xpath+"&p_covlev="+coverage+cacheKill(),
+		            url: contextPath + "/RefreshRow.jsp?json=t&_="+theDiv.locale+"&s="+session+"&xpath="+xpath+"&p_covlev="+coverage+cacheKill(),
 		            handleAs:"json",
 		            load: loadHandler,
 		            error: errorHandler
@@ -2193,7 +2198,7 @@ function showRows(container,xpath,session,coverage) {
 
 function refreshRow2(tr,theRow,vHash,onSuccess, onFailure) {
 	showLoader(tr.theTable.theDiv.loader,stui.loadingOneRow);
-    var ourUrl = contextPath + "/RefreshRow.jsp?what="+WHAT_GETROW+"&xpath="+theRow.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session +"&json=t";
+    var ourUrl = contextPath + "/RefreshRow.jsp?what="+WHAT_GETROW+"&xpath="+theRow.xpid +"&_="+tr.theTable.locale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session +"&json=t";
     var loadHandler = function(json){
         try {
 	    		if(json&&json.dataLoadTime) {
@@ -2285,7 +2290,7 @@ function handleWiredClick(tr,theRow,vHash,box,button,what) {
 
 
 	console.log("Vote for " + tr.rowHash + " v='"+vHash+"', value='"+value+"'");
-	var ourUrl = contextPath + "/SurveyAjax?what="+what+"&xpath="+tr.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session;
+	var ourUrl = contextPath + "/SurveyAjax?what="+what+"&xpath="+tr.xpid +"&_="+tr.theTable.locale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session;
 //	tr.className='tr_checking';
 	var loadHandler = function(json){
 		try {

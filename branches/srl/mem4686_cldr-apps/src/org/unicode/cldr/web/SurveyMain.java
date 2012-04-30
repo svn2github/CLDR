@@ -108,6 +108,7 @@ import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The main servlet class of Survey Tool
@@ -4416,15 +4417,21 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
     
     private Factory gOldFactory = null;
     
+    private Map<CLDRLocale,File> baseFiles = new HashMap<CLDRLocale,File>();
     /**
      * Return the actual XML file on disk
      * @param loc
      * @return
      */
-    public File getBaseFile(CLDRLocale loc) {
-        File base =  getDiskFactory().getSourceDirectoryForLocale(loc.getBaseName());
-        if(base==null) return null;
-    	return new File(base,loc.getBaseName()+".xml");
+    public synchronized File getBaseFile(CLDRLocale loc) {
+        File xmlFile = baseFiles.get(loc);
+        if(xmlFile==null) {
+            File base =  getDiskFactory().getSourceDirectoryForLocale(loc.getBaseName());
+            if(base==null) return null;
+            xmlFile = new File(base,loc.getBaseName()+".xml");
+            baseFiles.put(loc,xmlFile);
+        }
+        return xmlFile;
     }
 
     public synchronized Factory getOldFactory() {
@@ -5518,6 +5525,11 @@ static final UnicodeSet CallOut = new UnicodeSet("[\\u200b-\\u200f]");
     public static void addPeriodicTask(TimerTask task) {
 		int firstTime=isUnofficial()?10000:99000;		
 		int eachTime=isUnofficial()?10000:76000;
+                if(isUnofficial() && CldrUtility.getProperty("CLDR_DEBUG_THRASH", false)) {
+                    firstTime=100;
+                    eachTime=100;
+                    System.err.println("CLDR_DEBUG_THRASH mode on, doing periodic tasks pretty rapidly.");
+                }
 		getTimer().schedule(task, firstTime,eachTime);
     }
     

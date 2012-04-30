@@ -2378,6 +2378,9 @@ public class DataSection implements JSONString {
     private PageId pageId;
 
 	DataSection(PageId pageId, SurveyMain sm, CLDRLocale loc, String prefix, XPathMatcher matcher, String ptype) {
+            if(loc==null) {
+                throw new IllegalArgumentException("locale cannot be null");
+            }
 	    this.locale = loc;
 		this.sm = sm;
 		this.ptype = ptype;
