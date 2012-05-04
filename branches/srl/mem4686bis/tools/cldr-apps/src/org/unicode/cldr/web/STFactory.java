@@ -43,6 +43,9 @@ import org.unicode.cldr.web.UserRegistry.User;
 
 import com.ibm.icu.dev.test.util.CollectionUtilities;
 import com.ibm.icu.dev.test.util.ElapsedTimer;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import org.unicode.cldr.util.LruMap;
 
 /**
  * @author srl
@@ -378,7 +381,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
                 r.clear();
             }
             // Set established locale
-            r.setEstablishedFromLocale(diskFile.getLocaleID());
+            r.setEstablishedFromLocale(locale);
             XPathParts xpp = new XPathParts(null,null);
             CLDRFile anOldFile = getOldFile();
             if(anOldFile==null) anOldFile = diskFile;
@@ -799,11 +802,6 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     boolean dbIsSetup = false;
 
     /**
-     * Per locale map
-     */
-    private Map<CLDRLocale,PerLocaleData> locales = new HashMap<CLDRLocale,PerLocaleData>();
-    
-    /**
      * Test cache
      */
     TestCache gTestCache = new SimpleTestCache();
@@ -840,15 +838,36 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     }
     
     /**
+     * Per locale map
+     */
+    private Map<CLDRLocale,Reference<PerLocaleData>> locales = new HashMap<CLDRLocale,Reference<PerLocaleData>>();
+    
+    
+    private LruMap<CLDRLocale,PerLocaleData> rLocales = new LruMap<CLDRLocale,PerLocaleData>(2);
+    /**
      * Fetch a locale from the per locale data, create if not there. 
      * @param locale
      * @return
      */
-    private final PerLocaleData get(CLDRLocale locale) { 
-        PerLocaleData pld = locales.get(locale);
+    private synchronized final PerLocaleData get(CLDRLocale locale) { 
+        PerLocaleData pld = rLocales.get(locale);
         if(pld==null) {
-            pld = new PerLocaleData(locale);
-            locales.put(locale, pld);
+            Reference<PerLocaleData> ref = locales.get(locale);
+            if(ref!=null) {
+                    System.err.println("STFactory: " + locale + " was not in LRUMap.");
+                pld = ref.get();
+                if(pld==null && true) {
+                    System.err.println("STFactory: " + locale + " was GC'ed.");
+                    ref.clear();
+                }
+            }
+            if(pld==null) {
+                pld = new PerLocaleData(locale);
+                rLocales.put(locale,pld);
+                locales.put(locale, (ref=new WeakReference<PerLocaleData>(pld)));
+            } else {
+                rLocales.put(locale,pld); // keep it in the lru
+            }
         }
         return pld;
     }
