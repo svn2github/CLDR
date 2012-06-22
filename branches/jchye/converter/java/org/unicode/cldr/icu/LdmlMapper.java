@@ -1,4 +1,4 @@
-package org.unicode.cldr.draft;
+package org.unicode.cldr.icu;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.CldrUtility.Output;
@@ -398,7 +399,7 @@ public abstract class LdmlMapper {
                     return into.merge(a);
                 }
             });
-        BufferedReader reader = FileUtilities.openFile(LDMLConverter.class, converterFile);
+        BufferedReader reader = FileUtilities.openFile(NewLdml2IcuConverter.class, converterFile);
         VariableReplacer variables = new VariableReplacer();
         String line;
         int lineNum = 0;

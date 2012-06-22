@@ -1,4 +1,4 @@
-package org.unicode.cldr.draft;
+package org.unicode.cldr.icu;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.Builder;
 
 import com.ibm.icu.dev.test.util.BagFormatter;
@@ -63,7 +64,7 @@ public class IcuTextWriter {
 
         // Append the header.
         String[] replacements = { "%source%", icuData.getSourceFile() };
-        FileUtilities.appendFile(LDMLConverter.class, "ldml2icu_header.txt", null, replacements, out);
+        FileUtilities.appendFile(NewLdml2IcuConverter.class, "ldml2icu_header.txt", null, replacements, out);
         if (icuData.hasSpecial()) {
             out.println("/**");
             out.println(" *  ICU <specials> source: <path>/xml/main/" + name + ".xml");

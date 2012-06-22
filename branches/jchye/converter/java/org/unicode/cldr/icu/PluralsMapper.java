@@ -1,4 +1,4 @@
-package org.unicode.cldr.draft;
+package org.unicode.cldr.icu;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

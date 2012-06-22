@@ -1,4 +1,4 @@
-package org.unicode.cldr.draft;
+package org.unicode.cldr.icu;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.ant.CLDRConverterTool;
-import org.unicode.cldr.icu.ResourceSplitter.SplitInfo;
+import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.tool.Option;
 import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
@@ -36,7 +36,7 @@ import org.unicode.cldr.util.SupplementalDataInfo;
  * 
  * @author markdavis
  */
-public class LDMLConverter extends CLDRConverterTool {
+public class NewLdml2IcuConverter extends CLDRConverterTool {
     static final Pattern SEMI = Pattern.compile("\\s*+;\\s*+");
     
     private static final Options options = new Options(
@@ -75,7 +75,7 @@ public class LDMLConverter extends CLDRConverterTool {
     
     static Map<String, String> loadMapFromFile(String filename) {
         Map<String, String> map = new HashMap<String, String>();
-        BufferedReader reader = FileUtilities.openFile(LDMLConverter.class, filename);
+        BufferedReader reader = FileUtilities.openFile(NewLdml2IcuConverter.class, filename);
         String line;
         try {
             int lineNum = 1;
@@ -245,7 +245,7 @@ public class LDMLConverter extends CLDRConverterTool {
      */
     public static void main(String[] args) throws IOException {
         long totalTime = System.currentTimeMillis();
-        LDMLConverter converter = new LDMLConverter();
+        NewLdml2IcuConverter converter = new NewLdml2IcuConverter();
         converter.processArgs(args);
         System.out.println("Total time taken: " + (System.currentTimeMillis() - totalTime));
     }
