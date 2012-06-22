@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.ant.CLDRConverterTool.Alias;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Factory;
@@ -54,7 +55,7 @@ public class LdmlLocaleMapper extends LdmlMapper {
      * Special hack comparator, so that RB strings come out in the right order.
      * This is only important for the order of items in arrays.
      */
-    private static Comparator<CldrValue> SpecialLdmlComparator = new Comparator<CldrValue>() {
+    private static Comparator<CldrValue> comparator = new Comparator<CldrValue>() {
         private final Pattern CURRENCY_FORMAT = Pattern.compile(
             "//ldml/numbers/currencies/currency\\[@type=\"\\w++\"]/(.++)");
         private final Pattern DATE_OR_TIME_FORMAT = Pattern.compile(
@@ -188,26 +189,22 @@ public class LdmlLocaleMapper extends LdmlMapper {
         addFallbackValues(pathValueMap);
 
         // Add special values to file.
-        IcuData icuData = new IcuData("common/main/" + locale + ".xml", locale, true, enumMap);
-        if (hasSpecialFile(locale)) {
-            icuData.setHasSpecial(true);
+        boolean hasSpecial = hasSpecialFile(locale);
+        if (hasSpecial) {
             CLDRFile specialCldrFile = specialFactory.make(locale, false);
             for (String xpath : specialCldrFile) {
                 addMatchesForPath(xpath, specialCldrFile, null, pathValueMap);
             }
         }
 
-        // Convert values to final data structure.
         for (String rbPath : pathValueMap.keySet()) {
-            List<CldrValue> values = pathValueMap.get(rbPath);
-
             // HACK: DateTimePatterns needs a duplicate of the medium
             // dateTimeFormat (formerly indicated using dateTimeFormats/default).
             // This hack can be removed when ICU no longer requires it.
             Matcher matcher = RB_DATETIMEPATTERN.matcher(rbPath);
             if (matcher.matches()) {
                 String calendar = matcher.group(1);
-                List<CldrValue> valueList = getList("/calendar/" + calendar + "/DateTimePatterns", pathValueMap);
+                List<CldrValue> valueList = pathValueMap.get(rbPath);
                 // Create a dummy xpath to sort the value in front of the other date time formats.
                 String basePath = "//ldml/dates/calendars/calendar[@type=\"" + calendar + "\"]/dateTimeFormats";
                 String mediumFormatPath = basePath + "/dateTimeFormatLength[@type=\"medium\"]/dateTimeFormat[@type=\"standard\"]/pattern[@type=\"standard\"]";
@@ -215,8 +212,55 @@ public class LdmlLocaleMapper extends LdmlMapper {
                         getStringValue(resolvedCldr, mediumFormatPath),
                         false));
             }
+        }
 
-            Collections.sort(values, SpecialLdmlComparator);
+        IcuData icuData = new IcuData("common/main/" + locale + ".xml", locale, true, enumMap);
+        icuData.setHasSpecial(hasSpecial);
+        fillIcuData(pathValueMap, comparator, icuData);
+
+        // More hacks
+        hackAddExtras(resolvedCldr, locale, icuData);
+        return icuData;
+    }
+
+    public IcuData fillFromCldr(Alias alias) {
+        String from = alias.from;
+        String to = alias.to;
+        String xpath = alias.xpath;
+        if (!factory.getAvailable().contains(to)) {
+            System.err.println(to + " doesn't exist, skipping alias " + from);
+            return null;
+        }
+
+        if (from == null || to == null) {
+            System.err.println("Malformed alias - no 'from' or 'to': from=\"" +
+                    from + "\" to=\"" + to + "\"");
+            return null;
+        }
+
+        if (to.indexOf('@') != -1 && xpath == null) {
+            System.err.println("Malformed alias - '@' but no xpath: from=\"" +
+                    from + "\" to=\"" + to + "\"");
+            System.exit(-1);
+        }
+
+        IcuData icuData = new IcuData("icu-locale-deprecates.xml & build.xml", from, true);
+        if (xpath == null) {
+            Map<String,List<CldrValue>> pathValueMap = new HashMap<String,List<CldrValue>>();
+            addMatchesForPath(xpath, null, null, pathValueMap);
+            fillIcuData(pathValueMap, comparator, icuData);
+        } else {
+            icuData.add("/\"%%ALIAS\"", to.substring(0, to.indexOf('@')));
+        }
+        return icuData;
+    }
+
+    private void fillIcuData(Map<String,List<CldrValue>> pathValueMap,
+            Comparator<CldrValue> comparator, IcuData icuData) {
+        // Convert values to final data structure.
+        for (String rbPath : pathValueMap.keySet()) {
+            List<CldrValue> values = pathValueMap.get(rbPath);
+            Collections.sort(values, comparator);
             List<String[]> sortedValues = new ArrayList<String[]>();
             List<String> arrayValues = new ArrayList<String>();
             String lastPath = values.get(0).getXpath();
@@ -234,9 +278,6 @@ public class LdmlLocaleMapper extends LdmlMapper {
             sortedValues.add(toArray(arrayValues));
             icuData.addAll(rbPath, sortedValues);
         }
-        // Hacks
-        hackAddExtras(resolvedCldr, locale, icuData);
-        return icuData;
     }
 
     /**

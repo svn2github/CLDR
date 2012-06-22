@@ -1,6 +1,7 @@
 package org.unicode.cldr.draft;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.ant.CLDRConverterTool;
+import org.unicode.cldr.icu.ResourceSplitter.SplitInfo;
 import org.unicode.cldr.tool.Option;
 import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
@@ -179,6 +181,13 @@ public class LDMLConverter extends CLDRConverterTool {
 
             LdmlLocaleMapper mapper = new LdmlLocaleMapper(factory, specialFactory, supplementalDataInfo);
             processLocales(mapper, locales);
+            // Create aliases for deprecated locales.
+            if (aliasDeprecates != null) {
+                List<Alias> aliases = aliasDeprecates.aliasList;
+                if (aliases != null) {
+                    writeAliasedFiles(mapper, aliases);
+                }
+            }
         }
     }
     
@@ -187,7 +196,7 @@ public class LDMLConverter extends CLDRConverterTool {
         writeIcuData(mapper.fillFromCldr(), destinationDir);
     }
     
-    private static void writeIcuData(IcuData icuData, String outputDir) {
+    private void writeIcuData(IcuData icuData, String outputDir) {
         try {
             IcuTextWriter.writeToFile(icuData, outputDir);
         } catch (IOException e) {
@@ -216,8 +225,15 @@ public class LDMLConverter extends CLDRConverterTool {
             }
             System.out.println("Converted " + locale + ".xml in " + (System.currentTimeMillis() - time) + "ms");
         }
-        if (aliasDeprecates != null) {
-            // TODO: process alias deprecates
+    }
+
+    private void writeAliasedFiles(LdmlLocaleMapper mapper, List<Alias> aliasList) {
+        for (Alias alias: aliasList) {
+            IcuData icuData = mapper.fillFromCldr(alias);
+            // TODO: write to multiple directories
+            if (icuData != null) {
+                writeIcuData(icuData, destinationDir);
+            }
         }
     }
 
@@ -233,4 +249,5 @@ public class LDMLConverter extends CLDRConverterTool {
         converter.processArgs(args);
         System.out.println("Total time taken: " + (System.currentTimeMillis() - totalTime));
     }
+
 }
