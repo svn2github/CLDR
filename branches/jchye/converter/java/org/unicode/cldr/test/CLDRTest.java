@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.unicode.cldr.test.DisplayAndInputProcessor.NumericType;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
@@ -71,7 +72,7 @@ public class CLDRTest extends TestFmwk {
     private final UnicodeSet commonAndInherited = new UnicodeSet("[[:script=common:][:script=inherited:][:alphabetic=false:]]");
     private static int[][] DIGIT_COUNT = {{1,2,2}, {1,0,3}, {1,0,0}, {0,0,0}};
     private static int[][] POSIX_DIGIT_COUNT = {{1,2,2}, {1,0,6}, {1,0,0}, {1,6,6}};
-    private static final String[] WIDTHS = {"narrow", "wide", "abbreviated"};
+    private static final String[] WIDTHS = {"narrow", "wide", "abbreviated", "short"};
     private static final String[] MONTHORDAYS = {"day", "month"};
     private Map localeNameCache = new HashMap();
     private CLDRFile english = null;
@@ -139,74 +140,18 @@ public class CLDRTest extends TestFmwk {
             CLDRFile item = cldrFactory.make(locale, false);
             for (Iterator it2 = item.iterator(); it2.hasNext();) {
                 String xpath = (String) it2.next();
-                byte type = getNumericType(xpath);
-                if (type == NOT_NUMERIC_TYPE) continue;
+                NumericType type = NumericType.getNumericType(xpath);
+                if (type == NumericType.NOT_NUMERIC) continue;
                 String value = (String) item.getStringValue(xpath);
                 // at this point, we only have currency formats
-                String pattern = getCanonicalPattern(value, type, isPOSIX);
+                String pattern = DisplayAndInputProcessor.getCanonicalPattern(value, type, isPOSIX);
                 if (!pattern.equals(value)) {
                     String draft = "";
                     if (item.getFullXPath(xpath).indexOf("[@draft=\"unconfirmed\"]") >= 0) draft = " [draft]";
-                    assertEquals(getLocaleAndName(locale) + draft + " " + TYPE_NAME[type] + " pattern incorrect", pattern, value);
+                    assertEquals(getLocaleAndName(locale) + draft + " " + type + " pattern incorrect", pattern, value);
                 }
             }
         }
-    }
-
-    /**
-     * @return the numeric type, for use by getCanonicalPattern
-     */
-    public static byte getNumericType(String xpath) {
-        if (!xpath.startsWith("//ldml/numbers/") || xpath.indexOf("/pattern") < 0) {
-            return NOT_NUMERIC_TYPE;
-        }
-        if (xpath.startsWith("//ldml/numbers/currencyFormats/")) {
-            return CURRENCY_TYPE;
-        } else if (xpath.startsWith("//ldml/numbers/decimalFormats/")) {
-            if (xpath.contains("=\"1000")) {
-                return DECIMAL_ABBREVIATED;
-            }
-            return DECIMAL_TYPE;
-        } else if (xpath.startsWith("//ldml/numbers/percentFormats/")) {
-            return PERCENT_TYPE;
-        } else if (xpath.startsWith("//ldml/numbers/scientificFormats/")) {
-            return SCIENTIFIC_TYPE;
-        } else if (xpath.startsWith("//ldml/numbers/currencies/currency/")
-        ) {
-            return CURRENCY_TYPE;
-        } else {
-            return NOT_NUMERIC_TYPE;
-        }
-    }
-
-    /**
-     * Numeric pattern type, for use in getCanonicalPattern
-     */
-    public static final byte NOT_NUMERIC_TYPE = -1, CURRENCY_TYPE = 0, DECIMAL_TYPE = 1, PERCENT_TYPE = 2, SCIENTIFIC_TYPE = 3, DECIMAL_ABBREVIATED = 4;
-    public static final String[] TYPE_NAME = {"currency", "decimal", "percent", "scientific", "decimal-abbr"};
-
-    /**
-     * @return a canonical numeric pattern, based on the type, and the isPOSIX flag. The latter is set for en_US_POSIX.
-     */
-    public static String getCanonicalPattern(String inpattern, byte type, boolean isPOSIX) {
-        // TODO fix later to properly handle quoted ;
-        DecimalFormat df = new DecimalFormat(inpattern);
-        if (type == DECIMAL_ABBREVIATED) {
-            return inpattern; // TODO fix when  ICU bug is fixed
-            //df.setMaximumFractionDigits(df.getMinimumFractionDigits());
-            //df.setMaximumIntegerDigits(Math.max(1, df.getMinimumIntegerDigits()));
-        } else {
-            //int decimals = type == CURRENCY_TYPE ? 2 : 1;
-            int[] digits = isPOSIX ? POSIX_DIGIT_COUNT[type] : DIGIT_COUNT[type];
-            df.setMinimumIntegerDigits(digits[0]);
-            df.setMinimumFractionDigits(digits[1]);
-            df.setMaximumFractionDigits(digits[2]);
-        }
-        String pattern = df.toPattern();
-
-        //int pos = pattern.indexOf(';');
-        //if (pos < 0) return pattern + ";-" + pattern;
-        return pattern;
     }
 
     /**
@@ -828,8 +773,8 @@ public class CLDRTest extends TestFmwk {
             Set months = new TreeSet();
             for (int i = 1; i <= 12; ++i) months.add(i+"");
             Set days = new TreeSet(Arrays.asList(new String[] {"sun", "mon", "tue", "wed", "thu", "fri", "sat"}));
-            for (int i = -6; i < 0; ++i) {
-                checkForItems(item, (i < -3 ? months : days), i, missing, failureCount, null);
+            for (int i = -7; i < 0; ++i) {
+                checkForItems(item, (i < -4 ? months : days), i, missing, failureCount, null);
             }
 
             String filename = "missing_" + locale + ".xml";
@@ -862,7 +807,13 @@ public class CLDRTest extends TestFmwk {
      * Internal
      */
     private String getDateKey(int type, String code) {
-        return getDateKey(MONTHORDAYS[type / 3], WIDTHS[type % 3], code);
+        // type is 6..4 for months abbrev..narrow, 3..0 for days short..narrow
+        int monthOrDayType = 0, widthType = type;
+        if (type >= 4) {
+            monthOrDayType = 1;
+            widthType -= 4;
+        }
+        return getDateKey(MONTHORDAYS[monthOrDayType], WIDTHS[widthType], code);
     }
 
     /**

@@ -27,7 +27,9 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.test.CoverageLevel2;
 import org.unicode.cldr.util.Builder.CBuilder;
 import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
+import org.unicode.cldr.util.PluralRulesUtil.KeywordStatus;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
+import org.unicode.cldr.util.CldrUtility.VariableReplacer;
 
 import com.ibm.icu.dev.test.util.Relation;
 import com.ibm.icu.impl.IterableComparator;
@@ -704,15 +706,6 @@ public class SupplementalDataInfo {
             }
         }
 
-        public static int strToCoverageValue(String str) {
-            if (str.equals("posix")) return 20;
-            if (str.equals("minimal")) return 30;
-            if (str.equals("basic")) return 40;
-            if (str.equals("moderate")) return 60;
-            if (str.equals("modern")) return 80;
-            return 100;
-        }
-
         static void fixEU(Collection<CoverageLevelInfo> targets, SupplementalDataInfo info) {
             Set<String> euCountries = info.getContained("EU");
             for (CoverageLevelInfo item : targets) {
@@ -830,7 +823,8 @@ public class SupplementalDataInfo {
      */
     public static SupplementalDataInfo getInstance() {
         if(defaultInstance!=null) return defaultInstance;
-        return getInstance(CldrUtility.SUPPLEMENTAL_DIRECTORY);
+        return CLDRConfig.getInstance().getSupplementalDataInfo();
+//        return getInstance(CldrUtility.SUPPLEMENTAL_DIRECTORY);
     }
     
     /**
@@ -1146,29 +1140,35 @@ public class SupplementalDataInfo {
             if (extension == null) {
                 extension = "u";
             }
-            String subtype = parts.getAttributeValue(3, "name");
-            String subtypeAlias = parts.getAttributeValue(3, "alias");
-            String subtypeDescription = parts.getAttributeValue(3, "description");
-            String subtypeSince = parts.getAttributeValue(3, "since");
 
             bcp47Extension2Keys.put(extension, key);
 
-            bcp47Key2Subtypes.put(key, subtype);
             if (keyAlias != null) {
                 bcp47Aliases.putAll((R2<String, String>) Row.of(key,"").freeze(), Arrays.asList(keyAlias.trim().split("\\s+")));
             }
-            if (subtypeAlias != null) {
-                bcp47Aliases.putAll((R2<String, String>) Row.of(key,subtype).freeze(), Arrays.asList(subtypeAlias.trim().split("\\s+")));
-            }
-            
+
             if (keyDescription != null) {
                 bcp47Descriptions.put((R2<String, String>) Row.of(key,"").freeze(), keyDescription);
             }
-            if (subtypeDescription != null) {
-                bcp47Descriptions.put((R2<String, String>) Row.of(key,subtype).freeze(), subtypeDescription);
-            }
-            if (subtypeDescription != null) {
-                bcp47Since.put((R2<String, String>) Row.of(key,subtype).freeze(), subtypeSince);
+
+            if(parts.size()>3) { // for parts with no subtype:    //ldmlBCP47/keyword/key[@extension="t"][@name="x0"]
+                
+                // have subtype
+                String subtype = parts.getAttributeValue(3, "name");
+                String subtypeAlias = parts.getAttributeValue(3, "alias");
+                String subtypeDescription = parts.getAttributeValue(3, "description");
+                String subtypeSince = parts.getAttributeValue(3, "since");
+                bcp47Key2Subtypes.put(key, subtype);
+                if (subtypeAlias != null) {
+                    bcp47Aliases.putAll((R2<String, String>) Row.of(key,subtype).freeze(), Arrays.asList(subtypeAlias.trim().split("\\s+")));
+                }
+                
+                if (subtypeDescription != null) {
+                    bcp47Descriptions.put((R2<String, String>) Row.of(key,subtype).freeze(), subtypeDescription);
+                }
+                if (subtypeDescription != null) {
+                    bcp47Since.put((R2<String, String>) Row.of(key,subtype).freeze(), subtypeSince);
+                }
             }
 
             return true;
@@ -1211,16 +1211,25 @@ public class SupplementalDataInfo {
         }
 
         private void handleCoverageLevels() {
-            String match = parts.getAttributeValue(-1,"match");
-            String valueStr = parts.getAttributeValue(-1,"value");
-            String inLanguage = parts.getAttributeValue(-1,"inLanguage");
-            String inScript = parts.getAttributeValue(-1,"inScript");
-            String inTerritory = parts.getAttributeValue(-1,"inTerritory");
-            Integer value =  ( valueStr != null ) ? Integer.valueOf(valueStr) : Integer.valueOf("101");
-            CoverageLevelInfo ci = new CoverageLevelInfo(match,value,inLanguage,inScript,inTerritory);
-            coverageLevels.add(ci);
+            if ( parts.containsElement("coverageLevel")) {
+                String match = parts.containsAttribute("match") ? coverageVariables.replace(parts.getAttributeValue(-1,"match")) : null;
+                String valueStr = parts.getAttributeValue(-1,"value");
+                String inLanguage = parts.containsAttribute("inLanguage") ? coverageVariables.replace(parts.getAttributeValue(-1,"inLanguage")) : null;
+                String inScript = parts.containsAttribute("inScript") ? coverageVariables.replace(parts.getAttributeValue(-1,"inScript")) : null;
+                String inTerritory = parts.containsAttribute("inTerritory") ? coverageVariables.replace(parts.getAttributeValue(-1,"inTerritory")) : null;
+                Integer value =  ( valueStr != null ) ? Integer.valueOf(valueStr) : Integer.valueOf("101");
+                CoverageLevelInfo ci = new CoverageLevelInfo(match,value,inLanguage,inScript,inTerritory);
+                coverageLevels.add(ci);
+            } else if ( parts.containsElement("coverageVariable")) {
+                String key = parts.getAttributeValue(-1, "key");
+                String value = parts.getAttributeValue(-1, "value");
+                coverageVariables.add(key, value);
+            }
         }
 
+        private String resolveCoverageVariables(String str) {
+            return str;
+        }
         private void handleParentLocales() {
             String parent = parts.getAttributeValue(-1,"parent");
             String locales = parts.getAttributeValue(-1,"locales");
@@ -1650,7 +1659,7 @@ public class SupplementalDataInfo {
                     .parseDouble(literacyString);
         }
     }
-
+    
     public class CoverageVariableInfo {
         public Set<String> targetScripts;
         public Set<String> targetTerritories;
@@ -1683,7 +1692,8 @@ public class SupplementalDataInfo {
     private SortedSet<CoverageLevelInfo> coverageLevels = new TreeSet<CoverageLevelInfo>();
     private Map<String, String> parentLocales = new HashMap<String,String>();
     private Map<String, List<String>> calendarPreferences= new HashMap();
-    private Map<String, CoverageVariableInfo> coverageVariables = new TreeMap();    
+    private Map<String, CoverageVariableInfo> localeSpecificVariables = new TreeMap();
+    private VariableReplacer coverageVariables = new VariableReplacer();
     private Map<String,String> numberingSystems = new HashMap<String,String>();
     private Set<String> defaultContentLocales;
     private Set<String> CLDRLanguageCodes;
@@ -1822,6 +1832,22 @@ public class SupplementalDataInfo {
     public Set<String> getDefaultContentLocales() {
         return defaultContentLocales;
     }
+    public String getDefaultContentLocale(String language) {
+        for ( String dc : defaultContentLocales ) {
+            if ( dc.startsWith(language+"_")) {
+                return dc;
+            }
+        }
+        return null;
+    }
+    public String getDefaultContentLocale(String language, String script) {
+        for ( String dc : defaultContentLocales ) {
+            if ( dc.startsWith(language+"_"+script+"_")) {
+                return dc;
+            }
+        }
+        return null;
+    }
     public Set<String> getNumberingSystems() {
         return numberingSystems.keySet();
     }
@@ -1833,13 +1859,20 @@ public class SupplementalDataInfo {
     }
 
     /**
-     * Used to get the coverage value for a path. Note, it is more efficient to create a CoverageLevel2 for a language, and keep it around.
+     * Used to get the coverage value for a path. Note, it is more efficient to create
+     * a CoverageLevel2 for a language, and keep it around.
      * @param xpath
      * @param loc
      * @return
      */
     public int getCoverageValue(String xpath, ULocale loc) {
-        return CoverageLevel2.getInstance(this, loc.getLanguage()).getIntLevel(xpath);
+        CoverageLevel2 cov = localeToCoverageLevelInfo.get(loc);
+        if ( cov == null ) {
+            cov = CoverageLevel2.getInstance(this,loc.getBaseName());
+            localeToCoverageLevelInfo.put(loc, cov);
+        }
+        
+        return cov.getIntLevel(xpath);
     }
 
     private RegexLookup<Level> coverageLookup = null;
@@ -1955,8 +1988,8 @@ public class SupplementalDataInfo {
 
     public CoverageVariableInfo getCoverageVariableInfo(String targetLanguage) {
         CoverageVariableInfo cvi;
-        if ( coverageVariables.containsKey(targetLanguage)) {
-            cvi = coverageVariables.get(targetLanguage);
+        if ( localeSpecificVariables.containsKey(targetLanguage)) {
+            cvi = localeSpecificVariables.get(targetLanguage);
         } else {
             cvi = new CoverageVariableInfo();
             cvi.targetScripts = getTargetScripts(targetLanguage);
@@ -1964,7 +1997,7 @@ public class SupplementalDataInfo {
             cvi.calendars = getCalendars(cvi.targetTerritories);
             cvi.targetCurrencies = getCurrentCurrencies(cvi.targetTerritories);
             cvi.targetTimeZones = getCurrentTimeZones(cvi.targetTerritories);
-            coverageVariables.put(targetLanguage, cvi);
+            localeSpecificVariables.put(targetLanguage, cvi);
         }
         return cvi;
     }
@@ -2136,10 +2169,30 @@ public class SupplementalDataInfo {
         return typeToZoneToRegionToZone.get("metazones");
     }
 
+    public String getZoneForMetazoneByRegion(String metazone, String region) {
+        String result = null;
+        if ( getMetazoneToRegionToZone().containsKey(metazone)) {
+            Map<String,String> myMap = getMetazoneToRegionToZone().get(metazone);
+            if (myMap.containsKey(region)) {
+                result = myMap.get(region);
+            } else {
+                result = myMap.get("001");
+            }
+        }
+        
+        if ( result == null ) {
+            result = "Etc/GMT";
+        }
+
+        return result;
+    }
     public Map<String,Map<String,Map<String,String>>> getTypeToZoneToRegionToZone() {
         return typeToZoneToRegionToZone;
     }
 
+    /**
+     * @deprecated, use PathHeader.getMetazonePageTerritory
+     */
     public Map<String,String> getMetazoneToContinentMap() {
         return metazoneContinentMap;
     }
@@ -2156,6 +2209,7 @@ public class SupplementalDataInfo {
     private Map<String,PluralInfo> localeToPluralInfo = new LinkedHashMap<String,PluralInfo>();
     private Map<String,PluralInfo> localeToOrdinalInfo = new LinkedHashMap<String,PluralInfo>();
     private Map<String,DayPeriodInfo> localeToDayPeriodInfo = new LinkedHashMap<String,DayPeriodInfo>();
+    private Map<ULocale,CoverageLevel2> localeToCoverageLevelInfo = new LinkedHashMap<ULocale,CoverageLevel2>();
     private transient String lastPluralLocales = "root";
     private transient boolean lastPluralWasOrdinal = false;
     private transient Map<Count,String> lastPluralMap = new LinkedHashMap<Count,String>();
@@ -2256,6 +2310,11 @@ public class SupplementalDataInfo {
      * @author markdavis
      */
     public static class PluralInfo {
+        static final Set<Double> explicits = new HashSet<Double>();
+        static {
+            explicits.add(0.0d);
+            explicits.add(1.0d);
+        }
         public enum Count {
             zero, one, two, few, many, other;
         }
@@ -2268,10 +2327,11 @@ public class SupplementalDataInfo {
         private final Map<Integer,Count> exampleToCount;
         private final PluralRules pluralRules;
         private final String pluralRulesString;
+        private final Set<String> canonicalKeywords;
 
         private PluralInfo(Map<Count,String> countToRule) {
             // now build rules
-            NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            NumberFormat nf = NumberFormat.getNumberInstance(ULocale.ENGLISH);
             nf.setMaximumFractionDigits(2);
             StringBuilder pluralRuleBuilder = new StringBuilder();
             XPathParts parts = new XPathParts();
@@ -2398,6 +2458,37 @@ public class SupplementalDataInfo {
             countToExampleList = Collections.unmodifiableMap(countToExampleListRaw);
             countToStringExample = Collections.unmodifiableMap(countToStringExampleRaw);
             exampleToCount = Collections.unmodifiableMap(exampleToCountRaw);
+            Set<String> temp = new LinkedHashSet<String>();
+            String keyword = pluralRules.select(0.0d);
+            double value = pluralRules.getUniqueKeywordValue(keyword);
+            if (value == pluralRules.NO_UNIQUE_VALUE) {
+                temp.add("0");
+            }
+            keyword = pluralRules.select(1.0d);
+            value = pluralRules.getUniqueKeywordValue(keyword);
+            if (value == pluralRules.NO_UNIQUE_VALUE) {
+                temp.add("1");
+            }
+            Set<String> keywords = pluralRules.getKeywords();
+            for (Count count : Count.values()) {
+                keyword = count.toString();
+                if (keywords.contains(keyword)) {
+                    temp.add(keyword);
+                }
+            }
+            if (false) {
+                // change to this after rationalizing 0/1
+                temp.add("0");
+                temp.add("1");
+                for (Count count : Count.values()) {
+                    temp.add(count.toString());
+                    KeywordStatus status = org.unicode.cldr.util.PluralRulesUtil.getKeywordStatus(pluralRules, count.toString(), 0, explicits, true);
+                    if (status != KeywordStatus.SUPPRESSED && status != KeywordStatus.INVALID) {
+                        temp.add(count.toString());
+                    }
+                }
+            }
+            canonicalKeywords = Collections.unmodifiableSet(temp);
         }
 
         public String toString() {
@@ -2415,13 +2506,20 @@ public class SupplementalDataInfo {
             return Count.valueOf(pluralRules.select(exampleCount));
         }
 
+        public PluralRules getPluralRules() {
+            return pluralRules;
+        }
+
         public String getRules() {
-            // TODO Auto-generated method stub
             return pluralRulesString;
         }
 
         public Count getDefault() {
             return null;
+        }
+        
+        public Set<String> getCanonicalKeywords() {
+            return canonicalKeywords;
         }
     }
 

@@ -3,10 +3,15 @@
 
 package org.unicode.cldr.test;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.test.CheckExemplars.ExemplarType;
+import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.With;
 import org.unicode.cldr.util.XPathParts;
@@ -15,6 +20,7 @@ import com.ibm.icu.dev.test.util.PrettyPrinter;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.DateTimePatternGenerator.FormatParser;
+import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.Normalizer;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
@@ -37,6 +43,9 @@ public class DisplayAndInputProcessor {
             "[:Me:][:Mn:]]" // add non-spacing marks
     ).freeze();
 
+    public static final Pattern NUMBER_FORMAT_XPATH = Pattern.compile("//ldml/numbers/.*Format\\[@type=\"standard\"]/pattern.*");
+    private static final Pattern NON_DECIMAL_PERIOD = Pattern.compile("(?<![0#'])\\.(?![0#'])");
+
     private Collator col;
 
     private Collator spaceCol;
@@ -45,17 +54,22 @@ public class DisplayAndInputProcessor {
 
     private PrettyPrinter pp;
 
+    final private CLDRLocale locale;
+    private static final CLDRLocale MALAYALAM = CLDRLocale.getInstance("ml");
+    private boolean isPosix;
+
     /**
      * Constructor, taking cldrFile.
      * @param cldrFileToCheck
      */
     public DisplayAndInputProcessor(CLDRFile cldrFileToCheck) {
-        String locale = cldrFileToCheck.getLocaleID();
-	init(locale);
+        init(this.locale=CLDRLocale.getInstance(cldrFileToCheck.getLocaleID()));
     }
-     void init(String locale) {
-        col = Collator.getInstance(new ULocale(locale));
-        spaceCol = Collator.getInstance(new ULocale(locale));
+
+     void init(CLDRLocale locale) {
+        isPosix = locale.toString().indexOf("POSIX") >= 0;
+        col = Collator.getInstance(locale.toULocale());
+        spaceCol = Collator.getInstance(locale.toULocale());
 
         pp = new PrettyPrinter().setOrdering(Collator.getInstance(ULocale.ROOT)).setSpaceComparator(Collator.getInstance(ULocale.ROOT).setStrength2(Collator.PRIMARY))
         .setCompressRanges(true)
@@ -69,7 +83,14 @@ public class DisplayAndInputProcessor {
      * @param locale
      */
     public DisplayAndInputProcessor(ULocale locale) {
-	init(locale.toString());
+        init(this.locale=CLDRLocale.getInstance(locale));
+    }
+    /**
+     * Constructor, taking locale.
+     * @param locale
+     */
+    public DisplayAndInputProcessor(CLDRLocale locale) {
+        init(this.locale=locale);
     }
 
     /**
@@ -95,9 +116,25 @@ public class DisplayAndInputProcessor {
 //            }
         } else if (path.contains("stopword")) {
             return value.trim().isEmpty() ? "NONE" : value;
+        } else {
+            NumericType numericType = NumericType.getNumericType(path);
+            if (numericType != NumericType.NOT_NUMERIC) {
+                // Canonicalize existing values that aren't canonicalized yet.
+                // New values will be canonicalized on input using processInput().
+                try {
+                    value = getCanonicalPattern(value, numericType, isPosix);
+                } catch (IllegalArgumentException e) {
+                    if(DEBUG_DAIP) System.err.println("Illegal pattern: " + value);
+                }
+                if (numericType != NumericType.CURRENCY) {
+                    value = value.replace("'", "");
+                }
+            }
         }
         return value;
     }
+    
+    static final UnicodeSet WHITESPACE = new UnicodeSet("[:whitespace:]").freeze();
 
     /**
      * Process the value for input. The result is a cleaned-up value. For example,
@@ -117,17 +154,33 @@ public class DisplayAndInputProcessor {
             internalException[0] = null;
         }
         try {
+            // Normalise Malayalam characters.
+            if (locale.childOf(MALAYALAM)) {
+                String newvalue = normalizeMalayalam(value);
+                if(DEBUG_DAIP) System.out.println("DAIP: Normalized Malayalam '"+value+"' to '"+newvalue+"'");
+                value = newvalue;
+            }
+
             // fix grouping separator if space
             if (path.startsWith("//ldml/numbers/symbols/group")) {
                 if (value.equals(" ")) {
                     value = "\u00A0";
                 }
             }
+
             // all of our values should not have leading or trailing spaces, except insertBetween
             if (!path.contains("/insertBetween") && !path.contains("/localeSeparator")) {
                 value = value.trim();
             }
 
+            // fix grouping separator if space
+            if (path.startsWith("//ldml/numbers/symbols")) {
+                if (value.isEmpty()) {
+                    value = "\u00A0";
+                }
+                value = value.replace(' ', '\u00A0');
+            }
+            
             // fix date patterns
             if (hasDatetimePattern(path)) {
                 formatDateParser.set(value);
@@ -137,30 +190,37 @@ public class DisplayAndInputProcessor {
                 }
             }
 
-            if (path.startsWith("//ldml/numbers") && path.indexOf("Format[")>=0&& path.indexOf("/pattern")>=0) {
-                String newValue = value.replaceAll("([%\u00A4]) ", "$1\u00A0")
-                .replaceAll(" ([%\u00A4])", "\u00A0$1");
-                if (!value.equals(newValue)) {
-                    value = newValue;
+            NumericType numericType = NumericType.getNumericType(path);
+            if (numericType != NumericType.NOT_NUMERIC) {
+                if (numericType != NumericType.CURRENCY) {
+                    value = value.replaceAll("([%\u00A4]) ", "$1\u00A0")
+                            .replaceAll(" ([%\u00A4])", "\u00A0$1");
+                    value = replace(NON_DECIMAL_PERIOD, value, "'.'");
                 }
+                value = getCanonicalPattern(value, numericType, isPosix);
             }
 
             // check specific cases
             if (path.contains("/exemplarCharacters")) {
+                final String iValue = value;
                 // clean up the user's input.
                 // first, fix up the '['
+                value = value.trim();
+                
+                // remove brackets and trim again before regex
+                if(value.startsWith("[")) {
+                    value = value.substring(1);
+                }
+                if(value.endsWith("]")) {
+                    value = value.substring(0,value.length()-1);
+                }
                 value = value.trim();
 
                 value = replace(NEEDS_QUOTE1, value, "$1\\\\$2$3");
                 value = replace(NEEDS_QUOTE2, value, "$1\\\\$2$3");
 
-                if (!value.startsWith("[")) {
-                    value = "[" + value;
-                }
-
-                if (!value.endsWith("]")) {
-                    value = value + "]";
-                }
+                // re-add brackets.
+                value = "[" + value + "]";
 
                 UnicodeSet exemplar = new UnicodeSet(value);
                 XPathParts parts = new XPathParts().set(path);
@@ -187,7 +247,39 @@ public class DisplayAndInputProcessor {
         }
         return value2;
     }
-    
+
+    private static Pattern UNNORMALIZED_MALAYALAM = Pattern.compile(
+            "(\u0D23|\u0D28|\u0D30|\u0D32|\u0D33|\u0D15)\u0D4D\u200D");
+
+    private static Map<Character, Character> NORMALIZING_MAP =
+            Builder.with(new HashMap<Character, Character>())
+                    .put('\u0D23', '\u0D7A').put('\u0D28', '\u0D7B')
+                    .put('\u0D30', '\u0D7C').put('\u0D32', '\u0D7D')
+                    .put('\u0D33', '\u0D7E').put('\u0D15', '\u0D7F').get();
+
+    /**
+     * Normalizes the Malayalam characters in the specified input.
+     * @param value the input to be normalized
+     * @return
+     */
+    private String normalizeMalayalam(String value) {
+        // Normalize Malayalam characters.
+        Matcher matcher = UNNORMALIZED_MALAYALAM.matcher(value);
+        if (matcher.find()) {
+            StringBuffer buffer = new StringBuffer();
+            int start = 0;
+            do {
+                buffer.append(value.substring(start, matcher.start(0)));
+                char codePoint = matcher.group(1).charAt(0);
+                buffer.append(NORMALIZING_MAP.get(codePoint));
+                start = matcher.end(0);
+            } while (matcher.find());
+            buffer.append(value.substring(start));
+            value = buffer.toString();
+        }
+        return value;
+    }
+
     static Pattern REMOVE_QUOTE1 = Pattern.compile("(\\s)(\\\\[-\\}\\]\\&])()");
     static Pattern REMOVE_QUOTE2 = Pattern.compile("(\\\\[\\-\\{\\[\\&])(\\s)"); //([^\\])([\\-\\{\\[])(\\s)
 
@@ -246,5 +338,80 @@ public class DisplayAndInputProcessor {
         }
         return value;
     }
-    
+
+
+    /**
+     * @return a canonical numeric pattern, based on the type, and the isPOSIX flag. The latter is set for en_US_POSIX.
+     */
+    public static String getCanonicalPattern(String inpattern, NumericType type, boolean isPOSIX) {
+        // TODO fix later to properly handle quoted ;
+        DecimalFormat df = new DecimalFormat(inpattern);
+        if (type == NumericType.DECIMAL_ABBREVIATED) {
+            return inpattern; // TODO fix when  ICU bug is fixed
+            //df.setMaximumFractionDigits(df.getMinimumFractionDigits());
+            //df.setMaximumIntegerDigits(Math.max(1, df.getMinimumIntegerDigits()));
+        } else {
+            //int decimals = type == CURRENCY_TYPE ? 2 : 1;
+            int[] digits = isPOSIX ? type.posixDigitCount : type.digitCount;
+            df.setMinimumIntegerDigits(digits[0]);
+            df.setMinimumFractionDigits(digits[1]);
+            df.setMaximumFractionDigits(digits[2]);
+        }
+        String pattern = df.toPattern();
+
+        //int pos = pattern.indexOf(';');
+        //if (pos < 0) return pattern + ";-" + pattern;
+        return pattern;
+    }
+
+    /*
+     * This tests what type a numeric pattern is.
+     */
+    public enum NumericType {
+        CURRENCY(new int[]{1,2,2}, new int[]{1,2,2}),
+        DECIMAL(new int[]{1,0,3}, new int[]{1,0,6}),
+        DECIMAL_ABBREVIATED(),
+        PERCENT(new int[]{1,0,0}, new int[]{1,0,0}),
+        SCIENTIFIC(new int[]{0,0,0}, new int[]{1,6,6}),
+        NOT_NUMERIC;
+
+        private static final Pattern NUMBER_PATH = Pattern.compile("//ldml/numbers/((currency|decimal|percent|scientific)Formats|currencies/currency).*");
+        private int[] digitCount;
+        private int[] posixDigitCount;
+
+        private NumericType() {};
+        private NumericType(int[] digitCount, int[] posixDigitCount) {
+            this.digitCount = digitCount;
+            this.posixDigitCount = posixDigitCount;
+        }
+        /**
+         * @return the numeric type of the xpath
+         */
+        public static NumericType getNumericType(String xpath) {
+            Matcher matcher = NUMBER_PATH.matcher(xpath);
+            if (xpath.indexOf("/pattern") < 0) {
+                return NOT_NUMERIC;
+            } else if (matcher.matches()) {
+                if (matcher.group(1).equals("currencies/currency")) {
+                    return CURRENCY;
+                } else {
+                    NumericType type = NumericType.valueOf(matcher.group(2).toUpperCase());
+                    if (type == DECIMAL && xpath.contains("=\"1000")) {
+                        type = DECIMAL_ABBREVIATED;
+                    }
+                    return type;
+                }
+            } else {
+                return NOT_NUMERIC;
+            }
+        }
+
+        public int[] getDigitCount() {
+            return digitCount;
+        }
+
+        public int[] getPosixDigitCount() {
+            return posixDigitCount;
+        }
+    };
 }

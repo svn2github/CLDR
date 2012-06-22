@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -13,7 +14,9 @@ import java.util.regex.Pattern;
 
 import org.unicode.cldr.tool.GenerateXMB;
 import org.unicode.cldr.util.CldrUtility.Output;
+import org.unicode.cldr.util.PatternPlaceholders.PlaceholderInfo;
 
+import com.ibm.icu.impl.Row.R2;
 import com.ibm.icu.text.MessageFormat;
 
 public class PathDescription {
@@ -29,7 +32,7 @@ public class PathDescription {
 
     private static final StandardCodes STANDARD_CODES = StandardCodes.make();
     private static Map<String, String> ZONE2COUNTRY = STANDARD_CODES.getZoneToCounty();
-    private static RegexLookup<String> pathHandling = new RegexLookup<String>().loadFromFile(GenerateXMB.class, "xmbHandling.txt");
+    private static RegexLookup<String> pathHandling = new RegexLookup<String>().loadFromFile(PathDescription.class, "data/PathDescription.txt");
 
     // set in construction
 
@@ -47,7 +50,7 @@ public class PathDescription {
     private Output<String[]> pathArguments = new Output<String[]>();
     private EnumSet<Status> status = EnumSet.noneOf(Status.class);
 
-    public static final String MISSING_DESCRIPTION = "Before translating, please see cldr.org/translation.";
+    public static final String MISSING_DESCRIPTION = "Before translating, please see http://cldr.org/translation.";
 
     public PathDescription(SupplementalDataInfo supplementalDataInfo, 
             CLDRFile english, 
@@ -93,22 +96,22 @@ public class PathDescription {
             String xpath = extras.get(path);
             if (xpath != null) {
                 value = english.getStringValue(xpath);
-            } else {
-                if (path.contains("/metazone")) {
-                    if (metazoneMatcher.reset(path).matches()) {
-                        String name = metazoneMatcher.group(1);
-                        String type = metazoneMatcher.group(3);
-                        value = name.replace('_', ' ') + (type.equals("generic") ? "" : type.equals("daylight") ? " Summer" : " Winter") + " Time";
-                        // System.out.println("Missing:    " + path + " :    " + value);
-                    }
+            } else if (path.contains("/metazone")) {
+                if (metazoneMatcher.reset(path).matches()) {
+                    String name = metazoneMatcher.group(1);
+                    String type = metazoneMatcher.group(3);
+                    value = name.replace('_', ' ') + (type.equals("generic") ? "" : type.equals("daylight") ? " Summer" : " Winter") + " Time";
+                    // System.out.println("Missing:    " + path + " :    " + value);
                 }
             }
             if (value == null) {
                 status.add(Status.NULL_VALUE);
-                return null;
+                if (errorHandling == ErrorHandling.SKIP) {
+                    return null;
+                }
             }
         }
-        if (value.length() == 0) {
+        if (value != null && value.length() == 0) {
             status.add(Status.EMPTY_CONTENT);
             if (errorHandling == ErrorHandling.SKIP) {
                 return null;
@@ -150,15 +153,15 @@ public class PathDescription {
 
                 boolean found = false;
                 if ("001".equals(country)) {
-                    code = "the timezone \"" + codeName + '"';
+                    code = "the timezone “" + codeName + "”";
                     found = true;
                 } else if (country != null) {
                     String countryName = english.getName("territory", country);
                     if (countryName != null) {
                         if (!codeName.equals(countryName)) {
-                            code = "the city \"" + codeName + "\" (in " + countryName + ")";
+                            code = "the city “" + codeName + "” (in " + countryName + ")";
                         } else {
-                            code = "the country \"" + codeName + '"';
+                            code = "the country “" + codeName + "”";
                         }
                         found = true;
                     }
@@ -175,7 +178,33 @@ public class PathDescription {
         } else if (description != MISSING_DESCRIPTION){
             description = MessageFormat.format(MessageFormat.autoQuoteApostrophe(description), pathArguments.value);
         }
+
         return description;
+    }
+
+    /**
+     * Creates an escaped HTML string of placeholder information.
+     * @param path the xpath to specify placeholder information for
+     * @return a HTML string, or an empty string if there was no placeholder information
+     */
+    public String getPlaceholderDescription(String path) {
+        Map<String, PlaceholderInfo> placeholders = PatternPlaceholders.getInstance().get(path);
+        if (placeholders != null && placeholders.size() > 0) {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("<table>");
+            buffer.append("<tr><th>Placeholder</th><th>Meaning</th><th>Example</th></tr>");
+            for (Entry<String, PlaceholderInfo> entry : placeholders.entrySet()) {
+                PlaceholderInfo info = entry.getValue();
+                buffer.append("<tr>");
+                buffer.append("<td>").append(entry.getKey()).append("</td>");
+                buffer.append("<td>").append(info.name).append("</td>");
+                buffer.append("<td>").append(info.example).append("</td>");
+                buffer.append("</tr>");
+            }
+            buffer.append("</table>");
+            return buffer.toString();
+        }
+        return "";
     }
 
     private static boolean isRootCode(String code, Set<String> allMetazones, String type, boolean isMetazone) {

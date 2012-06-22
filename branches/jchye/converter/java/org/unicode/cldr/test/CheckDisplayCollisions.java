@@ -1,6 +1,7 @@
 package org.unicode.cldr.test;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -15,12 +16,18 @@ import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.PathHeader;
+import org.unicode.cldr.util.SupplementalDataInfo;
+import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
+import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
+import org.unicode.cldr.util.SupplementalDataInfo.PluralType;
 
 import com.ibm.icu.dev.test.util.Relation;
 import com.ibm.icu.dev.test.util.XEquivalenceMap;
 import com.ibm.icu.lang.UCharacter;
+import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.Normalizer;
 import com.ibm.icu.util.TimeZone;
 
@@ -35,6 +42,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
     static final String LANGUAGE_PREFIX = "//ldml/localeDisplayNames/languages/language";
     static final int LANGUAGE_PREFIX_INDEX = 0; // sync with typesICareAbout
     static final int CURRENCY_PREFIX_INDEX = 4; // sync with typesICareAbout
+    static final String DECIMAL_FORMAT_PREFIX = "//ldml/numbers/decimalFormats";
 
     static final String[] typesICareAbout = {
         LANGUAGE_PREFIX,
@@ -44,8 +52,10 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         "//ldml/numbers/currencies/currency",
         //"\"]/displayName", "currency",
         "//ldml/dates/timeZoneNames/zone",	
-        "//ldml/dates/timeZoneNames/metazone"
+        "//ldml/dates/timeZoneNames/metazone",
+        DECIMAL_FORMAT_PREFIX
     };
+
     transient static final int[] pathOffsets = new int[2];
     transient static final int[] otherOffsets = new int[2];
     static final boolean SKIP_TYPE_CHECK = true;
@@ -53,6 +63,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
     Matcher exclusions = Pattern.compile("XXXX").matcher(""); // no matches
     Matcher typePattern = Pattern.compile("\\[@type=\"([^\"]*+)\"]").matcher("");
     Matcher attributesToIgnore = Pattern.compile("\\[@(?:count|alt)=\"[^\"]*+\"]").matcher("");
+    Matcher compactNumberAttributesToIgnore = Pattern.compile("\\[@(?:alt)=\"[^\"]*+\"]").matcher("");
 
     boolean[] builtCollisions;
     Set<String> paths = new HashSet<String>();
@@ -63,9 +74,13 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
     private XPathParts parts2 = new XPathParts(null, null);
     private transient Relation<String,String> hasCollisions = Relation.of(new TreeMap<String,Set<String>>(), HashSet.class);
     private boolean finalTesting;
+    private Set<Count> pluralTypes;
+
+    private PathHeader.Factory pathHeaderFactory;
 
     public CheckDisplayCollisions(Factory factory) {
         super(factory);
+        pathHeaderFactory = PathHeader.getFactory(factory.make("en", true));
     }
 
     public CheckCLDR handleCheck(String path, String fullPath, String value, Map<String, String> options, List<CheckStatus> result) {
@@ -85,15 +100,17 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
                         //codes.remove(code); // don't show self
 
                         CheckStatus item = new CheckStatus().setCause(this).setMainType(CheckStatus.errorType).setSubtype(Subtype.displayCollision)
-                        .setCheckOnSubmit(false)
-                        .setMessage("Can't have same translation as {0}", new Object[]{codes.toString()});
+                            .setCheckOnSubmit(false)
+                            .setMessage("Can't have same translation as {0}", new Object[]{codes.toString()});
                         result.add(item);
                     }
                     break;
                 }
             }
         } else {
-
+            if (value.equals("∅∅∅")) {
+                return this;
+            }
             if (exclusions.reset(path).find()) {
                 return this;
             }
@@ -115,8 +132,24 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
             // get the paths with the same value. If there aren't duplicates, continue;
             retrievedPaths.clear();
             paths.clear();
-            getResolvedCldrFileToCheck().getPathsWithValue(value, myPrefix, null, retrievedPaths);
-            
+
+            Matcher matcher = null;
+            String message = "Can't have same translation as {0}";
+            Matcher currentAttributesToIgnore = attributesToIgnore;
+
+            if (myPrefix.equals(DECIMAL_FORMAT_PREFIX)) {
+                if (!path.contains("[@count=")) {
+                    return this;
+                }
+                XPathParts parts = new XPathParts().set(path);
+                String type = parts.getAttributeValue(-1, "type");
+                myPrefix = parts.removeElement(-1).toString();
+                matcher = Pattern.compile(myPrefix.replaceAll("\\[", "\\\\[") +
+                    "/pattern\\[@type=(?!\"" + type + "\")\"\\d+\"].*").matcher(path);
+                currentAttributesToIgnore = compactNumberAttributesToIgnore;
+                message = "Can't have same number pattern as {0}";
+            }
+            getResolvedCldrFileToCheck().getPathsWithValue(value, myPrefix, matcher, retrievedPaths);
             // Do first cleanup
             // remove paths with "alt/count"; they can be duplicates
             for (String pathName : retrievedPaths) {
@@ -132,12 +165,12 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
                     continue;
                 }
                 // clean up the pat
-                String newPath = attributesToIgnore.reset(pathName).replaceAll("");
+                String newPath = currentAttributesToIgnore.reset(pathName).replaceAll("");
                 paths.add(newPath);
             }
-            String cleanPath = attributesToIgnore.reset(path).replaceAll("");
+            String cleanPath = currentAttributesToIgnore.reset(path).replaceAll("");
             paths.remove(cleanPath);
-            
+
             if (paths.isEmpty()) {
                 return this;
             }
@@ -151,10 +184,10 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
             // ok, we probably have a collision! Extract the types
             collidingTypes.clear();
             if (SKIP_TYPE_CHECK) {
-                int prefix = typesICareAbout[myType].length();
                 for (String pathName : paths) {
-                    attributesToIgnore.reset(pathName);
-                    collidingTypes.add(pathName.substring(prefix)); // later make this more readable.
+                    currentAttributesToIgnore.reset(pathName);
+                    PathHeader pathHeader = pathHeaderFactory.fromPath(pathName);
+                    collidingTypes.add(pathHeader.getHeaderCode()); // later make this more readable.
                 }
             } else {
                 for (String dpath : paths) {
@@ -176,8 +209,8 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
                 }}
 
             CheckStatus item = new CheckStatus().setCause(this).setMainType(CheckStatus.errorType).setSubtype(Subtype.displayCollision)
-            .setCheckOnSubmit(false)
-            .setMessage("Can't have same translation as {0}", new Object[]{collidingTypes.toString()});
+                .setCheckOnSubmit(false)
+                .setMessage(message, new Object[]{collidingTypes.toString()});
             result.add(item);
         }
         return this;
@@ -198,11 +231,11 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
                     it.remove();
                     continue main;
                 }
-//                // make sure the collision is with the same type
-//                if (dpath.startsWith(typesICareAbout[myType]) 
-//                        && !exclusions.reset(dpath).find()) {
-//                    continue main;
-//                }
+                //                // make sure the collision is with the same type
+                //                if (dpath.startsWith(typesICareAbout[myType]) 
+                //                        && !exclusions.reset(dpath).find()) {
+                //                    continue main;
+                //                }
                 // no match, remove
                 it.remove();
             }
@@ -217,6 +250,10 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         if (cldrFileToCheck == null) return this;
         super.setCldrFileToCheck(cldrFileToCheck, options, possibleErrors);
         finalTesting  = Phase.FINAL_TESTING == getPhase();
+        SupplementalDataInfo supplementalData = SupplementalDataInfo.getInstance(
+            getFactory().getSupplementalDirectory()); 
+        PluralInfo pluralInfo = supplementalData.getPlurals(PluralType.cardinal, cldrFileToCheck.getLocaleID());
+        pluralTypes = pluralInfo.getCountToExamplesMap().keySet();
 
         // clear old status
         clear();
@@ -331,8 +368,8 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
             getOffset(otherPath, otherOffsets);
 
             if (pathOffsets[0] == otherOffsets[0] 
-                                               && pathOffsets[0] == pathOffsets[1] 
-                                                                                && otherOffsets[0] == otherOffsets[1]) return true;
+                && pathOffsets[0] == pathOffsets[1] 
+                    && otherOffsets[0] == otherOffsets[1]) return true;
 
             // if they are short/long variants of the same path, they are ok
             if (CLDRFile.getCode(path).equals(CLDRFile.getCode(otherPath))) {

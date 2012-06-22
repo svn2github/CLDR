@@ -69,6 +69,7 @@ public class CheckDates extends FactoryCheckCLDR {
         "/months/monthContext[@type=\"format\"]/monthWidth[@type=\"abbreviated\"]/month",
         "/months/monthContext[@type=\"format\"]/monthWidth[@type=\"wide\"]/month",
         "/days/dayContext[@type=\"format\"]/dayWidth[@type=\"abbreviated\"]/day",
+        "/days/dayContext[@type=\"format\"]/dayWidth[@type=\"short\"]/day",
         "/days/dayContext[@type=\"format\"]/dayWidth[@type=\"wide\"]/day",
         "/quarters/quarterContext[@type=\"format\"]/quarterWidth[@type=\"abbreviated\"]/quarter",
         "/quarters/quarterContext[@type=\"format\"]/quarterWidth[@type=\"wide\"]/quarter",
@@ -126,6 +127,9 @@ public class CheckDates extends FactoryCheckCLDR {
     public CheckCLDR setCldrFileToCheck(CLDRFile cldrFileToCheck, Map<String, String> options, List<CheckStatus> possibleErrors) {
         if (cldrFileToCheck == null) return this;
         super.setCldrFileToCheck(cldrFileToCheck, options, possibleErrors);
+        
+        pathHeaderFactory = PathHeader.getFactory(getDisplayInformation());
+        
         icuServiceBuilder.setCldrFile(getResolvedCldrFileToCheck());
         // the following is a hack to work around a bug in ICU4J (the snapshot, not the released version).
         try {
@@ -148,7 +152,17 @@ public class CheckDates extends FactoryCheckCLDR {
             String path = (String) it.next();
             String value = resolved.getWinningValue(path);
             String fullPath = resolved.getFullXPath(path);
-            flexInfo.checkFlexibles(path, value, fullPath);
+            try {
+                flexInfo.checkFlexibles(path, value, fullPath);
+            } catch (Exception e) {
+                final String message = e.getMessage();
+                CheckStatus item = new CheckStatus()
+                .setCause(this)
+                .setMainType(CheckStatus.errorType)
+                .setSubtype(message.contains("Conflicting fields") ? Subtype.dateSymbolCollision : Subtype.internalError)
+                .setMessage(message);      
+                possibleErrors.add(item);
+            }
             //possibleErrors.add(flexInfo.getFailurePath(path));
         }
         redundants.clear();
@@ -166,7 +180,7 @@ public class CheckDates extends FactoryCheckCLDR {
         //          .setCheckOnSubmit(false)
         //          .setMessage("Missing availableFormats: {0}", new Object[]{notCovered.toString()}));     
         //    }
-        pathsWithConflictingOrder2sample = DateOrder.getOrderingInfo(cldrFileToCheck, resolved, flexInfo);
+        pathsWithConflictingOrder2sample = DateOrder.getOrderingInfo(cldrFileToCheck, resolved, flexInfo.fp);
         if (pathsWithConflictingOrder2sample == null) {
             CheckStatus item = new CheckStatus()
             .setCause(this)
@@ -183,6 +197,7 @@ public class CheckDates extends FactoryCheckCLDR {
         //            }
         //        }
 
+        
         return this;
     }
 
@@ -208,7 +223,7 @@ public class CheckDates extends FactoryCheckCLDR {
     Collection redundants = new HashSet();
     Status status = new Status();
     PathStarrer pathStarrer = new PathStarrer();
-    PathHeader.Factory pathHeaderFactory = PathHeader.getFactory(null);
+    PathHeader.Factory pathHeaderFactory;
 
     public CheckCLDR handleCheck(String path, String fullPath, String value, Map<String, String> options, List<CheckStatus> result) {
         if (fullPath == null) {
@@ -262,6 +277,8 @@ public class CheckDates extends FactoryCheckCLDR {
                     if (myType == null) {
                         break main;
                     }
+                    String myMainType = getMainType(path);
+
                     String calendarPrefix = path.substring(0,pos);
                     boolean endsWithDisplayName = path.endsWith("displayName"); // special hack, these shouldn't be in calendar.
 
@@ -284,6 +301,10 @@ public class CheckDates extends FactoryCheckCLDR {
                         if (myType.equals(otherType)) { // we don't care about items with the same type value
                             continue;
                         }
+                        String mainType = getMainType(item);
+                        if (!myMainType.equals(mainType)) { // we *only* care about items with the same type value
+                            continue;
+                        }
                         filteredPaths.add(item);
                     }
                     if (filteredPaths.size() == 0) {
@@ -292,7 +313,7 @@ public class CheckDates extends FactoryCheckCLDR {
                     Set<String> others = new TreeSet<String>();
                     for (String path2 : filteredPaths) {
                         PathHeader pathHeader = pathHeaderFactory.fromPath(path2);
-                        others.add(pathHeader.getCode());
+                        others.add(pathHeader.getHeaderCode());
                     }
                     String statusType = CheckStatus.errorType;
                     result.add(new CheckStatus()
@@ -363,9 +384,18 @@ public class CheckDates extends FactoryCheckCLDR {
                     formatParser.set(value);
                     patternBasicallyOk = true;
                 } catch (RuntimeException e) {
-                    CheckStatus item = new CheckStatus().setCause(this).setMainType(CheckStatus.errorType).setSubtype(Subtype.illegalDatePattern)
-                    .setMessage("Illegal date format pattern {0}", new Object[]{e});      
-                    result.add(item);
+                    String message = e.getMessage();
+                    if (message.contains("Illegal datetime field:")) {
+                        CheckStatus item = new CheckStatus().setCause(this)
+                        .setMainType(CheckStatus.errorType)
+                        .setSubtype(Subtype.illegalDatePattern)
+                        .setMessage(message);      
+                        result.add(item);
+                    } else {
+                        CheckStatus item = new CheckStatus().setCause(this).setMainType(CheckStatus.errorType).setSubtype(Subtype.illegalDatePattern)
+                        .setMessage("Illegal date format pattern {0}", new Object[]{e});      
+                        result.add(item);
+                    }
                 }
                 if (patternBasicallyOk) {
                     checkPattern(path, fullPath, value, result);
@@ -403,11 +433,26 @@ public class CheckDates extends FactoryCheckCLDR {
         if (secondType < 0) {
             return null;
         }
+        secondType += 8;
         int secondEnd = path.indexOf("\"]", secondType);
         if (secondEnd < 0) {
             return null;
         }
-        return path.substring(secondType+8,secondEnd);
+        return path.substring(secondType,secondEnd);
+    }
+
+
+    public String getMainType(String path) {
+        int secondType = path.indexOf("\"]/");
+        if (secondType < 0) {
+            return null;
+        }
+        secondType += 3;
+        int secondEnd = path.indexOf("/", secondType);
+        if (secondEnd < 0) {
+            return null;
+        }
+        return path.substring(secondType,secondEnd);
     }
 
     private String getValues(CLDRFile resolvedCldrFileToCheck, Collection<String> values) {
@@ -543,7 +588,9 @@ public class CheckDates extends FactoryCheckCLDR {
         DateTimeLengths dateTimeLength = DateTimeLengths.valueOf(len.toUpperCase(Locale.ENGLISH));
         style += dateTimeLength.ordinal();
         // do regex match with skeletonCanonical but report errors using skeleton; they have corresponding field lengths
-        if (!dateTimePatterns[style].matcher(skeletonCanonical).matches() && !pathParts.findAttributeValue("calendar", "type").equals("chinese")) {
+        if ( !dateTimePatterns[style].matcher(skeletonCanonical).matches()
+                && !pathParts.findAttributeValue("calendar", "type").equals("chinese")
+                && !pathParts.findAttributeValue("calendar", "type").equals("hebrew") ) {
             int i = RegexUtilities.findMismatch(dateTimePatterns[style], skeletonCanonical);
             String skeletonPosition = skeleton.substring(0,i) + "☹" + skeleton.substring(i);
             result.add(new CheckStatus()

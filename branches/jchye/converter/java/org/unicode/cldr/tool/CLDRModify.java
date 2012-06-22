@@ -747,8 +747,7 @@ public class CLDRModify {
             }
 
             if(changed[0]) {
-                String v = cldrFileToFilter.getStringValue(xpath);
-                replace(fullPath, xpp.toString(), v, "Removed deprecated attribute");
+                remove(fullPath, "Removed deprecated attribute");
             }
             //             replace(fullPath,newFullPath,value);         
             // remove(xpath, "Message", reason);
@@ -1053,20 +1052,6 @@ public class CLDRModify {
         parts.addAttribute("alt", "proposed-u" + userID + "-implicit1.8");
         String newPath = parts.toString();
         replace(fullpath, newPath, value);
-      }
-    });
-
-    fixList.add('n', "fix numbers", new CLDRFilter() {
-      public void handlePath(String xpath) {
-        byte type = CLDRTest.getNumericType(xpath);
-        if (type == CLDRTest.NOT_NUMERIC_TYPE) return;
-        String value = cldrFileToFilter.getStringValue(xpath);
-        // at this point, we only have currency formats
-        boolean isPOSIX = cldrFileToFilter.getLocaleID().indexOf("POSIX") >= 0;
-        String pattern = CLDRTest.getCanonicalPattern(value, type, isPOSIX);
-        if (pattern.equals(value)) return;
-        String fullXPath = cldrFileToFilter.getFullXPath(xpath);
-        replace(fullXPath, fullXPath, pattern);
       }
     });
 
@@ -1608,7 +1593,7 @@ public class CLDRModify {
         } else if (fullparts.getAttributeValue(-1,"references") != null) {
           fixType(value, "references", fullpath);   
         } else {
-          System.out.println("Skipping: " + xpath);
+          System.out.println("CLDRModify: Skipping: " + xpath);
         }
       }
 

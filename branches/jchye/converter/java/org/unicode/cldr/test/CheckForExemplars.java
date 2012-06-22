@@ -1,6 +1,6 @@
 /*
  ******************************************************************************
- * Copyright (C) 2005-2008, International Business Machines Corporation and        *
+ * Copyright (C) 2005-2012, International Business Machines Corporation and        *
  * others. All Rights Reserved.                                               *
  ******************************************************************************
  */
@@ -16,28 +16,35 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
-import org.unicode.cldr.tool.GenerateXMB;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Status;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.InternalCldrException;
-import org.unicode.cldr.util.RegexLookup;
+import org.unicode.cldr.util.PatternPlaceholders;
+import org.unicode.cldr.util.PatternPlaceholders.PlaceholderStatus;
 import org.unicode.cldr.util.XMLSource;
 
 import com.ibm.icu.dev.test.util.PrettyPrinter;
 import com.ibm.icu.lang.UScript;
 import com.ibm.icu.text.Collator;
+import com.ibm.icu.text.DateTimePatternGenerator;
 import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.Transform;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.ULocale;
 
 public class CheckForExemplars extends FactoryCheckCLDR {
+    private static final String STAND_IN = "#";
+
     //private final UnicodeSet commonAndInherited = new UnicodeSet(CheckExemplars.Allowed).complement(); 
     // "[[:script=common:][:script=inherited:][:alphabetic=false:]]");
-    static String[] EXEMPLAR_SKIPS = {"/currencySpacing", "/hourFormat", "/exemplarCharacters", "/pattern",
-        "/localizedPatternChars", "/segmentations", "/dateFormatItem", "/references",
-        "/intervalFormatItem",
+    static String[] EXEMPLAR_SKIPS = {
+        "/currencySpacing", 
+        "/exemplarCharacters",
+        // "/pattern",
+        "/localizedPatternChars", 
+        "/segmentations", 
+        "/references",
         "/localeDisplayNames/variants/",
         "/commonlyUsed",
         "/defaultNumberingSystem",
@@ -46,14 +53,25 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         "/nan",
         "/inText"
     };
+    
+    static String[] DATE_PARTS = {
+        "/hourFormat",
+        "/dateFormatItem",
+        "/intervalFormatItem",
+        "/dateFormatLength",
+        "timeFormatLength"
+    };
 
     static final UnicodeSet START_PAREN = new UnicodeSet("[(\\[（［]").freeze();
     static final UnicodeSet END_PAREN = new UnicodeSet("[)\\]］）]").freeze();
+    static final UnicodeSet ALL_CURRENCY_SYMBOLS = new UnicodeSet("[[:Sc:]]").freeze();
+    static final UnicodeSet NUMBERS = new UnicodeSet("[[:N:]]").freeze();
+
     private UnicodeSet exemplars;
     private UnicodeSet exemplarsPlusAscii;
     private static final UnicodeSet DISALLOWED_IN_scriptRegionExemplars = new UnicodeSet("[()（）;,；，]").freeze();
     private static final UnicodeSet DISALLOWED_IN_scriptRegionExemplarsWithParens = new UnicodeSet("[;,；，]").freeze();
-    private UnicodeSet currencySymbolExemplars;
+//    private UnicodeSet currencySymbolExemplars;
     private boolean skip;
     private Collator col;
     private Collator spaceCol;
@@ -61,24 +79,30 @@ public class CheckForExemplars extends FactoryCheckCLDR {
     PrettyPrinter prettyPrint;
     private Status otherPathStatus = new Status();
     private Matcher patternMatcher = ExampleGenerator.PARAMETER.matcher("");
-    public static final Pattern SUPPOSED_TO_BE_MESSAGE_FORMAT_PATTERN = Pattern.compile("/(" +
-            "codePattern" +
-            "|dateRangePattern" +
-            "|dateTimeFormat[^/]*?/pattern" +
-            "|appendItem" +
-            "|intervalFormatFallback" +
-            "|hoursFormat" +
-            "|gmtFormat" +
-            "|regionFormat" +
-            "|fallbackRegionFormat" +
-            "|fallbackFormat" +
-            "|unitPattern.*@count=\"(zero|one|two|few|many|other)\"" +
-            "|localePattern" +
-            "|listPatternPart" +
-            "|ellipsis" +
-            "|monthPattern" +
-    ")");
-    private Matcher supposedToBeMessageFormat = SUPPOSED_TO_BE_MESSAGE_FORMAT_PATTERN.matcher("");
+    
+    // for extracting date pattern text
+    private DateTimePatternGenerator.FormatParser formatParser = new DateTimePatternGenerator.FormatParser();
+    StringBuilder justText = new StringBuilder();
+
+//    public static final Pattern SUPPOSED_TO_BE_MESSAGE_FORMAT_PATTERN = Pattern.compile("/(" +
+//            "codePattern" +
+//            "|dateRangePattern" +
+//            "|dateTimeFormat[^/]*?/pattern" +
+//            "|appendItem" +
+//            "|intervalFormatFallback" +
+//            "|hoursFormat" +
+//            "|gmtFormat" +
+//            "|regionFormat" +
+//            "|fallbackRegionFormat" +
+//            "|fallbackFormat" +
+//            "|unitPattern.*@count=\"(zero|one|two|few|many|other)\"" +
+//            "|localePattern" +
+//            "|localeKeyTypePattern" +
+//            "|listPatternPart" +
+//            "|ellipsis" +
+//            "|monthPattern" +
+//    ")");
+//    private Matcher supposedToBeMessageFormat = SUPPOSED_TO_BE_MESSAGE_FORMAT_PATTERN.matcher("");
 
     public static final Pattern LEAD_OR_TRAIL_WHITESPACE_OK = Pattern.compile("/(" +
             "localeSeparator" +
@@ -93,13 +117,12 @@ public class CheckForExemplars extends FactoryCheckCLDR {
     static final Pattern IS_COUNT_ZERO_ONE_TWO = Pattern.compile("/units.*\\[@count=\"(zero|one|two)\"");
     private Matcher isCountZeroOneTwo = IS_COUNT_ZERO_ONE_TWO.matcher("");
     private boolean hasSpecialPlurals;
-    private RegexLookup<Set<String>> patternPlaceholders;
+    private PatternPlaceholders patternPlaceholders = PatternPlaceholders.getInstance();
 
     public CheckForExemplars(Factory factory) {
         super(factory);
-        patternPlaceholders = RegexLookup.of(new PlaceholderTransform())
-            .loadFromFile(GenerateXMB.class, "xmbPlaceholders.txt");
-
+//        patternPlaceholders = RegexLookup.of(new PlaceholderTransform())
+//            .loadFromFile(PatternPlaceholders.class, "data/Placeholders.txt");
     }
     
     /**
@@ -153,12 +176,6 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         exemplars.addAll(CheckExemplars.AlwaysOK).freeze();
         exemplarsPlusAscii = new UnicodeSet(exemplars).addAll(ASCII).freeze();
 
-        currencySymbolExemplars = safeGetExemplars("currencySymbol", possibleErrors, resolvedFile, ok); // resolvedFile.getExemplarSet("currencySymbol", CLDRFile.WinningChoice.WINNING);
-        if (currencySymbolExemplars == null) {
-            currencySymbolExemplars = new UnicodeSet(exemplars);
-        } else {
-            currencySymbolExemplars.addAll(exemplars);
-        }
         skip = false;
         prettyPrint = new PrettyPrinter()
         .setOrdering(col != null ? col : Collator.getInstance(ULocale.ROOT))
@@ -195,21 +212,21 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         String sourceLocale = getResolvedCldrFileToCheck().getSourceLocaleID(path, otherPathStatus);
 
         // if we are an alias to another path, then skip
-        if (!path.equals(otherPathStatus.pathWhereFound)) {
-            return this;
-        }
+//        if (!path.equals(otherPathStatus.pathWhereFound)) {
+//            return this;
+//        }
 
         // now check locale source
         if (XMLSource.CODE_FALLBACK_ID.equals(sourceLocale)) {
             return this;
-        } else if ("root".equals(sourceLocale)) {
-            // skip eras for non-gregorian
-            if (true) return this;
-            if (path.indexOf("/calendar") >= 0 && path.indexOf("gregorian") <= 0) return this;
+//        } else if ("root".equals(sourceLocale)) {
+//            // skip eras for non-gregorian
+//            if (true) return this;
+//            if (path.indexOf("/calendar") >= 0 && path.indexOf("gregorian") <= 0) return this;
         }
         
-        for (int i = 0; i < EXEMPLAR_SKIPS.length; ++i) {
-            if (path.indexOf(EXEMPLAR_SKIPS[i]) > 0 ) return this; // skip some items.
+        if (containsPart(path, EXEMPLAR_SKIPS)) {
+            return this;
         }
 
         // add checks for patterns. Make sure that all and only the message format patterns have {n}
@@ -222,10 +239,18 @@ public class CheckForExemplars extends FactoryCheckCLDR {
                 placeholderBuffer.append(", ").append(matcher.group());
             }
         }
+        Set<String> placeholders = null;
+        PlaceholderStatus placeholderStatus = patternPlaceholders.getStatus(path);
+        if (placeholderStatus != PlaceholderStatus.DISALLOWED) {
+            placeholders = patternPlaceholders.get(path).keySet();
+        }
+        
         boolean supposedToHaveMessageFormatFields = 
-            supposedToBeMessageFormat.reset(path).find()
+            // supposedToBeMessageFormat.reset(path).find()
+            placeholders != null
             && !(hasSpecialPlurals 
                     && isCountZeroOneTwo.reset(path).find());
+
         if (supposedToHaveMessageFormatFields) {
             if (placeholderBuffer.length() > 0) {
                 result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
@@ -235,14 +260,13 @@ public class CheckForExemplars extends FactoryCheckCLDR {
             }
             placeholderBuffer.setLength(0);
             // Check that the needed placeholders are there.
-            Set<String> placeholders = patternPlaceholders.get(path);
             if (placeholders == null) placeholders = new HashSet<String>();
             for (String placeholder : placeholders) {
                 if (!matchList.contains(placeholder)) {
                     placeholderBuffer.append(", ").append(placeholder);
                 }
             }
-            if (placeholderBuffer.length() > 0) {
+            if (placeholderBuffer.length() > 0 && placeholderStatus == PlaceholderStatus.REQUIRED) {
                 result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
                     .setSubtype(Subtype.missingPlaceholders)
                     .setMessage("This message pattern is missing placeholder(s){0}. See the English for an example.",
@@ -259,22 +283,39 @@ public class CheckForExemplars extends FactoryCheckCLDR {
                                     new Object[]{list}));
             }
             // check the other characters in the message format patterns
-            value = patternMatcher.replaceAll("#");
-        } else if (matchList.size() > 0){ // non-message field has placeholder values
+            value = patternMatcher.replaceAll(STAND_IN);
+        } else if (matchList.size() > 0 && placeholderStatus == PlaceholderStatus.DISALLOWED){ // non-message field has placeholder values
             result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
                 .setSubtype(Subtype.shouldntHavePlaceholders)
                 .setMessage("This field is not a message pattern, and should not have '{0}, {1},' etc. See the English for an example.",
                         new Object[]{}));
             // end checks for patterns
         }
+        // Now handle date patterns.
+        if (containsPart(path, DATE_PARTS)) {
+            if (!extractDatePatternText(value, STAND_IN, justText)) {
+                return this; // we are done, no text.
+            }
+            value = justText.toString();
+            if (NUMBERS.containsSome(value)) {
+                UnicodeSet disallowed = new UnicodeSet().addAll(value).retainAll(NUMBERS);
+                addMissingMessage(disallowed, CheckStatus.errorType, 
+                    Subtype.patternCannotContainDigits, 
+                    Subtype.patternCannotContainDigits, 
+                    "cannot occur in date or time patterns.", result);
+            }
+        }
 
         if (path.startsWith("//ldml/posix/messages")) return this;
+        
         UnicodeSet disallowed;
         
         if (path.contains("/currency") && path.endsWith("/symbol")) {
-            if (null != (disallowed = containsAllCountingParens(currencySymbolExemplars, exemplarsPlusAscii, value))) {
-                UnicodeSet missing = new UnicodeSet().addAll(value).removeAll(currencySymbolExemplars);
-                addMissingMessage(missing, CheckStatus.warningType, Subtype.charactersNotInCurrencyExemplars, Subtype.asciiCharactersNotInCurrencyExemplars, "are not in the currency exemplar characters", result);
+            if (null != (disallowed = containsAllCountingParens(exemplarsPlusAscii, exemplarsPlusAscii, value))) {
+                disallowed.removeAll(ALL_CURRENCY_SYMBOLS);
+                if ( disallowed.size() > 0 ) {
+                    addMissingMessage(disallowed, CheckStatus.warningType, Subtype.charactersNotInMainOrAuxiliaryExemplars, Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the exemplar characters", result);
+                }
             }
         } else if (path.contains("/localeDisplayNames") && !path.contains("/localeDisplayPattern")) {
             // test first for outside of the set.
@@ -310,6 +351,41 @@ public class CheckForExemplars extends FactoryCheckCLDR {
 //                        .setMessage("This item must not contain two space characters in a row."));
 //        }
         return this;
+    }
+
+    /**
+     * Extracts just the text from a date field, replacing all the variable fields by variableReplacement. Return null if
+     * there is an error (a different test will find that error).
+     */
+    public boolean extractDatePatternText(String value, String variableReplacement, StringBuilder justText) {
+        boolean haveText = false;
+        try {
+            formatParser.set(value);
+        } catch (Exception e) {
+            return false; // give up, it is illegal
+        }
+        boolean doReplacement = variableReplacement != null && variableReplacement.length() > 0;
+        justText.setLength(0);
+        for (Object item : formatParser.getItems()) {
+            if (item instanceof String) {
+                justText.append(item);
+                haveText = true;
+            } else {
+                if (doReplacement) {
+                    justText.append(variableReplacement);
+                }
+            }
+        }
+        return haveText;
+    }
+    
+    public boolean containsPart(String source, String... segments) {
+        for (int i = 0; i < segments.length; ++i) {
+            if (source.indexOf(segments[i]) > 0 ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static final String TEST = "؉";

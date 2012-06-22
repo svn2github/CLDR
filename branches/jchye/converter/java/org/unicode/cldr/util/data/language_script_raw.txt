@@ -252,7 +252,7 @@ jv	Javanese	secondary	Java	Javanese
 ka	Georgian	primary	Geor	Georgian	
 kaa	Kara-Kalpak	primary	Cyrl	Cyrillic	
 kab	Kabyle	primary	Latn	Latin	http://www.ethnologue.com/show_language.asp?code=kab
-kac	Kachin	primary	Mymr	Myanmar	"Not an individual language, an ethnic cover term. May use Myanmar if anything. See: http://www.ethnologue.com/14/show_iso639.asp?code=kac"
+kac	Kachin	primary	Latn	Latin	"Not an individual language, an ethnic cover term. See: http://www.ethnologue.com/14/show_iso639.asp?code=kac"
 kaj	Jju	primary	Latn	Latin	
 kam	Kamba	primary	Latn	Latin	
 kbd	Kabardian	primary	Cyrl	Cyrillic	
@@ -392,7 +392,6 @@ na	Nauru	primary	Latn	Latin
 nap	Neapolitan	primary	Latn	Latin	
 naq	Nama	primary	Latn	Latin	
 nb	Norwegian Bokmäl	primary	Latn	Latin	
-nbf	Naxi	primary	Nkgb	Naxi Geba	15924 code added recently
 nd	North Ndebele	primary	Latn	Latin	
 ne	Nepali	primary	Deva	Devanagari	
 new	Newari	primary	Deva	Devanagari	
@@ -413,6 +412,7 @@ ny	Nyanja; Chichewa; Chewa	primary	Latn	Latin
 nym	Nyamwezi	primary	Latn	Latin	
 nyn	Nyankole	primary	Latn	Latin	
 nyo	Nyoro	primary	Latn	Latin	
+nxq	Naxi	primary	Nkgb	Naxi Geba	15924 code added recently
 nzi	Nzima	primary	Latn	Latin	Ghana
 oc	Occitan (post 1500); Provençal	primary	Latn	Latin	"(Includes former Gascon, gsc)"
 oj	Ojibwa	primary	Cans	Unified Canadian Aboriginal Syllabics	
@@ -452,6 +452,8 @@ rar	Rarotongan	primary	Latn	Latin	Cook Islands
 rcf	Réunion Creole French	primary	Latn	Latin	
 rej	Rejang	primary	Rjng	Rejang	
 ril	Riang (Myanmar)	primary	Beng	Bengali	
+rjs	Rajbanshi	primary	Deva	Devanagari	
+rkt	Rangpuri	primary	Beng	Bengali	
 rm	Rhaeto-Romance	primary	Latn	Latin	
 rn	Rundi	primary	Latn	Latin	
 ro	Romanian	primary	Latn	Latin	
@@ -518,7 +520,7 @@ sr	Serbian	primary	Latn	Latin
 srn	Sranan	primary	Latn	Latin	
 srr	Serer-Sine	primary	Latn	Latin	
 ss	Swati	primary	Latn	Latin	
-ssy	Saho	primary	Ethi	Ethiopic	
+ssy	Saho	primary	Latn	Latin	
 st	Southern Sotho	primary	Latn	Latin	
 su	Sundanese	primary	Latn	Latin	
 su	Sundanese	secondary	Sund	Sundanese	

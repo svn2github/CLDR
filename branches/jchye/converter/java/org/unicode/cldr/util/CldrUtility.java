@@ -46,6 +46,7 @@ import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
 import com.ibm.icu.util.Freezable;
 import com.ibm.icu.util.TimeZone;
+import java.io.*;
 
 public class CldrUtility {
 
@@ -112,7 +113,14 @@ public class CldrUtility {
   // set the base directory with -Dcldrdata=<value>
   // if the main is different, use -Dcldrmain=<value>
   
+  /**
+   * @deprecated Don't use this from any code that is run from the .JAR (SurveyTool, tests, etc)
+   */
   public static final String UTIL_CODE_DIR = FileUtilities.getRelativeFileName(CldrUtility.class, ""); // getPath(BASE_DIRECTORY, "tools/java/org/unicode/cldr/");
+
+  /**
+   * @deprecated Don't use this from any code that is run from the .JAR (SurveyTool, tests, etc)
+   */
   public static final String UTIL_DATA_DIR = getPath(UTIL_CODE_DIR , "data/"); // getPath(BASE_DIRECTORY, "tools/java/org/unicode/cldr/util/data/");
 
   public static final String BASE_DIRECTORY = getPath(CldrUtility.getProperty("CLDR_DIR", null)); // new File(Utility.getProperty("CLDR_DIR", null)).getPath(); // get up to <CLDR>
@@ -840,12 +848,26 @@ public static final class Output<T> {
 //        }
 //    }
 
-/**
+  /**
    * Fetch data from jar
-   * @param name name of thing to load (org.unicode.cldr.util.name)
+   * @param name a name residing in the org/unicode/cldr/util/data/  directory, or loading from a jar will break.
    */
   static public BufferedReader getUTF8Data(String name) throws java.io.IOException {
+      /*if(name.startsWith(".")||name.startsWith("/")) {
+          throw new IllegalArgumentException("Path must be relative to org/unicode/cldr/util/data  such as 'file.txt' or 'casing/file.txt', but got '"+name+"'.");
+      }*/
       return FileUtilities.openFile(CldrUtility.class, "data/" + name);
+  }
+  
+    /**
+     * Fetch data from jar
+     * @param name a name residing in the org/unicode/cldr/util/data/  directory, or loading from a jar will break.
+     */
+  static public InputStream getInputStream(String name) {
+      /*if(name.startsWith(".")||name.startsWith("/")) {
+          throw new IllegalArgumentException("Path must be relative to org/unicode/cldr/util/data  such as 'file.txt' or 'casing/file.txt', but got '"+name+"'.");
+      }*/
+      return CldrUtility.class.getResourceAsStream("data/" + name);
   }
 
   /**
@@ -1053,22 +1075,12 @@ public static final class Output<T> {
    * @return
    */
   public static String getProperty(String key, String valueIfNull, String valueIfEmpty) {
-    String result = System.getProperty(key);
-    if (result == null) {
-      result = System.getProperty(key.toUpperCase(Locale.ENGLISH));
-    }
-    if (result == null) {
-      result = System.getProperty(key.toLowerCase(Locale.ENGLISH));
-    }
-    if (result == null) {
-      result = System.getenv(key);
-    }
+    String result = CLDRConfig.getInstance().getProperty(key);
     if (result == null) {
       result = valueIfNull;
     } else if (result.length() == 0) {
       result = valueIfEmpty;
     }
-    System.out.println("-D" + key + "=" + result);
     return result;
   }
 

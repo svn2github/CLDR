@@ -41,6 +41,7 @@ import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.Pair;
 import org.unicode.cldr.util.PathDescription;
+import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.PrettyPath;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.StringId;
@@ -81,7 +82,7 @@ public class ConsoleCheckCLDR {
     public static boolean errorsOnly = false;
     static boolean SHOW_LOCALE = true;
     static Zoomed SHOW_EXAMPLES = null;
-    static  PrettyPath prettyPathMaker = new PrettyPath();
+    //static  PrettyPath prettyPathMaker = new PrettyPath();
 
     private static final int
     HELP1 = 0,
@@ -303,7 +304,7 @@ public class ConsoleCheckCLDR {
         locales.addAll(cldrFactory.getAvailable());
 
         List<CheckStatus> result = new ArrayList<CheckStatus>();
-        Set<String> paths = new TreeSet<String>(); // CLDRFile.ldmlComparator);
+        Set<PathHeader> paths = new TreeSet<PathHeader>(); // CLDRFile.ldmlComparator);
         Map m = new TreeMap();
         //double testNumber = 0;
         Map<String,String> options = new HashMap<String,String>();
@@ -319,6 +320,7 @@ public class ConsoleCheckCLDR {
 
         LocaleIDParser localeIDParser = new LocaleIDParser();
         String lastBaseLanguage = "";
+        PathHeader.Factory pathHeaderFactory = PathHeader.getFactory(english);
 
         for (Iterator it = locales.iterator(); it.hasNext();) {
             String localeID = (String) it.next();
@@ -347,7 +349,7 @@ public class ConsoleCheckCLDR {
                 options.put("CheckCoverage.skip","true");
             }
 
-            if (coverageLevel != null) options.put("CoverageLevel.requiredLevel", coverageLevel.toString());
+            //if (coverageLevel != null) options.put("CoverageLevel.requiredLevel", coverageLevel.toString());
             if (organization != null) options.put("CoverageLevel.localeType", organization);
             options.put("phase", phase.toString());
             //options.put("SHOW_TIMES", "true");
@@ -377,6 +379,8 @@ public class ConsoleCheckCLDR {
                 e.printStackTrace(System.out);
                 continue;
             }
+
+            CoverageLevel2 coverageLevelGetter = CoverageLevel2.getInstance(supplementalDataInfo, localeID);
 
             // generate HTML if asked for
             if (ErrorFile.generated_html_directory != null) {
@@ -415,8 +419,20 @@ public class ConsoleCheckCLDR {
             }
             paths.clear();
             //CollectionUtilities.addAll(file.iterator(pathFilter), paths);
-            addPrettyPaths(file, pathFilter, prettyPathMaker, noaliases, false, paths);
-            addPrettyPaths(file, file.getExtraPaths(), pathFilter, prettyPathMaker, noaliases, false, paths);
+            for (String path : file.fullIterable()) {
+                if (pathFilter != null && pathFilter.reset(path).matches()) {
+                    continue;
+                }
+                if (coverageLevel != null) {
+                    Level currentLevel = coverageLevelGetter.getLevel(path);
+                    if (currentLevel.compareTo(coverageLevel) > 0) {
+                        continue;
+                    }
+                }
+                paths.add(pathHeaderFactory.fromPath(path));
+            }
+//            addPrettyPaths(file, pathFilter, prettyPathMaker, noaliases, false, paths);
+//            addPrettyPaths(file, file.getExtraPaths(), pathFilter, prettyPathMaker, noaliases, false, paths);
 
             // also add the English paths
             //CollectionUtilities.addAll(checkCldr.getDisplayInformation().iterator(pathFilter), paths);
@@ -424,8 +440,8 @@ public class ConsoleCheckCLDR {
             if (englishPaths == null) {
                 englishPaths = new HashSet<String>();
                 final CLDRFile displayFile = checkCldr.getDisplayInformation();
-                addPrettyPaths(displayFile, pathFilter, prettyPathMaker, noaliases, true, englishPaths);
-                addPrettyPaths(displayFile, displayFile.getExtraPaths(), pathFilter, prettyPathMaker, noaliases, true, englishPaths);
+                addPrettyPaths(displayFile, pathFilter, pathHeaderFactory, noaliases, true, englishPaths);
+                addPrettyPaths(displayFile, displayFile.getExtraPaths(), pathFilter, pathHeaderFactory, noaliases, true, englishPaths);
                 englishPaths = Collections.unmodifiableSet(englishPaths); // for robustness
             }
             // paths.addAll(englishPaths);
@@ -445,13 +461,15 @@ public class ConsoleCheckCLDR {
             int pathCount = 0;
             Status otherPath = new Status();
 
-            for (Iterator<String> it2 = paths.iterator(); it2.hasNext();) {
+            for (PathHeader pathHeader : paths) {
                 pathCount++;
-                String prettyPath = it2.next();
-                String path = prettyPathMaker.getOriginal(prettyPath);
-                if (path == null) {
-                    prettyPathMaker.getOriginal(prettyPath);
-                }
+                String path = pathHeader.getOriginalPath();
+                String prettyPath = pathHeader.toString().replace('\t','|').replace(' ', '_');
+                //String prettyPath = it2.next();
+//                String path = prettyPathMaker.getOriginal(prettyPath);
+//                if (path == null) {
+//                    prettyPathMaker.getOriginal(prettyPath);
+//                }
 
                 if (!showAll && !file.isWinningPath(path)) {
                     continue;
@@ -595,7 +613,9 @@ public class ConsoleCheckCLDR {
                 //      ldml/dates/timeZoneNames/zone[@type="America/Argentina/San_Juan"]/exemplarCity
                 for (String zone : StandardCodes.make().getGoodAvailableCodes("tzid")) {
                     String path = "//ldml/dates/timeZoneNames/zone[@type=\"" + zone + "\"]/exemplarCity";
-                    String prettyPath = prettyPathMaker.getPrettyPath(path, false);
+                    //String prettyPath = prettyPathMaker.getPrettyPath(path, false);
+                    PathHeader pathHeader = pathHeaderFactory.fromPath(path);
+                    String prettyPath = pathHeader.toString().replace('\t','|').replace(' ', '_');
                     if (pathFilter != null && !pathFilter.reset(path).matches()) continue;
                     String fullPath = file.getStringValue(path);
                     if (fullPath != null) continue;
@@ -622,6 +642,10 @@ public class ConsoleCheckCLDR {
         System.out.println("Total Elapsed: " + totalTimer);
         if (fatalErrors.size() != 0) {
             System.out.println("FATAL ERRORS:" );
+        }
+        long errorCount = totalCount.getCount(ErrorType.error) + fatalErrors.size();
+        if (errorCount != 0) {
+            System.exit((int)errorCount); // cast is safe; we'll never have that many errors
         }
     }
 
@@ -1191,26 +1215,26 @@ public class ConsoleCheckCLDR {
         }
     }
 
-    private static void addPrettyPaths(CLDRFile file, Matcher pathFilter, PrettyPath prettyPathMaker, boolean noaliases, boolean filterDraft, Collection<String> target) {
+    private static void addPrettyPaths(CLDRFile file, Matcher pathFilter, PathHeader.Factory pathHeaderFactory, boolean noaliases, boolean filterDraft, Collection<String> target) {
         //  Status pathStatus = new Status();
         for (Iterator<String> pit = file.iterator(pathFilter); pit.hasNext();) {
             String path = pit.next();
             if (file.isPathExcludedForSurvey(path)) {
                 continue;
             }
-            addPrettyPath(file, prettyPathMaker, noaliases, filterDraft, target, path);
+            addPrettyPath(file, pathHeaderFactory, noaliases, filterDraft, target, path);
         }
     }
 
-    private static void addPrettyPaths(CLDRFile file, Collection<String> paths, Matcher pathFilter, PrettyPath prettyPathMaker, boolean noaliases, boolean filterDraft, Collection<String> target) {
+    private static void addPrettyPaths(CLDRFile file, Collection<String> paths, Matcher pathFilter, PathHeader.Factory pathHeaderFactory, boolean noaliases, boolean filterDraft, Collection<String> target) {
         //  Status pathStatus = new Status();
         for (String path : paths) {
             if (pathFilter != null && !pathFilter.reset(path).matches()) continue;
-            addPrettyPath(file, prettyPathMaker, noaliases, filterDraft, target, path);
+            addPrettyPath(file, pathHeaderFactory, noaliases, filterDraft, target, path);
         }
     }
 
-    private static void addPrettyPath(CLDRFile file, PrettyPath prettyPathMaker, boolean noaliases,
+    private static void addPrettyPath(CLDRFile file, PathHeader.Factory pathHeaderFactory, boolean noaliases,
             boolean filterDraft, Collection<String> target, String path) {
         if (noaliases && XMLSource.Alias.isAliasPath(path)) { // this is just for console testing, the survey tool shouldn't do it.
             return;
@@ -1228,7 +1252,7 @@ public class ConsoleCheckCLDR {
                 }
             }
         }
-        String prettyPath = prettyPathMaker.getPrettyPath(path, true); // get sortable version
+        String prettyPath = pathHeaderFactory.fromPath(path).toString(); //prettyPathMaker.getPrettyPath(path, true); // get sortable version
         target.add(prettyPath);
     }
     public static synchronized void setDisplayInformation(CLDRFile inputDisplayInformation, ExampleGenerator inputExampleGenerator) {
@@ -1253,9 +1277,9 @@ public class ConsoleCheckCLDR {
             String idViewString = "";
             if (idView) {
                 idViewString = "\tID\tDesc.";
-                System.out.println("Locale\tID\tDesc.\t〈Eng.Value〉\t【Eng.Ex.】\t〈Loc.Value〉\t【Loc.Ex】\t❮Error/Warning Msg❯");
+                System.out.println("Locale\tID\tDesc.\t〈Eng.Value〉\t【Eng.Ex.】\t〈Loc.Value〉\t【Loc.Ex】\t⁅error/warning type⁆\t❮Error/Warning Msg❯");
             } else {
-                System.out.println("Locale\tStatus\t▸PPath◂\t〈Eng.Value〉\t【Eng.Ex.】\t〈Loc.Value〉\t«fill-in»\t【Loc.Ex】\t❮Error/Warning Msg❯\tFull Path\tAliasedSource/Path?");
+                System.out.println("Locale\tStatus\t▸PPath◂\t〈Eng.Value〉\t【Eng.Ex.】\t〈Loc.Value〉\t«fill-in»\t【Loc.Ex】\t⁅error/warning type⁆\t❮Error/Warning Msg❯\tFull Path\tAliasedSource/Path?");
             }
         }
     }
@@ -1288,7 +1312,7 @@ public class ConsoleCheckCLDR {
                 englishExample = getExampleGenerator().getExampleHtml(path, englishPathValue, ExampleGenerator.Zoomed.OUT, exampleContext, ExampleType.ENGLISH);
             }
             englishExample = englishExample == null ? "" : englishExample;
-            String cleanPrettyPath = path == null ? null : prettyPathMaker.getOutputForm(prettyPath);
+            String cleanPrettyPath = path == null ? null : prettyPath; // prettyPathMaker.getOutputForm(prettyPath);
             Status status = new Status();
             String sourceLocaleID = path == null ? null : cldrFile.getSourceLocaleID(path, status);
             String fillinValue = path == null ? null : cldrFile.getFillInValue(path);
@@ -1301,7 +1325,7 @@ public class ConsoleCheckCLDR {
                     : (status.pathWhereFound.equals(path) ? "" 
                             : "\t" + status.pathWhereFound);
 
-            String idViewString = idView ? getIdString(cldrFile, path, value) : "";
+            String idViewString = idView ? (path == null ? "\tNO_ID" : getIdString(cldrFile, path, value)) : "";
             System.out.println(
                     getLocaleAndName(localeID)
                     + (idViewString.isEmpty() ? 
@@ -1313,16 +1337,18 @@ public class ConsoleCheckCLDR {
                             + "\t〈" + value + "〉"
                             + "\t«" + fillinValue + "»"
                             + "\t【" + example + "】"
-                            + "\t ❮" + statusString + "❯"
+                            + "\t⁅" + subType + "⁆"
+                            + "\t❮" + statusString + "❯"
                             + "\t" + fullPath
                             + otherSource
                             + otherPath :
                                 idViewString
                                 + "\t〈" + englishPathValue + "〉"
                                 + "\t【" + englishExample + "】"
-                                + "\t〈" + value + "〉"
+                                + "\t" + value + "〉"
                                 + "\t【" + example + "】"
-                                + "\t ❮" + statusString + "❯"
+                                + "\t⁅" + subType + "⁆"
+                                + "\t❮" + statusString + "❯"
                     )
             );
         } else if (ErrorFile.errorFileWriter != null) {

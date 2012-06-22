@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,10 +36,12 @@ import org.unicode.cldr.util.StringId;
  * To update the data file, use GenerateBirth.java.
  */
 public class OutdatedPaths {
+    
+    public static final String OUTDATED_DIR = "births/";
     public static final String OUTDATED_ENGLISH_DATA = "outdatedEnglish.data";
     public static final String OUTDATED_DATA = "outdated.data";
     
-    private static final boolean       DEBUG = CldrUtility.getProperty("debug", false);
+    private static final boolean       DEBUG = CldrUtility.getProperty("OutdatedPathsDebug", false);
     
     private final HashMap<String, Set<Long>> localeToData = new HashMap<String, Set<Long>>();
     private final HashMap<Long,String> pathToPrevious = new HashMap<Long,String>();
@@ -66,7 +69,7 @@ public class OutdatedPaths {
                     break;
                 }
                 if (DEBUG) {
-                    System.out.println("Locale: " + locale);
+                    System.out.println("OutdatedPaths: Locale: " + locale);
                 }
                 final HashSet<Long> data = new HashSet<Long>();
                 int size = dataIn.readInt();
@@ -74,10 +77,10 @@ public class OutdatedPaths {
                     long item = dataIn.readLong();
                     data.add(item);
                     if (DEBUG) {
-                        System.out.println(item);
+                        System.out.println("OutdatedPaths: " + item);
                     }
                 }
-                localeToData.put(locale, data);
+                localeToData.put(locale, Collections.unmodifiableSet(data));
             }
             dataIn.close();
             
@@ -110,7 +113,7 @@ public class OutdatedPaths {
     private DataInputStream openDataInput(String directory, String filename) throws FileNotFoundException {
         String dataFileName = filename;
         InputStream fileInputStream = directory == null 
-        ? OutdatedPaths.class.getResourceAsStream(dataFileName) 
+        ? CldrUtility.getInputStream(OUTDATED_DIR+dataFileName) 
                 : new FileInputStream(new File(directory, dataFileName));
 
         DataInputStream dataIn = new DataInputStream(fileInputStream);

@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.test.CheckExemplars;
 import org.unicode.cldr.test.CoverageLevel2;
+import org.unicode.cldr.test.DisplayAndInputProcessor;
 import org.unicode.cldr.test.QuickCheck;
 import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.Builder;
@@ -39,10 +40,11 @@ import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathDescription;
+import org.unicode.cldr.util.PatternPlaceholders;
+import org.unicode.cldr.util.PatternPlaceholders.PlaceholderInfo;
 import org.unicode.cldr.util.PrettyPath;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.RegexLookup.Finder;
-import org.unicode.cldr.util.RegexLookup.Merger;
 import org.unicode.cldr.util.RegexUtilities;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.StringId;
@@ -90,7 +92,7 @@ public class GenerateXMB {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         DATE = dateFormat.format(new Date());
     }
-    static final String stock = "en|ar|de|es|fr|it|ja|ko|nl|pl|ru|th|tr|pt|zh|zh_Hant|bg|ca|cs|da|el|fa|fi|fil|hi|hr|hu|id|lt|lv|ro|sk|sl|sr|sv|uk|vi|he|nb|et|ms|am|bn|gu|is|kn|ml|mr|sw|ta|te|ur|eu|gl|af|zu|en_GB|es_419|pt_PT|fr_CA|zh_HK";
+    static final String stock = "en|ar|de|es|fr|it|ja|ko|nl|pl|ru|th|tr|pt|zh|zh_Hant|bg|ca|cs|da|el|fa|fi|fil|hi|hr|hu|id|lt|lv|ro|sk|sl|sr|sv|uk|vi|he|nb|et|ms|am|bn|gu|is|kn|ml|mr|sw|ta|te|ur|eu|gl|af|zu|en_GB|es_419|pt_PT|fr_CA|zh_Hant_HK";
     private static final HashSet<String> REGION_LOCALES = new HashSet<String>(Arrays.asList(stock.split("\\|")));
 
     final static Options myOptions = new Options("In normal usage, you set the -t option for the target.")
@@ -103,6 +105,7 @@ public class GenerateXMB {
     .add("zone", null, "Show metazoneinfo and exit")
     .add("wsb", ".*", "Show metazoneinfo and exit")
     .add("kompare", ".*", CldrUtility.BASE_DIRECTORY + "../DATA/cldr/common/google-bulk-imports", "Compare data with directory; generate files in -target.")
+    .add("project_name", 'n', ".*", "CLDR", "The ID of the project.")
     ;
 
     static final SupplementalDataInfo supplementalDataInfo = SupplementalDataInfo.getInstance();
@@ -122,6 +125,14 @@ public class GenerateXMB {
     private static final HashSet<String> SKIP_LOCALES = new HashSet<String>(Arrays.asList(new String[]{"en", "root"}));
 
     public static String DTD_VERSION;
+    
+    private static String projectId;
+
+    enum PlaceholderType {
+        BRACES,         // e.g. {NAME}
+        XML,            // e.g. <ph name='NAME' />
+        XML_EXAMPLE     // e.g. <ph name='NAME' /><ex>EXAMPLE</ex>{0}</ph>
+    };
 
     public static void main(String[] args) throws Exception {
         myOptions.parse(args, true);
@@ -162,6 +173,9 @@ public class GenerateXMB {
             displayWsb(myOptions.get("wsb").getValue(), englishInfo);
             return;
         }
+        
+        projectId = myOptions.get("project_name").getValue();
+
         writeFile(targetDir, "en", englishInfo, english, true, false);
         writeFile(targetDir + "/filtered/", "en", englishInfo, english, true, true);
 
@@ -386,6 +400,7 @@ public class GenerateXMB {
 
 
     static final Pattern COUNT_OR_ALT_ATTRIBUTE = Pattern.compile("\\[@(count)=\"([^\"]*)\"]");
+    static final Pattern PLURAL_XPATH = Pattern.compile("//ldml/(units/unit|numbers/(decimal|currency)Formats).*\\[@count=\"\\w+\"].*");
     static final Pattern SKIP_EXEMPLAR_TEST = Pattern.compile(
             "/(currencySpacing"
             +"|hourFormat"
@@ -421,6 +436,7 @@ public class GenerateXMB {
         Matcher countMatcher = COUNT_OR_ALT_ATTRIBUTE.matcher("");
         int lineCount = 0;
         int wordCount = 0;
+        int messageCount = 0;
 
         StringWriter buffer = new StringWriter();
         PrintWriter out1 = new PrintWriter(buffer);
@@ -429,7 +445,7 @@ public class GenerateXMB {
         UnicodeSet exemplars = getExemplars(cldrFile);
 
         for (PathInfo pathInfo : englishInfo) {
-            if (false && pathInfo.id == 46139888945574604L) {
+            if (false && pathInfo.id == 46139888945574604L) { // for debugging
                 System.out.println("?");
             }
             String path = pathInfo.getPath();
@@ -439,6 +455,15 @@ public class GenerateXMB {
             } else {
                 value = cldrFile.getStringValue(path);
             }
+            // Remove quotes from number formats (we'll put them back in during
+            // post-processing).
+            // TODO: we should actually call daip.processForDisplay() here, but
+            // it does more stuff than we need it to do, e.g. stripping the
+            // brackets from exemplarCharacters.
+            if (DisplayAndInputProcessor.NUMBER_FORMAT_XPATH.matcher(path).matches()) {
+                value = value.replace("'", "");
+            }
+            
             // skip root if not English
             if (!isEnglish && value != null && !keepFromRoot.reset(path).find()) { // note that mismatched script will be checked later
                 String locale = cldrFile.getSourceLocaleID(path, null);
@@ -451,8 +476,8 @@ public class GenerateXMB {
                     continue;
                 }
             }
-            boolean isUnits = path.startsWith("//ldml/units/unit");
-            if (filter && !isUnits) {
+            boolean hasPlurals = PLURAL_XPATH.matcher(path).matches();
+            if (filter && !hasPlurals) {
                 String starred = pathInfo.getStarredPath();
                 if (seenStarred.contains(starred)) {
                     continue;
@@ -493,7 +518,7 @@ public class GenerateXMB {
             }
             //String fullPath = cldrFile.getStringValue(path);
             // //ldml/units/unit[@type="day"]/unitPattern[@count="one"]
-            if (isUnits) {
+            if (hasPlurals) {
                 countMatcher.reset(path).find();
                 String countLessPath = countMatcher.replaceAll("");
                 countItems.put(countLessPath, Row.of(pathInfo, value));
@@ -503,14 +528,16 @@ public class GenerateXMB {
                 reasonsToPaths.put("changed-english", path);
             } else {
                 writePathInfo(out1, pathInfo, value, isEnglish);
+                messageCount++;
             }
             if (isEnglish) {
-                writeJavaInfo(out3, pathInfo, value);
+                writeJavaInfo(out3, pathInfo.getStringId(), pathInfo.getPath(), value);
             }
             wordCount += pathInfo.wordCount;
             ++lineCount;
         }
-        R2<Integer, Integer> lineWordCount = writeCountPathInfo(out1, cldrFile.getLocaleID(), countItems, isEnglish, filter);
+        R2<Integer, Integer> lineWordCount = writeCountPathInfo(out1, out3, cldrFile.getLocaleID(), countItems, isEnglish, filter);
+        messageCount += lineWordCount.get0();
         lineCount += lineWordCount.get0();
         wordCount += lineWordCount.get1();
         if (!filter && countItems.size() != lineWordCount.get0().intValue()) {
@@ -526,7 +553,7 @@ public class GenerateXMB {
         if (isEnglish) {
             FileUtilities.appendFile(GenerateXMB.class, "xmb-dtd.xml", out);
             out.println("<!-- " + localeName + " -->");
-            out.println("<messagebundle class='CLDR'> <!-- version: " + DTD_VERSION + ", date: " + DATE + " -->");
+            out.println("<messagebundle class='" + projectId + "'> <!-- version: " + DTD_VERSION + ", date: " + DATE + " -->");
             out.println(buffer.toString());
             out.println("</messagebundle>");
 
@@ -552,7 +579,7 @@ public class GenerateXMB {
             FileUtilities.appendFile(GenerateXMB.class, "wsb-dtd.xml", out);
             out.println("<!-- " + localeName + " -->");
             out.println("<worldserverbundles lazarus_id='dummy' date='" + DATE + "'> <!-- version: " + DTD_VERSION + " -->");
-            out.println("  <worldserverbundle project_id='CLDR' message_count='" + lineCount + "'>");
+            out.println("  <worldserverbundle project_id='" + projectId + "' message_count='" + messageCount + "'>");
             out.println(buffer.toString());
             out.println("  </worldserverbundle>");
             out.println("</worldserverbundles>");
@@ -567,8 +594,8 @@ public class GenerateXMB {
         }
     }
 
-    private static void writeJavaInfo(PrintWriter out3, PathInfo pathInfo, String value) {
-        out3.println("              {\"" + pathInfo.getId() + "\",\"" + pathInfo.path.replace("\"","\\\"") + "\",\"" + value.replace("\\","\\\\").replace("\"","\\\"") + "\"},");
+    private static void writeJavaInfo(PrintWriter out3, String id, String path, String value) {
+        out3.println("              {\"" + id + "\",\"" + path.replace("\"","\\\"") + "\",\"" + value.replace("\\","\\\\").replace("\"","\\\"") + "\"},");
     }
 
 
@@ -588,8 +615,9 @@ public class GenerateXMB {
     }
 
     static final Pattern COUNT_ATTRIBUTE = Pattern.compile("\\[@count=\"([^\"]*)\"]");
-
-    private static Row.R2<Integer, Integer> writeCountPathInfo(PrintWriter out, String locale, Relation<String, R2<PathInfo, String>> countItems, boolean isEnglish, boolean filter) {
+    static final Pattern PLURAL_NUMBER = Pattern.compile("(decimal|number)Format");
+    
+    private static Row.R2<Integer, Integer> writeCountPathInfo(PrintWriter out, PrintWriter out3, String locale, Relation<String, R2<PathInfo, String>> countItems, boolean isEnglish, boolean filter) {
         Matcher m = COUNT_ATTRIBUTE.matcher("");
         int wordCount = 0;
         PluralInfo pluralInfo = supplementalDataInfo.getPlurals(locale);
@@ -599,6 +627,7 @@ public class GenerateXMB {
             String countLessPath = entry.getKey();
             Map<String,String> fullValues = new TreeMap<String,String>();
             PathInfo pathInfo = null;
+            String value = null;
             for (R2<PathInfo, String> entry2 : entry.getValue()) {
                 PathInfo pathInfoN = entry2.get0();
                 m.reset(pathInfoN.getPath()).find();
@@ -606,7 +635,7 @@ public class GenerateXMB {
                 if (count.equals("other")) {
                     pathInfo = pathInfoN;
                 }
-                String value = entry2.get1();
+                value = entry2.get1();
                 fullValues.put(count, value);
             }
             if (pathInfo == null) {
@@ -617,8 +646,7 @@ public class GenerateXMB {
                 System.out.println(locale + "\tMust have 2 count values: " + entry.getKey());
                 continue;
             }
-            String var = pathInfo.getFirstVariable();
-            String fullPlurals = showPlurals(var, fullValues, locale, pluralInfo, isEnglish, errorSet);
+            String fullPlurals = showPlurals(fullValues, locale, pathInfo, pluralInfo, isEnglish, errorSet);
             if (fullPlurals == null) {
                 System.out.println(locale + "\tCan't format plurals for: " + entry.getKey() + "\t" + errorSet);
                 errors++;
@@ -626,13 +654,13 @@ public class GenerateXMB {
             }
 
             out.println();
-            if (isEnglish) {
-                out.println("\t<!--\t" 
-                        //+ prettyPath.getPrettyPath(pathInfo.getPath(), false) + " ;\t" 
-                        + countLessPath + "\t-->");
-            } 
-            out.println("\t<msg id='" + pathInfo.getStringId() + "' desc='" + pathInfo.description + "'");
-            out.println("\t >" + fullPlurals + "</msg>");
+            out.println("    <!--    " 
+                    //+ prettyPath.getPrettyPath(pathInfo.getPath(), false) + " ;    " 
+                    + countLessPath + "    -->");
+            out.println("    <msg id='" + pathInfo.getStringId() + "' desc='" + pathInfo.description + "'");
+            out.println("     >" + fullPlurals + "</msg>");
+            // Use the last plural value in the loop because we only need it for example purposes.
+            writeJavaInfo(out3, pathInfo.getStringId(), countLessPath, value);
             //            if (!isEnglish || pathInfo.placeholderReplacements != null) {
             //                out.println("\t<!-- English original:\t" + pathInfo.getEnglishValue() + "\t-->");
             //            }
@@ -649,7 +677,9 @@ public class GenerateXMB {
     static final String[] PLURAL_KEYS = {"=0", "=1", "zero", "one", "two", "few", "many", "other"};
     static final String[] EXTRA_PLURAL_KEYS = {"0", "1", "zero", "one", "two", "few", "many"};
 
-    private static String showPlurals(String var, Map<String,String> values, String locale, PluralInfo pluralInfo, boolean isEnglish, Set<String> errorSet) {
+    private static String showPlurals(Map<String,String> values,
+        String locale, PathInfo pathInfo, PluralInfo pluralInfo,
+        boolean isEnglish, Set<String> errorSet) {
         errorSet.clear();
         /*
          * Desired output for English XMB
@@ -693,6 +723,15 @@ public class GenerateXMB {
 <ph name='[END_PLURAL]'/>
 </msg>
          */
+        Matcher matcher = PLURAL_NUMBER.matcher(pathInfo.getPath());
+        String var = null;
+        if (matcher.find()) {
+            // Plural doesn't use placeholders so create a label.
+            var = matcher.group(1).toUpperCase() + "_NUMBER";
+        } else {
+            var = pathInfo.getFirstVariable();
+        }
+
         StringBuilder result = new StringBuilder();
         if (isEnglish) {
             result.append('{')
@@ -726,6 +765,8 @@ public class GenerateXMB {
                 }
             }
             String newValue = MessageFormat.format(MessageFormat.autoQuoteApostrophe(value), new Object[] {key.startsWith("=") ? key.substring(1,2) : "#"});
+            PlaceholderType type = isEnglish ? PlaceholderType.BRACES : PlaceholderType.XML;
+            newValue = pathInfo.transformValue(newValue, type);
             if (isEnglish) {
                 result.append("\n            ").append(key).append(" {").append(newValue).append('}');
             } else {
@@ -742,14 +783,14 @@ public class GenerateXMB {
     }
 
     private static void writePathInfo(PrintWriter out, PathInfo pathInfo, String value, boolean isEnglish) {
-        String path = pathInfo.getPath();
         out.println();
         out.println("    <!--    " + pathInfo.getPath() + "    -->");
         out.println("    <msg id='" + pathInfo.getStringId() + "' desc='" + pathInfo.description + "'");
-        String transformValue = pathInfo.transformValue(path, value, isEnglish);
+        PlaceholderType type = isEnglish ? PlaceholderType.XML_EXAMPLE : PlaceholderType.XML;
+        String transformValue = pathInfo.transformValue(value, type);
         out.println("     >" + transformValue + "</msg>");
         value = TransliteratorUtilities.toHTML.transform(value);
-        if (!value.equals(transformValue) && (!isEnglish || pathInfo.placeholderReplacements != null)) {
+        if (!value.equals(transformValue) && (!isEnglish || pathInfo.placeholders != null)) {
             out.println("    <!-- English original:    " + value + "    -->");
         }
         out.flush();
@@ -770,22 +811,22 @@ public class GenerateXMB {
 
 
     static class PathInfo implements Comparable<PathInfo>{
+        private static final Pattern PLACEHOLDER = Pattern.compile("\\{(\\d)}");
+
         private final String path;
         private final Long id;
         private final String stringId;
         private final String englishValue;
         private final boolean changedEnglish;
-        private final Map<String, String> placeholderReplacements;
-        private final Map<String, String> placeholderReplacementsToOriginal;
+        private final Map<String, PlaceholderInfo> placeholders;
         private final String description;
         private final String starredPath;
         private final int wordCount;
 
-        static final BreakIterator bi = BreakIterator.getWordInstance(ULocale.ENGLISH);
-        static final UnicodeSet ALPHABETIC = new UnicodeSet("[:Alphabetic:]");
-        static final Matcher phMatcher = Pattern.compile("<ph name='([^']*)'>").matcher("");
+        private static final BreakIterator bi = BreakIterator.getWordInstance(ULocale.ENGLISH);
+        private static final UnicodeSet ALPHABETIC = new UnicodeSet("[:Alphabetic:]");
 
-        public PathInfo(String path, String englishValue, boolean changedEnglish, Map<String, String> placeholderReplacements, 
+        public PathInfo(String path, String englishValue, boolean changedEnglish, Map<String, PlaceholderInfo> placeholders, 
                 String description, String starredPath) {
             if (DEBUG_PATH != null && path.contains(DEBUG_PATH)) {
                 int x = 0;
@@ -799,21 +840,7 @@ public class GenerateXMB {
             stringId = String.valueOf(id);
             this.englishValue = englishValue;
             this.changedEnglish = changedEnglish;
-            this.placeholderReplacements = placeholderReplacements == null ? null 
-                    : Collections.unmodifiableMap(placeholderReplacements);
-            Map<String, String> temp = new HashMap();
-            if (placeholderReplacements != null) {
-                for (Entry<String, String> entry : placeholderReplacements.entrySet()) {
-                    String value = entry.getValue();
-                    if (!phMatcher.reset(value).find()) {
-                        // throw new IllegalAnnotationException("Replacement must contain ph: " + value);
-                        System.out.println("Replacement must contain ph: " + value);
-                    } else {
-                        temp.put(phMatcher.group(1), entry.getKey());
-                    }
-                }
-            }
-            placeholderReplacementsToOriginal = Collections.unmodifiableMap(temp);
+            this.placeholders = placeholders;
             this.description = description == null ? null : description.intern();
             this.starredPath = starredPath;
             // count words
@@ -831,20 +858,13 @@ public class GenerateXMB {
             wordCount = tempCount == 0 ? 1 : tempCount;
         }
 
-        static final Pattern VARIABLE_NAME = Pattern.compile("name='([^']*)'");
         public String getFirstVariable() {
             //... name='FIRST_PART_OF_TEXT' ...
-            String placeHolder;
-            try {
-                placeHolder = placeholderReplacements.get("{0}");
-            } catch (Exception e) {
+            PlaceholderInfo info = placeholders.get("{0}");
+            if (info == null) {
                 throw new IllegalArgumentException("Missing {0} for " + this);
             }
-            Matcher m = VARIABLE_NAME.matcher(placeHolder);
-            if (!m.find()) {
-                throw new IllegalArgumentException("Missing name in " + placeHolder);
-            }
-            return m.group(1);
+            return info.name;
         }
 
         public String getPath() {
@@ -871,50 +891,65 @@ public class GenerateXMB {
             return starredPath;
         }
 
-        public Map<String, String> getPlaceholderReplacements() {
-            return placeholderReplacements;
+        public Map<String, String> getPlaceholderReplacementsToOriginal() {
+            if (placeholders == null) return null;
+            Map<String, String> placeholderOutput = new LinkedHashMap<String, String>();
+            for (String id : placeholders.keySet()) {
+                placeholderOutput.put(id, getPlaceholderWithExample(id));
+            }
+            return placeholderOutput;
         }
 
-        public Map<String, String> getPlaceholderReplacementsToOriginal() {
-            return placeholderReplacementsToOriginal;
+        private String getPlaceholderWithExample(String placeholder) {
+            PlaceholderInfo info = placeholders.get(placeholder);
+            // <ph name='x'><ex>xxx</ex>yyy</ph>
+            return "<ph name='" + info.name + "'><ex>" + info.example + "</ex>" + placeholder + "</ph>";
         }
+
 
         //static DateTimePatternGenerator.FormatParser formatParser = new DateTimePatternGenerator.FormatParser();
 
-        private String transformValue(String path, String value, boolean isEnglish) {
-            String result = TransliteratorUtilities.toHTML.transform(value);
-            if (placeholderReplacements == null) {
-                // skip
-            } else if (result.contains("{0}")) {
-                // TODO: fix for quoting
-                result = replacePlaceholders(result, placeholderReplacements, isEnglish);
-                //            } else {
-                //                formatParser.set(value);
-                //                StringBuilder buffer = new StringBuilder();
-                //                for (Object item : formatParser.getItems()) {
-                //                    if (item instanceof DateTimePatternGenerator.VariableField) {
-                //                        String variable = item.toString();
-                //                        String replacement = placeholderReplacements.get(variable);
-                //                        if (replacement == null) {
-                //                            throw new IllegalArgumentException("Missing placeholder for " + variable);
-                //                        }
-                //                        buffer.append(replacement);
-                //                    } else {
-                //                        buffer.append(item);
-                //                    }
-                //                }
-                //                result = buffer.toString();
+        private String transformValue(String value, PlaceholderType type) {
+            value = TransliteratorUtilities.toHTML.transform(value);
+            if (placeholders == null) return value;
+
+            String placeholderFormat = "";
+            switch (type) {
+            case BRACES:
+                placeholderFormat = "'{'{0}'}'";
+                break;
+            case XML:
+                placeholderFormat = "<ph name=''[{0}]'' />";
+                break;
+            case XML_EXAMPLE:
+                placeholderFormat = "<ph name=''{0}''><ex>{1}</ex>'{'{2}'}'</ph>";
+                break;
             }
-            return result;
+            Matcher matcher = PLACEHOLDER.matcher(value);
+            StringBuffer buffer = new StringBuffer();
+            int start = 0;
+            while (matcher.find()) {
+                buffer.append(value.substring(start, matcher.start()));
+                PlaceholderInfo info = placeholders.get(matcher.group());
+                buffer.append(MessageFormat.format(placeholderFormat, new Object[]{ info.name, info.example, matcher.group(1)}));
+                start = matcher.end();
+            }
+            buffer.append(value.substring(start));
+            return buffer.toString();
         }
 
-        private String replacePlaceholders(String result, Map<String, String> argumentsFromPath, boolean isEnglish) {
-            for (Entry<String, String> entry : argumentsFromPath.entrySet()) {
-                String replacement = entry.getValue();
-                String value = (isEnglish ? replacement : replacement.replaceAll("<ex>.*</ph>", "</ph>"));
-                result = result.replace(entry.getKey(), value);
+        private String replacePlaceholders(String value, String placeholderStart, String placeholderEnd) {
+            Matcher matcher = PLACEHOLDER.matcher(value);
+            StringBuffer buffer = new StringBuffer();
+            int start = 0;
+            while (matcher.find()) {
+                buffer.append(value.substring(start, matcher.start()));
+                String name = placeholders.get(matcher.group()).name;
+                buffer.append(placeholderStart).append(name).append(placeholderEnd);
+                start = matcher.end();
             }
-            return result;
+            buffer.append(value.substring(start));
+            return buffer.toString();
         }
 
         @Override
@@ -926,7 +961,7 @@ public class GenerateXMB {
             return path;
         }
     }
-
+    
     static class EnglishInfo implements Iterable<PathInfo> {
 
         final Map<String, PathInfo> pathToPathInfo = new TreeMap();
@@ -948,20 +983,16 @@ public class GenerateXMB {
         EnglishInfo(String targetDir, CLDRFile english, CLDRFile root) throws Exception {
 
             Map<String,String> oldPathValueMap = ReadXMB.load(CldrUtility.BASE_DIRECTORY + 
-                    "/tools/java/org/unicode/cldr/unittest/data/xmb/", 
+                    "/cldr-tools/org/unicode/cldr/unittest/data/xmb/", 
             "en.xml");
 
-
+            PatternPlaceholders patternPlaceholders = PatternPlaceholders.getInstance();
+            
             this.english = english;
             // we don't want the fully resolved paths, but we do want the direct inheritance from root.
             Status status = new Status();
             Map<String, List<Set<String>>> starredPaths = new TreeMap<String,List<Set<String>>>();
 
-            Merger<Map<String, String>> merger = new MyMerger();
-            RegexLookup<Map<String, String>> patternPlaceholders 
-            = RegexLookup.of(new MapTransform())
-            .setValueMerger(merger)
-            .loadFromFile(GenerateXMB.class, "xmbPlaceholders.txt");
 
             HashSet<String> metazonePaths = new HashSet<String>();
             //^//ldml/dates/timeZoneNames/metazone\[@type="([^"]*)"]
@@ -1071,13 +1102,13 @@ public class GenerateXMB {
                 if (!descriptionStatus.isEmpty()) {
                     addSkipReasons(reasonsToPaths, descriptionStatus.toString(), level, path, value);
                     description = null;
+                } else {
+                    description = "[ICU CLDR] " + description;
                 }
-
-                Map<String, String> placeholders = patternPlaceholders.get(path);
 
                 String oldValue = oldPathValueMap.get(path);
                 boolean changedEnglish = !value.equals(oldValue);
-                PathInfo row = new PathInfo(path, value, changedEnglish, placeholders, description, pathDescription.getStarredPathOutput());
+                PathInfo row = new PathInfo(path, value, changedEnglish, patternPlaceholders.get(path), description, pathDescription.getStarredPathOutput());
 
                 if (description == PathDescription.MISSING_DESCRIPTION) {
                     missingDescriptions.add(pathDescription.getStarredPathOutput());
@@ -1126,58 +1157,6 @@ public class GenerateXMB {
 
     static void addSkipReasons(Relation<String, String> reasonsToPaths, String descriptionStatus, Level level, String path, String value) {
         reasonsToPaths.put(descriptionStatus + "\t" + level, path + "\t" + value);            
-    }
-
-    static final class MapTransform implements Transform<String, Map<String,String>> {
-
-        @Override
-        public Map<String, String> transform(String source) {
-            Map<String, String> result = new LinkedHashMap<String, String>();
-            try {
-                String[] parts = source.split(";\\s+");
-                for (String part : parts) {
-                    int equalsPos = part.indexOf('=');
-                    String id = part.substring(0, equalsPos).trim();
-                    String name = part.substring(equalsPos+1).trim();
-                    int spacePos = name.indexOf(' ');
-                    String example;
-                    if (spacePos >= 0) {
-                        example = name.substring(spacePos+1).trim();
-                        name = name.substring(0,spacePos).trim();
-                    } else {
-                        example = "";
-                    }
-
-                    String old = result.get(id);
-                    if (old != null) {
-                        throw new IllegalArgumentException("Key occurs twice: " + id + "=" + old + "!=" + name);
-                    }
-                    // <ph name='x'><ex>xxx</ex>yyy</ph>
-                    result.put(id, "<ph name='" + name + "'><ex>" + example+ "</ex>" + id +  "</ph>");
-                }
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to parse " + source, e);
-            }
-            for (Entry<String, String> entry : result.entrySet()) {
-                if (DEBUG) System.out.println(entry);
-            }
-            return result;
-        }
-
-    }
-
-    private static final class MyMerger implements Merger<Map<String, String>> {
-        @Override
-        public Map<String, String> merge(Map<String, String> a, Map<String, String> into) {
-            // check unique
-            for (String key : a.keySet()) {
-                if (into.containsKey(key)) {
-                    throw new IllegalArgumentException("Duplicate placeholder: " + key);
-                }
-            }
-            into.putAll(a);
-            return into;
-        }
     }
 
     static final long START_TIME = new Date(2000-1900, 1-1, 0).getTime();

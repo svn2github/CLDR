@@ -21,6 +21,47 @@ public class TestDisplayAndInputProcessor extends TestFmwk{
         showCldrFile(info.getCldrFactory().make("wae", true));
     }
 
+    public void TestTasawaq() {
+        DisplayAndInputProcessor daip = new DisplayAndInputProcessor(info.getCldrFactory().make("twq", false));
+        // time for data driven test
+        final String input = "[Z \u017E ]";
+        final String expect = "[z \u017E]"; // lower case
+        String value = daip.processInput(
+            "//ldml/characters/exemplarCharacters",
+            input, null);
+        if (!value.equals(expect)) {
+            errln("Tasawaq incorrectly normalized with output: '" + value+"', expected '"+expect+"'");
+        }
+    }
+
+    public void TestMalayalam() {
+        DisplayAndInputProcessor daip = new DisplayAndInputProcessor(info.getCldrFactory().make("ml", false));
+        String value = daip.processInput(
+            "//ldml/localeDisplayNames/languages/language[@type=\"alg\"]",
+            "അല്‍ഗോണ്‍ക്യന്‍ ഭാഷ", null);
+        if (!value.equals("\u0D05\u0D7D\u0D17\u0D4B\u0D7A\u0D15\u0D4D\u0D2F\u0D7B \u0D2D\u0D3E\u0D37")) {
+            errln("Malayalam incorrectly normalized with output: " + value);
+        }
+    }
+
+    public void TestNumberFormatQuotes() {
+        DisplayAndInputProcessor daip = new DisplayAndInputProcessor(info.getEnglish());
+        String xpath = "//ldml/numbers/decimalFormats[@numberSystem=\"latn\"]/decimalFormatLength[@type=\"long\"]/decimalFormat[@type=\"standard\"]/pattern[@type=\"1000\"] ";
+        String value = daip.processInput(xpath, "0.00K.", null);
+        assertEquals("Period not correctly quoted", "0.00K'.'", value);
+        value = daip.processInput(xpath, "0.00K'.'", null);
+        assertEquals("Quotes should not be double-quoted", "0.00K'.'", value);
+        value = daip.processForDisplay(xpath, "0.0 K'.'");
+        assertEquals("There should be no quotes left", "0.0 K.", value);
+    }
+
+    public void TestPatternCanonicalization() {
+        DisplayAndInputProcessor daip = new DisplayAndInputProcessor(info.getEnglish());
+        String xpath = "//ldml/numbers/decimalFormats[@numberSystem=\"latn\"]/decimalFormatLength/decimalFormat[@type=\"standard\"]/pattern[@type=\"standard\"]";
+        String value = daip.processInput(xpath, "#,###,##0.###", null);
+        assertEquals("Format not correctly canonicalized", "#,##0.###", value);
+    }
+
     private void showCldrFile(final CLDRFile cldrFile) {
         DisplayAndInputProcessor daip = new DisplayAndInputProcessor(cldrFile);
         Exception[] internalException = new Exception[1];
