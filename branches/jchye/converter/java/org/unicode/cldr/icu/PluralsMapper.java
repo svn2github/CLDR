@@ -24,8 +24,8 @@ public class PluralsMapper {
      * work well, since there would only be one regex.
      * @param supplementalDataInfo
      */
-    public PluralsMapper(SupplementalDataInfo supplementalDataInfo)  {
-        this.supplementalDataInfo = supplementalDataInfo;
+    public PluralsMapper(String supplementalDir)  {
+        supplementalDataInfo = SupplementalDataInfo.getInstance(supplementalDir);
     }
     
     private static class LocaleInfo {

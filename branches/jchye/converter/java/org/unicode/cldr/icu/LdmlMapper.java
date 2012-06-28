@@ -269,16 +269,28 @@ public abstract class LdmlMapper {
      */
     protected class CldrValue {
         private String xpath;
-        private String value;
+        private List<String> values;
         private boolean isArray;
 
-        public CldrValue(String xpath, String value, boolean isArray) {
+        public CldrValue(String xpath, List<String> values, boolean isArray) {
             this.xpath = xpath;
-            this.value = value;
+            this.values = values;
             this.isArray = isArray;
         }
 
-        public String getValue() { return value; }
+        public CldrValue(String xpath, String value, boolean isArray) {
+            this.xpath = xpath;
+            this.values = new ArrayList<String>();
+            values.add(value);
+            this.isArray = isArray;
+        }
+
+        @Override
+        public String toString() {
+            return xpath + " " + values;
+        }
+
+        public List<String> getValues() { return values; }
         
         public String getXpath() { return xpath; }
 
@@ -330,12 +342,39 @@ public abstract class LdmlMapper {
     // One FallbackInfo object for every type of rbPath.
     protected class FallbackInfo implements Iterable<R3<Finder, String, List<String>>> {
         private List<R3<Finder, String, List<String>>> fallbackItems;
+        private List<Integer> argsUsed; // list of args used by the rb pattern
+        private int numXpathArgs; // Number of args in the xpath
 
-        public FallbackInfo(Finder xpathMatcher, String fallbackXpath, String fallbackValue) {
+        public FallbackInfo(List<Integer> argsUsed, int numXpathArgs) {
             fallbackItems = new ArrayList<R3<Finder, String, List<String>>>();
+            this.argsUsed = argsUsed;
+            this.numXpathArgs = numXpathArgs;
+        }
+        
+        public void addItem(Finder xpathMatcher, String fallbackXpath, String[] fallbackValues) {
             List<String> values = new ArrayList<String>();
-            values.add(fallbackValue);
+            for (String fallbackValue : fallbackValues) {
+                values.add(fallbackValue);
+            }
             fallbackItems.add(new R3<Finder, String, List<String>>(xpathMatcher, fallbackXpath, values));
+        }
+
+        /**
+         * Takes in arguments obtained from a RegexLookup on a RB path and fleshes
+         * it out for the corresponding xpath.
+         * @param arguments
+         * @return
+         */
+        public String[] getArgumentsForXpath(String[] arguments) {
+            String[] output = new String[numXpathArgs + 1];
+            output[0] = arguments[0];
+            for (int i = 0; i < argsUsed.size(); i++) {
+                output[argsUsed.get(i)] = arguments[i + 1];
+            }
+            for (int i = 0; i < output.length; i++) {
+                if (output[i] == null) output[i] = "x"; // dummy value
+            }
+            return output;
         }
 
         private R3<Finder, String, List<String>> getItem(Finder finder) {
@@ -348,11 +387,15 @@ public abstract class LdmlMapper {
         public FallbackInfo merge(FallbackInfo newInfo) {
             for (R3<Finder, String, List<String>> newItem : newInfo.fallbackItems) {
                 R3<Finder, String, List<String>> item = getItem(newItem.get0());
-                if (item == null) fallbackItems.add(newItem);
+                if (item == null) {
+                    fallbackItems.add(newItem);
+                } else {
+                    item.get2().addAll(newItem.get2());
+                }
             }
             return this;
         }
-        
+
         @Override
         public Iterator<R3<Finder, String, List<String>>> iterator() {
             return fallbackItems.iterator();
@@ -438,7 +481,7 @@ public abstract class LdmlMapper {
         String[] content = line.split(SEMI.toString());
         // xpath ; rbPath ; value
         // Create a reverse lookup for rbPaths to xpaths.
-        Finder xpathMatcher = new RegexFinder(content[0].replace("[@", "\\[@"));
+        Finder xpathMatcher = new FullMatcher(content[0].replace("[@", "\\[@"));
         String rbPath = content[1];
         
         // Find arguments in rbPath.
@@ -522,14 +565,18 @@ public abstract class LdmlMapper {
         Matcher matcher = RegexResult.ARGUMENT.matcher(rbPath);
         StringBuffer rbPattern = new StringBuffer();
         int lastIndex = 0;
+        List<Integer> argsUsed = new ArrayList<Integer>();
         while (matcher.find()) {
             rbPattern.append(rbPath.substring(lastIndex, matcher.start()));
-            argNum = Integer.parseInt(matcher.group(1)) - 1;
-            rbPattern.append(args.get(argNum));
+            argNum = Integer.parseInt(matcher.group(1));
+            rbPattern.append(args.get(argNum - 1));
+            argsUsed.add(argNum);
             lastIndex = matcher.end();
         }
         rbPattern.append(rbPath.substring(lastIndex));
-        fallbackConverter.add(rbPattern.toString(), new FallbackInfo(xpathMatcher, fallbackXpath, fallbackValue));
+        FallbackInfo info = new FallbackInfo(argsUsed, args.size());
+        info.addItem(xpathMatcher, fallbackXpath, fallbackValue.split("\\s"));
+        fallbackConverter.add(rbPattern.toString(), info);
     }
 
     /**
@@ -555,17 +602,18 @@ public abstract class LdmlMapper {
                 }
                 if (fallbackNeeded) {
                     // The fallback xpath is just for sorting purposes.
-                    String fallbackXpath = processString(info.get1(), arguments.value);
+                    String fallbackXpath = processString(info.get1(), fallbackInfo.getArgumentsForXpath(arguments.value));
                     // Sanity check.
                     if (fallbackXpath.contains("$")) {
                         System.err.println("Warning: " + fallbackXpath + " for " + rbPath +
                             " still contains unreplaced arguments.");
                     }
                     List<String> fallbackValues = info.get2();
+                    List<String> valueList = new ArrayList<String>();
                     for (String value : fallbackValues) {
-                        value = processString(value, arguments.value);
-                        values.add(new CldrValue(fallbackXpath, value, false));
+                        valueList.add(processString(value, arguments.value));
                     }
+                    values.add(new CldrValue(fallbackXpath, valueList, false));
                 }
             }
         }

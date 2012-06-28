@@ -32,6 +32,8 @@ import com.ibm.icu.dev.test.util.CollectionUtilities;
  * @author jchye
  */
 public class LdmlLocaleMapper extends LdmlMapper {
+    public static final String ALIAS_PATH = "/\"%%ALIAS\"";
+
     /**
      * Map for converting enums to their integer values.
      */
@@ -223,7 +225,14 @@ public class LdmlLocaleMapper extends LdmlMapper {
         return icuData;
     }
 
+    /**
+     * Creates an IcuData object for an aliased locale.
+     * NOTE: this method is not currently used because the -w parameter in
+     * LDML2ICUConverter already writes aliases. When we get around to deprecating
+     * the LDML2ICUConverter, use this to write aliases instead..
+     */
     public IcuData fillFromCldr(Alias alias) {
+        // TODO: is this method actually needed?
         String from = alias.from;
         String to = alias.to;
         String xpath = alias.xpath;
@@ -241,10 +250,11 @@ public class LdmlLocaleMapper extends LdmlMapper {
         if (to.indexOf('@') != -1 && xpath == null) {
             System.err.println("Malformed alias - '@' but no xpath: from=\"" +
                     from + "\" to=\"" + to + "\"");
-            System.exit(-1);
+            return null;
         }
 
         IcuData icuData = new IcuData("icu-locale-deprecates.xml & build.xml", from, true);
+        System.out.println("aliased " + from + " to " + to);
         if (xpath == null) {
             Map<String,List<CldrValue>> pathValueMap = new HashMap<String,List<CldrValue>>();
             addMatchesForPath(xpath, null, null, pathValueMap);
@@ -259,23 +269,20 @@ public class LdmlLocaleMapper extends LdmlMapper {
             Comparator<CldrValue> comparator, IcuData icuData) {
         // Convert values to final data structure.
         for (String rbPath : pathValueMap.keySet()) {
-            List<CldrValue> values = pathValueMap.get(rbPath);
-            Collections.sort(values, comparator);
+            List<CldrValue> cldrValues = pathValueMap.get(rbPath);
+            Collections.sort(cldrValues, comparator);
             List<String[]> sortedValues = new ArrayList<String[]>();
-            List<String> arrayValues = new ArrayList<String>();
-            String lastPath = values.get(0).getXpath();
             // Group isArray for the same xpath together.
-            for (CldrValue value : values) {
-                String currentPath = value.getXpath();
-                if (!currentPath.equals(lastPath) || 
-                        !value.isArray() && arrayValues.size() != 0) {
+            for (CldrValue cldrValue : cldrValues) {
+                List<String> arrayValues = cldrValue.getValues();
+                if (cldrValue.isArray()) {
                     sortedValues.add(toArray(arrayValues));
-                    arrayValues.clear();
+                } else {
+                    for (String value : arrayValues) {
+                        sortedValues.add(new String[] { value });
+                    }
                 }
-                lastPath = currentPath;
-                arrayValues.add(value.getValue());
             }
-            sortedValues.add(toArray(arrayValues));
             icuData.addAll(rbPath, sortedValues);
         }
     }
