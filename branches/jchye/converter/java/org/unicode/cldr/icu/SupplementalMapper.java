@@ -2,27 +2,21 @@ package org.unicode.cldr.icu;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.unicode.cldr.icu.LdmlMapper.RegexResult;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CldrUtility.Output;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup;
-
-import com.ibm.icu.dev.test.util.BagFormatter;
-import com.ibm.icu.impl.Row.R2;
 
 public class SupplementalMapper extends LdmlMapper {
     private static final Map<String, String> enumMap = Builder.with(new HashMap<String, String>())
@@ -97,7 +91,7 @@ public class SupplementalMapper extends LdmlMapper {
                 Collections.sort(values, supplementalComparator);
                 List<String> sortedValues = new ArrayList<String>();
                 for (CldrValue value : values) {
-                    sortedValues.add(value.getValue());
+                    sortedValues.addAll(value.getValues());
                 }
                 String[] valueArray = new String[sortedValues.size()];
                 sortedValues.toArray(valueArray);

@@ -174,7 +174,7 @@ public abstract class LdmlMapper {
     static class RegexResult implements Iterable<PathValueInfo> {
         private static final Pattern ARGUMENT_PATTERN = Pattern.compile("^\\$(\\d+)=(//.*)");
         // Matches arguments with or without enclosing quotes.
-        private static final Pattern ARGUMENT = Pattern.compile("\"?\\$(\\d)\"?");
+        private static final Pattern ARGUMENT = Pattern.compile("[<\"]?\\$(\\d)[\">]?");
 
         private Set<PathValueInfo> unprocessed;
         private Map<Integer, String> requiredArgs;
@@ -488,8 +488,11 @@ public abstract class LdmlMapper {
         Matcher matcher = RegexResult.ARGUMENT.matcher(rbPath);
         List<Argument> argList = new ArrayList<Argument>();
         while (matcher.find()) {
-            boolean shouldSplit = !(rbPath.charAt(matcher.start()) == '"' &&
-                    rbPath.charAt(matcher.end() - 1) == '"');
+            char startChar = rbPath.charAt(matcher.start());
+            char endChar = rbPath.charAt(matcher.end() - 1);
+            if (startChar == '<' && endChar == '>') System.out.println(rbPath);
+            boolean shouldSplit = !(startChar == '"' && endChar == '"' ||
+                                    startChar == '<' && endChar == '>');
             argList.add(new Argument(Integer.parseInt(matcher.group(1)), shouldSplit));
         }
         Argument[] rbArgs = new Argument[argList.size()];

@@ -1,7 +1,6 @@
 package org.unicode.cldr.icu;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,10 +39,13 @@ import org.unicode.cldr.util.SupplementalDataInfo;
  * @author markdavis
  */
 public class NewLdml2IcuConverter extends CLDRConverterTool {
+    static final boolean DEBUG = true;
+
     static final Pattern SEMI = Pattern.compile("\\s*+;\\s*+");
     
     private enum Type {
-        locale, supplementalData, supplementalMetadata, plurals;
+        locale, likelySubtags, metaZones, numberingSystems, plurals,
+        supplementalData, supplementalMetadata, windowsZones;
     }
 
     private static final Set<String> SUPPLEMENTAL_OPTIONS = Builder.with(new HashSet<String>())
@@ -54,7 +56,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
             "Usage: LDML2ICUConverter [OPTIONS] [FILES]\n" +
             "This program is used to convert LDML files to ICU data text files.\n" +
             "Please refer to the following options. Options are not case sensitive.\n" +
-            "example: org.unicode.cldr.drafts.LDMLConverter -s xxx -d yyy en.xml\n"+
+            "example: org.unicode.cldr.icu.LDMLConverter -s xxx -d yyy en.xml\n"+
             "Options:\n")
         .add("sourcedir", ".*", "Source directory for CLDR files")
         .add("destdir", ".*", ".", "Destination directory for output files, defaults to the current directory")
@@ -140,13 +142,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
 
         // Process files.
         switch (type) {
-        case plurals:
-            processPlurals();
-            break;
-        case supplementalData:
-            processSupplementalData(type);
-            break;
-        default: // locale
+        case locale:
             // Generate locale data.
             SupplementalDataInfo supplementalDataInfo = null;
             Option option = options.get("supplementaldir");
@@ -181,6 +177,12 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
 
             LdmlLocaleMapper mapper = new LdmlLocaleMapper(factory, specialFactory, supplementalDataInfo);
             processLocales(mapper, locales);
+            break;
+        case plurals:
+            processPlurals();
+            break;
+        default: // supplemental data
+            processSupplementalData(type);
         }
     }
     

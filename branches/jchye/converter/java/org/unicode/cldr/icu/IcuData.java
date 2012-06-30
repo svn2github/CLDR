@@ -1,12 +1,17 @@
 package org.unicode.cldr.icu;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.TimeZone;
 
 /**
  * Wrapper class for converted ICU data.
@@ -20,7 +25,7 @@ class IcuData {
     private Map<String, String> enumMap;
 
     public IcuData(String sourceFile, String name, boolean hasFallback) {
-        this(sourceFile, name, hasFallback, null);
+        this(sourceFile, name, hasFallback, new HashMap<String, String>());
     }
 
     public IcuData(String sourceFile, String name, boolean hasFallback, Map<String, String> enumMap) {
@@ -77,8 +82,7 @@ class IcuData {
         if (list == null) {
             rbPathToValues.put(path, list = new ArrayList<String[]>(1));
         }
-        normalizeValues(mightNormalize(path), values);
-        list.add(values);
+        list.add(normalizeValues(path, values));
     }
 
     /**
@@ -99,13 +103,88 @@ class IcuData {
         }
     }
 
-    private void normalizeValues(boolean isInt, String[] values) {
-        if (isInt) {
+    private String[] normalizeValues(String rbPath, String[] values) {
+        if (isIntRbPath(rbPath)) {
+            List<String> normalizedValues = new ArrayList<String>();
             for (int i = 0; i < values.length; i++) {
-                String value = enumMap.get(values[i]);
-                if (value != null) values[i] = value;
+                String curValue = values[i];
+                String enumValue = enumMap.get(curValue);
+                if (enumValue != null) curValue = enumValue;
+                // Convert date into a number format if necessary.
+                if (isDatePath(rbPath)) {
+                    int[] dateValues = getSeconds(curValue);
+                    normalizedValues.add(dateValues[0] + "");
+                    normalizedValues.add(dateValues[1] + "");
+                } else {
+                    normalizedValues.add(curValue);
+                }
+            }
+            return normalizedValues.toArray(values);
+        } else {
+            return values;
+        }
+    }
+
+    /**
+     * Naive method for checking if the given value is a date
+     * (yyyy-mm-dd or yyyy-mm).
+     */
+    public static boolean isDatePath(String rbPath) {
+        String lastNode = rbPath.substring(rbPath.lastIndexOf('/') + 1);
+        return (lastNode.startsWith("from") || lastNode.startsWith("to"));
+    }
+
+    private int[] getSeconds(String dateStr) {
+        long millis = getMilliSeconds(dateStr);
+        if (millis == -1) {
+            return null;
+        }
+
+        int top =(int)((millis & 0xFFFFFFFF00000000L)>>>32); // top
+        int bottom = (int)((millis & 0x00000000FFFFFFFFL)); // bottom
+        int[] result = { top, bottom };
+
+        if (NewLdml2IcuConverter.DEBUG) {
+            long bot = 0xffffffffL & bottom;
+            long full = ((long)(top) << 32);
+            full += bot;
+            if (full != millis) {
+                System.err.println("Error when converting " + millis + ": " +
+                    top + ", " + bottom + " was converted back into " + full);
             }
         }
+
+        return result;
+    }
+
+    private long getMilliSeconds(String dateStr) {
+        try {
+            if (dateStr != null) {
+                int count = countHyphens(dateStr);
+                SimpleDateFormat format = new SimpleDateFormat();
+                format.setTimeZone(TimeZone.getTimeZone("GMT"));
+                if (count == 2) {
+                    format.applyPattern("yyyy-mm-dd");
+                } else if (count == 1) {
+                    format.applyPattern("yyyy-mm");
+                } else {
+                    format.applyPattern("yyyy");
+                }
+                return format.parse(dateStr).getTime();
+            }
+        } catch(ParseException ex) {
+            System.err.println("Could not parse date: " + dateStr);
+        }
+        return -1;
+    }
+
+    private static int countHyphens(String str) {
+        int lastPos = 0;
+        int numHyphens = 0;
+        while ((lastPos = str.indexOf('-', lastPos + 1))  > -1) {
+            numHyphens++;
+        }
+        return numHyphens;
     }
 
     /**
@@ -125,6 +204,10 @@ class IcuData {
         return rbPathToValues.keySet();
     }
     
+    public int size() {
+        return rbPathToValues.size();
+    }
+
     public boolean containsKey(String key) {
         return rbPathToValues.containsKey(key);
     }
