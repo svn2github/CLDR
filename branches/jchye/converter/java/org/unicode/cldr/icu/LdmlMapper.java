@@ -48,16 +48,16 @@ public abstract class LdmlMapper {
 
         private String rbPath;
         private String[] rawValues;
-        private boolean isArray;
+        private String groupKey;
 
-        public PathValueInfo(String rbPath, String[] rawValues, boolean isArray) {
+        public PathValueInfo(String rbPath, String[] rawValues, String groupKey) {
             this.rbPath = rbPath;
             this.rawValues = rawValues;
-            this.isArray = isArray;
+            this.groupKey = groupKey;
         }
 
-        public static PathValueInfo make(String rbPath, String valueArg, boolean isArray) {
-            if (valueArg == null) return new PathValueInfo(rbPath, null, isArray);
+        public static PathValueInfo make(String rbPath, String valueArg, String groupKey) {
+            if (valueArg == null) return new PathValueInfo(rbPath, null, groupKey);
             // Split up values using spaces unless enclosed by non-escaped quotes,
             // e.g. a "b \" c" would become {"a", "b \" c"}
             List<String> args = new ArrayList<String>();
@@ -78,7 +78,7 @@ public abstract class LdmlMapper {
             args.add(valueBuffer.toString());
             String[] rawValues = new String[args.size()];
             args.toArray(rawValues);
-            return new PathValueInfo(rbPath, rawValues, isArray);
+            return new PathValueInfo(rbPath, rawValues, groupKey);
         }
 
         /**
@@ -96,6 +96,10 @@ public abstract class LdmlMapper {
                     + path.substring(matcher.end(1)); 
             }
             return path;
+        }
+        
+        public String processGroupKey(String[] arguments) {
+            return processString(groupKey, arguments);
         }
         
         public String[] processValues(String[] arguments, CLDRFile cldrFile, String xpath) {
@@ -124,7 +128,7 @@ public abstract class LdmlMapper {
         @Override
         public String toString() { return rbPath + "=" + rawValues; }
         
-        public boolean isArray() { return isArray; }
+        public String getGroupKey() { return groupKey; }
 
         @Override
         public boolean equals(Object o) {
@@ -152,13 +156,13 @@ public abstract class LdmlMapper {
     static class PathValuePair {
         String path;
         String[] values;
-        boolean isArray;
+        String groupKey;
         
-        public PathValuePair(String path, String[] values, boolean isArray) {
+        public PathValuePair(String path, String[] values, String groupKey) {
             // TODO: merge with CldrValue/IcuData
             this.path = path;
             this.values = values;
-            this.isArray = isArray;
+            this.groupKey = groupKey;
         }
     }
 
@@ -182,9 +186,9 @@ public abstract class LdmlMapper {
 
         public RegexResult(String rbPath, String rawValues,
                     Map<Integer, String> requiredArgs, Argument[] rbArgs,
-                    boolean isArray) {
+                    String groupKey) {
             unprocessed = new HashSet<PathValueInfo>();
-            unprocessed.add(PathValueInfo.make(rbPath, rawValues, isArray));
+            unprocessed.add(PathValueInfo.make(rbPath, rawValues, groupKey));
             this.requiredArgs = requiredArgs;
             this.rbArgs = rbArgs;
         }
@@ -236,6 +240,7 @@ public abstract class LdmlMapper {
                 String[] values = struct.processValues(arguments, cldrFile, xpath);
                 // Check if there are any arguments that need splitting for the rbPath.
                 String[] newArgs = arguments.clone();
+                String groupKey = processString(struct.groupKey, newArgs);
                 boolean splitNeeded = false;
                 for (Argument arg : rbArgs) {
                     if (arg.shouldSplit) {
@@ -246,7 +251,7 @@ public abstract class LdmlMapper {
                             for (String splitArg : splitArgs) {
                                 newArgs[argIndex] = splitArg;
                                 String rbPath = struct.processRbPath(newArgs);
-                                processed.add(new PathValuePair(rbPath, values, struct.isArray));
+                                processed.add(new PathValuePair(rbPath, values, groupKey));
                             }
                             splitNeeded = true;
                             break;
@@ -256,7 +261,7 @@ public abstract class LdmlMapper {
                 // No splitting required, process as per normal.
                 if (!splitNeeded) {
                     String rbPath = struct.processRbPath(arguments);
-                    processed.add(new PathValuePair(rbPath, values, struct.isArray));
+                    processed.add(new PathValuePair(rbPath, values, groupKey));
                 }
              }
             return processed;
@@ -270,19 +275,19 @@ public abstract class LdmlMapper {
     protected class CldrValue {
         private String xpath;
         private List<String> values;
-        private boolean isArray;
+        private String groupKey;
 
-        public CldrValue(String xpath, List<String> values, boolean isArray) {
+        public CldrValue(String xpath, List<String> values, String groupKey) {
             this.xpath = xpath;
             this.values = values;
-            this.isArray = isArray;
+            this.groupKey = groupKey;
         }
 
-        public CldrValue(String xpath, String value, boolean isArray) {
+        public CldrValue(String xpath, String value, String groupKey) {
             this.xpath = xpath;
             this.values = new ArrayList<String>();
             values.add(value);
-            this.isArray = isArray;
+            this.groupKey = groupKey;
         }
 
         @Override
@@ -294,7 +299,7 @@ public abstract class LdmlMapper {
         
         public String getXpath() { return xpath; }
 
-        public boolean isArray() { return isArray; }
+        public String getGroupKey() { return groupKey; }
     }
 
     private static Merger<RegexResult> RegexValueMerger = new Merger<RegexResult>() {
@@ -490,7 +495,6 @@ public abstract class LdmlMapper {
         while (matcher.find()) {
             char startChar = rbPath.charAt(matcher.start());
             char endChar = rbPath.charAt(matcher.end() - 1);
-            if (startChar == '<' && endChar == '>') System.out.println(rbPath);
             boolean shouldSplit = !(startChar == '"' && endChar == '"' ||
                                     startChar == '<' && endChar == '>');
             argList.add(new Argument(Integer.parseInt(matcher.group(1)), shouldSplit));
@@ -501,14 +505,14 @@ public abstract class LdmlMapper {
         // Parse special instructions.
         String value = null;
         Map<Integer, String> requiredArgs = new HashMap<Integer, String>();
-        boolean isArray = false;
+        String groupKey = null;
         for (int i = 2; i < content.length; i++) {
             String instruction = content[i];
             Matcher argMatcher;
             if (instruction.startsWith("values=")) {
                 value = instruction.substring(7);
-            } else if (instruction.equals("array")) {
-                isArray = true;
+            } else if (instruction.startsWith("group=")) {
+                groupKey = instruction.substring(6);
             } else if (instruction.startsWith("fallback=")) {
                 // WARNING: fallback might backfire if more than one type of xpath for the same rbpath
                 String fallbackValue = instruction.substring(9);
@@ -518,7 +522,7 @@ public abstract class LdmlMapper {
                         argMatcher.group(2));
             }
         }
-        xpathConverter.add(xpathMatcher, new RegexResult(rbPath, value, requiredArgs, rbArgs, isArray));
+        xpathConverter.add(xpathMatcher, new RegexResult(rbPath, value, requiredArgs, rbArgs, groupKey));
     }
 
     /**
@@ -616,7 +620,7 @@ public abstract class LdmlMapper {
                     for (String value : fallbackValues) {
                         valueList.add(processString(value, arguments.value));
                     }
-                    values.add(new CldrValue(fallbackXpath, valueList, false));
+                    values.add(new CldrValue(fallbackXpath, valueList, null));
                 }
             }
         }

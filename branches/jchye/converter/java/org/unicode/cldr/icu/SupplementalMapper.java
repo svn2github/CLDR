@@ -2,6 +2,7 @@ package org.unicode.cldr.icu;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +18,9 @@ import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CldrUtility.Output;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup;
+
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.TimeZone;
 
 public class SupplementalMapper extends LdmlMapper {
     private static final Map<String, String> enumMap = Builder.with(new HashMap<String, String>())
@@ -114,6 +118,7 @@ public class SupplementalMapper extends LdmlMapper {
             if (regexResult == null) continue;
             String[] arguments = matcher.value.getInfo();
             List<PathValuePair> pairs = regexResult.processResult(cldrFile, fullPath, arguments);
+            boolean isSupplementalData = category.equals("supplementalData");
             for (PathValuePair pair : pairs) {
                 String[] values = pair.values;
                 String rbPath = pair.path;
@@ -129,13 +134,80 @@ public class SupplementalMapper extends LdmlMapper {
                 if (cldrValues == null) cldrValues = new ArrayList<CldrValue>();
                 pathValueMap.put(rbPath, cldrValues);
                 for (String value : values) {
-                    cldrValues.add(new CldrValue(fullPath, value, pair.isArray));
+                    // Convert date into a number format if necessary.
+                    if (isSupplementalData && isDatePath(rbPath)) {
+                        int[] dateValues = getSeconds(value);
+                        System.out.println(rbPath + " " + value + " " + dateValues[0] + " " + dateValues[1]);
+                        cldrValues.add(new CldrValue(fullPath, dateValues[0] + "", pair.groupKey));
+                        cldrValues.add(new CldrValue(fullPath, dateValues[1] + "", pair.groupKey));
+                    } else {
+                        cldrValues.add(new CldrValue(fullPath, value, pair.groupKey));
+                    }
                 }
             }
         }
     }
 
-    
+    /**
+     * Checks if the given path should be treated as a date path.
+     */
+    private static boolean isDatePath(String rbPath) {
+        return (rbPath.endsWith("from:intvector") || rbPath.endsWith("to:intvector"));
+    }
+
+    private int[] getSeconds(String dateStr) {
+        long millis = getMilliSeconds(dateStr);
+        if (millis == -1) {
+            return null;
+        }
+
+        int top =(int)((millis & 0xFFFFFFFF00000000L)>>>32); // top
+        int bottom = (int)((millis & 0x00000000FFFFFFFFL)); // bottom
+        int[] result = { top, bottom };
+
+        if (NewLdml2IcuConverter.DEBUG) {
+            long bot = 0xffffffffL & bottom;
+            long full = ((long)(top) << 32);
+            full += bot;
+            if (full != millis) {
+                System.err.println("Error when converting " + millis + ": " +
+                    top + ", " + bottom + " was converted back into " + full);
+            }
+        }
+
+        return result;
+    }
+
+    private long getMilliSeconds(String dateStr) {
+        try {
+            if (dateStr != null) {
+                int count = countHyphens(dateStr);
+                SimpleDateFormat format = new SimpleDateFormat();
+                format.setTimeZone(TimeZone.getTimeZone("GMT"));
+                if (count == 2) {
+                    format.applyPattern("yyyy-mm-dd");
+                } else if (count == 1) {
+                    format.applyPattern("yyyy-mm");
+                } else {
+                    format.applyPattern("yyyy");
+                }
+                return format.parse(dateStr).getTime();
+            }
+        } catch(ParseException ex) {
+            System.err.println("Could not parse date: " + dateStr);
+        }
+        return -1;
+    }
+
+    private static int countHyphens(String str) {
+        int lastPos = 0;
+        int numHyphens = 0;
+        while ((lastPos = str.indexOf('-', lastPos + 1))  > -1) {
+            numHyphens++;
+        }
+        return numHyphens;
+    }
+
     /**
      * @param args
      */

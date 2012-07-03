@@ -1,10 +1,12 @@
 package org.unicode.cldr.icu;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,6 +69,8 @@ public class LdmlLocaleMapper extends LdmlMapper {
         private final Pattern CONTEXT_TRANSFORM = Pattern.compile(
                 "//ldml/contextTransforms/contextTransformUsage\\[@type=\"([^\"]++)\"]/contextTransform\\[@type=\"([^\"]++)\"]");
 
+        private final String[] CURRENCY_ORDER = {"symbol", "displayName",
+                "pattern[@type=\"standard\"]", "decimal", "group"};
         /**
          * Reverse the ordering of the following:
          * //ldml/numbers/currencies/currency[@type="([^"]*)"]/displayName ; curr ; /Currencies/$1
@@ -83,11 +87,9 @@ public class LdmlLocaleMapper extends LdmlMapper {
             Matcher[] matchers = new Matcher[2];
             if (matches(CURRENCY_FORMAT, arg0, arg1, matchers)) {
                 // Use ldml ordering except that symbol should be first.
-                if (matchers[0].group(1).equals("symbol")) {
-                    return -1;
-                } else if (matchers[1].group(1).equals("symbol")) {
-                    return 1;
-                }
+                int index0 = getIndexOf(CURRENCY_ORDER, matchers[0].group(1));
+                int index1 = getIndexOf(CURRENCY_ORDER, matchers[1].group(1));
+                return index0 - index1;
             } else if (matches(DATE_OR_TIME_FORMAT, arg0, arg1, matchers)) {
                 int compareValue = matchers[0].group(1).compareTo(matchers[1].group(1));
                 if (compareValue != 0) return -compareValue;
@@ -109,6 +111,19 @@ public class LdmlLocaleMapper extends LdmlMapper {
         }
     };
     
+    /**
+     * Looks for a string in an array
+     * @param order the array to be searched
+     * @param key the string to be searched for
+     * @return the index of the string if found, -1 if not found
+     */
+    private static int getIndexOf(String[] order, String key) {
+        for (int i = 0; i < order.length; i++) {
+            if (order[i].equals(key)) return i;
+        }
+        return -1;
+    }
+
     public LdmlLocaleMapper(Factory factory, Factory specialFactory,
             SupplementalDataInfo supplementalDataInfo) {
         super("ldml2icu.txt");
@@ -182,7 +197,6 @@ public class LdmlLocaleMapper extends LdmlMapper {
         CLDRFile resolvedCldr = factory.make(locale, true);
         Set<String> resolvedPaths = new HashSet<String>();
         CollectionUtilities.addAll(resolvedCldr.iterator(), resolvedPaths);
-        //resolvedPaths.addAll(LdmlMapper.getFallbackPaths().keySet());
         for (String xpath : resolvedPaths) {
             addMatchesForPath(xpath, resolvedCldr, validRbPaths, pathValueMap);
         }
@@ -195,6 +209,7 @@ public class LdmlLocaleMapper extends LdmlMapper {
         if (hasSpecial) {
             CLDRFile specialCldrFile = specialFactory.make(locale, false);
             for (String xpath : specialCldrFile) {
+                if (resolvedPaths.contains(xpath)) continue;
                 addMatchesForPath(xpath, specialCldrFile, null, pathValueMap);
             }
         }
@@ -212,7 +227,7 @@ public class LdmlLocaleMapper extends LdmlMapper {
                 String mediumFormatPath = basePath + "/dateTimeFormatLength[@type=\"medium\"]/dateTimeFormat[@type=\"standard\"]/pattern[@type=\"standard\"]";
                 valueList.add(new CldrValue(basePath,
                         getStringValue(resolvedCldr, mediumFormatPath),
-                        false));
+                        null));
             }
         }
 
@@ -273,16 +288,20 @@ public class LdmlLocaleMapper extends LdmlMapper {
             Collections.sort(cldrValues, comparator);
             List<String[]> sortedValues = new ArrayList<String[]>();
             // Group isArray for the same xpath together.
-            for (CldrValue cldrValue : cldrValues) {
-                List<String> arrayValues = cldrValue.getValues();
-                if (cldrValue.isArray()) {
+            List<String> arrayValues = new ArrayList<String>();
+            arrayValues.addAll(cldrValues.get(0).getValues());
+            String lastKey = cldrValues.get(0).getGroupKey();
+            for (int i = 1; i < cldrValues.size(); i++) {
+                CldrValue cldrValue = cldrValues.get(i);
+                String groupKey = cldrValue.getGroupKey();
+                if (lastKey == null || !lastKey.equals(groupKey)) {
                     sortedValues.add(toArray(arrayValues));
-                } else {
-                    for (String value : arrayValues) {
-                        sortedValues.add(new String[] { value });
-                    }
+                    arrayValues.clear();
                 }
+                arrayValues.addAll(cldrValue.getValues());
+                lastKey = groupKey;
             }
+            sortedValues.add(toArray(arrayValues));
             icuData.addAll(rbPath, sortedValues);
         }
     }
@@ -340,8 +359,9 @@ public class LdmlLocaleMapper extends LdmlMapper {
             if (validRbPaths != null && !validRbPaths.contains(rbPath)) continue;
             List<CldrValue> valueList = getList(rbPath, pathValueMap);
             String[] values = info.processValues(arguments, cldrFile, xpath);
+            String groupKey = info.processGroupKey(arguments);
             for (String value : values) {
-                valueList.add(new CldrValue(xpath, value, info.isArray()));
+                valueList.add(new CldrValue(xpath, value, groupKey));
             }
         }
     }

@@ -1,6 +1,7 @@
 package org.unicode.cldr.icu;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,22 +37,18 @@ import org.unicode.cldr.util.SupplementalDataInfo;
  * It may make more sense down the road to refactor CLDRConverterTool such that
  * this class doesn't inherit unnecessary functionality.
  * 
- * @author markdavis
+ * @author jchye
  */
 public class NewLdml2IcuConverter extends CLDRConverterTool {
     static final boolean DEBUG = true;
 
     static final Pattern SEMI = Pattern.compile("\\s*+;\\s*+");
     
-    private enum Type {
+    enum Type {
         locale, likelySubtags, metaZones, numberingSystems, plurals,
-        supplementalData, supplementalMetadata, windowsZones;
+        supplementalData, metadata, windowsZones;
     }
 
-    private static final Set<String> SUPPLEMENTAL_OPTIONS = Builder.with(new HashSet<String>())
-            .add("plurals-only").add("supplemental-only").add("metadata-only")
-            .add("likely-only").add("metazones-only").add("windowszones-only")
-            .add("numbers-only").get();
     private static final Options options = new Options(
             "Usage: LDML2ICUConverter [OPTIONS] [FILES]\n" +
             "This program is used to convert LDML files to ICU data text files.\n" +
@@ -203,7 +200,8 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
             if (splitter == null) {
                 IcuTextWriter.writeToFile(icuData, outputDir);
             } else {
-                Map<String, IcuData> splitData = splitter.split(icuData);
+                String fallbackDir = new File(outputDir).getName();
+                Map<String, IcuData> splitData = splitter.split(icuData, fallbackDir);
                 for (String dir : splitData.keySet()) {
                     IcuTextWriter.writeToFile(splitData.get(dir), outputDir + "/../" + dir);
                 }

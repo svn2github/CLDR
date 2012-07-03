@@ -65,7 +65,7 @@ public class IcuDataSplitter {
      * @param data
      * @return
      */
-    public Map<String, IcuData> split(IcuData icuData) {
+    public Map<String, IcuData> split(IcuData icuData, String fallbackDir) {
         Map<String, IcuData> splitData = new HashMap<String, IcuData>();
         String sourceFile = icuData.getSourceFile();
         String name = icuData.getName();
@@ -74,7 +74,7 @@ public class IcuDataSplitter {
         for (String dir : dirs) {
             splitData.put(dir, new IcuData(sourceFile, name, hasFallback));
         }
-        splitData.put("locales", new IcuData(sourceFile, name, hasFallback));
+        splitData.put(fallbackDir, new IcuData(sourceFile, name, hasFallback));
 
         for (Entry<String, List<String[]>>  entry : icuData.entrySet()) {
             String rbPath = entry.getKey();
@@ -95,16 +95,16 @@ public class IcuDataSplitter {
                     }
                 }
             }
-            // Fallback on locales dir.
+            // Add any remaining values to the file in fallback dir.
             if (!wasSplit) {
-                splitData.get("locales").addAll(rbPath, values);
+                splitData.get(fallbackDir).addAll(rbPath, values);
             }
         }
         // Remove all files that only contain version info.
         Iterator<Entry<String, IcuData>> iterator = splitData.entrySet().iterator();
         while (iterator.hasNext()) {
             Entry<String, IcuData> entry = iterator.next();
-            if (entry.getKey().equals("locales")) continue;
+            if (entry.getKey().equals(fallbackDir)) continue;
             IcuData data = entry.getValue();
             if (data.size() == 1 && data.containsKey(VERSION_PATH)) {
                 // Comment copied from ResourceSplitter:

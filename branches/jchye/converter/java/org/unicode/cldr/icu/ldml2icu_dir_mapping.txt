@@ -18,3 +18,5 @@
 /CurrencyUnitPatterns/   ; curr
 /currencySpacing/        ; curr
 /zoneStrings/            ; zone
+/CurrencyMap/            ; curr
+/CurrencyMeta/           ; curr
