@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,8 +24,10 @@ import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup.Merger;
 import org.unicode.cldr.util.RegexLookup.RegexFinder;
 
+import com.ibm.icu.impl.Row.R2;
 import com.ibm.icu.impl.Row.R3;
 import com.ibm.icu.text.Transform;
+import com.ibm.icu.text.UnicodeSet;
 
 public abstract class LdmlMapper {
     private static final Pattern SEMI = Pattern.compile("\\s*+;\\s*+");
@@ -45,40 +49,21 @@ public abstract class LdmlMapper {
      */
     public static class PathValueInfo {
         private static final Pattern QUOTES = Pattern.compile("\"([^\"]++)\"");
+        private static final UnicodeSet SPACE_CHARACTERS = new UnicodeSet(
+                "[\\u0000\\uFEFF[:pattern_whitespace:]]");
 
         private String rbPath;
-        private String[] rawValues;
+        private String valueArg;
         private String groupKey;
 
-        public PathValueInfo(String rbPath, String[] rawValues, String groupKey) {
+        public PathValueInfo(String rbPath, String valueArg, String groupKey) {
             this.rbPath = rbPath;
-            this.rawValues = rawValues;
+            this.valueArg = valueArg;
             this.groupKey = groupKey;
         }
 
         public static PathValueInfo make(String rbPath, String valueArg, String groupKey) {
-            if (valueArg == null) return new PathValueInfo(rbPath, null, groupKey);
-            // Split up values using spaces unless enclosed by non-escaped quotes,
-            // e.g. a "b \" c" would become {"a", "b \" c"}
-            List<String> args = new ArrayList<String>();
-            StringBuffer valueBuffer = new StringBuffer();
-            boolean shouldSplit = true;
-            char lastChar = ' ';
-            for (char c : valueArg.toCharArray()) {
-                if (c == '"' && lastChar != '\\') {
-                    shouldSplit = !shouldSplit;
-                } else if (c == ' ' && shouldSplit) {
-                    args.add(valueBuffer.toString());
-                    valueBuffer.setLength(0);
-                } else {
-                    valueBuffer.append(c);
-                }
-                lastChar = c;
-            }
-            args.add(valueBuffer.toString());
-            String[] rawValues = new String[args.size()];
-            args.toArray(rawValues);
-            return new PathValueInfo(rbPath, rawValues, groupKey);
+            return new PathValueInfo(rbPath, valueArg, groupKey);
         }
 
         /**
@@ -102,31 +87,62 @@ public abstract class LdmlMapper {
             return processString(groupKey, arguments);
         }
         
-        public String[] processValues(String[] arguments, CLDRFile cldrFile, String xpath) {
-            if (rawValues == null) {
-                return new String[] { getStringValue(cldrFile, xpath) };
+        public List<String> processValues(String[] arguments, CLDRFile cldrFile,
+                String xpath) {
+            if (valueArg == null) {
+                List<String> values = new ArrayList<String>();
+                values.add(getStringValue(cldrFile, xpath));
+                return values;
             }
             // Split single args using spaces.
-            if (rawValues.length == 1) {
-                return processValue(rawValues[0], xpath, cldrFile, arguments).split("\\s++");
-            }
-            String[] values = new String[rawValues.length];
-            for (int i = 0; i < rawValues.length; i++) {
-                values[i] = processValue(rawValues[i], xpath, cldrFile, arguments);
-            }
-            return values;
+            String processedValue = processValue(valueArg, xpath, cldrFile, arguments);
+            return splitValues(processedValue);
         }
         
+        private List<String> splitValues(String unsplitValues) {
+            // Split up values using spaces unless enclosed by non-escaped quotes,
+            // e.g. a "b \" c" would become {"a", "b \" c"}
+            List<String> args = new ArrayList<String>();
+            StringBuffer valueBuffer = new StringBuffer();
+            boolean shouldSplit = true;
+            char lastChar = ' ';
+            for (char c : unsplitValues.toCharArray()) {
+                // Normalize whitespace input.
+                if (SPACE_CHARACTERS.contains(c)) {
+                    c = ' ';
+                }
+                if (c == '"' && lastChar != '\\') {
+                    shouldSplit = !shouldSplit;
+                } else if (c == ' ') {
+                    if (lastChar == ' ') {
+                        // Do nothing.
+                    } else if (shouldSplit) {
+                        args.add(valueBuffer.toString());
+                        valueBuffer.setLength(0);
+                    } else {
+                        valueBuffer.append(c);
+                    }
+                } else {
+                    valueBuffer.append(c);
+                }
+                lastChar = c;
+            }
+            if (valueBuffer.length() > 0) {
+                args.add(valueBuffer.toString());
+            }
+            return args;
+        }
+
         private String processValue(String value, String xpath, CLDRFile cldrFile, String[] arguments) {
             value = processString(value, arguments);
-            if (value.equals("{value}")) {
-                value = getStringValue(cldrFile, xpath);
+            if (value.contains("{value}")) {
+                value = value.replace("{value}", getStringValue(cldrFile, xpath));
             }
             return value;
         }
         
         @Override
-        public String toString() { return rbPath + "=" + rawValues; }
+        public String toString() { return rbPath + "=" + valueArg; }
         
         public String getGroupKey() { return groupKey; }
 
@@ -135,7 +151,7 @@ public abstract class LdmlMapper {
             if (o instanceof PathValueInfo) {
                 PathValueInfo otherInfo = (PathValueInfo)o;
                 return rbPath.equals(otherInfo.rbPath)
-                        && rawValues.equals(otherInfo.rawValues);
+                        && valueArg.equals(otherInfo.valueArg);
             } else {
                 return false;
             }
@@ -155,10 +171,10 @@ public abstract class LdmlMapper {
 
     static class PathValuePair {
         String path;
-        String[] values;
+        List<String> values;
         String groupKey;
         
-        public PathValuePair(String path, String[] values, String groupKey) {
+        public PathValuePair(String path, List<String> values, String groupKey) {
             // TODO: merge with CldrValue/IcuData
             this.path = path;
             this.values = values;
@@ -237,7 +253,7 @@ public abstract class LdmlMapper {
                 String[] arguments) {
             List<PathValuePair> processed = new ArrayList<PathValuePair>(unprocessed.size());
             for (PathValueInfo struct : unprocessed) {
-                String[] values = struct.processValues(arguments, cldrFile, xpath);
+                List<String> values = struct.processValues(arguments, cldrFile, xpath);
                 // Check if there are any arguments that need splitting for the rbPath.
                 String[] newArgs = arguments.clone();
                 String groupKey = processString(struct.groupKey, newArgs);
@@ -300,6 +316,95 @@ public abstract class LdmlMapper {
         public String getXpath() { return xpath; }
 
         public String getGroupKey() { return groupKey; }
+    }
+
+    class CldrArray {
+        private Map<String, R2<List<String>, String>> map;
+        public CldrArray () {
+            map = new HashMap<String, R2<List<String>, String>>();
+        }
+        
+        public void add(String key, List<String> values, String groupKey) {
+            R2<List<String>, String> existing = map.get(key);
+            if (existing == null) {
+                map.put(key, new R2<List<String>, String>(values, groupKey));
+            } else {
+                existing.get0().addAll(values);
+            }
+            
+        }
+
+        public void add(String key, String[] values, String groupKey) {
+            List<String> list = new ArrayList<String>();
+            for (String value : values) {
+                list.add(value);
+            }
+            add(key, list, groupKey);
+        }
+
+        public void add(String key, String value, String groupKey) {
+            List<String> list = new ArrayList<String>();
+            list.add(value);
+            add(key, list, groupKey);
+        }
+
+        public void addAll(CldrArray otherArray) {
+            // HACK: narrow alias to abbreviated.
+            for (String otherKey : otherArray.map.keySet()) {
+                String narrowPath = otherKey.replace("eraAbbr", "eraNarrow");
+                if (!map.containsKey(narrowPath)) {
+                    map.put(narrowPath, otherArray.map.get(otherKey));
+                }
+               
+            }
+        }
+
+        public boolean findKey(Finder finder) {
+            for (String key : map.keySet()) {
+                if (finder.find(key, null)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public List<String[]> sortValues(Comparator<String> comparator) {
+            List<String> sortedKeys = new ArrayList<String>(map.keySet());
+            Collections.sort(sortedKeys, comparator);
+            List<String[]> sortedValues = new ArrayList<String[]>();
+            // Group isArray for the same xpath together.
+            List<String> arrayValues = new ArrayList<String>();
+            for (int i = 0, len = sortedKeys.size(); i < len; i++) {
+                String key = sortedKeys.get(i);
+                R2<List<String>, String> currentEntry = map.get(key);
+                List<String> values = currentEntry.get0();
+                String groupKey = currentEntry.get1();
+                if (groupKey == null) {
+                   for (String value : values) {
+                       sortedValues.add(new String[] {value});
+                   }
+                } else {
+                    arrayValues.addAll(values);
+                    String nextKey = null;
+                    if (i < len - 1) {
+                        nextKey = map.get(sortedKeys.get(i + 1)).get1();
+                    }
+                    if (!groupKey.equals(nextKey)) {
+                        sortedValues.add(toArray(arrayValues));
+                        arrayValues.clear();
+                    }
+                }
+            }
+            return sortedValues;
+        }
+    }
+
+    /**
+     * Converts a list into an Array.
+     */
+    protected static String[] toArray(List<String> list) {
+        String[] array = new String[list.size()];
+        list.toArray(array);
+        return array;
     }
 
     private static Merger<RegexResult> RegexValueMerger = new Merger<RegexResult>() {
@@ -591,23 +696,15 @@ public abstract class LdmlMapper {
      * map.
      * @param pathValueMap
      */
-    protected void addFallbackValues(Map<String, List<CldrValue>> pathValueMap) {
+    protected void addFallbackValues(Map<String, CldrArray> pathValueMap) {
         RegexLookup<FallbackInfo> fallbackConverter = getFallbackConverter();
         for (String rbPath : pathValueMap.keySet()) {
             Output<String[]> arguments = new Output<String[]>();
             FallbackInfo fallbackInfo = fallbackConverter.get(rbPath, null, arguments);
             if (fallbackInfo == null) continue;
-            List<CldrValue> values = pathValueMap.get(rbPath);
+            CldrArray values = pathValueMap.get(rbPath);
             for (R3<Finder, String, List<String>> info : fallbackInfo) {
-                boolean fallbackNeeded = true;
-                Finder finder = info.get0();
-                for (CldrValue value : values) {
-                    if (finder.find(value.getXpath(), null)) {
-                        fallbackNeeded = false;
-                        break;
-                    }
-                }
-                if (fallbackNeeded) {
+                if (!values.findKey(info.get0())) {
                     // The fallback xpath is just for sorting purposes.
                     String fallbackXpath = processString(info.get1(), fallbackInfo.getArgumentsForXpath(arguments.value));
                     // Sanity check.
@@ -620,7 +717,7 @@ public abstract class LdmlMapper {
                     for (String value : fallbackValues) {
                         valueList.add(processString(value, arguments.value));
                     }
-                    values.add(new CldrValue(fallbackXpath, valueList, null));
+                    values.add(fallbackXpath, valueList, null);
                 }
             }
         }

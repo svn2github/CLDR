@@ -29,15 +29,13 @@ public class SupplementalMapper extends LdmlMapper {
 
     private String inputDir;
 
-    private static Comparator<CldrValue> supplementalComparator = new Comparator<CldrValue>() {
+    private static Comparator<String> supplementalComparator = new Comparator<String>() {
         private final Pattern FROM_ATTRIBUTE = Pattern.compile("\\[@from=\"([^\"]++)\"]");
         private final Pattern WEEKDATA = Pattern.compile(
                 "//supplementalData/weekData/(minDays|firstDay|weekendStart|weekendEnd).*");
 
         @Override
-        public int compare(CldrValue value0, CldrValue value1) {
-            String arg0 = value0.getXpath();
-            String arg1 = value1.getXpath();
+        public int compare(String arg0, String arg1) {
             Matcher[] matchers = new Matcher[2];
             String metazone = "//supplementalData/metaZones/metazoneInfo/timezone";
             if (arg0.startsWith(metazone) && arg1.startsWith(metazone)) {
@@ -75,7 +73,7 @@ public class SupplementalMapper extends LdmlMapper {
     }
 
     public IcuData fillFromCldr(String outputName) {
-        Map<String,List<CldrValue>> pathValueMap = new HashMap<String, List<CldrValue>>();
+        Map<String,CldrArray> pathValueMap = new HashMap<String, CldrArray>();
         String category = outputName;
         if (outputName.equals("supplementalData")) {
             // TODO: move /CurrencyMap and /CurrencyMeta to curr folder!
@@ -90,23 +88,14 @@ public class SupplementalMapper extends LdmlMapper {
         addFallbackValues(pathValueMap);
         IcuData icuData = new IcuData(category + ".xml", outputName, false, enumMap);
         for (String rbPath : pathValueMap.keySet()) {
-            List<CldrValue> values = pathValueMap.get(rbPath);
-            if (values.size() > 0) {
-                Collections.sort(values, supplementalComparator);
-                List<String> sortedValues = new ArrayList<String>();
-                for (CldrValue value : values) {
-                    sortedValues.addAll(value.getValues());
-                }
-                String[] valueArray = new String[sortedValues.size()];
-                sortedValues.toArray(valueArray);
-                icuData.add(rbPath, valueArray);
-            }
+            CldrArray values = pathValueMap.get(rbPath);
+            icuData.addAll(rbPath, values.sortValues(supplementalComparator));
         }
         
         return icuData;
     }
 
-    private void loadValues(String category, Map<String,List<CldrValue>> pathValueMap) {
+    private void loadValues(String category, Map<String,CldrArray> pathValueMap) {
         String inputFile = category + ".xml";
         CLDRFile cldrFile = CLDRFile.loadFromFile(new File(inputDir, inputFile), category,
                 DraftStatus.unconfirmed);
@@ -120,28 +109,27 @@ public class SupplementalMapper extends LdmlMapper {
             List<PathValuePair> pairs = regexResult.processResult(cldrFile, fullPath, arguments);
             boolean isSupplementalData = category.equals("supplementalData");
             for (PathValuePair pair : pairs) {
-                String[] values = pair.values;
+                List<String> values = pair.values;
                 String rbPath = pair.path;
                 if (rbPath.matches("/numberingSystems/\\w++/desc")
                         && xpath.contains("algorithmic")) {
                     // Hack to insert % into numberingSystems descriptions.
-                    String value = values[0];
+                    String value = values.get(0);
                     int percentPos = value.lastIndexOf('/') + 1;
                     value = value.substring(0, percentPos) + '%' + value.substring(percentPos);
-                    values[0] = value;
+                    values.set(0, value);
                 }
-                List<CldrValue> cldrValues = pathValueMap.get(rbPath);
-                if (cldrValues == null) cldrValues = new ArrayList<CldrValue>();
+                CldrArray cldrValues = pathValueMap.get(rbPath);
+                if (cldrValues == null) cldrValues = new CldrArray();
                 pathValueMap.put(rbPath, cldrValues);
                 for (String value : values) {
                     // Convert date into a number format if necessary.
                     if (isSupplementalData && isDatePath(rbPath)) {
-                        int[] dateValues = getSeconds(value);
-                        System.out.println(rbPath + " " + value + " " + dateValues[0] + " " + dateValues[1]);
-                        cldrValues.add(new CldrValue(fullPath, dateValues[0] + "", pair.groupKey));
-                        cldrValues.add(new CldrValue(fullPath, dateValues[1] + "", pair.groupKey));
+                        String[] dateValues = getSeconds(value);
+                        cldrValues.add(fullPath, dateValues, pair.groupKey);
+                        cldrValues.add(fullPath, dateValues, pair.groupKey);
                     } else {
-                        cldrValues.add(new CldrValue(fullPath, value, pair.groupKey));
+                        cldrValues.add(fullPath, value, pair.groupKey);
                     }
                 }
             }
@@ -155,7 +143,7 @@ public class SupplementalMapper extends LdmlMapper {
         return (rbPath.endsWith("from:intvector") || rbPath.endsWith("to:intvector"));
     }
 
-    private int[] getSeconds(String dateStr) {
+    private String[] getSeconds(String dateStr) {
         long millis = getMilliSeconds(dateStr);
         if (millis == -1) {
             return null;
@@ -163,7 +151,7 @@ public class SupplementalMapper extends LdmlMapper {
 
         int top =(int)((millis & 0xFFFFFFFF00000000L)>>>32); // top
         int bottom = (int)((millis & 0x00000000FFFFFFFFL)); // bottom
-        int[] result = { top, bottom };
+        String[] result = { top + "", bottom + ""};
 
         if (NewLdml2IcuConverter.DEBUG) {
             long bot = 0xffffffffL & bottom;
@@ -206,14 +194,5 @@ public class SupplementalMapper extends LdmlMapper {
             numHyphens++;
         }
         return numHyphens;
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) throws IOException {
-        SupplementalMapper mapper = new SupplementalMapper("/Users/jchye/tweaks/common/supplemental");
-        IcuData icuData = mapper.fillFromCldr("supplementalData");
-        IcuTextWriter.writeToFile(icuData, "/Users/jchye/tweaks/newspecial/misc");
     }
 }

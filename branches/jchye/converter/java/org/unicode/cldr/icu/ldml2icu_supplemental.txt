@@ -16,7 +16,7 @@
 #     - fallback=<value> which can be
 #       - a hardcoded string or
 #       - a regex argument that is already in the rbPath
-#     - array, which indicates that the values created using this xpath should
+#     - group, which indicates that the values created using this xpath should
 #       be grouped together in their own sub-array in the ICU data file.
 # All matched arguments from xpaths will be split by whitespace unless the
 # corresponding argument in the replacement string is surrounded by quotes, e.g.
@@ -81,7 +81,7 @@
 //supplementalData/likelySubtags/likelySubtag[@from="(%A)"][@to="(%A)"] ; /$1 ; values=$2
 
 # supplementalMetadata.xml
-//supplementalData/metadata/alias/(language|script|territory|variant)Alias[@type="(%A)"][@replacement="(%A)"][@reason="%A"] ; /$1Alias/$2 ; values=$3
+//supplementalData/metadata/alias/(language|script|territory|variant)Alias[@type="(%A)"][@replacement="(%A)"][@reason="%A"] ; /$1Alias/$2 ; values="$3"
 # Specify the value explicitly so that the LDMLConverter will split it.
 //supplementalData/metadata/validity/variable[@_q="%N"][@type="choice"][@id="\$territory"] ; /regionCodes ; values={value}
 
