@@ -60,7 +60,8 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
         .add("specialsdir", 'p', ".*", null, "Source directory for files containing special data, if any")
         .add("supplementaldir", 'm', ".*", null, "The supplemental data directory")
         .add("keeptogether", 'k', null, null, "Write locale data to one file instead of splitting into separate directories. For debugging")
-        .add("type", 't', "\\w+", "locale", "The type of file to be generated");
+        .add("type", 't', "\\w+", "locale", "The type of file to be generated")
+        .add("cldrVersion", 'c', ".*", "21.0", "The version of the CLDR data, used purely for output.");
 
     private static final String LOCALES_DIR = "locales";
 
@@ -179,7 +180,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
             processPlurals();
             break;
         default: // supplemental data
-            processSupplementalData(type);
+            processSupplementalData(type, options.get("cldrVersion").getValue());
         }
     }
     
@@ -188,12 +189,15 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
         writeIcuData(mapper.fillFromCldr(), destinationDir);
     }
     
-    private void processSupplementalData(Type type) {
-        SupplementalMapper mapper = new SupplementalMapper(sourceDir);
+    private void processSupplementalData(Type type, String cldrVersion) {
+        SupplementalMapper mapper = new SupplementalMapper(sourceDir, cldrVersion);
         writeIcuData(mapper.fillFromCldr(type.toString()), destinationDir);
     }
 
     private void writeIcuData(IcuData icuData, String outputDir) {
+        if (icuData.keySet().size() == 0) {
+            throw new RuntimeException(icuData.getName() + " was not written because no data was generated.");
+        }
         try {
             // Split data into different directories if necessary.
             // splitInfos is filled from the <remap> element in ICU's build.xml.

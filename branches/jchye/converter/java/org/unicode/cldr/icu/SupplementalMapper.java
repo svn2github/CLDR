@@ -1,14 +1,16 @@
 package org.unicode.cldr.icu;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +20,10 @@ import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CldrUtility.Output;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup;
+import org.unicode.cldr.util.XMLSource;
+import org.unicode.cldr.util.XPathParts.Comments;
 
+import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.TimeZone;
 
@@ -26,8 +31,16 @@ public class SupplementalMapper extends LdmlMapper {
     private static final Map<String, String> enumMap = Builder.with(new HashMap<String, String>())
             .put("sun", "1").put("mon", "2").put("tues", "3").put("wed", "4")
             .put("thu", "5").put("fri", "6").put("sat", "7").get();
+    private static final Pattern DATE_PATH = Pattern.compile("/CurrencyMap/.*/(from|to):intvector");
+    private static final Pattern NUMBERING_SYSTEMS_DESC = Pattern.compile("/numberingSystems/\\w++/desc");
+    private static final NumberFormat numberFormat = NumberFormat.getInstance();
+    static {
+        numberFormat.setMinimumIntegerDigits(4);
+    }
 
+    private int fifoCounter;
     private String inputDir;
+    private String cldrVersion;
 
     private static Comparator<String> supplementalComparator = new Comparator<String>() {
         private final Pattern FROM_ATTRIBUTE = Pattern.compile("\\[@from=\"([^\"]++)\"]");
@@ -67,16 +80,16 @@ public class SupplementalMapper extends LdmlMapper {
         }
     };
 
-    public SupplementalMapper(String inputDir) {
+    public SupplementalMapper(String inputDir, String cldrVersion) {
         super("ldml2icu_supplemental.txt");
         this.inputDir = inputDir;
+        this.cldrVersion = cldrVersion;
     }
 
     public IcuData fillFromCldr(String outputName) {
         Map<String,CldrArray> pathValueMap = new HashMap<String, CldrArray>();
         String category = outputName;
         if (outputName.equals("supplementalData")) {
-            // TODO: move /CurrencyMap and /CurrencyMeta to curr folder!
             String[] categories = {"supplementalData", "telephoneCodeData", "languageInfo"};
             for (String cat : categories) {
                 loadValues(cat, pathValueMap);
@@ -91,56 +104,81 @@ public class SupplementalMapper extends LdmlMapper {
             CldrArray values = pathValueMap.get(rbPath);
             icuData.addAll(rbPath, values.sortValues(supplementalComparator));
         }
-        
+        // Hack to add the CLDR version
+        if (outputName.equals("supplementalData")) {
+            icuData.add("/cldrVersion", cldrVersion);
+        }
         return icuData;
     }
 
     private void loadValues(String category, Map<String,CldrArray> pathValueMap) {
         String inputFile = category + ".xml";
-        CLDRFile cldrFile = CLDRFile.loadFromFile(new File(inputDir, inputFile), category,
-                DraftStatus.unconfirmed);
+        XMLSource source = new LinkedXMLSource();
+        CLDRFile cldrFile = CLDRFile.loadFromFile(new File(inputDir, inputFile),
+                category, DraftStatus.contributed, source);
         RegexLookup<RegexResult> pathConverter = getPathConverter();
+        fifoCounter = 0; // Helps to keep unsorted rb paths in order.
         for (String xpath : cldrFile) {
             Output<Finder> matcher = new Output<Finder>();
             String fullPath = cldrFile.getFullXPath(xpath);
             RegexResult regexResult = pathConverter.get(fullPath, null, null, matcher, null);
             if (regexResult == null) continue;
             String[] arguments = matcher.value.getInfo();
-            List<PathValuePair> pairs = regexResult.processResult(cldrFile, fullPath, arguments);
-            boolean isSupplementalData = category.equals("supplementalData");
-            for (PathValuePair pair : pairs) {
-                List<String> values = pair.values;
-                String rbPath = pair.path;
-                if (rbPath.matches("/numberingSystems/\\w++/desc")
-                        && xpath.contains("algorithmic")) {
-                    // Hack to insert % into numberingSystems descriptions.
-                    String value = values.get(0);
-                    int percentPos = value.lastIndexOf('/') + 1;
-                    value = value.substring(0, percentPos) + '%' + value.substring(percentPos);
-                    values.set(0, value);
-                }
-                CldrArray cldrValues = pathValueMap.get(rbPath);
-                if (cldrValues == null) cldrValues = new CldrArray();
-                pathValueMap.put(rbPath, cldrValues);
-                for (String value : values) {
-                    // Convert date into a number format if necessary.
-                    if (isSupplementalData && isDatePath(rbPath)) {
-                        String[] dateValues = getSeconds(value);
-                        cldrValues.add(fullPath, dateValues, pair.groupKey);
-                        cldrValues.add(fullPath, dateValues, pair.groupKey);
-                    } else {
-                        cldrValues.add(fullPath, value, pair.groupKey);
+            for (PathValueInfo info : regexResult) {
+                List<String> values = info.processValues(arguments, cldrFile, xpath);
+                // Check if there are any arguments that need splitting for the rbPath.
+                String groupKey = info.processGroupKey(arguments);
+                boolean splitNeeded = false;
+                int argIndex = info.getSplitRbPathArg();
+                if (argIndex != -1) {
+                    String[] splitArgs = arguments[argIndex].split("\\s++");
+                    // Only split the first splittable argument needed for each rbPath.
+                    if (splitArgs.length > 1) {
+                        String[] newArgs = arguments.clone();
+                        for (String splitArg : splitArgs) {
+                            newArgs[argIndex] = splitArg;
+                            String rbPath = info.processRbPath(newArgs);
+                            CldrArray cldrArray = getCldrArray(rbPath, pathValueMap);
+                            processValues(xpath, rbPath, values, groupKey, cldrArray);
+                        }
+                        splitNeeded = true;
                     }
                 }
+                // No splitting required, process as per normal.
+                if (!splitNeeded) {
+                    String rbPath = info.processRbPath(arguments);
+                    CldrArray cldrArray = getCldrArray(rbPath, pathValueMap);
+                    processValues(xpath, rbPath, values, groupKey, cldrArray);
+                }
             }
+            fifoCounter++;
         }
     }
 
+    private void processValues(String xpath, String rbPath, List<String> values, String groupKey, CldrArray cldrArray) {
+        List<String> processedValues = new ArrayList<String>();
+        rbPath = rbPath.replace("<FIFO>", '<' + numberFormat.format(fifoCounter) + '>');
+        if (NUMBERING_SYSTEMS_DESC.matcher(rbPath).matches()
+                && xpath.contains("algorithmic")) {
+            // Hack to insert % into numberingSystems descriptions.
+            String value = values.get(0);
+            int percentPos = value.lastIndexOf('/') + 1;
+            value = value.substring(0, percentPos) + '%' + value.substring(percentPos);
+            processedValues.add(value);
+        } else if (isDatePath(rbPath)){
+            String[] dateValues = getSeconds(values.get(0));
+            processedValues.add(dateValues[0]);
+            processedValues.add(dateValues[1]);
+        } else {
+            processedValues = values;
+        }
+        cldrArray.add(rbPath, processedValues, groupKey);
+    }
     /**
      * Checks if the given path should be treated as a date path.
      */
     private static boolean isDatePath(String rbPath) {
-        return (rbPath.endsWith("from:intvector") || rbPath.endsWith("to:intvector"));
+        return DATE_PATH.matcher(rbPath).matches();
     }
 
     private String[] getSeconds(String dateStr) {
@@ -194,5 +232,71 @@ public class SupplementalMapper extends LdmlMapper {
             numHyphens++;
         }
         return numHyphens;
+    }
+    
+    /**
+     * Iterating through this XMLSource will return the xpaths in the order
+     * that they were parsed from the XML file.
+     */
+    private class LinkedXMLSource extends XMLSource {
+        private Map<String, String> xpath_value;
+        private Map<String, String> xpath_fullXPath;
+        private Comments comments;
+
+        public LinkedXMLSource() {
+            xpath_value = new LinkedHashMap<String, String>();
+            xpath_fullXPath = new HashMap<String, String>();
+            comments = new Comments();
+        }
+
+        @Override
+        public Object freeze() {
+            locked = true;
+            return this;
+        }
+        @Override
+        public void putFullPathAtDPath(String distinguishingXPath, String fullxpath) {
+            xpath_fullXPath.put(distinguishingXPath, fullxpath);
+        }
+
+        @Override
+        public void putValueAtDPath(String distinguishingXPath, String value) {
+            xpath_value.put(distinguishingXPath, value);
+        }
+
+        @Override
+        public void removeValueAtDPath(String distinguishingXPath) {
+            xpath_value.remove(distinguishingXPath);
+        }
+
+        @Override
+        public String getValueAtDPath(String path) {
+            return xpath_value.get(path);
+        }
+        @Override
+        public String getFullPathAtDPath(String xpath) {
+            String result = (String) xpath_fullXPath.get(xpath);
+            if (result != null) return result;
+            if (xpath_value.get(xpath) != null) return xpath; // we don't store duplicates
+            return null;
+        }
+        @Override
+        public Comments getXpathComments() {
+            return comments;
+        }
+        @Override
+        public void setXpathComments(Comments comments) {
+            this.comments = comments;
+        }
+
+        @Override
+        public Iterator<String> iterator() {
+            return Collections.unmodifiableSet(xpath_value.keySet()).iterator();
+        }
+
+        @Override
+        public void getPathsWithValue(String valueToMatch, String pathPrefix, Set<String> result) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

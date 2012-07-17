@@ -1,7 +1,5 @@
 package org.unicode.cldr.icu;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -216,7 +214,7 @@ public class LdmlLocaleMapper extends LdmlMapper {
             Matcher matcher = RB_DATETIMEPATTERN.matcher(rbPath);
             if (matcher.matches()) {
                 String calendar = matcher.group(1);
-                CldrArray valueList = getList(rbPath, pathValueMap);
+                CldrArray valueList = getCldrArray(rbPath, pathValueMap);
                 // Create a dummy xpath to sort the value in front of the other date time formats.
                 String basePath = "//ldml/dates/calendars/calendar[@type=\"" + calendar + "\"]/dateTimeFormats";
                 String mediumFormatPath = basePath + "/dateTimeFormatLength[@type=\"medium\"]/dateTimeFormat[@type=\"standard\"]/pattern[@type=\"standard\"]";
@@ -328,26 +326,16 @@ public class LdmlLocaleMapper extends LdmlMapper {
         String[] arguments = matcher.value.getInfo();
         if (!regexResult.argumentsMatch(cldrFile, arguments)) return;
         for (PathValueInfo info : regexResult) {
-            // TODO: make localeMapper and supplementalMapper calls to processX consistent!
             String rbPath = info.processRbPath(arguments);
             // Don't add additional paths at this stage.
             if (validRbPaths != null && !validRbPaths.contains(rbPath)) continue;
-            CldrArray valueList = getList(rbPath, pathValueMap);
+            CldrArray valueList = getCldrArray(rbPath, pathValueMap);
             List<String> values = info.processValues(arguments, cldrFile, xpath);
             String groupKey = info.processGroupKey(arguments);
             valueList.add(xpath, values, groupKey);
         }
     }
     
-    private CldrArray getList(String key, Map<String, CldrArray> pathValueMap) {
-        CldrArray list = pathValueMap.get(key);
-        if (list == null) {
-            list = new CldrArray();
-            pathValueMap.put(key, list);
-        }
-        return list;
-    }
-
     /**
      * Adds all mappings that couldn't be represented in the ldml2icu.txt file.
      * @param cldrResolved

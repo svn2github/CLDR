@@ -192,6 +192,7 @@ public class RBChecker {
         boolean hasDifferences = false;
         Set<String> missing = new TreeSet<String>(oldData.keySet());
         missing.removeAll(newData.keySet());
+        missing.remove("/Countries/CS");
         if (missing.size() > 0) {
             buffer.append("Missing paths:\n");
             printAllInSet(oldData, missing, buffer);
@@ -207,6 +208,7 @@ public class RBChecker {
         Set<String> common = new TreeSet<String>(oldData.keySet());
         common.retainAll(newData.keySet());
         for (String rbPath : common) {
+            if (rbPath.startsWith("/Version")) continue; // skip version
             List<String[]> oldValues = oldData.get(rbPath);
             List<String[]> newValues = newData.get(rbPath);
             if (shouldSort) {
@@ -292,6 +294,7 @@ public class RBChecker {
         MyTokenizer tokenIterator = new MyTokenizer(in);
         StringBuffer tokenText = new StringBuffer();
         List<String> oldPaths = new ArrayList<String>();
+        List<Integer> indices = new ArrayList<Integer>();
         String lastLabel = null;
         String path = "";
         /*
@@ -342,8 +345,12 @@ public class RBChecker {
                    arrayValues = new ArrayList<String>();
                 } else {
                     oldPaths.add(path);
+                    indices.add(0);
                     if (lastToken == MyTokenizer.Type.OPEN_BRACE || lastToken == MyTokenizer.Type.CLOSE_BRACE) {
-                       lastLabel = "";
+                       int currentIndexPos = indices.size() - 2;
+                       int currentIndex = indices.get(currentIndexPos);
+                       lastLabel = "<" + currentIndex + ">";
+                       indices.set(currentIndexPos, currentIndex + 1);
                     } else if (lastLabel.contains(":") && !lastLabel.contains(":int") && !lastLabel.contains(":alias")
                             || path.endsWith("/relative")) {
                         lastLabel = '"' + lastLabel + '"';
@@ -360,6 +367,7 @@ public class RBChecker {
                 
                 if (arrayValues == null) {
                     path = oldPaths.remove(oldPaths.size() - 1);
+                    indices.remove(indices.size() - 1);
                 } else {
                     // Value array closed, add it to the path.
                     String[] array = new String[0];

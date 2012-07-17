@@ -3,8 +3,16 @@
 # Order is not important, so regexes are grouped logically and are assumed to be
 # mutually exclusive.
 # The format is:
-# ldmlRegex ; icuPath (; specialInstructions)*
-# Each regex pattern must match an xpath completely to hava a successful match.
+#   ldmlRegex ; icuPath (; specialInstructions)*
+#
+# If an LDML xpath results in two or more ICU paths, they should be split into
+# multiple lines, like this:
+#   ldmlRegex
+#       ; icuPath1 (; specialInstructions)*
+#       ; icuPath2 (; specialInstructions)*
+#       ...
+#
+# Each regex pattern must match an xpath completely to result in a successful match.
 # Square brackets that are part of the xpath will be preceded by a backslash
 # during processing, so there's no need to do it here.
 # specialInstructions are optional. There may be multiple special instructions,
@@ -17,12 +25,38 @@
 #       - a hardcoded string or
 #       - a regex argument that is already in the rbPath
 #     - group, which indicates that the values created using this xpath should
-#       be grouped together in their own sub-array in the ICU data file.
+#       be grouped together in their own sub-array in the ICU data file. This
+#       instruction should be used instead of hidden labels if the
+#       array is in an array of values, e.g.
+#       DateTimePatterns {
+#            "HH:mm",
+#            {
+#                "EEEE, d בMMMM y",
+#                "hebr",
+#            }
+#            ...
 # All matched arguments from xpaths will be split by whitespace unless the
 # corresponding argument in the replacement string is surrounded by quotes, e.g.
 # "$1".
+#
+# Some ICU paths will contain hidden labels which are enclosed in angle brackets,
+# e.g. /telephoneCodeData/$1/<$2>/code. They are processed and sorted like any
+# any other ICU path, except that labels enclosed in angle brackets will not be
+# written to the ICU file. This is used to create arrays without labels where
+# necessary, e.g. the example ICU path would result in the following output:
+#    telephoneCodeData{
+#        001{
+#            {
+#                code{"388"}
+#            }
+#            {
+#                code{"800"}
+#            }
+#            ...
+#
 
 # Variables
+# The following variables are substituted into all the regexes in this file.
 # Attribute value
 %A=[^"']++
 # Word
@@ -55,9 +89,10 @@
 //ldml/dates/calendars/calendar[@type="(%A)"]/quarters/alias[@source="locale"][@path="../../%W[@type='(%A)']/%W"] ; /calendar/$1/quarters:alias ; values=/LOCALE/calendar/$2/quarters
 
 //ldml/dates/calendars/calendar[@type="(%A)"]/dateFormats/alias[@source="locale"][@path="../../calendar[@type='(%A)']/dateFormats"]   ; /calendar/$1/DateTimePatterns:alias ; values=/LOCALE/calendar/$2/DateTimePatterns
-//ldml/dates/calendars/calendar[@type="(%A)"]/dateTimeFormats/alias[@source="locale"][@path="../../calendar[@type='(%A)']/dateTimeFormats"]   ; /calendar/$1/availableFormats:alias ; values=/LOCALE/calendar/$2/availableFormats
-//ldml/dates/calendars/calendar[@type="(%A)"]/dateTimeFormats/alias[@source="locale"][@path="../../calendar[@type='(%A)']/dateTimeFormats"]   ; /calendar/$1/appendItems:alias ; values=/LOCALE/calendar/$2/appendItems
-//ldml/dates/calendars/calendar[@type="(%A)"]/dateTimeFormats/alias[@source="locale"][@path="../../calendar[@type='(%A)']/dateTimeFormats"]   ; /calendar/$1/intervalFormats:alias ; values=/LOCALE/calendar/$2/intervalFormats
+//ldml/dates/calendars/calendar[@type="(%A)"]/dateTimeFormats/alias[@source="locale"][@path="../../calendar[@type='(%A)']/dateTimeFormats"]
+     ; /calendar/$1/availableFormats:alias ; values=/LOCALE/calendar/$2/availableFormats
+     ; /calendar/$1/appendItems:alias ; values=/LOCALE/calendar/$2/appendItems
+     ; /calendar/$1/intervalFormats:alias ; values=/LOCALE/calendar/$2/intervalFormats
 //ldml/dates/calendars/calendar[@type="(%A)"]/dateTimeFormats/(availableFormats|appendItems|intervalFormats)/alias[@source="locale"][@path="../../../calendar[@type='(%A)']/dateTimeFormats/\2"]   ; /calendar/$1/$2:alias ; values=/LOCALE/calendar/$3/$2
 
 
@@ -89,7 +124,7 @@
 # should be grouped into their own separate array.
 # So far (June 2012), this only happens in the Chinese calendar for zh_Hant
 # and the Hebrew calendar for he.
-//ldml/dates/calendars/calendar[@type="(%A)"]/dateFormats/dateFormatLength[@type="(%A)"]/dateFormat[@type="%A"]/pattern[@type="%A"][@numbers="(%W)"] ; /calendar/$1/DateTimePatterns ;  values={value} $3 ; group=$2
+//ldml/dates/calendars/calendar[@type="(%A)"]/dateFormats/dateFormatLength[@type="(%A)"]/dateFormat[@type="%A"]/pattern[@type="%A"][@numbers="(%W)"] ; /calendar/$1/DateTimePatterns ;  values="{value}" $3 ; group=$2
 
 //ldml/dates/calendars/calendar[@type="(%A)"]/((date|time|dateTime)Format)s/\2Length[@type="(%A)"]/\2[@type="%A"]/pattern[@type="%A"] ; /calendar/$1/DateTimePatterns
 
@@ -155,6 +190,8 @@
 //ldml/numbers/currencies/currency[@type="(%W)"]/symbol ; /Currencies/$1 ; fallback=$1
 //ldml/numbers/currencies/currency[@type="(%W)"]/displayName ; /Currencies/$1
 //ldml/numbers/currencies/currency[@type="(%W)"]/(pattern[@type="standard"]|decimal|group) ; /Currencies/$1 ; group=1
+//ldml/numbers/currencies/currency[@type="(%W)"]/(decimal|group) ; /Currencies/$1 ; group=1
+
 
 //ldml/numbers/currencyFormats[@numberSystem="(%W)"]/currencySpacing/(%W)/(%W)   ; /currencySpacing/$2/$3; $1=//ldml/numbers/defaultNumberingSystem
 //ldml/numbers/currencyFormats[@numberSystem="(%W)"]/unitPattern[@count="(%W)"] ; /CurrencyUnitPatterns/$2 ; $1=//ldml/numbers/defaultNumberingSystem
@@ -172,8 +209,9 @@
 
 //ldml/delimiters/(%W) ; /delimiters/$1
 
-//ldml/layout/orientation[@lines="(%A)"][@characters="(%A)"]   ; /layout/lines ; values=$1
-//ldml/layout/orientation[@lines="(%A)"][@characters="(%A)"]   ; /layout/characters ; values=$2
+//ldml/layout/orientation[@lines="(%A)"][@characters="(%A)"]
+    ; /layout/lines ; values=$1
+    ; /layout/characters ; values=$2
 
 //ldml/listPatterns/listPattern/listPatternPart[@type="(%A)"] ; /listPattern/standard/$1
 
