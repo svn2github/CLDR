@@ -18,12 +18,12 @@
 # specialInstructions are optional. There may be multiple special instructions,
 # with each instruction being one of the following:
 #     - values=<comma-separated-values> which can be
-#       - hardcoded strings,
-#       - regex arguments w.r.t the xpath regex (e.g. $1) or
+#       - hardcoded strings or
 #       - {value} to represent the value of the xpath in the CLDR data
 #     - fallback=<value> which can be
-#       - a hardcoded string or
-#       - a regex argument that is already in the rbPath
+#       - a hardcoded string,
+#       - a regex argument that is already in the rbPath or
+#       - the XPath of another value in the current locale.
 #     - group, which indicates that the values created using this xpath should
 #       be grouped together in their own sub-array in the ICU data file. This
 #       instruction should be used instead of hidden labels if the
@@ -57,6 +57,12 @@
 
 # Variables
 # The following variables are substituted into all the regexes in this file.
+# Variable values should either be regexes or CLDR XPaths. All variable names
+# should start with '%'.
+# Any regex being used that contains square brackets should be made a variable,
+# since the converter will automatically escape all brackets that occur in the
+# XPath regex unless they are represented by variables.
+
 # Attribute value
 %A=[^"']++
 # Word
@@ -65,6 +71,8 @@
 %G=[\w\-]+
 # Number match
 %N=\d++
+# The default numbering system to be used.
+%D=//ldml/numbers/defaultNumberingSystem
 
 # Main locale data
 
@@ -189,12 +197,15 @@
 
 //ldml/numbers/currencies/currency[@type="(%W)"]/symbol ; /Currencies/$1 ; fallback=$1
 //ldml/numbers/currencies/currency[@type="(%W)"]/displayName ; /Currencies/$1
-//ldml/numbers/currencies/currency[@type="(%W)"]/(pattern[@type="standard"]|decimal|group) ; /Currencies/$1 ; group=1
-//ldml/numbers/currencies/currency[@type="(%W)"]/(decimal|group) ; /Currencies/$1 ; group=1
+//ldml/numbers/currencies/currency[@type="(%W)"]/pattern[@type="standard"]; /Currencies/$1/ ; fallback=//ldml/numbers/currencyFormats[@numberSystem="%D"]/currencyFormatLength/currencyFormat[@type="standard"]/pattern[@type="standard"]
+//ldml/numbers/currencies/currency[@type="(%W)"]/(decimal|group) ; /Currencies/$1/
+#//ldml/numbers/currencies/currency[@type="(%W)"]/(pattern[@type="standard"]|decimal|group); /Currencies/$1/
 
 
-//ldml/numbers/currencyFormats[@numberSystem="(%W)"]/currencySpacing/(%W)/(%W)   ; /currencySpacing/$2/$3; $1=//ldml/numbers/defaultNumberingSystem
-//ldml/numbers/currencyFormats[@numberSystem="(%W)"]/unitPattern[@count="(%W)"] ; /CurrencyUnitPatterns/$2 ; $1=//ldml/numbers/defaultNumberingSystem
+#//ldml/numbers/currencyFormats[@numberSystem="(%W)"]/currencySpacing/(%W)/(%W)   ; /currencySpacing/$2/$3; $1=//ldml/numbers/defaultNumberingSystem
+#//ldml/numbers/currencyFormats[@numberSystem="(%W)"]/unitPattern[@count="(%W)"] ; /CurrencyUnitPatterns/$2 ; $1=//ldml/numbers/defaultNumberingSystem
+//ldml/numbers/currencyFormats[@numberSystem="%D"]/currencySpacing/(%W)/(%W)   ; /currencySpacing/$1/$2
+//ldml/numbers/currencyFormats[@numberSystem="%D"]/unitPattern[@count="(%W)"] ; /CurrencyUnitPatterns/$1
 
 //ldml/numbers/defaultNumberingSystem ; /NumberElements/default
 //ldml/numbers/otherNumberingSystems/(%W)   ; /NumberElements/$1

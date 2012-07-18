@@ -1,5 +1,6 @@
 package org.unicode.cldr.icu;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -157,7 +158,8 @@ public class LdmlLocaleMapper extends LdmlMapper {
      */
     public IcuData fillFromCLDR(String locale) {
         Set<String> deprecatedTerritories = getDeprecatedTerritories();
-        RegexLookup<RegexResult> pathConverter = getPathConverter();
+        CLDRFile resolvedCldr = factory.make(locale, true);
+        RegexLookup<RegexResult> pathConverter = getPathConverter(resolvedCldr);
 
         // First pass through the unresolved CLDRFile to get all icu paths.
         CLDRFile cldr = factory.make(locale, false);
@@ -187,23 +189,20 @@ public class LdmlLocaleMapper extends LdmlMapper {
         }
         
         // Get all values from the resolved CLDRFile.
-        CLDRFile resolvedCldr = factory.make(locale, true);
-        Set<String> resolvedPaths = new HashSet<String>();
-        CollectionUtilities.addAll(resolvedCldr.iterator(), resolvedPaths);
-        for (String xpath : resolvedPaths) {
-            addMatchesForPath(xpath, resolvedCldr, validRbPaths, pathValueMap);
+        for (String xpath : resolvedCldr) {
+            addMatchesForPath(xpath, resolvedCldr, validRbPaths, pathConverter, pathValueMap);
         }
 
         // Add fallback paths if necessary.
-        addFallbackValues(pathValueMap);
+        addFallbackValues(resolvedCldr, pathValueMap);
 
         // Add special values to file.
         boolean hasSpecial = hasSpecialFile(locale);
         if (hasSpecial) {
             CLDRFile specialCldrFile = specialFactory.make(locale, false);
             for (String xpath : specialCldrFile) {
-                if (resolvedPaths.contains(xpath)) continue;
-                addMatchesForPath(xpath, specialCldrFile, null, pathValueMap);
+                if (resolvedCldr.isHere(xpath)) continue;
+                addMatchesForPath(xpath, specialCldrFile, null, pathConverter, pathValueMap);
             }
         }
 
@@ -270,9 +269,10 @@ public class LdmlLocaleMapper extends LdmlMapper {
 
         IcuData icuData = new IcuData("icu-locale-deprecates.xml & build.xml", from, true);
         System.out.println("aliased " + from + " to " + to);
+        RegexLookup<RegexResult> pathConverter = getPathConverter();
         if (xpath == null) {
             Map<String,CldrArray> pathValueMap = new HashMap<String,CldrArray>();
-            addMatchesForPath(xpath, null, null, pathValueMap);
+            addMatchesForPath(xpath, null, null, pathConverter, pathValueMap);
             fillIcuData(pathValueMap, comparator, icuData);
         } else {
             icuData.add("/\"%%ALIAS\"", to.substring(0, to.indexOf('@')));
@@ -318,13 +318,13 @@ public class LdmlLocaleMapper extends LdmlMapper {
      * @param pathValueMap the map that the results will be added to
      */
     private void addMatchesForPath(String xpath, CLDRFile cldrFile,
-            Set<String> validRbPaths, Map<String, CldrArray> pathValueMap) {
+            Set<String> validRbPaths, RegexLookup<RegexResult> pathConverter,
+            Map<String, CldrArray> pathValueMap) {
         Output<Finder> matcher = new Output<Finder>();
-        RegexResult regexResult = matchXPath(getPathConverter(),
+        RegexResult regexResult = matchXPath(pathConverter,
             cldrFile, xpath, matcher);
         if (regexResult == null) return;
         String[] arguments = matcher.value.getInfo();
-        if (!regexResult.argumentsMatch(cldrFile, arguments)) return;
         for (PathValueInfo info : regexResult) {
             String rbPath = info.processRbPath(arguments);
             // Don't add additional paths at this stage.

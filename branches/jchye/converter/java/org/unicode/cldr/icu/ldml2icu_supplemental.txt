@@ -18,12 +18,12 @@
 # specialInstructions are optional. There may be multiple special instructions,
 # with each instruction being one of the following:
 #     - values=<comma-separated-values> which can be
-#       - hardcoded strings,
-#       - regex arguments w.r.t the xpath regex (e.g. $1) or
+#       - hardcoded strings or
 #       - {value} to represent the value of the xpath in the CLDR data
 #     - fallback=<value> which can be
-#       - a hardcoded string or
-#       - a regex argument that is already in the rbPath
+#       - a hardcoded string,
+#       - a regex argument that is already in the rbPath or
+#       - the XPath of another value in the current locale.
 #     - group, which indicates that the values created using this xpath should
 #       be grouped together in their own sub-array in the ICU data file. This
 #       instruction should be used instead of hidden labels if the
@@ -60,6 +60,12 @@
 
 # Variables
 # The following variables are substituted into all the regexes in this file.
+# Variable values should either be regexes or CLDR XPaths. All variable names
+# should start with '%'.
+# Any regex being used that contains square brackets should be made a variable,
+# since the converter will automatically escape all brackets that occur in the
+# XPath regex unless they are represented by variables.
+
 # Attribute value
 %A=[^"']++
 # Word/Zone match

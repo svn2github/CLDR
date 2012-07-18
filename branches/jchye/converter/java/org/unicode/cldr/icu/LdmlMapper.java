@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +34,9 @@ public abstract class LdmlMapper {
     private static final Pattern SEMI = Pattern.compile("\\s*+;\\s*+");
 
     private String converterFile;
+    private Map<String, RegexResult> unprocessedMatchers;
+    private Map<String, String> xpathVariables;
+    private VariableReplacer cldrVariables;
 
     protected static class FullMatcher extends RegexFinder {
         public FullMatcher(String pattern) {
@@ -168,12 +172,10 @@ public abstract class LdmlMapper {
     }
 
     static class RegexResult implements Iterable<PathValueInfo> {
-        private static final Pattern ARGUMENT_PATTERN = Pattern.compile("^\\$(\\d+)=(//.*)");
         // Matches arguments with or without enclosing quotes.
         private static final Pattern ARGUMENT = Pattern.compile("[<\"]?\\$(\\d)[\">]?");
 
         private Set<PathValueInfo> unprocessed;
-        private Map<Integer, String> requiredArgs;
 
         public RegexResult() {
             unprocessed = new HashSet<PathValueInfo>();
@@ -183,35 +185,6 @@ public abstract class LdmlMapper {
                 int splitRbPathArg) {
             unprocessed.add(new PathValueInfo(rbPath, rawValues, groupKey,
                     splitRbPathArg));
-        }
-
-        public void setRequiredArgs(Map<Integer, String> requiredArgs) {
-            this.requiredArgs = requiredArgs;
-        }
-
-        /**
-         * Each RegexResult is only accessible if its corresponding regex
-         * matched. However, there may be additional requirements imposed in order
-         * for it to be a valid match, i.e. the arguments retrieved from the regex
-         * must also match. This method checks that specified arguments match
-         * the requirements for this RegexResult.
-         * NOTE: LocaleMapper only
-         * @param file
-         * @param arguments
-         * @return true if the arguments matched
-         */
-        public boolean argumentsMatch(CLDRFile file, String[] arguments) {
-            if (requiredArgs == null) return true;
-            for (int argNum : requiredArgs.keySet()) {
-                if (arguments.length <= argNum) {
-                    throw new IllegalArgumentException("Argument " + argNum + " missing");
-                }
-                String argFromCldr = getStringValue(file, requiredArgs.get(argNum));
-                if (argFromCldr != null && !arguments[argNum].equals(argFromCldr)) {
-                    return false;
-                }
-            }
-            return true;
         }
 
         @Override
@@ -417,6 +390,7 @@ public abstract class LdmlMapper {
      */
     protected LdmlMapper(String converterFile) {
         this.converterFile = converterFile;
+        unprocessedMatchers = new HashMap<String, RegexResult>();
     }
 
     /**
@@ -440,6 +414,25 @@ public abstract class LdmlMapper {
         return xpathConverter;
     }
     
+    protected RegexLookup<RegexResult> getPathConverter(CLDRFile cldrFile) {
+        RegexLookup<RegexResult> basePathConverter = getPathConverter();
+        RegexLookup<RegexResult> processedPathConverter = new RegexLookup<RegexResult>()
+                .setPatternTransform(regexTransform);
+        cldrVariables = new VariableReplacer();
+        for (Entry<String, String> entry : xpathVariables.entrySet()) {
+            cldrVariables.add(entry.getKey(), cldrFile.getStringValue(entry.getValue()));
+        }
+        for (R2<Finder, RegexResult> entry : basePathConverter) {
+            processedPathConverter.add(entry.get0(), entry.get1());
+        }
+        for (Entry<String, RegexResult> entry : unprocessedMatchers.entrySet()) {
+            processedPathConverter.add(cldrVariables.replace(entry.getKey()),
+                    entry.getValue());
+        }
+        // TODO: process fallback values as well!
+        return processedPathConverter;
+    }
+
     private void loadConverters() {
         xpathConverter = new RegexLookup<RegexResult>()
             .setPatternTransform(regexTransform);
@@ -450,6 +443,7 @@ public abstract class LdmlMapper {
                     return into.merge(a);
                 }
             });
+        xpathVariables = new HashMap<String, String>();
         BufferedReader reader = FileUtilities.openFile(NewLdml2IcuConverter.class, converterFile);
         VariableReplacer variables = new VariableReplacer();
         Finder xpathMatcher = null;
@@ -468,20 +462,31 @@ public abstract class LdmlMapper {
                     if (pos < 0) {
                         throw new IllegalArgumentException();
                     }
-                    variables.add(line.substring(0,pos).trim(),
-                            line.substring(pos+1).trim());
+                    String varName = line.substring(0,pos).trim();
+                    String varValue = line.substring(pos+1).trim();
+                    // Variables representing xpaths should be replaced later on.
+                    if (varValue.startsWith("//")) {
+                        xpathVariables.put(varName, varValue);
+                    } else {
+                        variables.add(varName, varValue);
+                    }
                     continue;
                 }
                 if (line.contains("%")) {
                     line = variables.replace(line);
                 }
+                // if line still contains "%", still unprocessed
                 // Process a line in the input file for xpath conversion.
                 String[] content = line.split(SEMI.toString());
                 // xpath ; rbPath ; value
                 // Create a reverse lookup for rbPaths to xpaths.
                 if (!line.startsWith(";")) {
                     if (regexResult != null) {
-                        xpathConverter.add(xpathMatcher, regexResult);
+                        if (xpathMatcher.toString().contains("%")) {
+                            unprocessedMatchers.put(xpathMatcher.toString(), regexResult);
+                        } else {
+                            xpathConverter.add(xpathMatcher, regexResult);
+                        }
                     }
                     xpathMatcher = new FullMatcher(content[0].replace("[@", "\\[@"));
                     regexResult = new RegexResult();
@@ -516,11 +521,9 @@ public abstract class LdmlMapper {
 
         // Parse special instructions.
         String value = null;
-        Map<Integer, String> requiredArgs = new HashMap<Integer, String>();
         String groupKey = null;
         for (int i =  2; i < content.length; i++) {
             String instruction = content[i];
-            Matcher argMatcher;
             if (instruction.startsWith("values=")) {
                 value = instruction.substring(7);
             } else if (instruction.startsWith("group=")) {
@@ -529,15 +532,9 @@ public abstract class LdmlMapper {
                 // WARNING: fallback might backfire if more than one type of xpath for the same rbpath
                 String fallbackValue = instruction.substring(9);
                 addFallback(xpathMatcher, rbPath, fallbackValue);
-            } else if ((argMatcher = RegexResult.ARGUMENT_PATTERN.matcher(instruction)).matches()) {
-                requiredArgs.put(Integer.parseInt(argMatcher.group(1)),
-                        argMatcher.group(2));
             }
         }
         regexResult.add(rbPath, value, groupKey, splitRbPathArg);
-        if (requiredArgs.size() > 0) {
-            regexResult.setRequiredArgs(requiredArgs);
-        }
     }
 
     /**
@@ -598,7 +595,11 @@ public abstract class LdmlMapper {
         rbPattern.append(rbPath.substring(lastIndex));
         FallbackInfo info = new FallbackInfo(argsUsed, args.size());
         info.addItem(xpathMatcher, fallbackXpath, fallbackValue.split("\\s"));
-        fallbackConverter.add(rbPattern.toString(), info);
+        fallbackConverter.add(new FullMatcher(rbPattern.toString()), info);
+    }
+
+    protected void addFallbackValues(Map<String, CldrArray> pathValueMap) {
+        addFallbackValues(null, pathValueMap);
     }
 
     /**
@@ -606,7 +607,7 @@ public abstract class LdmlMapper {
      * map.
      * @param pathValueMap
      */
-    protected void addFallbackValues(Map<String, CldrArray> pathValueMap) {
+    protected void addFallbackValues(CLDRFile cldrFile, Map<String, CldrArray> pathValueMap) {
         RegexLookup<FallbackInfo> fallbackConverter = getFallbackConverter();
         for (String rbPath : pathValueMap.keySet()) {
             Output<String[]> arguments = new Output<String[]>();
@@ -626,7 +627,12 @@ public abstract class LdmlMapper {
                     List<String> fallbackValues = info.get2();
                     List<String> valueList = new ArrayList<String>();
                     for (String value : fallbackValues) {
-                        valueList.add(processString(value, arguments.value));
+                        value = processString(value, arguments.value);
+                        // Value is an xpath, so get real value from CLDRFile.
+                        if (value.startsWith("//") && cldrFile != null) {
+                            value = cldrFile.getStringValue(cldrVariables.replace(value));
+                        }
+                        valueList.add(value);
                     }
                     values.add(fallbackXpath, valueList, null);
                 }
