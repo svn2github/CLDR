@@ -139,7 +139,7 @@ public class SupplementalMapper extends LdmlMapper {
                             newArgs[argIndex] = splitArg;
                             String rbPath = info.processRbPath(newArgs);
                             CldrArray cldrArray = getCldrArray(rbPath, pathValueMap);
-                            processValues(xpath, rbPath, values, groupKey, cldrArray);
+                            processValues(fullPath, rbPath, values, groupKey, cldrArray);
                         }
                         splitNeeded = true;
                     }
@@ -148,7 +148,7 @@ public class SupplementalMapper extends LdmlMapper {
                 if (!splitNeeded) {
                     String rbPath = info.processRbPath(arguments);
                     CldrArray cldrArray = getCldrArray(rbPath, pathValueMap);
-                    processValues(xpath, rbPath, values, groupKey, cldrArray);
+                    processValues(fullPath, rbPath, values, groupKey, cldrArray);
                 }
             }
             fifoCounter++;
@@ -172,7 +172,7 @@ public class SupplementalMapper extends LdmlMapper {
         } else {
             processedValues = values;
         }
-        cldrArray.add(rbPath, processedValues, groupKey);
+        cldrArray.add(xpath, processedValues, groupKey);
     }
     /**
      * Checks if the given path should be treated as a date path.

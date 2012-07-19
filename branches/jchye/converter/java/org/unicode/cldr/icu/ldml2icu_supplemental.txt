@@ -119,8 +119,8 @@
 # telephoneCodeData.xml
 //supplementalData/telephoneCodeData/codesByTerritory[@territory="(%W)"]/telephoneCountryCode[@code="(%N)"] ; /telephoneCodeData/$1/<$2>/code ; values=$2
 //supplementalData/telephoneCodeData/codesByTerritory[@territory="(%W)"]/telephoneCountryCode[@code="(%N)"][@alt="(%W)"]
-     ; /telephoneCodeData/$1/<$2>/code ; values=$2
-     ; /telephoneCodeData/$1/<$2>/alt ; values=$3
+     ; /telephoneCodeData/$1/<x$2>/code ; values=$2
+     ; /telephoneCodeData/$1/<x$2>/alt ; values=$3
 
 # languageInfo.xml
 #TODO: what to do about extra values?
