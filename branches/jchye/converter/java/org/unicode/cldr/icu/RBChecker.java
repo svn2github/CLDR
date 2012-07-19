@@ -192,7 +192,6 @@ public class RBChecker {
         boolean hasDifferences = false;
         Set<String> missing = new TreeSet<String>(oldData.keySet());
         missing.removeAll(newData.keySet());
-        missing.remove("/Countries/CS");
         if (missing.size() > 0) {
             buffer.append("Missing paths:\n");
             printAllInSet(oldData, missing, buffer);

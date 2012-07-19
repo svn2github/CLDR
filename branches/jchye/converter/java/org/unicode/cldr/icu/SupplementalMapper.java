@@ -138,8 +138,7 @@ public class SupplementalMapper extends LdmlMapper {
                         for (String splitArg : splitArgs) {
                             newArgs[argIndex] = splitArg;
                             String rbPath = info.processRbPath(newArgs);
-                            CldrArray cldrArray = getCldrArray(rbPath, pathValueMap);
-                            processValues(fullPath, rbPath, values, groupKey, cldrArray);
+                            processValues(fullPath, rbPath, values, groupKey, pathValueMap);
                         }
                         splitNeeded = true;
                     }
@@ -147,15 +146,15 @@ public class SupplementalMapper extends LdmlMapper {
                 // No splitting required, process as per normal.
                 if (!splitNeeded) {
                     String rbPath = info.processRbPath(arguments);
-                    CldrArray cldrArray = getCldrArray(rbPath, pathValueMap);
-                    processValues(fullPath, rbPath, values, groupKey, cldrArray);
+                    processValues(fullPath, rbPath, values, groupKey, pathValueMap);
                 }
             }
             fifoCounter++;
         }
     }
 
-    private void processValues(String xpath, String rbPath, List<String> values, String groupKey, CldrArray cldrArray) {
+    private void processValues(String xpath, String rbPath, List<String> values,
+            String groupKey, Map<String,CldrArray> pathValueMap) {
         List<String> processedValues = new ArrayList<String>();
         rbPath = rbPath.replace("<FIFO>", '<' + numberFormat.format(fifoCounter) + '>');
         if (NUMBERING_SYSTEMS_DESC.matcher(rbPath).matches()
@@ -172,8 +171,10 @@ public class SupplementalMapper extends LdmlMapper {
         } else {
             processedValues = values;
         }
+        CldrArray cldrArray = getCldrArray(rbPath, pathValueMap);
         cldrArray.add(xpath, processedValues, groupKey);
     }
+
     /**
      * Checks if the given path should be treated as a date path.
      */

@@ -194,6 +194,7 @@ public abstract class LdmlMapper {
     }
 
     class CldrArray {
+        // Map of xpaths to values and group key.
         private Map<String, R2<List<String>, String>> map;
         public CldrArray () {
             map = new HashMap<String, R2<List<String>, String>>();
@@ -323,6 +324,7 @@ public abstract class LdmlMapper {
 
     // One FallbackInfo object for every type of rbPath.
     protected class FallbackInfo implements Iterable<R3<Finder, String, List<String>>> {
+        // Fallback info in the order: xpath matcher, fallback xpath, fallback values.
         private List<R3<Finder, String, List<String>>> fallbackItems;
         private List<Integer> argsUsed; // list of args used by the rb pattern
         private int numXpathArgs; // Number of args in the xpath

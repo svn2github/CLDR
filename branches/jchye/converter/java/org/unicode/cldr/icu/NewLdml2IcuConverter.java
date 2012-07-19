@@ -167,7 +167,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
                 factory = Factory.make(sourceDir, ".*", DraftStatus.contributed);
                 Collections.sort(locales);
             } else if (extraArgs.size() > 0) {
-                factory = Factory.make(sourceDir, extraArgs.iterator().next());
+                factory = Factory.make(sourceDir, extraArgs.iterator().next(), DraftStatus.contributed);
                 locales.addAll(factory.getAvailable());
             } else {
                 throw new IllegalArgumentException("No files specified!");

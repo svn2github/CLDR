@@ -153,4 +153,4 @@
      ; /numberingSystems/$1/radix:int ; values=10
 
 # windowsZones.txt
-//supplementalData/windowsZones/mapTimezones[@otherVersion="%W"][@typeVersion="%W"]/mapZone[@type="(%A)"][@other="(%A)"][@territory="(001)"] ; /mapTimezones/"$2"/$3 ; values=$1
+//supplementalData/windowsZones/mapTimezones[@otherVersion="%W"][@typeVersion="%W"]/mapZone[@type="(%A)"][@other="(%A)"][@territory="(%W)"] ; /mapTimezones/"$2"/$3 ; values="$1"

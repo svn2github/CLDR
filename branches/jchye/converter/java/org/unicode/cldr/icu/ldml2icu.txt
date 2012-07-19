@@ -78,9 +78,10 @@
 
 # Aliases
 
-//ldml/dates/calendars/calendar[@type="(%A)"]/alias[@source="locale"][@path="../calendar[@type='(%A)']"]   ; /calendar/$1:alias ; values=/LOCALE/calendar/$2
+//ldml/dates/calendars/calendar[@type="(%A)"]/alias[@source="locale"][@path="../calendar[@type='(%A)']"]   ; /calendar/$1lo ; values=/LOCALE/calendar/$2
 
 //ldml/dates/calendars/calendar[@type="(%A)"]/dayPeriods/alias[@source="locale"][@path="../../calendar[@type='(%A)']/dayPeriods"] ; /calendar/$1/AmPmMarkers:alias ; values=/LOCALE/calendar/$2/AmPmMarkers
+//ldml/dates/calendars/calendar[@type="(%A)"]/(eras|quarters)/alias[@source="locale"][@path="../../%W[@type='(%A)']/%W"] ; /calendar/$1/$2:alias ; values=/LOCALE/calendar/$3/$2
 
 //ldml/dates/calendars/calendar[@type="(%A)"]/eras/eraNarrow/alias[@source="locale"][@path="../eraAbbr"] ; /calendar/$1/eras/narrow:alias ; values=/LOCALE/calendar/$1/eras/abbreviated
 //ldml/dates/calendars/calendar[@type="(%A)"]/eras/eraNames/alias[@source="locale"][@path="../eraAbbr"] ; /calendar/$1/eras/wide:alias ; values=/LOCALE/calendar/$1/eras/abbreviated
@@ -94,7 +95,6 @@
 //ldml/dates/calendars/calendar[@type="(%A)"]/(day|month)s/\2Context[@type="(%W)"]/\2Width[@type="(%W)"]/alias[@source="locale"][@path="../../\2Context[@type='(%W)']/\2Width[@type='(%A)']"]   ; /calendar/$1/$2Names/$3/$4:alias ; values=/LOCALE/calendar/$1/$2Names/$5/$6
 
 //ldml/dates/calendars/calendar[@type="(%A)"]/(monthPattern|quarter)s/\2Context[@type="(%W)"]/\2Width[@type="(%W)"]/alias[@source="locale"][@path="../\2Width[@type='(%A)']"]   ; /calendar/$1/$2s/$3/$4:alias ; values=/LOCALE/calendar/$1/$2s/$3/$5
-//ldml/dates/calendars/calendar[@type="(%A)"]/quarters/alias[@source="locale"][@path="../../%W[@type='(%A)']/%W"] ; /calendar/$1/quarters:alias ; values=/LOCALE/calendar/$2/quarters
 
 //ldml/dates/calendars/calendar[@type="(%A)"]/dateFormats/alias[@source="locale"][@path="../../calendar[@type='(%A)']/dateFormats"]   ; /calendar/$1/DateTimePatterns:alias ; values=/LOCALE/calendar/$2/DateTimePatterns
 //ldml/dates/calendars/calendar[@type="(%A)"]/dateTimeFormats/alias[@source="locale"][@path="../../calendar[@type='(%A)']/dateTimeFormats"]
@@ -199,11 +199,8 @@
 //ldml/numbers/currencies/currency[@type="(%W)"]/displayName ; /Currencies/$1
 //ldml/numbers/currencies/currency[@type="(%W)"]/pattern[@type="standard"]; /Currencies/$1/ ; fallback=//ldml/numbers/currencyFormats[@numberSystem="%D"]/currencyFormatLength/currencyFormat[@type="standard"]/pattern[@type="standard"]
 //ldml/numbers/currencies/currency[@type="(%W)"]/(decimal|group) ; /Currencies/$1/
-#//ldml/numbers/currencies/currency[@type="(%W)"]/(pattern[@type="standard"]|decimal|group); /Currencies/$1/
 
 
-#//ldml/numbers/currencyFormats[@numberSystem="(%W)"]/currencySpacing/(%W)/(%W)   ; /currencySpacing/$2/$3; $1=//ldml/numbers/defaultNumberingSystem
-#//ldml/numbers/currencyFormats[@numberSystem="(%W)"]/unitPattern[@count="(%W)"] ; /CurrencyUnitPatterns/$2 ; $1=//ldml/numbers/defaultNumberingSystem
 //ldml/numbers/currencyFormats[@numberSystem="%D"]/currencySpacing/(%W)/(%W)   ; /currencySpacing/$1/$2
 //ldml/numbers/currencyFormats[@numberSystem="%D"]/unitPattern[@count="(%W)"] ; /CurrencyUnitPatterns/$1
 
