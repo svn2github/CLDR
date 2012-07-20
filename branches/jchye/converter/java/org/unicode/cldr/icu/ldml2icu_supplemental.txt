@@ -154,3 +154,6 @@
 
 # windowsZones.txt
 //supplementalData/windowsZones/mapTimezones[@otherVersion="%W"][@typeVersion="%W"]/mapZone[@type="(%A)"][@other="(%A)"][@territory="(%W)"] ; /mapTimezones/"$2"/$3 ; values="$1"
+
+# genderList.txt
+//supplementalData/gender/personList[@type="(%W)"][@locales="(%W)"] ; /genderList/$2 ; values=$1

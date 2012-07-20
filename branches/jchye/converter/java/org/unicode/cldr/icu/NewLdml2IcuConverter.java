@@ -19,7 +19,6 @@ import org.unicode.cldr.icu.ResourceSplitter.SplitInfo;
 import org.unicode.cldr.tool.Option;
 import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
-import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.SupplementalDataInfo;
 
@@ -36,17 +35,17 @@ import org.unicode.cldr.util.SupplementalDataInfo;
  * xpaths that are convertible have already been filtered out by the regex lookups.
  * It may make more sense down the road to refactor CLDRConverterTool such that
  * this class doesn't inherit unnecessary functionality.
- * 
+ *
  * @author jchye
  */
 public class NewLdml2IcuConverter extends CLDRConverterTool {
     static final boolean DEBUG = true;
 
     static final Pattern SEMI = Pattern.compile("\\s*+;\\s*+");
-    
+
     enum Type {
         locale, likelySubtags, metaZones, numberingSystems, plurals,
-        supplementalData, metadata, windowsZones;
+        supplementalData, metadata, windowsZones, genderList;
     }
 
     private static final Options options = new Options(
@@ -84,7 +83,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
         }
         return dirMapping;
     }
-    
+
     private static Map<String, String> loadMapFromFile(String filename) {
         Map<String, String> map = new HashMap<String, String>();
         BufferedReader reader = FileUtilities.openFile(NewLdml2IcuConverter.class, filename);
@@ -183,12 +182,12 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
             processSupplementalData(type, options.get("cldrVersion").getValue());
         }
     }
-    
+
     private void processPlurals() {
         PluralsMapper mapper = new PluralsMapper(sourceDir);
         writeIcuData(mapper.fillFromCldr(), destinationDir);
     }
-    
+
     private void processSupplementalData(Type type, String cldrVersion) {
         SupplementalMapper mapper = new SupplementalMapper(sourceDir, cldrVersion);
         writeIcuData(mapper.fillFromCldr(type.toString()), destinationDir);
@@ -243,7 +242,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
 
     /**
      * In this prototype, just convert one file.
-     * 
+     *
      * @param args
      * @throws IOException
      */
