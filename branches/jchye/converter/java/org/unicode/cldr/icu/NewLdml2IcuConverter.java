@@ -36,6 +36,8 @@ import org.unicode.cldr.util.SupplementalDataInfo;
  * It may make more sense down the road to refactor CLDRConverterTool such that
  * this class doesn't inherit unnecessary functionality.
  *
+ * A rough overview of the new converter is available at
+ * https://sites.google.com/site/cldr/development/coding-cldr-tools/newldml2icuconverter
  * @author jchye
  */
 public class NewLdml2IcuConverter extends CLDRConverterTool {
