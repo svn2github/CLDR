@@ -14,9 +14,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.unicode.cldr.tool.Option.Options;
-import org.unicode.cldr.util.Factory;
-import org.unicode.cldr.util.SupplementalDataInfo;
-import org.unicode.cldr.util.With;
 
 import com.ibm.icu.dev.test.util.BagFormatter;
 import com.ibm.icu.impl.Row;
@@ -28,31 +25,17 @@ import com.ibm.icu.text.UTF16;
 import com.ibm.icu.text.UnicodeSet;
 
 /**
- * Compares the contents of ICU data output.
- * WARNING: This tool lumps values from different unlabeled structs together, e.g.
- * {
- *   id{"EUR"}
- *   ...
- * }
- * {
- *   id{"ITL"}
- *   ...
- * }
- * will be merged into:
- * /CurrencyMap/VA//id = ["EUR", "ITL"]
- * This means that if the data is incorrectly positioned within the unlabeled
- * structs, the tool might not catch the error. Make sure to manually verify
- * the data in such cases.
+ * Compares the contents of ICU data output while ignoring comments.
  * @author markdavis, jchye
  *
  */
-public class RBChecker {
+public class CompareIcuOutput {
     private static final boolean DEBUG = false;
 
     private static final Options options = new Options(
         "Usage: RBChecker [OPTIONS] DIR1 DIR2 FILE_REGEX\n" +
         "This program is used to compare the RB text files in two different directories.\n" +
-        "  Example: org.unicode.cldr.icu.RBChecker olddata newdata .*")
+        "  Example: org.unicode.cldr.icu.RBChecker olddatadir newdatadir .*")
         .add("sort", 's', null, null, "Sort values for comparison");
 
     private static final Comparator<String[]> comparator = new Comparator<String[]>() {
@@ -65,7 +48,7 @@ public class RBChecker {
     private static boolean shouldSort = false;
 
     public static void main(String[] args) throws IOException {
-        // TODO: change output of parse() to a List.
+        // TODO: change output of Options.parse() to a List.
         Set<String> extraArgs = options.parse(args, true);
         Iterator<String> iterator = extraArgs.iterator();
         String dir1 = iterator.next();
@@ -110,75 +93,15 @@ public class RBChecker {
         }
         System.out.println("Check finished with " + different + " different and " + same + " same locales.");
     }
-    
-    /**
-     * NOTE: unused, may delete later.
-     * Compares an ICU textfile with the output of the LDMLConverter. This
-     * method should only be used for sanity checking because there are several
-     * differences between the data structure parsed from an ICU file and the
-     * data structure retrieved directly from LDMLConverter, even if the data
-     * itself is identical. Also, comparing two ICU textfiles is much faster
-     * than loading the output of LDMLConverter.
-     * @param icuDir
-     * @param cldrDir
-     * @param regex
-     * @throws IOException
-     */
-    private static void compareTextAndConverter(String icuDir, String cldrDir, String regex) throws IOException {
-        File specialDir = new File(icuDir, "xml/main");
-        Factory specialFactory = null;
-        if (specialDir.exists()) {
-            specialFactory = Factory.make(specialDir.getAbsolutePath(), regex);
-        }
-        Factory factory = Factory.make(cldrDir, regex);
-        SupplementalDataInfo supplementalDataInfo = SupplementalDataInfo.getInstance();
-        LdmlLocaleMapper mapper = new LdmlLocaleMapper(factory, specialFactory, supplementalDataInfo);
-        int same = 0, different = 0;
-        for (String locale : factory.getAvailable()) {
-            IcuData oldData = loadDataFromTextfiles(icuDir, locale);
-            IcuData newData = mapper.fillFromCLDR(locale);
-            StringBuffer messages = new StringBuffer();
-            if (analyseMatches(oldData, newData, messages)) {
-                System.out.println("=== Differences found for " + locale + " ===");
-                System.out.println(messages);
-                different++;
-            } else {
-                same++;
-            }
-        }
-        System.out.println("Check finished with " + different + " different and " + same + " same.");
-    }
-
-    /**
-     * NOTE: unused. can delete?
-     * @param comments
-     * @param output
-     * @throws IOException
-     */
-    private static void writeComments(List<R2<MyTokenizer.Type, String>> comments, Appendable output) throws IOException {
-        for (R2<MyTokenizer.Type, String> entity : comments) {
-            switch (entity.get0()) {
-            case LINE_COMMENT:
-                output.append("// ").append(entity.get1()).append('\n');
-                break;
-            case BLOCK_COMMENT:
-                output.append("/*").append(entity.get1()).append("*/\n");
-                break;
-            }
-        }
-    }
 
     private static IcuData loadDataFromTextfiles(String icuPath, String locale) throws IOException {
         List<Row.R2<MyTokenizer.Type, String>> comments = new ArrayList<Row.R2<MyTokenizer.Type, String>>();
-        IcuData icuData = new IcuData("common/main/" + locale + ".xml", locale, true);
+        IcuData icuData = new IcuData(locale + ".xml", locale, true);
         String filename = icuPath + '/' + locale + ".txt";
         if (new File(filename).exists()) {
             parseRB(filename, icuData, comments);
         } else {
-            for (String dir : With.array("locales", "lang", "region", "curr", "zone")) {
-                String source = icuPath + '/' + dir + '/' + locale + ".txt";
-                parseRB(source, icuData, comments);
-            }
+            throw new FileNotFoundException(filename +" does not exist.");
         }
         return icuData;
     }
@@ -251,8 +174,12 @@ public class RBChecker {
         buffer.append('\n');
     }
     
+    /**
+     * @param oldValues
+     * @param newValues
+     * @return true if the contents of the lists are identical
+     */
     private static boolean valuesDiffer(List<String[]> oldValues, List<String[]> newValues) {
-        // TODO: handle arrays with multiple values.
         if (oldValues.size() != newValues.size()) return true;
         boolean differ = false;
         for (int i=0; i < oldValues.size(); i++) {
@@ -402,14 +329,11 @@ public class RBChecker {
     
     private static void addPath(String path, String[] values, IcuData icuData) {
         path = path.substring(path.indexOf('/', 1));
-        // Hack to stop additional copies of the /Version value from being added.
-        if (path.equals("/Version") && icuData.containsKey(path)) {
-            return;
-        }
         icuData.add(path, values);
     }
 
     /**
+     * Reads in tokens from an ICU data file reader.
      * Replace by updated PatternTokenizer someday
      * @author markdavis
      *

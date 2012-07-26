@@ -43,24 +43,41 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
 
     static final Pattern SEMI = Pattern.compile("\\s*+;\\s*+");
 
+    /*
+     * The type of file to be converted.
+     */
     enum Type {
-        locale, likelySubtags, metaZones, numberingSystems, plurals,
-        supplementalData, metadata, windowsZones, genderList;
+        locales(SuperType.locale),
+        genderList(SuperType.supplemental), likelySubtags(SuperType.supplemental),
+        metadata(SuperType.supplemental), metaZones(SuperType.supplemental),
+        numberingSystems(SuperType.supplemental), plurals(SuperType.supplemental),
+        supplementalData(SuperType.supplemental), 
+        windowsZones(SuperType.supplemental);
+        
+        private SuperType superType;
+        private Type(SuperType superType) {
+            this.superType = superType;
+        }
+
+        public SuperType getSuperType() { return superType; }
+    }
+
+    enum SuperType {
+        locale, supplemental, bcp47;
     }
 
     private static final Options options = new Options(
             "Usage: LDML2ICUConverter [OPTIONS] [FILES]\n" +
             "This program is used to convert LDML files to ICU data text files.\n" +
             "Please refer to the following options. Options are not case sensitive.\n" +
-            "example: org.unicode.cldr.icu.LDMLConverter -s xxx -d yyy en.xml\n"+
-            "Options:\n")
+            "\texample: org.unicode.cldr.icu.Ldml2IcuConverter -s xxx -d yyy en")
         .add("sourcedir", ".*", "Source directory for CLDR files")
         .add("destdir", ".*", ".", "Destination directory for output files, defaults to the current directory")
         .add("specialsdir", 'p', ".*", null, "Source directory for files containing special data, if any")
         .add("supplementaldir", 'm', ".*", null, "The supplemental data directory")
         .add("keeptogether", 'k', null, null, "Write locale data to one file instead of splitting into separate directories. For debugging")
-        .add("type", 't', "\\w+", "locale", "The type of file to be generated")
-        .add("cldrVersion", 'c', ".*", "21.0", "The version of the CLDR data, used purely for output.");
+        .add("type", 't', "\\w+", null, "The type of file to be generated")
+        .add("cldrVersion", 'c', ".*", "21.0", "The version of the CLDR data, used purely for supplementalData output.");
 
     private static final String LOCALES_DIR = "locales";
 
@@ -128,9 +145,12 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
         sourceDir = options.get("sourcedir").getValue();
 
         destinationDir = options.get("destdir").getValue();
+        if (!options.get("type").doesOccur()) {
+            throw new IllegalArgumentException("Type not specified");
+        }
         Type type = Type.valueOf(options.get("type").getValue());
         keepTogether = options.get("keeptogether").doesOccur();
-        if (!keepTogether && type == Type.supplementalData || type == Type.locale) {
+        if (!keepTogether && type == Type.supplementalData || type == Type.locales) {
             if (splitInfos == null) {
                 splitInfos = loadSplitInfoFromFile();
             }
@@ -138,7 +158,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
         }
 
         // Process files.
-        switch (type) {
+        switch (type.getSuperType()) {
         case locale:
             // Generate locale data.
             SupplementalDataInfo supplementalDataInfo = null;
@@ -172,27 +192,35 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
                 throw new IllegalArgumentException("No files specified!");
             }
 
-            LdmlLocaleMapper mapper = new LdmlLocaleMapper(factory, specialFactory, supplementalDataInfo);
+            LocaleMapper mapper = new LocaleMapper(factory, specialFactory, supplementalDataInfo);
             processLocales(mapper, locales);
             break;
-        case plurals:
-            processPlurals();
+        case supplemental:  // supplemental data
+            processSupplemental(type, options.get("cldrVersion").getValue());
             break;
-        default: // supplemental data
-            processSupplementalData(type, options.get("cldrVersion").getValue());
+        // TODO: add BCP47 data conversion.
+        default:
+            throw new UnsupportedOperationException("ERROR: " + type + " not supported.");
         }
     }
 
-    private void processPlurals() {
-        PluralsMapper mapper = new PluralsMapper(sourceDir);
-        writeIcuData(mapper.fillFromCldr(), destinationDir);
+    private void processSupplemental(Type type, String cldrVersion) {
+        IcuData icuData;
+        if (type == Type.plurals) {
+            PluralsMapper mapper = new PluralsMapper(sourceDir);
+            icuData = mapper.fillFromCldr();
+        } else {
+            SupplementalMapper mapper = new SupplementalMapper(sourceDir, cldrVersion);
+            icuData = mapper.fillFromCldr(type.toString());
+        }
+        writeIcuData(icuData, destinationDir);
     }
 
-    private void processSupplementalData(Type type, String cldrVersion) {
-        SupplementalMapper mapper = new SupplementalMapper(sourceDir, cldrVersion);
-        writeIcuData(mapper.fillFromCldr(type.toString()), destinationDir);
-    }
-
+    /**
+     * Writes the given IcuData object to file.
+     * @param icuData the IcuData object to be written
+     * @param outputDir the destination directory of the output file
+     */
     private void writeIcuData(IcuData icuData, String outputDir) {
         if (icuData.keySet().size() == 0) {
             throw new RuntimeException(icuData.getName() + " was not written because no data was generated.");
@@ -215,7 +243,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
         }
     }
 
-    private void processLocales(LdmlLocaleMapper mapper, List<String> locales) {
+    private void processLocales(LocaleMapper mapper, List<String> locales) {
         for (String locale : locales) {
             long time = System.currentTimeMillis();
             IcuData icuData = mapper.fillFromCLDR(locale);
@@ -231,7 +259,7 @@ public class NewLdml2IcuConverter extends CLDRConverterTool {
      * @param mapper
      * @param aliasList
      */
-    private void writeAliasedFiles(LdmlLocaleMapper mapper, List<Alias> aliasList) {
+    private void writeAliasedFiles(LocaleMapper mapper, List<Alias> aliasList) {
         for (Alias alias: aliasList) {
             IcuData icuData = mapper.fillFromCldr(alias);
             if (icuData != null) {

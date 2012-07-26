@@ -1,70 +1,6 @@
 # Used by SupplementalMapper.
 # Data-driven file for mapping supplemental LDML paths to ICU paths.
-# Order is not important, so regexes are grouped logically and are assumed to be
-# mutually exclusive.
-# The format is:
-#   ldmlRegex ; icuPath (; specialInstructions)*
-#
-# If an LDML xpath results in two or more ICU paths, they should be split into
-# multiple lines, like this:
-#   ldmlRegex
-#       ; icuPath1 (; specialInstructions)*
-#       ; icuPath2 (; specialInstructions)*
-#       ...
-#
-# Each regex pattern must match an xpath completely to have a successful match.
-# Square brackets that are part of the xpath will be preceded by a backslash
-# during processing, so there's no need to do it here.
-# specialInstructions are optional. There may be multiple special instructions,
-# with each instruction being one of the following:
-#     - values=<comma-separated-values> which can be
-#       - hardcoded strings or
-#       - {value} to represent the value of the xpath in the CLDR data
-#     - fallback=<value> which can be
-#       - a hardcoded string,
-#       - a regex argument that is already in the rbPath or
-#       - the XPath of another value in the current locale.
-#     - group, which indicates that the values created using this xpath should
-#       be grouped together in their own sub-array in the ICU data file. This
-#       instruction should be used instead of hidden labels if the
-#       array is in an array of values, e.g.
-#       DateTimePatterns {
-#            "HH:mm",
-#            {
-#                "EEEE, d בMMMM y",
-#                "hebr",
-#            }
-#            ...
-# All matched arguments from xpaths will be split by whitespace unless the
-# corresponding argument in the replacement string is surrounded by quotes, e.g.
-# "$1".
-#
-# Some ICU paths will contain hidden labels which are enclosed in angle brackets,
-# e.g. /telephoneCodeData/$1/<$2>/code. They are processed and sorted like any
-# any other ICU path, except that labels enclosed in angle brackets will not be
-# written to the ICU file. This is used to create arrays without labels where
-# necessary, e.g. the example ICU path would result in the following output:
-#    telephoneCodeData{
-#        001{
-#            {
-#                code{"388"}
-#            }
-#            {
-#                code{"800"}
-#            }
-#            ...
-#
-# <FIFO> is a special case: using this label will cause the values from a single
-# xpath to be grouped together in the same array, and the arrays will be written
-# in the same order that they were read from the CLDR file.
-
-# Variables
-# The following variables are substituted into all the regexes in this file.
-# Variable values should either be regexes or CLDR XPaths. All variable names
-# should start with '%'.
-# Any regex being used that contains square brackets should be made a variable,
-# since the converter will automatically escape all brackets that occur in the
-# XPath regex unless they are represented by variables.
+# See ldml2icu_readme.txt for a detailed explanation of this file.
 
 # Attribute value
 %A=[^"']++
@@ -76,7 +12,6 @@
 %N=\d++
 
 # supplementalData.xml
-# TODO: some values are sorted in supplementalData. Is this actually needed?
 //supplementalData/currencyData/region[@iso3166="(%W)"]/currency[@iso4217="(%W)"]([@tender="false"])?
      ; /CurrencyMap/$1/<FIFO>/id ; values=$2
      ; /CurrencyMap/$1/<FIFO>/from:intvector ; values=9999-12-31
@@ -105,7 +40,6 @@
      ; /languageData/$1/secondary/scripts ; values=$2
      ; /languageData/$1/secondary/territories ; values=$3
 
-# TODO: check if these need to be sorted.
 //supplementalData/territoryContainment/group[@type="(%W)"][@contains="(%A)"]; /territoryContainment/$1 ; values=$2
 //supplementalData/territoryContainment/group[@type="(%W)"][@contains="(%A)"][@grouping="true"]
      ; /territoryContainment/$1 ; values=$2
@@ -123,7 +57,6 @@
      ; /telephoneCodeData/$1/<x$2>/alt ; values=$3
 
 # languageInfo.xml
-#TODO: what to do about extra values?
 //supplementalData/languageMatching/languageMatches[@type="(%A)"]/languageMatch[@_q="%N"][@desired="(%A)"](?:[@oneway="true"])?[@percent="(%N)"][@supported="(%A)"] ; /languageMatching/$1/<$2$4> ; values=$2 $4 $3
 
 # likelySubtags.xml

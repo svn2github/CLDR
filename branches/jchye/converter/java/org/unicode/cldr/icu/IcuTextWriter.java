@@ -5,16 +5,17 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.unicode.cldr.draft.FileUtilities;
-import org.unicode.cldr.util.Builder;
 
 import com.ibm.icu.dev.test.util.BagFormatter;
 import com.ibm.icu.impl.Utility;
 
+/**
+ * Writes an IcuData object to a text file.
+ * @author jchye
+ */
 public class IcuTextWriter {
     /**
      * The default tab indent (actually spaces)
@@ -186,7 +187,7 @@ public class IcuTextWriter {
     private static boolean mustBeArray(String rbPath) {
        return rbPath.equals("/LocaleScript") || rbPath.contains("/eras/") && !rbPath.endsWith(":alias");
     }
-    
+
     private static PrintWriter appendArray(String padding, String[] valueArray, boolean quote, PrintWriter out) {
         for (String value : valueArray) {
             out.append(padding);

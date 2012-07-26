@@ -1,6 +1,5 @@
 package org.unicode.cldr.icu;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,14 +22,11 @@ import org.unicode.cldr.util.CldrUtility.Output;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.SupplementalDataInfo.MeasurementType;
 
-import com.ibm.icu.dev.test.util.CollectionUtilities;
-
 /**
- * Converts CLDR locale XML files to a format suitable for writing ICU data
- * with.
+ * A mapper that converts locale data from CLDR to the ICU data structure.
  * @author jchye
  */
-public class LdmlLocaleMapper extends LdmlMapper {
+public class LocaleMapper extends LdmlMapper {
     public static final String ALIAS_PATH = "/\"%%ALIAS\"";
 
     /**
@@ -118,9 +114,9 @@ public class LdmlLocaleMapper extends LdmlMapper {
         return -1;
     }
 
-    public LdmlLocaleMapper(Factory factory, Factory specialFactory,
+    public LocaleMapper(Factory factory, Factory specialFactory,
             SupplementalDataInfo supplementalDataInfo) {
-        super("ldml2icu.txt");
+        super("ldml2icu_locale.txt");
         this.factory = factory;
         this.specialFactory = specialFactory;
         this.supplementalDataInfo = supplementalDataInfo;
@@ -132,7 +128,11 @@ public class LdmlLocaleMapper extends LdmlMapper {
     public Set<String> getAvailable() {
         return factory.getAvailable();
     }
-    
+
+    /**
+     * @param filename
+     * @return true if a special XML file with the specified filename is available.
+     */
     private boolean hasSpecialFile(String filename) {
         return specialFactory != null && specialFactory.getAvailable().contains(filename);
     }

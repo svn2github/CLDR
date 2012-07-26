@@ -27,6 +27,10 @@ import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.TimeZone;
 
+/**
+ * A mapper that converts supplemental LDML data from CLDR to the ICU data
+ * structure.
+ */
 public class SupplementalMapper extends LdmlMapper {
     private static final Map<String, String> enumMap = Builder.with(new HashMap<String, String>())
             .put("sun", "1").put("mon", "2").put("tues", "3").put("wed", "4")
@@ -42,6 +46,9 @@ public class SupplementalMapper extends LdmlMapper {
     private String inputDir;
     private String cldrVersion;
 
+    /**
+     * Comparator for sorting LDML supplementalData xpaths.
+     */
     private static Comparator<String> supplementalComparator = new Comparator<String>() {
         private final Pattern FROM_ATTRIBUTE = Pattern.compile("\\[@from=\"([^\"]++)\"]");
         private final Pattern WEEKDATA = Pattern.compile(
@@ -80,12 +87,23 @@ public class SupplementalMapper extends LdmlMapper {
         }
     };
 
+    /**
+     * SupplementalMapper constructor.
+     * @param inputDir the directory that the input files are in
+     * @param cldrVersion the version of CLDR for output purposes. Only used
+     * in supplementalData conversion.
+     */
     public SupplementalMapper(String inputDir, String cldrVersion) {
         super("ldml2icu_supplemental.txt");
         this.inputDir = inputDir;
         this.cldrVersion = cldrVersion;
     }
 
+    /**
+     * Loads an IcuData object of the specified type.
+     * @param outputName the type of data to be converted
+     * @return an IcuData object
+     */
     public IcuData fillFromCldr(String outputName) {
         Map<String,CldrArray> pathValueMap = new HashMap<String, CldrArray>();
         String category = outputName;
@@ -111,6 +129,11 @@ public class SupplementalMapper extends LdmlMapper {
         return icuData;
     }
 
+    /**
+     * Loads values for the specified category from CLDR.
+     * @param category
+     * @param pathValueMap the output map
+     */
     private void loadValues(String category, Map<String,CldrArray> pathValueMap) {
         String inputFile = category + ".xml";
         XMLSource source = new LinkedXMLSource();
@@ -153,10 +176,21 @@ public class SupplementalMapper extends LdmlMapper {
         }
     }
 
+    /**
+     * Processes values to be added to the ICU data structure
+     * @param xpath the CLDR path that the values came from
+     * @param rbPath the rbPath that the values belong to
+     * @param values the values
+     * @param groupKey the key that the values should be grouped by
+     * @param pathValueMap the output map
+     */
     private void processValues(String xpath, String rbPath, List<String> values,
             String groupKey, Map<String,CldrArray> pathValueMap) {
         List<String> processedValues = new ArrayList<String>();
-        rbPath = rbPath.replace("<FIFO>", '<' + numberFormat.format(fifoCounter) + '>');
+        // The fifo counter needs to be formatted with leading zeros for sorting.
+        if (rbPath.contains("<FIFO>")) {
+            rbPath = rbPath.replace("<FIFO>", '<' + numberFormat.format(fifoCounter) + '>');
+        }
         if (NUMBERING_SYSTEMS_DESC.matcher(rbPath).matches()
                 && xpath.contains("algorithmic")) {
             // Hack to insert % into numberingSystems descriptions.
@@ -182,6 +216,11 @@ public class SupplementalMapper extends LdmlMapper {
         return DATE_PATH.matcher(rbPath).matches();
     }
 
+    /**
+     * Converts a date string to a pair of millisecond values.
+     * @param dateStr
+     * @return
+     */
     private String[] getSeconds(String dateStr) {
         long millis = getMilliSeconds(dateStr);
         if (millis == -1) {
@@ -226,6 +265,11 @@ public class SupplementalMapper extends LdmlMapper {
         return -1;
     }
 
+    /**
+     * Counts the number of hyphens in a string.
+     * @param str
+     * @return
+     */
     private static int countHyphens(String str) {
         int lastPos = 0;
         int numHyphens = 0;

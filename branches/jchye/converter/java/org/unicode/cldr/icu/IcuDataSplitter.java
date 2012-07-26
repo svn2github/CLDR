@@ -16,6 +16,10 @@ public class IcuDataSplitter {
     private final List<SplitInfo> splitInfos;
     private final Map<String, File> targetDirs;
 
+    /**
+     * Splits the 
+     * @param splitInfos
+     */
     private IcuDataSplitter(List<SplitInfo> splitInfos) {
         this.splitInfos = splitInfos;
         targetDirs = new HashMap<String, File>();
@@ -81,7 +85,7 @@ public class IcuDataSplitter {
             List<String[]> values = entry.getValue();
             boolean wasSplit = false;
             // Paths that should be copied to all directories.
-            if (rbPath.equals(LdmlLocaleMapper.ALIAS_PATH) || rbPath.equals(VERSION_PATH)) {
+            if (rbPath.equals(LocaleMapper.ALIAS_PATH) || rbPath.equals(VERSION_PATH)) {
                 for (String dir : dirs) {
                     splitData.get(dir).addAll(rbPath, values);
                 }
@@ -102,10 +106,12 @@ public class IcuDataSplitter {
         }
         // Remove all files that only contain version info.
         Iterator<Entry<String, IcuData>> iterator = splitData.entrySet().iterator();
+        boolean hasSpecial = icuData.hasSpecial();
         while (iterator.hasNext()) {
             Entry<String, IcuData> entry = iterator.next();
-            if (entry.getKey().equals(fallbackDir)) continue;
             IcuData data = entry.getValue();
+            data.setHasSpecial(hasSpecial);
+            if (entry.getKey().equals(fallbackDir)) continue;
             if (data.size() == 1 && data.containsKey(VERSION_PATH)) {
                 // Comment copied from ResourceSplitter:
                 // Some locales that use root data rely on the presence of

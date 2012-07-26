@@ -431,7 +431,6 @@ public abstract class LdmlMapper {
             processedPathConverter.add(cldrVariables.replace(entry.getKey()),
                     entry.getValue());
         }
-        // TODO: process fallback values as well!
         return processedPathConverter;
     }
 

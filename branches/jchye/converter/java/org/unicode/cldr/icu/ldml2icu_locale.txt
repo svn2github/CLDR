@@ -1,68 +1,8 @@
 # Used by LdmlLocaleMapper.
 # Data-driven file for mapping LDML locale paths to ICU paths.
-# Order is not important, so regexes are grouped logically and are assumed to be
-# mutually exclusive.
-# The format is:
-#   ldmlRegex ; icuPath (; specialInstructions)*
-#
-# If an LDML xpath results in two or more ICU paths, they should be split into
-# multiple lines, like this:
-#   ldmlRegex
-#       ; icuPath1 (; specialInstructions)*
-#       ; icuPath2 (; specialInstructions)*
-#       ...
-#
-# Each regex pattern must match an xpath completely to result in a successful match.
-# Square brackets that are part of the xpath will be preceded by a backslash
-# during processing, so there's no need to do it here.
-# specialInstructions are optional. There may be multiple special instructions,
-# with each instruction being one of the following:
-#     - values=<comma-separated-values> which can be
-#       - hardcoded strings or
-#       - {value} to represent the value of the xpath in the CLDR data
-#     - fallback=<value> which can be
-#       - a hardcoded string,
-#       - a regex argument that is already in the rbPath or
-#       - the XPath of another value in the current locale.
-#     - group, which indicates that the values created using this xpath should
-#       be grouped together in their own sub-array in the ICU data file. This
-#       instruction should be used instead of hidden labels if the
-#       array is in an array of values, e.g.
-#       DateTimePatterns {
-#            "HH:mm",
-#            {
-#                "EEEE, d בMMMM y",
-#                "hebr",
-#            }
-#            ...
-# All matched arguments from xpaths will be split by whitespace unless the
-# corresponding argument in the replacement string is surrounded by quotes, e.g.
-# "$1".
-#
-# Some ICU paths will contain hidden labels which are enclosed in angle brackets,
-# e.g. /telephoneCodeData/$1/<$2>/code. They are processed and sorted like any
-# any other ICU path, except that labels enclosed in angle brackets will not be
-# written to the ICU file. This is used to create arrays without labels where
-# necessary, e.g. the example ICU path would result in the following output:
-#    telephoneCodeData{
-#        001{
-#            {
-#                code{"388"}
-#            }
-#            {
-#                code{"800"}
-#            }
-#            ...
-#
+# See ldml2icu_readme.txt for a detailed explanation of this file.
 
 # Variables
-# The following variables are substituted into all the regexes in this file.
-# Variable values should either be regexes or CLDR XPaths. All variable names
-# should start with '%'.
-# Any regex being used that contains square brackets should be made a variable,
-# since the converter will automatically escape all brackets that occur in the
-# XPath regex unless they are represented by variables.
-
 # Attribute value
 %A=[^"']++
 # Word
