@@ -2012,7 +2012,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
    * Get standard ordering for attributes.
    * @return ordered collection with items.
    */
-  public static Comparator getAttributeComparator() {
+  public static Comparator<String> getAttributeComparator() {
     return attributeOrdering; // already unmodifiable
   }
 
