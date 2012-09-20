@@ -497,7 +497,7 @@ public class CldrUtility {
   /** Appends two strings, inserting separator if either is empty. Modifies first map
    */
   public static Map<Object, String> joinWithSeparation(Map<Object, String> a, String separator, Map b) {
-    for (Iterator it = b.keySet().iterator(); it.hasNext();) {
+    for (Iterator<Object> it = b.keySet().iterator(); it.hasNext();) {
       Object key = it.next();
       String bvalue = (String) b.get(key);
       String avalue = a.get(key);

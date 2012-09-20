@@ -269,7 +269,6 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
             MatcherPattern temp = new MatcherPattern();
             temp.pattern = result.pattern;
             temp.matcher = result.matcher;
-            temp.type = typeAttribute;
             temp.value = value;
             result = temp;
             if ("list".equals(typeAttribute)) {
@@ -280,11 +279,10 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
 
         result = new MatcherPattern();
         result.pattern = value;
-        result.type = typeAttribute;
         result.value = value;
         if ("choice".equals(typeAttribute)
                 || "given".equals(attributes.get("order"))) {
-            result.matcher = new CollectionMatcher().set(new HashSet(Arrays.asList(value.trim().split("\\s+"))));
+            result.matcher = new CollectionMatcher().set(new HashSet<String>(Arrays.asList(value.trim().split("\\s+"))));
         } else if ("regex".equals(typeAttribute)) {
             result.matcher = new RegexMatcher().set(value, Pattern.COMMENTS); // Pattern.COMMENTS to get whitespace	
         } else if ("locale".equals(typeAttribute)) {
@@ -298,10 +296,9 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
         return result;
     }
 
-    private void addAttributes(String[] attributes, Map attribute_validity, MatcherPattern mp) {
-        for (int i = 0; i < attributes.length; ++i) {
-            String attribute = attributes[i];
-            MatcherPattern old = (MatcherPattern) attribute_validity.get(attribute);
+    private void addAttributes(String[] attributes, Map<String,MatcherPattern> attribute_validity, MatcherPattern mp) {
+        for (String attribute : attributes ) {
+            MatcherPattern old = attribute_validity.get(attribute);
             if (old != null) {
                 mp.matcher = new OrMatcher().set(old.matcher, mp.matcher);
                 mp.pattern = old.pattern + " OR " + mp.pattern;
@@ -314,56 +311,55 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
         public String value;
         ObjectMatcher<String> matcher;
         String pattern;
-        String type;
         public String toString() {
             return matcher.getClass().getName() + "\t" + pattern;
         }
     }
-    public static class RegexMatcher implements ObjectMatcher {
+    public static class RegexMatcher implements ObjectMatcher<String> {
         private java.util.regex.Matcher matcher;
-        public ObjectMatcher set(String pattern) {
+        public ObjectMatcher<String> set(String pattern) {
             matcher = Pattern.compile(pattern).matcher("");
             return this;
         }
-        public ObjectMatcher set(String pattern, int flags) {
+        public ObjectMatcher<String> set(String pattern, int flags) {
             matcher = Pattern.compile(pattern, flags).matcher("");
             return this;
         }
-        public boolean matches(Object value) {
+        public boolean matches(String value) {
             matcher.reset(value.toString());
             return matcher.matches();
         }
     }
-    public static class CollectionMatcher implements ObjectMatcher {
-        private Collection collection;
-        public ObjectMatcher set(Collection collection) {
+    public static class CollectionMatcher implements ObjectMatcher<String> {
+        private Collection<String> collection;
+        public ObjectMatcher<String> set(Collection<String> collection) {
             this.collection = collection;
             return this;
         }
-        public boolean matches(Object value) {
+        public boolean matches(String value) {
             return collection.contains(value);
         }
     }
-    public static class OrMatcher implements ObjectMatcher {
-        private ObjectMatcher a;
-        private ObjectMatcher b;
-        public ObjectMatcher set(ObjectMatcher a, ObjectMatcher b) {
+    public static class OrMatcher implements ObjectMatcher<String> {
+        private ObjectMatcher<String> a;
+        private ObjectMatcher<String> b;
+        public ObjectMatcher<String> set(ObjectMatcher<String> a, ObjectMatcher<String> b) {
             this.a = a;
             this.b = b;
             return this;
         }
-        public boolean matches(Object value) {
+        public boolean matches(String value) {
             return a.matches(value) || b.matches(value);
         }
     }
-    public static class ListMatcher implements ObjectMatcher {
-        private ObjectMatcher other;
-        public ObjectMatcher set(ObjectMatcher other) {
+    public static class ListMatcher implements ObjectMatcher<String> {
+        private ObjectMatcher<String> other;
+        public ObjectMatcher<String> set(ObjectMatcher<String> other) {
             this.other = other;
             return this;
         }
-        public boolean matches(Object value) {
-            String[] values = ((String)value).trim().split("\\s+");
+        public boolean matches(String value) {
+            String[] values = value.trim().split("\\s+");
             if (values.length == 1 && values[0].length() == 0) return true;
             for (int i = 0; i < values.length; ++i) {
                 if (!other.matches(values[i])) {
@@ -373,12 +369,12 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
             return true;
         }
     }
-    public static class LocaleMatcher implements ObjectMatcher {
-        ObjectMatcher grandfathered = ((MatcherPattern)variables.get("$grandfathered")).matcher;
-        ObjectMatcher language = ((MatcherPattern)variables.get("$language")).matcher;
-        ObjectMatcher script = ((MatcherPattern)variables.get("$script")).matcher;
-        ObjectMatcher territory = ((MatcherPattern)variables.get("$territory")).matcher;
-        ObjectMatcher variant = ((MatcherPattern)variables.get("$variant")).matcher;
+    public static class LocaleMatcher implements ObjectMatcher<String> {
+        ObjectMatcher<String> grandfathered = variables.get("$grandfathered").matcher;
+        ObjectMatcher<String> language = variables.get("$language").matcher;
+        ObjectMatcher<String> script = variables.get("$script").matcher;
+        ObjectMatcher<String> territory = variables.get("$territory").matcher;
+        ObjectMatcher<String> variant = variables.get("$variant").matcher;
         LocaleIDParser lip = new LocaleIDParser();
         static LocaleMatcher singleton = null;
         static Object sync = new Object();
@@ -393,7 +389,7 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
             return singleton;
         }
 
-        public boolean matches(Object value) {
+        public boolean matches(String value) {
             if (grandfathered.matches(value)) return true;
             lip.set((String)value);
             String field = lip.getLanguage();
