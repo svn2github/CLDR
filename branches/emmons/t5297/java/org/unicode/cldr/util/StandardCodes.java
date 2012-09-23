@@ -50,9 +50,7 @@ public class StandardCodes {
 
     private Map country_modernCurrency = new TreeMap();
 
-    private Map goodCodes = new TreeMap();
-
-    private String date;
+    private Map<String,Set<String>> goodCodes = new TreeMap<String,Set<String>>();
 
     private static final boolean DEBUG = false;
 
@@ -513,7 +511,6 @@ public class StandardCodes {
                     String code = (String) pieces.get(0);
                     pieces.remove(0);
                     if (type.equals("date")) {
-                        date = code;
                         continue;
                     }
 
@@ -723,14 +720,13 @@ public class StandardCodes {
 
     private Map WorldBankInfo;
 
-    public Map getWorldBankInfo() {
+    public Map<String,List<String>> getWorldBankInfo() {
         if (WorldBankInfo == null) {
-            List temp = fillFromCommaFile(CldrUtility.UTIL_DATA_DIR, "WorldBankInfo.txt", false);
+            List<String> temp = fillFromCommaFile(CldrUtility.UTIL_DATA_DIR, "WorldBankInfo.txt", false);
             WorldBankInfo = new HashMap();
-            for (Iterator it = temp.iterator(); it.hasNext();) {
-                String line = (String) it.next();
-                List row = CldrUtility.splitList(line, ';', true);
-                String key = (String) row.get(0);
+            for (String line : temp) {
+                List<String> row = CldrUtility.splitList(line, ';', true);
+                String key = row.get(0);
                 row.remove(0);
                 WorldBankInfo.put(key, row);
             }
@@ -752,9 +748,9 @@ public class StandardCodes {
     }
 
     // produces a list of the 'clean' lines
-    private List fillFromCommaFile(String dir, String filename, boolean trim) {
+    private List<String> fillFromCommaFile(String dir, String filename, boolean trim) {
         try {
-            List result = new ArrayList();
+            List<String> result = new ArrayList<String>();
             String line;
             BufferedReader lstreg = BagFormatter.openUTF8Reader(dir, filename);
             while (true) {
