@@ -50,6 +50,8 @@ import com.ibm.icu.util.ULocale;
  *
  */
 public class ExampleGenerator {
+    private static final String EXEMPLAR_CITY_LOS_ANGELES = "//ldml/dates/timeZoneNames/zone[@type=\"America/Los_Angeles\"]/exemplarCity";
+
     private static final boolean SHOW_ERROR = false;
 
     private static final Pattern URL_PATTERN = Pattern.compile("http://[\\-a-zA-Z0-9]+(\\.[\\-a-zA-Z0-9]+)*([/#][\\-a-zA-Z0-9]+)*");
@@ -625,12 +627,17 @@ public class ExampleGenerator {
             }
 
             // now add to list
-            if (result.length() != 0) {
-                result += exampleSeparatorSymbol;
-            }
-            result += resultItem;
+            result = addExampleResult(resultItem, result);
         }
         return result;
+    }
+
+    private String addExampleResult(String resultItem, String resultToAddTo) {
+        if (resultToAddTo.length() != 0) {
+            resultToAddTo += exampleSeparatorSymbol;
+        }
+        resultToAddTo += resultItem;
+        return resultToAddTo;
     }
 
     private String getUnitPattern(String unitType, final boolean isCurrency, Count count) {
@@ -700,7 +707,12 @@ public class ExampleGenerator {
             String timezone = parts.getAttributeValue(3, "type");
             String countryCode = supplementalDataInfo.getZone_territory(timezone);
             if (countryCode == null) {
-                return result; // fail, skip
+                if (value == null) {
+                    result = timezone.substring(timezone.lastIndexOf('/')+1).replace('_',' ');
+                } else {
+                    result = value;
+                }
+                return result;
             }
             if (countryCode.equals("001")) {
                 // GMT code, so format.
@@ -731,9 +743,11 @@ public class ExampleGenerator {
                 String timeFormat = setBackground(cldrFile.getWinningValue("//ldml/dates/timeZoneNames/regionFormat"));
                 result = format(timeFormat, result);
             }
+        } else if (parts.contains("zone")) { // {0} Time
+            result = value;
         } else if (parts.contains("regionFormat")) { // {0} Time
-            String sampleTerritory = cldrFile.getName(CLDRFile.TERRITORY_NAME, "JP");
-            result = format(value, setBackground(sampleTerritory));
+            result = format(value, setBackground(cldrFile.getName(CLDRFile.TERRITORY_NAME, "JP")));
+            result = addExampleResult(format(value, setBackground(cldrFile.getWinningValue(EXEMPLAR_CITY_LOS_ANGELES))), result);
         } else if (parts.contains("fallbackFormat")) { // {1} ({0})
             if (value == null) {
                 return result;
@@ -741,12 +755,12 @@ public class ExampleGenerator {
             String timeFormat = setBackground(cldrFile.getWinningValue("//ldml/dates/timeZoneNames/regionFormat"));
             String us = setBackground(cldrFile.getName(CLDRFile.TERRITORY_NAME, "US"));
             // ldml/dates/timeZoneNames/zone[@type="America/Los_Angeles"]/exemplarCity
-            String LosAngeles = setBackground(cldrFile.getWinningValue("//ldml/dates/timeZoneNames/zone[@type=\"America/Los_Angeles\"]/exemplarCity"));
+            String LosAngeles = setBackground(cldrFile.getWinningValue(EXEMPLAR_CITY_LOS_ANGELES));
             result = format(value, LosAngeles, us);
             result = format(timeFormat, result);
         } else if (parts.contains("fallbackRegionFormat")) {
             String us = setBackground(cldrFile.getName(CLDRFile.TERRITORY_NAME, "US"));
-            String LosAngeles = setBackground(cldrFile.getWinningValue("//ldml/dates/timeZoneNames/zone[@type=\"America/Los_Angeles\"]/exemplarCity"));
+            String LosAngeles = setBackground(cldrFile.getWinningValue(EXEMPLAR_CITY_LOS_ANGELES));
             result = format(value, LosAngeles, us);
         } else if (parts.contains("gmtFormat")) { // GMT{0}
             result = getGMTFormat(null, value, -8);
@@ -755,8 +769,7 @@ public class ExampleGenerator {
         } else if (parts.contains("metazone") && !parts.contains("commonlyUsed")) { // Metazone string
             if ( value != null && value.length() > 0 ) {
                 result = getMZTimeFormat() + " " + value;
-            }
-            else {
+            } else {
                 // TODO check for value
                 if (parts.contains("generic")) {
                     String metazone_name = parts.getAttributeValue(3, "type");
@@ -765,9 +778,9 @@ public class ExampleGenerator {
                     String regionFormat = cldrFile.getWinningValue("//ldml/dates/timeZoneNames/regionFormat");
                     String fallbackFormat = cldrFile.getWinningValue("//ldml/dates/timeZoneNames/fallbackFormat");
                     String exemplarCity = cldrFile.getWinningValue("//ldml/dates/timeZoneNames/zone[@type=\""+timezone+"\"]/exemplarCity");
-                    if ( exemplarCity == null )
+                    if ( exemplarCity == null ) {
                         exemplarCity = timezone.substring(timezone.lastIndexOf('/')+1).replace('_',' ');
-
+                    }
                     String countryName = cldrFile.getWinningValue("//ldml/localeDisplayNames/territories/territory[@type=\""+countryCode+"\"]");
                     boolean singleZone = singleCountryZones.contains(timezone) || !(supplementalDataInfo.getMultizones().contains(countryCode));
 
