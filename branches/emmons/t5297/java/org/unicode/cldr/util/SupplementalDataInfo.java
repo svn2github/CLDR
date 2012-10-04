@@ -109,7 +109,7 @@ public class SupplementalDataInfo {
     /**
      * Population data for different languages.
      */
-    public static final class PopulationData implements Freezable {
+    public static final class PopulationData implements Freezable<Object> {
         private double population = Double.NaN;
 
         private double literatePopulation = Double.NaN;
@@ -221,7 +221,7 @@ public class SupplementalDataInfo {
      * Simple language/script/region information
      */
     public static class BasicLanguageData implements
-    Comparable<BasicLanguageData>, Freezable {
+    Comparable<BasicLanguageData>, Freezable<Object> {
         public enum Type {
             primary, secondary
         };
@@ -1177,7 +1177,7 @@ public class SupplementalDataInfo {
             String type = parts.getAttributeValue(2, "type");
             List<R4<String, String, Integer, Boolean>> matches = languageMatch.get(type);
             if (matches == null) {
-                languageMatch.put(type, matches = new ArrayList());
+                languageMatch.put(type, matches = new ArrayList<R4<String, String, Integer, Boolean>>());
             }
             matches.add(Row.of(parts.getAttributeValue(3,"desired"), parts.getAttributeValue(3,"supported"),
                     Integer.parseInt(parts.getAttributeValue(3,"percent")), 
