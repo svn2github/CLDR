@@ -265,7 +265,7 @@ public class CldrUtility {
         String line2 = "";
         int skip = 0;
 
-        for (int lineCount = 0; ; ++lineCount) {
+        while (true) {
           if ((skip & LineComparer.SKIP_FIRST) == 0) line1 = br1.readLine();
           if ((skip & LineComparer.SKIP_SECOND) == 0) line2 = br2.readLine();
           if (line1 == null && line2 == null) return true;
