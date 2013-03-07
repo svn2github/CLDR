@@ -1,21 +1,15 @@
-/* Copyright (c) 2004-2012 IBM and others. All Rights Reserved. */
+/* Copyright (c) 2004-2013 IBM and others. All Rights Reserved. */
+/* Made with CSSEdit */
 
 /* @override 
 	http://127.0.0.1:8080/cldr-apps/surveytool.css
-	http://nestor.priv:8080/cldr-apps/surveytool.css
-	http://tintin.priv:8080/cldr-apps/surveytool.css
-	http://nestor.local:8080/cldr-apps/surveytool.css
 	http://unicode.org/cldr/apps/surveytool.css
 	http://kwanyin.unicode.org/cldr-apps/surveytool.css
 	http://localhost:8080/cldr-apps/surveytool.css
-	http://10.0.0.112:8080/cldr-apps/surveytool.css
 	http://naf.priv:8080/cldr-apps/surveytool.css
-	http://127.0.0.1:8081/cldr-apps/surveytool.css
 	http://st.unicode.org/smoketest/surveytool.css
-	http://10.0.0.148:8080/cldr-apps/surveytool.css
-	http://10.0.0.158:8080/cldr-apps/surveytool.css
-	http://st.unicode.org:8080/cldr-apps/surveytool.css
 	http://st.unicode.org/cldr-apps/surveytool.css
+	http://naf:8080/cldr-apps/surveytool.css
 */
 
 span.age {
@@ -2380,7 +2374,6 @@ div#pu-peak {
 }
 
 
-
 div#pu-content {
 	display: none;
 	height: 180px;
@@ -2497,3 +2490,47 @@ div.voterList .voterOrg {
 	background-color: navy !important;
 }
 
+/* split pane */
+body.stScrollingContent {
+	margin: 0 !important;
+	padding: 0.2em !important;
+	width:  100%;
+}
+
+body.stScrollingContent div#toparea {
+	display:  none !important;
+}
+body.stScrollingContent table#usertable {
+	display:  none !important;
+}
+body.stScrollingContent div#sectionmenu {
+	display:  none !important;
+}
+
+.stSplitPane {
+	border:  8px solid magenta;
+/*	height:  100%;*/
+/*	position:  fixed;
+	top:  0;
+	left:  0;*/
+}
+
+#itemInfo {
+	border:  8px solid blue !important;
+	width: 300px !important;
+	position: fixed;
+	right: 0;
+	top: 0;
+	padding-top: 4em !important;
+;
+}
+
+.stSplitPane .scrollingContent {
+	border:  8px solid green !important;
+/*	width: 100%;*/
+}
+
+.splitDragger {
+	position: fixed;
+	top: 10em;
+}

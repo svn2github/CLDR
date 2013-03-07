@@ -1,4 +1,4 @@
-// survey.js  -Copyright (C) 2012 IBM Corporation and Others. All Rights Reserved.
+// survey.js  -Copyright (C) 2012-2013 IBM Corporation and Others. All Rights Reserved.
 // move anything that's not dynamically generated here.
 
 // These need to be available @ bootstrap time.
@@ -1228,17 +1228,56 @@ function appendForumStuff(tr, theRow, forumDiv) {
 dojo.ready(function() {
 	var unShow = null;
 //	var lastShown = null;
-	var pucontent = dojo.byId("pu-content");
-	var puouter=pucontent;
-	var pubody=pucontent;
-	var nudgeh=0;
+	var pucontent = dojo.byId("pu-content"); // old popup split
+
 //	var nudgev=0;
 //	var nudgehpost=0;
 //	var nudgevpost=0;
 //	var hardleft = 10;
 //	var hardtop = 10;
 //	var pupeak_height = pupeak.offsetHeight;
-	if(!pubody) return;
+	if(!pucontent) return;
+
+	//pucontent.className = "oldFloater";
+	
+	window.setSplitPane = function(containerDiv) {
+		var theDiv = createChunk("", "div", "scrollingContent");
+		
+		containerDiv.appendChild(theDiv); // Top: scrolling content
+		
+//		pucontent.parentNode.removeChild(pucontent);
+		pucontent.id = "itemInfo";
+//		containerDiv.appendChild(pucontent); // Bottom: popup area
+//		var spacerDiv = document.createElement("div");
+//		spacerDiv.id = "scrollSpacer";
+		theDiv.containerDiv = containerDiv;
+		theDiv.pucontent = pucontent;
+//		containerDiv.appendChild(spacerDiv);
+		
+		
+		var theBody = document.getElementsByTagName("body")[0];
+		var dragger = createChunk("(d)", "div", "splitDragger");
+		theBody.appendChild(dragger);
+		var resizeFn =  function(e) {
+			
+			//var bodyWidth = theBody.clientWidth;
+			// make sure that the scrolling area has the width of the popup area, in margin.
+			theDiv.style.paddingRight = (pucontent.clientWidth) + "px"; 
+			theDiv.style.width = (window.innerWidth - pucontent.clientWidth);
+			pucontent.style.height = (window.innerHeight) + "px";
+//			spacerDiv.style.width = (pucontent.clientWidth)+"px";
+			
+			dragger.style.right = (pucontent.clientWidth)+"px";
+			
+			if(e) {
+				stStopPropagation(e);
+			}return false;
+		};
+		listenFor(theBody, "resize",resizeFn);
+		resizeFn(null);
+		return theDiv;
+	};
+
 	var hideInterval=null;
 	
 	function setLastShown(obj) {
@@ -1257,11 +1296,11 @@ dojo.ready(function() {
 		setLastShown(null);
 	}
 	
-//	listenFor(pubody, "mouseover", function() {
+//	listenFor(pucontent, "mouseover", function() {
 //		clearTimeout(hideInterval);
 //		hideInterval=null;
 //	});
-//	listenFor(pubody, "mouseout", hidePopHandler);
+//	listenFor(pucontent, "mouseout", hidePopHandler);
 	
 	window.showInPop2 = function(str, tr, hideIfLast, fn, immediate) {
 //		if(hideIfLast&&lastShown==hideIfLast) {
@@ -1279,7 +1318,7 @@ dojo.ready(function() {
 //		if(hideIfLast && lastShown==hideIfLast) {
 //			lastShown=null;
 //			
-//			puouter.style.display="none";
+//			pucontent.style.display="none";
 //			
 //			return;
 //		}
@@ -1351,7 +1390,7 @@ dojo.ready(function() {
 ////			var loc = getAbsolutePosition(hideIfLast);
 ////			var newTopPeak = (loc.top+((hideIfLast.offsetHeight)/2)-8);
 ////			//if(newTop<hardtop) newTop=hardtop;
-////			//puouter.style.top = (newTop+nudgevpost)+"px";
+////			//pucontent.style.top = (newTop+nudgevpost)+"px";
 ////			newLeftPeak = (loc.left);
 ////			
 ////			pupeak.style.left = (newLeftPeak-pupeak.offsetWidth) + "px";
@@ -1366,7 +1405,7 @@ dojo.ready(function() {
 ////				} else {
 ////					bodyTop = (loc.top+hideIfLast.offsetHeight+nudgeh);
 ////				}
-////				pubody.style.top = bodyTop+"px";
+////				pucontent.style.top = bodyTop+"px";
 ////				pupeak.style.height = (bodyTop-newTopPeak) + "px";
 ////			}			
 ////			if(newLeft<hardleft) {
@@ -1375,7 +1414,7 @@ dojo.ready(function() {
 ////			} else {
 ////				pupeak.style.left = "0px";
 ////			}
-////			puouter.style.left = (newLeft+nudgehpost)+"px";
+////			pucontent.style.left = (newLeft+nudgehpost)+"px";
 //			pupeak.style.display="none";
 //		} else {
 //			pupeak.style.display="none";
@@ -1383,7 +1422,7 @@ dojo.ready(function() {
 ////			pupeak.style.top = "0px";
 ////			stdebug("Note: showPop with no td");
 //		}
-		puouter.style.display="block"; // show
+		pucontent.style.display="block"; // show
 	};
 	if(false) {
 		window.showInPop = window.showInPop2;
@@ -1409,7 +1448,7 @@ dojo.ready(function() {
 		}
 		hideInterval=setTimeout(function() {
 			if(false) {
-				puouter.style.display="none";
+				pucontent.style.display="none";
 			} else {
 				removeAllChildNodes(pucontent);
 //				pupeak.style.display="none";
@@ -2604,6 +2643,10 @@ function showRows(container,xpath,session,coverage) {
  dojo.ready(function(){
 	if(!coverage) coverage="";
 	var theDiv = dojo.byId(container);
+	
+	if(theDiv.className = 'stSplitPane') {
+		theDiv = setSplitPane(theDiv); // create scrolling div for actual content, return that. 
+	}
 
 	theDiv.stui = loadStui();
 	theDiv.theLoadingMessage = createChunk(stui_str("loading"), "i", "loadingMsg");

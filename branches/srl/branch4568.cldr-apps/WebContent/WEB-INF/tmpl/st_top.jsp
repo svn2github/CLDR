@@ -1,9 +1,24 @@
 <%@page import="com.ibm.icu.lang.UCharacter"%>
 <%@ include file="/WEB-INF/jspf/stcontext.jspf" %><%
-   String title = (ctx==null)?"?":((String)ctx.get("TITLE"));
+   String title;
+   String bodyClass;
+   boolean isScrollingContent = false;
+   if(ctx==null) {
+	   title = "?";
+	   bodyClass = "stUnknown";
+   } else {
+       title = (String) ctx.get("TITLE");
+	   if(ctx.getPageId()!=null) {
+		   bodyClass = "stScrollingContent";
+		   isScrollingContent = true;
+	   } else {
+		   bodyClass = "stNormalPage";
+		   isScrollingContent = false;
+	   }
+   }
 %>
 <!--  st_top.jsp --></head>
-<body>
+<body class='<%= bodyClass %>'>
 	<div id="toparea">
     <img id="stlogo" width="44" height="48" src='<%= WebContext.context(request, "STLogo"+".png") %>' title="[ST Logo]" alt="[ST Logo]" />
     <div id="toptitle" title='Phase: <%= ctx.sm.phase().toString() %>'>

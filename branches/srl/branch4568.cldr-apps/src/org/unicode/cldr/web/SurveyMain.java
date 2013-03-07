@@ -5433,9 +5433,16 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
         showPathList(ctx, PathUtilities.LOCALEDISPLAYNAMES + which, typeToSubtype(which), true /* simple */);
     }
 
+    /**
+     * This is the bottleneck function for all "main" display pages.
+     * @param ctx session (contains locale and coverage level, etc)
+     * @param xpath xpath to use
+     * @param typeToSubtype (ignored)
+     * @param b (ignored)
+     */
     private void showPathList(WebContext ctx, String xpath, String typeToSubtype, boolean b) {
         // if(ctx.canModify()) {
-        ctx.println("       <div id='DynamicDataSection'><noscript>"
+        ctx.println("       <div id='DynamicDataSection' class='stSplitPane'><noscript>" // request the v2 split pane view
                 + ctx.iconHtml("stop", "sorry")
                 + "JavaScript is required.</noscript></div>       <script type='text/javascript'>     showRows('DynamicDataSection', '"
                 + xpath + "', '" + ctx.session.id + "','" + ctx.getEffectiveCoverageLevel(ctx.getLocale())
