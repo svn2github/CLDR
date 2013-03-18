@@ -2256,6 +2256,37 @@ textarea.errorMessage {
 	height: 10em;
 }
 
+
+div.possibleProblems {
+	border: 1px dashed olive;
+	padding: 0.2em;
+	background-color: cream;
+	overflow: auto;
+}
+
+div.possibleProblems h3 {
+	margin:  0;
+}
+
+
+div.possibleProblems div {
+	display: block;
+}
+
+div.possibleProblems div p {
+	margin-top: .2em;
+	margin-bottom: .2em;
+	padding-left:  0.5em;
+	font-size:  larger;
+	list-style-type: square;
+	display:  list-item;
+	list-style-position: inside;
+}
+
+div.possibleProblems div p img {
+	padding-right:  0.25em;
+}
+
 body.disconnected div#progress button#progress-refresh {
 	display: block !important;
 }
