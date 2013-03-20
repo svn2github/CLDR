@@ -3,15 +3,46 @@
 
 // These need to be available @ bootstrap time.
 
+/**
+ * @module survey.js - SurveyTool main JavaScript stuff
+ */
+ 
+
+// TODO: replace with AMD [?] loading
 dojo.require("dojo.i18n");
 dojo.require("dojo.string");
 dojo.requireLocalization("surveyTool", "stui");
 
-var stui = {online: "Online", 		error_restart: "(May be due to SurveyTool restart on server)", 	error: "Disconnected: Error", "details": "Details...", disconnected: "Disconnected", startup: "Starting up..."};
+/**
+ * Global items 
+ * @class GLOBAL
+ */
 
+
+/**
+ * Are we on IE?
+ * @property onIE
+ */
 var onIE =  (navigator && navigator.appName && navigator.appName == 'Microsoft Internet Explorer');
 
+/**
+ * SurveyToolUI (localization) object. Preloaded with a few strings while we wait for the resources to load.
+ *
+ * @property stui
+ */
+var stui = {
+            online: "Online",
+            error_restart: "(May be due to SurveyTool restart on server)", 	
+            error: "Disconnected: Error", "details": "Details...", 
+            disconnected: "Disconnected", 
+            startup: "Starting up..."
+           };
 
+
+/**
+ * SurveyToolUI string loading function
+ * @method stui_str
+ */
 stui_str = function(x) {
     if(stui && stui[x]) {
     	return stui[x];
@@ -19,6 +50,16 @@ stui_str = function(x) {
     	return x;
     }
 };
+
+/**
+ * Create a DOM object with the specified text, tag, and HTML class. 
+ * Applies (classname)+"_desc" as a tooltip (title).
+ * @method createChunk
+ * @param {String} text textual content of the new object, or null for none
+ * @param {String} tag which element type to create, or null for "span"
+ * @param {String} className CSS className, or null for none.
+ * @return {Object} new DOM object 
+ */
 function createChunk(text, tag, className) {
 	if(!tag) {
 		tag="span";
@@ -33,6 +74,13 @@ function createChunk(text, tag, className) {
 	}
 	return chunk;
 }
+
+/**
+ * Create a DOM object referring to a user.
+ * @method createUser
+ * @param {JSON} user - user struct
+ * @return {Object} new DOM object
+ */
 function createUser(user) {
 	var div = createChunk(null,"div","adminUserUser");
 	div.appendChild(createChunk(stui_str("userlevel_"+user.userlevelname),"i","userlevel_"+user.userlevelname));
@@ -140,8 +188,15 @@ function updateIf(id, txt) {
     }
 }
 
-// work around IE8 problem
-
+/** 
+ * Add an event listener function to the object.
+ * @method listenFor
+ * @param {DOM} what object to listen to
+ * @param {String} what event, bare name such as 'click'
+ * @param {Function} fn function, of the form:  function(e) { 	doSomething();  	stStopPropagation(e);  	return false; }
+ * @param {String} ievent IE name of an event, if not 'on'+what
+ * @return {DOM} returns the object what
+ */
 function listenFor(what, event, fn, ievent) {
 	if(!(what._stlisteners)) {
 		what._stlisteners={};
@@ -166,6 +221,8 @@ function listenFor(what, event, fn, ievent) {
 		what.attachEvent(ievent,fn);
 	}
 	what._stlisteners[event]=fn;
+
+	return what;
 }
 
 // Add Object.keys if missing
@@ -1089,19 +1146,15 @@ dojo.ready(function() {
 	};
 });
 
-//function appendItem(div,value, pClass) {
-//	var text = document.createTextNode(value);
-//	var span = document.createElement("span");
-//	span.appendChild(text);
-//	if(pClass) {
-//		span.className = pClass;
-//	} else {
-//		span.className = "value";
-//	}
-//	div.appendChild(span);
-//	return span;
-//}
-
+/**
+ * Append just an editable span representing a candidate voting item
+ * @method appendItem
+ * @param div {DOM} div to append to
+ * @param value {String} string value
+ * @param pClass {String} html class for the voting item
+ * @param tr {DOM} ignored, but the tr the span belongs to
+ * @return {DOM} the new span
+ */
 function appendItem(div,value, pClass, tr) {
 	var text = document.createTextNode(value?value:stui.str("no value"));
 	var span = document.createElement("span");
@@ -1387,8 +1440,18 @@ function appendExample(parent, text) {
 	return div;
 }
 
+var spanSerial = 0;
 
-
+/**
+ * Append a Vetting item ( vote button, etc ) to the row.
+ * @method AddVitem
+ * @param {DOM} td cell to append into
+ * @param {DOM} tr which row owns the items
+ * @param {JSON} theRow JSON content of this row's data
+ * @param {JSON} item JSON of the specific item we are adding
+ * @param {String} vHash     stringid of the item
+ * @param {DOM} newButton     button prototype object
+ */
 function addVitem(td, tr,theRow,item,vHash,newButton) {
 //	var canModify = tr.theTable.json.canModify;
 	var div = document.createElement("div");
@@ -1406,9 +1469,13 @@ function addVitem(td, tr,theRow,item,vHash,newButton) {
 		wireUpButton(newButton,tr,theRow,vHash);
 		div.appendChild(newButton);
 	}
-	var span = appendItem(div,item.value,item.pClass,tr);
+    var subSpan = document.createElement("span");
+    subSpan.className = "subSpan";
+	var span = appendItem(subSpan,item.value,item.pClass,tr);
+	div.appendChild(subSpan);
 	
 	span.dir = tr.theTable.json.dir;
+	
 	if(item.isOldValue==true && !isWinner) {
 		addIcon(div,"i-star");
 	}
@@ -1416,6 +1483,7 @@ function addVitem(td, tr,theRow,item,vHash,newButton) {
 		addIcon(div,"i-vote");
 	}
 
+    // wire up the onclick
 	td.showFn = item.showFn = showItemInfoFn(theRow,item,vHash,newButton,div);
 	div.popParent = tr;
 	listenToPop(null, tr, div, td.showFn);
@@ -1427,6 +1495,39 @@ function addVitem(td, tr,theRow,item,vHash,newButton) {
 		var example = appendExample(div,item.example);
 //		example.popParent = tr;
 //		listenToPop(null,tr,example,td.showFn);
+	}
+	
+	if(tr.theTable.json.canModify) {
+	    var oldClassName = span.className = span.className + " editableHere";
+	    ///span.title = span.title  + " " + stui_str("clickToChange");
+	    var ieb = null;
+	    //var editInPlace = function(e) {
+	        if(ieb!=null) return true;
+    	    var spanId = span.id = "v_"+(spanSerial++); // bump the #, probably leaks something in dojo?
+	        require(["dojo/ready", "dijit/InlineEditBox", "dijit/form/TextBox", "dijit/registry"],
+	        function(ready, InlineEditBox, TextBox) {
+	            ready(function(){
+	            if(!ieb) 
+	                ieb = new InlineEditBox({editor: TextBox, autoSave: true, 
+	                    onChange: function (newValue) {
+	                                  //  console.log("Destroyed -> "+ newValue);
+	                                   // remove dojo stuff..
+	                                   //removeAllChildNodes(subSpan);
+	                                   // reattach the span
+	                                   //subSpan.appendChild(span);
+	                                   //span.className = oldClassName;
+	                               tr.inputTd = td; // cause the proposed item to show up in the right box
+                       				handleWiredClick(tr,theRow,"",{value: newValue},newButton); 
+	                                   ieb.destroy();
+	                               }
+	                   }, spanId);
+	            });
+	        });
+//	    	stStopPropagation(e);
+//	    	return false;
+	    //};
+	    
+	    //listenFor(span, "click", editInPlace);
 	}
 }
 
@@ -1623,7 +1724,7 @@ function updateRow(tr, theRow) {
 //			p.appendChild(createChunk(
 //					stui.sub("lastReleaseStatus1_msg",
 //							[ stui.str(theRow.voteResolver.lastReleaseStatus) ])
-//					, "b", /* "d-dr-"+theRow.voteResolver.lastReleaseStatus+ */ "  lastReleaseStatus1"));
+//					, "b", /* "g"+theRow.voteResolver.lastReleaseStatus+ */ "  lastReleaseStatus1"));
 
 			
 			tr.voteDiv.appendChild(kdiv);
@@ -1686,7 +1787,7 @@ function updateRow(tr, theRow) {
 //		children[config.proposedcell].className = 'd-win';
 //	}
 	
-	children[config.statuscell].className = "d-dr-"+theRow.confirmStatus;
+	children[config.statuscell].className = "d-dr-"+theRow.confirmStatus + " d-dr-status";
 	if(!children[config.statuscell].isSetup) {
 		listenToPop("", tr, children[config.statuscell]);
 
@@ -1844,7 +1945,7 @@ function updateRow(tr, theRow) {
 	} else {
 		tr.myProposal=null; // not needed
 	}
-
+/*
 	if(!children[config.changecell].isSetup) {
 		removeAllChildNodes(children[config.changecell]);
 		tr.inputTd = children[config.changecell]; // TODO: use  (getTagChildren(tr)[tr.theTable.config.changecell])
@@ -1895,7 +1996,7 @@ function updateRow(tr, theRow) {
 			children[config.changecell].theButton.className="ichoice-o";
 		}
 	}
-			
+	*/		
 	
 	if(canModify) {
 		removeAllChildNodes(children[config.nocell]); // no opinion
@@ -2094,7 +2195,7 @@ function insertRows(theDiv,xpath,session,json) {
 		theTable.toAdd = toAdd;
 
 		if(!json.canModify) {
-				theTable.theadChildren[theTable.config.changecell].style.display=theTable.theadChildren[theTable.config.nocell].style.display="none";
+				theTable.theadChildren[theTable.config.nocell].style.display="none";
 		}
 		theTable.sortMode = cloneAnon(dojo.byId('proto-sortmode'));
 		theDiv.appendChild(theTable.sortMode);
@@ -2517,7 +2618,9 @@ function handleWiredClick(tr,theRow,vHash,box,button,what) {
 			}
 			return; // nothing entered.
 		}
-		tr.inputTd.className="d-change"; // TODO: use  (getTagChildren(tr)[tr.theTable.config.changecell])
+//		if(tr.inputTd) {
+//    		tr.inputTd.className="d-change"; // TODO: use  (getTagChildren(tr)[tr.theTable.config.changecell])
+//    	}
 	} else {
 		valToShow=button.value;
 	}
@@ -2570,7 +2673,7 @@ function handleWiredClick(tr,theRow,vHash,box,button,what) {
 				if(json.submitResultRaw) { // if submitted..
 					tr.className='tr_checking2';
 					refreshRow2(tr,theRow,vHash,function(theRow){
-						tr.inputTd.className="d-change"; // TODO: use  inputTd=(getTagChildren(tr)[tr.theTable.config.changecell])
+//						tr.inputTd.className="d-change"; // TODO: use  inputTd=(getTagChildren(tr)[tr.theTable.config.changecell])
 
 						// submit went through. Now show the pop.
 						button.className='ichoice-o';
