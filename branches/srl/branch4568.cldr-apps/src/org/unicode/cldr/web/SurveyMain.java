@@ -1,6 +1,6 @@
 /*
  ******************************************************************************
- * Copyright (C) 2004-2012, International Business Machines Corporation and   *
+ * Copyright (C) 2004-2013, International Business Machines Corporation and   *
  * others. All Rights Reserved.                                               *
  ******************************************************************************
  */
@@ -327,7 +327,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
     public static final String QUERY_TERRITORY = "territory";
     public static final String QUERY_ZONE = "zone";
     public static final String QUERY_PASSWORD = "pw";
-    static final String QUERY_PASSWORD_ALT = "uid";
+    public static final String QUERY_PASSWORD_ALT = "uid";
     public static final String QUERY_EMAIL = "email";
     public static final String QUERY_SESSION = "s";
     public static final String QUERY_LOCALE = "_";
@@ -1386,9 +1386,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
      * print the header of the thing
      */
     public void printHeader(WebContext ctx, String title) {
-        ctx.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
-        ctx.println("<html>");
-        ctx.println("<head>");
+        ctx.includeFragment("st_header.jsp");
         title = UCharacter.toTitleCase(SurveyMain.BASELINE_LOCALE.toLocale(), title, null);
         /*
          * if(showedComplaint == false) { showedComplaint = true;
@@ -1598,50 +1596,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
     }
 
     public void printFooter(WebContext ctx) {
-        ctx.println("<hr>");
-        ctx.print("<div style='float: right; font-size: 60%;'>");
-        ctx.print(getCurrev());
-        ctx.print("<span class='notselected'>validate <a href='http://jigsaw.w3.org/css-validator/check/referer'>css</a>, "
-                + "<a href='http://validator.w3.org/check?uri=referer'>html</a></span>");
-        ctx.print(" \u00b7 <span id='visitors'>");
-        ctx.print(getGuestsAndUsers());
-        ctx.print("</span> \u00b7 ");
-        ctx.print(" served in " + ctx.reqTimer + " <span id='dynload'></span></div>");
-        ctx.println("<a href='http://www.unicode.org'>Unicode</a> | <a href='" + URL_CLDR + "'>Common Locale Data Repository</a>");
-        if (ctx.request != null)
-            try {
-                Map m = new TreeMap(ctx.getParameterMap());
-                m.remove("sql");
-                m.remove("pw");
-                m.remove(QUERY_PASSWORD_ALT);
-                m.remove("email");
-                m.remove("dump");
-                m.remove("s");
-                m.remove("udump");
-                String u = "";
-                for (Enumeration e = ctx.request.getParameterNames(); e.hasMoreElements();) {
-                    String k = e.nextElement().toString();
-                    String v;
-                    if (k.equals("sql") || k.equals("pw") || k.equals("email") || k.equals("dump") || k.equals("s")
-                            || k.equals("udump")) {
-                        v = "";
-                    } else {
-                        v = ctx.request.getParameterValues(k)[0];
-                    }
-                    u = u + "|" + k + "=" + v;
-                }
-                ctx.println("| <a " + (isUnofficial() ? "title" : "href") + "='" + bugFeedbackUrl("Feedback on URL ?" + u)
-                        + "'>Report Problem in Tool</a>");
-            } catch (Throwable t) {
-                SurveyLog.logException(t, ctx);
-                SurveyLog.logger.warning(t.toString());
-                t.printStackTrace();
-            }
-        if (!SurveyMain.isUnofficial()) {
-            ctx.println(ShowData.ANALYTICS);
-        }
-        ctx.println("</body>");
-        ctx.println("</html>");
+        ctx.includeFragment("st_footer.jsp");
     }
 
     public static String getGuestsAndUsers() {
@@ -5372,10 +5327,8 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
      * @param b (ignored)
      */
     private void showPathList(WebContext ctx, String xpath, String typeToSubtype, boolean b) {
-        // if(ctx.canModify()) {
-        ctx.println("       <div id='DynamicDataSection' class='stSplitPane'><noscript>" // request the v2 split pane view
-                + ctx.iconHtml("stop", "sorry")
-                + "JavaScript is required.</noscript></div>       <script type='text/javascript'>     showRows('DynamicDataSection', '"
+        ctx.includeFragment("DynamicDataSection.jsp");
+        ctx.println("<script type='text/javascript'>     showRows('DynamicDataSection', '"
                 + xpath + "', '" + ctx.session.id + "','" + ctx.getEffectiveCoverageLevel(ctx.getLocale())
                 + "');       </script>");
         // } else {

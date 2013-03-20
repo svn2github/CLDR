@@ -1,9 +1,14 @@
 <%@page import="org.unicode.cldr.util.VettingViewer"%>
 <%@ page import="org.unicode.cldr.web.*" %>
 <!--  begin ajax_status.jsp -->
+<link rel="stylesheet" href="<%= request.getContextPath() %>/dojoroot/dijit/themes/claro/claro.css" />
 <%= VettingViewer.getHeaderStyles() %>
-<script type='text/javascript' src='<%= request.getContextPath()+"/dojoroot/dojo/dojo.js" %>'
-    djConfig='parseOnLoad: true, isDebug: false'></script>
+
+<script type='text/javascript'>dojoConfig = {parseOnLoad: true}</script>
+<script type='text/javascript' src='<%= request.getContextPath()+"/dojoroot/dojo/dojo.js" %>'></script>
+<script type='text/javascript'>
+require(["dojo/parser", "dijit/layout/ContentPane", "dijit/layout/BorderContainer"]);
+</script>
 <script type="text/javascript">
 // just things that must be JSP generated
 var surveyRunningStamp = '<%= SurveyMain.surveyRunningStamp.current() %>';

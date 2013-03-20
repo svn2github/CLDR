@@ -1,16 +1,7 @@
-/* Copyright (c) 2004-2013 IBM and others. All Rights Reserved. */
-/* Made with CSSEdit */
-
 /* @override 
-	http://127.0.0.1:8080/cldr-apps/surveytool.css
-	http://unicode.org/cldr/apps/surveytool.css
-	http://kwanyin.unicode.org/cldr-apps/surveytool.css
-	http://localhost:8080/cldr-apps/surveytool.css
-	http://naf.priv:8080/cldr-apps/surveytool.css
-	http://st.unicode.org/smoketest/surveytool.css
-	http://st.unicode.org/cldr-apps/surveytool.css
-	http://naf:8080/cldr-apps/surveytool.css
-*/
+	http://127.0.0.1:8080/cldr-apps/surveytool.css */
+/* Copyright (c) 2004-2013 IBM and others. All Rights Reserved. */
+/* Made with CSSEdit and Espresso2 */
 
 span.age {
 	font-weight: bold;
@@ -1728,13 +1719,17 @@ span#visitors td.remain {
 	border: none !important;
 }
 
+
 div#progress {
+	background-color: #e0f4ea;
+}
+
+body > div#progress {
 	position: fixed;
 	top: 0;
 	right: 0;
 	margin-left: 0.2em;
 	margin-bottom: 0.2em;
-	background-color: #e0f4ea;
 	padding-top: 2px;
 	padding-left:  0.2em;
 	padding-bottom: 0.2em;
@@ -2521,47 +2516,36 @@ div.voterList .voterOrg {
 	background-color: navy !important;
 }
 
-/* split pane */
-body.stScrollingContent {
-	margin: 0 !important;
-	padding: 0.2em !important;
-	width:  100%;
-}
-
-body.stScrollingContent div#toparea {
-	display:  none !important;
-}
-body.stScrollingContent table#usertable {
-	display:  none !important;
-}
-body.stScrollingContent div#sectionmenu {
-	display:  none !important;
-}
-
-.stSplitPane {
-	border:  8px solid magenta;
-/*	height:  100%;*/
-/*	position:  fixed;
-	top:  0;
-	left:  0;*/
-}
-
 #itemInfo {
-	border:  8px solid blue !important;
-	width: 300px !important;
-	position: fixed;
-	right: 0;
-	top: 0;
-	padding-top: 4em !important;
-;
+	width:  10em;
 }
 
 .stSplitPane .scrollingContent {
-	border:  8px solid green !important;
 /*	width: 100%;*/
 }
 
-.splitDragger {
-	position: fixed;
-	top: 10em;
+body.claro > table#usertable,
+body.claro > div#toparea,
+body.claro > div#sectionmenu,
+body.claro > div#footer {
+	display:  none;
+}
+
+#topstuff {
+	height:  3em;
+}
+
+#topstuff > div#progress {
+}
+
+html.claro, body.claro {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow:hidden;
+}
+
+#borderContainer {
+	top:  0;
+    height: 100%;
 }

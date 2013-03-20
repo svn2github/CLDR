@@ -131,59 +131,6 @@ function removeAllChildNodes(td) {
 	}
 }
 
-function readyToSubmit(fieldhash) {
-//    var ch_input = document.getElementById('ch_'+fieldhash);
-//    var submit_btn = document.getElementById('submit_'+fieldhash);
-//    var cancel_btn = document.getElementById('cancel_'+fieldhash);
-    
-//    ch_input.disabled='1';
-//    submit_btn.style.display='block';
-//    cancel_btn.style.display='block';
-}
-
-function hideSubmit(fieldhash) {
-//    var ch_input = document.getElementById('ch_'+fieldhash);
-//    var submit_btn = document.getElementById('submit_'+fieldhash);
-    var cancel_btn = document.getElementById('cancel_'+fieldhash);
-
-//    submit_btn.style.display='none';
-    cancel_btn.style.display='none';
-//    ch_input.disabled=null;
-}
-
-// @deprecated
-function isubmit(fieldhash,xpid,locale,session) {
-    var ch_input = document.getElementById('ch_'+fieldhash);
-//    var submit_btn = document.getElementById('submit_'+fieldhash);
-//    var cancel_btn = document.getElementById('cancel_'+fieldhash);
-    
-    if(!ch_input) {
-    	console.log("Not a field hash: submit " + fieldhash);
-    	return;
-    }
-    hideSubmit(fieldhash);
-    ch_input.disabled=null;
-    do_change(fieldhash, ch_input.value, '', xpid,locale,session,'submit');
-}
-
-function icancel(fieldhash,xpid,locale,session) {
-    var ch_input = document.getElementById('ch_'+fieldhash);
-//    var chtd_input = document.getElementById('chtd_'+fieldhash);
-//    var submit_btn = document.getElementById('submit_'+fieldhash);
-    var cancel_btn = document.getElementById('cancel_'+fieldhash);
-    
-    if(!ch_input) {
-        console.log("Not a field hash: submit " + fieldhash);
-        return;
-    }
-    cancel_btn.style.display='none';
-//    submit_btn.style.display='none';
-    ch_input.disabled=null;
-//    chtd_input.style.width='25%';
-    ch_input.className='inputboxbig';
-    alreadyVerifyValue[fieldhash]=null;
-}
-
 var timerID = -1;
 
 function updateIf(id, txt) {
@@ -220,17 +167,8 @@ function listenFor(what, event, fn, ievent) {
 	}
 	what._stlisteners[event]=fn;
 }
-//function unListen(what, event, ievent) {
-//	if(what.removeEventListener) {
-//		what.removeEventListener(event,false);
-//	} else {
-//		if(!ievent) {
-//			ievent = "on"+event;
-//		}
-//		what.attachEvent(ievent,fn);
-//	}
-//}
-// ?!!!!
+
+// Add Object.keys if missing
 if(!Object.keys) {
 	Object.keys = function(x) {
 		var r = [];
@@ -346,36 +284,6 @@ function handleChangedLocaleStamp(stamp,name) {
 	stdebug("Reloaded due to change: " + stamp);
     surveyNextLocaleStamp = stamp;
 }
-
-////    updateStatusBox({err: err.message, err_name: err.name, disconnected: true});
-/*
- * {
-"status": {
-"memfree": 378.6183984375,
-"lockOut": false,
-"pages": 16,
-"specialHeader": "Welcome to SurveyTool@oc7426272865.ibm.com. Please edit /home/srl/apache-tomcat-7.0.8/cldr/cldr.properties to change CLDR_HEADER (to change this message), or comment it out entirely.",
-"dbopen": 0,
-"users": 1,
-"uptime": "uptime: 49:47",
-"isUnofficial": true,
-"memtotal": 492.274,
-"sysprocs": 8,
-"isSetup": true,
-"sysload": 0.33,
-"dbused": 1439,
-"guests": 0,
-"surveyRunningStamp": 1331941056940
-},
-"isSetup": "0",
-"err": "",
-"visitors": "",
-"SurveyOK": "1",
-"uptime": "",
-"isBusted": "0",
-"progress": "(obsolete-progress)"
-}
- */
 
 var progressWord = null;
 var ajaxWord = null;
@@ -510,23 +418,6 @@ function updateStatusBox(json) {
 		updateProgressWord("ok");
 	}
 	
-	/* 
-"memfree": 378.6183984375,
-"lockOut": false,
-"pages": 16,
-"specialHeader": "Welcome to SurveyTool@oc7426272865.ibm.com. Please edit /home/srl/apache-tomcat-7.0.8/cldr/cldr.properties to change CLDR_HEADER (to change this message), or comment it out entirely.",
-"dbopen": 0,
-"users": 1,
-"uptime": "uptime: 49:47",
-"isUnofficial": true,
-"memtotal": 492.274,
-"sysprocs": 8,
-"isSetup": true,
-"sysload": 0.33,
-"dbused": 1439,
-"guests": 0,
-"surveyRunningStamp": 1331941056940
-	 */
 	if(json.status) {
 		if(!updateParts) {
 			var visitors = dojo.byId("visitors");
@@ -671,9 +562,10 @@ function resetTimerSpeed(speed) {
 //	timerID = setInterval(updateStatus, timerSpeed);
 }
 
-// set up window
-// TODO: make optional
-listenFor(window,'load',setTimerOn);
+// set up window. Let Dojo call us, otherwise dojo won't load.
+dojo.ready(function(){
+	setTimerOn();
+});
 
 var statusActionTable = {
     ALLOW: 									   { vote: true, ticket: false, change: true  }, 
@@ -707,215 +599,6 @@ function getTestKind(testResults) {
     }
     return theKind;
 }
-
-function updateTestResults(fieldhash, testResults, what) {
-    var e_div = document.getElementById('e_'+fieldhash);
-    var v_td = document.getElementById('i_'+fieldhash);
-    var v_tr = document.getElementById('r_'+fieldhash);
-    var v_tr2 = document.getElementById('r2_'+fieldhash);
-    var newHtml = "";
-    e_div.className="";
-    v_td.className="v_warn";
-    if(v_tr!=null) {
-            v_tr.className="";
-    }
-    v_tr2.className="tr_warn";
-    newHtml = "";
-    
-    if(testResults)
-    for(var i=0;i<testResults.length;i++) {
-        var tr = testResults[i];
-        newHtml += "<p class='tr_"+tr.type+"' title='"+tr.type+"'>";
-        if(tr.type == 'Warning') {
-            newHtml += warnIcon;
-            //what='warn';
-        } else if(tr.type == 'Error') {
-            v_tr2.className="tr_err";
-            newHtml += stopIcon;
-            what='error';
-        }
-        newHtml += testResults[i].message;
-        newHtml += "</p>";
-    }
-    e_div.innerHTML = newHtml;
-    return what;
-}
-
-
-//@deprecated
-function refreshRow(fieldhash, xpid, locale, session) {
-    var v_tr = document.getElementById('r_'+fieldhash);
-    var e_div = document.getElementById('e_'+fieldhash);
-    var what = WHAT_GETROW;
-    var ourUrl = contextPath + "/RefreshRow.jsp?what="+what+"&xpath="+xpid +"&_="+locale+"&fhash="+fieldhash+"&vhash="+''+"&s="+session;
-    var ourUrlVI =  ourUrl+"&voteinfo=t";
-    //console.log("refreshRow('" + fieldhash +"','"+value+"','"+vhash+"','"+xpid+"','"+locale+"','"+session+"')");
-    //console.log(" url = " + ourUrl);
-    var errorHandler = function(err, ioArgs){
-        console.log('Error in refreshRow: ' + err + ' response ' + ioArgs.xhr.responseText);
-        v_tr.className="tr_err";
-        v_tr.innerHTML = "<td class='v_error' colspan=8>" + stopIcon + " Couldn't reload this row- please refresh the page. <br>Error: " + err+"</td>";
-        removeAllChildNodes(e_div);
-//        var st_err =  document.getElementById('st_err');
-//        wasBusted = true;
-//        st_err.className = "ferrbox";
-//        st_err.innerHTML="Disconnected from Survey Tool while processing a field: "+err.name + " <br> " + err.message;
-//        updateIf('progress','<hr><i>(disconnected from Survey Tool)</i></hr>');
-//        updateIf('uptime','down');
-//        updateIf('visitors','nobody');
-    };
-    var loadHandler = function(text){
-        try {
-//             var newHtml = "";
-             if(text) {
-                 v_tr.className='topbar';
-                 v_tr.innerHTML = text;
-                 removeAllChildNodes(e_div);
-                 e_div.className="";
-             } else {
-                 v_tr.className='';
-                 v_tr.innerHTML = "<td colspan=4>" + stopIcon + " Couldn't reload this row- please refresh the page.</td>";
-             }
-           }catch(e) {
-               console.log("Error in ajax get ",e.message);
-               console.log(" response: " + text);
-               e_div.innerHTML = "<i>JavaScript Error: " + e.message + "</i>";
-           }
-    };
-    var xhrArgs = {
-            url: ourUrl+cacheKill(),
-            handleAs:"text",
-            load: loadHandler,
-            error: errorHandler
-        };
-    //window.xhrArgs = xhrArgs;
-    //console.log('xhrArgs = ' + xhrArgs);
-    dojo.xhrGet(xhrArgs);
-    
-    var voteinfo_div = document.getElementById('voteresults_'+fieldhash);
-    if(voteinfo_div) {
-    	voteinfo_div.innerHTML="<i>Updating...</i>";
-	    var loadHandlerVI = function(text){
-	        try {
-//	             var newHtml = "";
-	             if(text) {
-	                 voteinfo_div.innerHTML = text;
-	                 voteinfo_div.className="";
-	             } else {
-	                 voteinfo_div.className='';
-	                 voteinfo_div.innerHTML = "<td colspan=4>" + stopIcon + " Couldn't reload this row- please refresh the page.</td>";
-	             }
-	           }catch(e) {
-	               console.log("Error in ajax get ",e.message);
-	               console.log(" response: " + text);
-	               voteinfo_div.innerHTML = "<i>Internal Error: " + e.message + "</i>";
-	           }
-	    };
-        var xhrArgsVI = {
-                url: ourUrlVI + cacheKill(),
-                handleAs:"text",
-                load: loadHandlerVI,
-                error: errorHandler
-            };
-        //console.log('urlVI = ' + ourUrlVI);
-	    dojo.xhrGet(xhrArgsVI);
-    }
-    
-}
-
-// for validating CLDR data values
-// do_change(hash, value, xpid, locale)
-// divs:    e_HASH = div under teh item
-//           v_HASH - the entire td
-function do_change(fieldhash, value, vhash,xpid, locale, session,what) {
-	var e_div = document.getElementById('e_'+fieldhash);
-//	var v_td = document.getElementById('i_'+fieldhash);
-    var v_tr = document.getElementById('r_'+fieldhash);
-    var v_tr2 = document.getElementById('r2_'+fieldhash);
-    alreadyVerifyValue[fieldhash]=null;
-    if(what==null) {
-		 what = WHAT_SUBMIT;
-	}
-	if((!vhash || vhash.length==0) && (!value || value.length==0)) {
-		return;
-	}
-	var ourUrl = contextPath + "/SurveyAjax?what="+what+"&xpath="+xpid +"&_="+locale+"&fhash="+fieldhash+"&vhash="+vhash+"&s="+session;
-	//console.log("do_change('" + fieldhash +"','"+value+"','"+vhash+"','"+xpid+"','"+locale+"','"+session+"')");
-//	console.log(" what = " + what);
-//	console.log(" url = " + ourUrl);
-    hideSubmit(fieldhash);
-	e_div.innerHTML = '<i>Checking...</i>';
-	e_div.className="";
-	if(v_tr!=null) {
-	    v_tr.className="tr_checking";
-	}
-    v_tr2.className="tr_checking";
-//    var st_err =  document.getElementById('st_err');
-    var errorHandler = function(err, ioArgs){
-    	console.log('Error: ' + err + ' response ' + ioArgs.xhr.responseText);
-    	removeAllChildNodes(e_div);
-        e_div.className="";
-//      v_td.className="v_warn";
-        v_tr.className="";
-        v_tr2.className="tr_err";
-//        var st_err =  document.getElementById('st_err');
-//        wasBusted = true;
-//        st_err.className = "ferrbox";
-//        st_err.innerHTML="Disconnected from Survey Tool while processing a field: "+err.name + " <br> " + err.message;
-//        updateIf('progress','<hr><i>(disconnected from Survey Tool)</i></hr>');
-//        updateIf('uptime','down');
-//        updateIf('visitors','nobody');
-    };
-    var loadHandler = function(json){
-        try {
-             var newHtml = "";
-             if(json.err && json.err.length >0) {
-                 v_tr.className="tr_err";
-                 v_tr2.className="tr_err";
-                 newHtml = stopIcon + " Could not check value. Try reloading the page.<br>"+json.err;
-                 e_div.innerHTML = newHtml;
-             } else if(json.testResults && json.testResults.length == 0) {
-            	 if(what == 'verify') {
-	                 e_div.className="";
-                     v_tr.className="tr_submit";
-                     v_tr2.className="tr_submit";
-	                 e_div.innerHTML = newHtml;
-                     readyToSubmit(fieldhash);
-            	 } else {
-                     e_div.className="";
-                     v_tr.className="tr_submit";
-                     v_tr2.className="tr_submit";
-                     newHtml = "<i>Vote Accepted:</i>";
-                     e_div.innerHTML = newHtml;
-            	 }
-             } else {
-                 var update = updateTestResults(fieldhash,json.testResults,what);
-                 if (update == 'verify') {
-                	 readyToSubmit(fieldhash);
-                 }
-             }
-             if(json.submitResultRaw) {
-                 e_div.innerHTML = e_div.innerHTML + "<b>Updating...</b><!-- <br><b>SUBMIT RESULTS:</b> <tt>" + json.submitResultRaw+"</tt> <b>Refreshing row...</b> -->";
-                 refreshRow(fieldhash, xpid, locale, session);
-             }
-           }catch(e) {
-               console.log("Error in ajax post [do_change]  ",e.message);
-               e_div.innerHTML = "<i>Internal Error: " + e.message + "</i>";
-           }
-    };
-    var xhrArgs = {
-            url: ourUrl+cacheKill(),
-            postData: value,
-            handleAs:"json",
-            load: loadHandler,
-            error: errorHandler
-        };
-    //window.xhrArgs = xhrArgs;
-//    console.log('xhrArgs = ' + xhrArgs);
-    dojo.xhrPost(xhrArgs);
-}
-
-
 
 function cloneAnon(i) {
 	if(i==null) return null;
@@ -976,24 +659,10 @@ function getTagChildren(tr) {
 
 function showLoader(loaderDiv, text) {
 	updateAjaxWord(text);
-//	updateIf("progress_ajax",text);
-//	console.log("Load: " + text);
-//	return;
-//	
-//	var para = loaderDiv.getElementsByTagName("p");
-//	if(para) {
-//		para=para[0];
-//	} else {
-//		para = loaderDiv;
-//	}
-//	para.innerHTML = text;
-//	loaderDiv.style.display="";
 }
 
 function hideLoader(loaderDiv) {
 	updateAjaxWord(null);
-//	updateIf("progress_ajax","");
-//	loaderDiv.style.display="none";
 }
 
 function wireUpButton(button, tr, theRow, vHash,box) {
@@ -1061,12 +730,6 @@ function showInPop(str,tr, theObj, fn, immediate) {
 }
 
 function listenToPop(str, tr, theObj, fn) {
-//	listenFor(theObj, "mouseover",
-//			function(e) {
-//				showInPop(str, tr, theObj, fn, false);
-//				stStopPropagation(e);
-//				return false;
-//			});
 	listenFor(theObj, "click",
 			function(e) {
 				showInPop(str, tr, theObj, fn, true);
@@ -1228,7 +891,7 @@ function appendForumStuff(tr, theRow, forumDiv) {
 dojo.ready(function() {
 	var unShow = null;
 //	var lastShown = null;
-	var pucontent = dojo.byId("pu-content"); // old popup split
+	var pucontent = dojo.byId("itemInfo");
 
 //	var nudgev=0;
 //	var nudgehpost=0;
@@ -1239,45 +902,6 @@ dojo.ready(function() {
 	if(!pucontent) return;
 
 	//pucontent.className = "oldFloater";
-	
-	window.setSplitPane = function(containerDiv) {
-		var theDiv = createChunk("", "div", "scrollingContent");
-		
-		containerDiv.appendChild(theDiv); // Top: scrolling content
-		
-//		pucontent.parentNode.removeChild(pucontent);
-		pucontent.id = "itemInfo";
-//		containerDiv.appendChild(pucontent); // Bottom: popup area
-//		var spacerDiv = document.createElement("div");
-//		spacerDiv.id = "scrollSpacer";
-		theDiv.containerDiv = containerDiv;
-		theDiv.pucontent = pucontent;
-//		containerDiv.appendChild(spacerDiv);
-		
-		
-		var theBody = document.getElementsByTagName("body")[0];
-		var dragger = createChunk("(d)", "div", "splitDragger");
-		theBody.appendChild(dragger);
-		var resizeFn =  function(e) {
-			
-			//var bodyWidth = theBody.clientWidth;
-			// make sure that the scrolling area has the width of the popup area, in margin.
-			theDiv.style.paddingRight = (pucontent.clientWidth) + "px"; 
-			theDiv.style.width = (window.innerWidth - pucontent.clientWidth);
-			pucontent.style.height = (window.innerHeight) + "px";
-//			spacerDiv.style.width = (pucontent.clientWidth)+"px";
-			
-			dragger.style.right = (pucontent.clientWidth)+"px";
-			
-			if(e) {
-				stStopPropagation(e);
-			}return false;
-		};
-		listenFor(theBody, "resize",resizeFn);
-		resizeFn(null);
-		return theDiv;
-	};
-
 	var hideInterval=null;
 	
 	function setLastShown(obj) {
@@ -1362,7 +986,9 @@ dojo.ready(function() {
 			showForumStuff(td, forumDiv, tr); // give a chance to update anything else
 			td.appendChild(forumDiv);
 		}
+
 		
+		// SRL suspicious
 		removeAllChildNodes(pucontent);
 		pucontent.appendChild(td);
 //		if(stdebug_enabled) {
@@ -1422,7 +1048,7 @@ dojo.ready(function() {
 ////			pupeak.style.top = "0px";
 ////			stdebug("Note: showPop with no td");
 //		}
-		pucontent.style.display="block"; // show
+		//pucontent.style.display="block"; // show
 	};
 	if(false) {
 		window.showInPop = window.showInPop2;
@@ -1448,8 +1074,9 @@ dojo.ready(function() {
 		}
 		hideInterval=setTimeout(function() {
 			if(false) {
-				pucontent.style.display="none";
+				//pucontent.style.display="none";
 			} else {
+				// SRL suspicious
 				removeAllChildNodes(pucontent);
 //				pupeak.style.display="none";
 			}
@@ -2610,7 +2237,8 @@ function appendInputBox(parent, which) {
 
 function scrollToItem(tr) {
 //	window.location.hash=tr.id; // scroll!
-	window.scrollTo(0,getAbsolutePosition(tr).top-50);
+//	window.scrollTo(0,getAbsolutePosition(tr).top-50);
+	console.log("scrollToitemem - whatto do with split pane? "); // TODO fix
 }
 
 // interpret the #hash to see if we need to do something...
@@ -2641,12 +2269,32 @@ function processHash() {
 /// showRows() ..
 function showRows(container,xpath,session,coverage) {
  dojo.ready(function(){
+	 
 	if(!coverage) coverage="";
 	var theDiv = dojo.byId(container);
 	
-	if(theDiv.className = 'stSplitPane') {
-		theDiv = setSplitPane(theDiv); // create scrolling div for actual content, return that. 
+	var topstuff = dojo.byId("topstuff");
+	
+	if(topstuff) {
+		var body = document.getElementsByTagName("body")[0];
+		
+		// reparent
+		function reparent(id) {
+			var what = dojo.byId(id);
+			if(what && what.parentNode == body) {
+				body.removeChild(what);
+				topstuff.appendChild(what);
+			}
+		}
+		reparent("progress");		
+		reparent("usertable");		
+		reparent("toparea");		
+		reparent("sectionmenu");		
+		reparent("footer");		
 	}
+	
+	var pucontent = dojo.byId("itemInfo");
+	theDiv.pucontent = pucontent;
 
 	theDiv.stui = loadStui();
 	theDiv.theLoadingMessage = createChunk(stui_str("loading"), "i", "loadingMsg");
@@ -2735,8 +2383,6 @@ function showRows(container,xpath,session,coverage) {
 //	console.log("Wrote shower " + theDiv.id + " as " + shower);
   });
 }
-
-console.log("loading SPP");
 
 function showPossibleProblems(container,loc, session, effectiveCov, requiredCov) {
 	 surveyCurrentLocale = loc;
