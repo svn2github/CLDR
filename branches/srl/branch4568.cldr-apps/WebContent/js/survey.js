@@ -1501,13 +1501,12 @@ function addVitem(td, tr,theRow,item,vHash,newButton) {
 	    var oldClassName = span.className = span.className + " editableHere";
 	    ///span.title = span.title  + " " + stui_str("clickToChange");
 	    var ieb = null;
-	    //var editInPlace = function(e) {
-	        if(ieb!=null) return true;
     	    var spanId = span.id = "v_"+(spanSerial++); // bump the #, probably leaks something in dojo?
+	    var editInPlace = function(e) {
 	        require(["dojo/ready", "dijit/InlineEditBox", "dijit/form/TextBox", "dijit/registry"],
 	        function(ready, InlineEditBox, TextBox) {
 	            ready(function(){
-	            if(!ieb) 
+	            if(!ieb) {
 	                ieb = new InlineEditBox({editor: TextBox, autoSave: true, 
 	                    onChange: function (newValue) {
 	                                  //  console.log("Destroyed -> "+ newValue);
@@ -1518,16 +1517,20 @@ function addVitem(td, tr,theRow,item,vHash,newButton) {
 	                                   //span.className = oldClassName;
 	                               tr.inputTd = td; // cause the proposed item to show up in the right box
                        				handleWiredClick(tr,theRow,"",{value: newValue},newButton); 
-	                                   ieb.destroy();
+	                                   //ieb.destroy();
 	                               }
 	                   }, spanId);
+	                       console.log("Minted  " + spanId);
+	                   } else {
+	                       console.log("Leaving alone " + spanId);
+	                   }
 	            });
 	        });
-//	    	stStopPropagation(e);
-//	    	return false;
-	    //};
+	    	stStopPropagation(e);
+	    	return false;
+	    };
 	    
-	    //listenFor(span, "click", editInPlace);
+	    listenFor(td, "mouseover", editInPlace);
 	}
 }
 
