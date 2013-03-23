@@ -13,16 +13,20 @@ require(["dojo/parser", "dijit/layout/ContentPane", "dijit/layout/BorderContaine
 // just things that must be JSP generated
 var surveyRunningStamp = '<%= SurveyMain.surveyRunningStamp.current() %>';
 var contextPath = '<%= request.getContextPath() %>';
+var surveyCurrentId = '';
 <%
 String surveyCurrentLocale = request.getParameter(SurveyMain.QUERY_LOCALE);
 String surveyCurrentSection = request.getParameter(SurveyMain.QUERY_SECTION);
+if(surveyCurrentSection==null) surveyCurrentSection="";
 String surveyCurrentForum = request.getParameter(SurveyForum.F_XPATH);
 if(surveyCurrentLocale!=null&&surveyCurrentLocale.length()>0&&
     (surveyCurrentSection!=null||surveyCurrentForum!=null)) {
 %>
 var surveyLocaleUrl='&<%= SurveyMain.QUERY_LOCALE %>=<%= surveyCurrentLocale %>';
 var surveyCurrentLocale = '<%= surveyCurrentLocale %>';
+var surveyCurrentSection  = '<%= surveyCurrentSection %>';
 var surveyOfficial = <%= !SurveyMain.isUnofficial() %>;
+var surveyCurrentSection  = '<%= surveyCurrentSection %>';
 var surveyVersion = '<%=SurveyMain.getNewVersion() %>';
 var BUG_URL_BASE = '<%= SurveyMain.BUG_URL_BASE %>';
 var surveyCurrentLocaleStamp = 0;

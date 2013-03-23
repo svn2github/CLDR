@@ -2233,8 +2233,19 @@ function insertRows(theDiv,xpath,session,json) {
 		theDiv.appendChild(doInsertTable);
 		if(theDiv.theLoadingMessage) {
 			theDiv.theLoadingMessage.style.display="none";
+			theDiv.removeChild(theDiv.theLoadingMessage);
+			theDiv.theLoadingMessage=null;
+		}
+	} else {
+		theTable.style.display = '';
+		if(theDiv.theLoadingMessage) {
+			theDiv.theLoadingMessage.style.display="none";
+			theDiv.removeChild(theDiv.theLoadingMessage);
+			theDiv.theLoadingMessage=null;
 		}
 	}
+
+	
 	hideLoader(theDiv.loader);
 }
 
@@ -2367,10 +2378,18 @@ function processHash() {
 			}
 		}
 	}
-	window.processHash = function(){};
+	window.processHash = function(){}; // only process one time.
 }
-////////
-/// showRows() ..
+
+/**
+ * This is now the 'old' method of showing rows.
+ * @method showRows
+ * @param {Node} container container div for stuff
+ * @param {String} xpath xpath to show (or xpathid)
+ * @param {String} session session string
+ * @param {String} coverage coverage string
+ * @author srl
+ */
 function showRows(container,xpath,session,coverage) {
  dojo.ready(function(){
 	 
@@ -2401,6 +2420,13 @@ function showRows(container,xpath,session,coverage) {
 	theDiv.pucontent = pucontent;
 
 	theDiv.stui = loadStui();
+	
+	if(theDiv.theLoadingMessage) {
+		theDiv.theLoadingMessage.style.display="none";
+		theDiv.removeChild(theDiv.theLoadingMessage);
+		theDiv.theLoadingMessage=null;
+	}
+
 	theDiv.theLoadingMessage = createChunk(stui_str("loading"), "i", "loadingMsg");
 	theDiv.appendChild(theDiv.theLoadingMessage);
 	
@@ -2486,6 +2512,157 @@ function showRows(container,xpath,session,coverage) {
 	showers[theDiv.id]=shower;
 //	console.log("Wrote shower " + theDiv.id + " as " + shower);
   });
+}
+
+var surveyCurrentId = null;
+
+/**
+ * Utilities for the 'v.jsp' (new dispatcher) page
+ * @method showV
+ */
+function reloadV() {
+	require(["dojo/parser", "dijit/MenuBar", "dijit/MenuBarItem", "dijit/PopupMenuBarItem",
+	         "dijit/DropDownMenu", "dijit/MenuItem"]);
+
+    dojo.ready(function(){
+
+        
+        var theDiv = dojo.byId("DynamicDataSection");
+        
+    	var pucontent = dojo.byId("itemInfo");
+    	theDiv.pucontent = pucontent;
+
+    	theDiv.stui = loadStui();
+    	
+		if(theDiv.theLoadingMessage) {
+			theDiv.theLoadingMessage.style.display="none";
+			theDiv.removeChild(theDiv.theLoadingMessage);
+			theDiv.theLoadingMessage=null;
+		}
+
+    	theDiv.theLoadingMessage = createChunk(stui_str("loading"), "i", "loadingMsg");
+    	theDiv.appendChild(theDiv.theLoadingMessage);
+
+    	// now, load. Use a show-er function for indirection.
+    	var shower = null;
+    	var theTable = theDiv.theTable;
+    	shower = function() {
+    	
+    		if(!theTable) {
+    			var theTableList = theDiv.getElementsByTagName("table");
+    			if(theTableList) {
+    				theTable = theTableList[0];
+    				theDiv.theTable = theTable;
+    			}
+    		} else {
+    			theTable.style.display='none';
+    		}
+
+    		var theLoader = theDiv.loader;
+    		if(!theLoader) {
+    			theLoader =  cloneAnon(dojo.byId("proto-loading"));
+    			theDiv.appendChild(theLoader);
+    			theDiv.loader = theLoader;
+    		}
+    		
+    		showLoader(theDiv.loader, theDiv.stui.loading);
+    		
+    		dojo.ready(function() {
+    		    var errorHandler = function(err, ioArgs){
+    		    	console.log('Error: ' + err + ' response ' + ioArgs.xhr.responseText);
+    		        showLoader(theDiv.loader,stopIcon + "<h1>Could not refresh the page - you may need to <a href='javascript:window.location.reload(true);'>refresh</a> the page if the SurveyTool has restarted..</h1> <hr>Error while fetching : "+err.name + " <br> " + err.message + "<div style='border: 1px solid red;'>" + ioArgs.xhr.responseText + "</div>");
+    		    };
+    		    var loadHandler = function(json){
+    		        try {
+    		        	showLoader(theDiv.loader,stui.loading2);
+    		        	if(!json) {
+    		        		console.log("!json");
+    				        showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no data!" + "</div>");
+    		        	} else if(json.err) {
+    		        		console.log("json.err!" + json.err);
+    		        		showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + json.err + "</div>");
+    		        		handleDisconnect("while loading",json);
+    				    } else if(!json.section) {
+    		        		console.log("!json.section");
+    				        showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no section" + "</div>");
+    		        		handleDisconnect("while loading- no section",json);
+    				    } else if(!json.section.rows) {
+    		        		console.log("!json.section.rows");
+    				        showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no rows" + "</div>");				        
+    		        		handleDisconnect("while loading- no rows",json);
+    		        	} else {
+    		        		stdebug("json.section.rows OK..");
+    		        		showLoader(theDiv.loader, "loading..");
+    		        		if(json.dataLoadTime) {
+    		        			updateIf("dynload", json.dataLoadTime);
+    		        		}
+    		        		var theId = surveyCurrentId;
+    		        		if(theId == null) theId = '';
+    		        		window.location.hash = '#/' + json.locale + '/' + json.pageId + '/' + theId;
+    		        		updateIf("title-locale", json.localeDisplayName);
+    		        		updateIf("title-page", json.pageName);
+    		        		updateIf("title-item", "");
+    		        		
+    		        		showInPop2("", null, null, null, true); /* show the box the first time */
+    		        		doUpdate(theDiv.id, function() {
+    		        				showLoader(theDiv.loader,stui.loading3);
+    		        				insertRows(theDiv,json.pageId,surveySessionId,json); // pageid is the xpath..
+    		        				processHash(theDiv);
+    		        		});
+    		        	}
+    		        	
+    		           }catch(e) {
+    		               console.log("Error in ajax post [showV]  " + e.message + " / " + e.name );
+    				        handleDisconnect("Exception while  loading: " + e.message + ", n="+e.name, null); // in case the 2nd line doesn't work
+//    				        showLoader(theDiv.loader,"Exception while  loading: "+e.name + " <br> " +  "<div style='border: 1px solid red;'>" + e.message+ "</div>");
+//    			               console.log("Error in ajax post [showRows]  " + e.message);
+    		           }
+    		    };
+    		    var xhrArgs = {
+    		            url: contextPath + "/RefreshRow.jsp?json=t&_="+surveyCurrentLocale+"&s="+surveySessionId+"&x="+surveyCurrentSection+"&strid="+surveyCurrentId+cacheKill(),
+    		            handleAs:"json",
+    		            load: loadHandler,
+    		            error: errorHandler
+    		        };
+    		    //window.xhrArgs = xhrArgs;
+//    		    console.log('xhrArgs = ' + xhrArgs);
+    		    queueXhr(xhrArgs);
+    		});
+    	};
+    	
+    	shower(); // first load
+    	theDiv.shower = shower;
+    	showers[theDiv.id]=shower;
+    	
+    	
+    });
+}
+
+function showV() {
+	require(["dojo/parser", "dijit/MenuBar", "dijit/MenuBarItem", "dijit/PopupMenuBarItem",
+	         "dijit/DropDownMenu", "dijit/MenuItem"]);
+
+	dojo.ready(function() {
+		// processHash
+		{
+	    	var hash = window.location.hash;
+	    	if(hash) {
+	    		var pieces = hash.substr(1).split("/");
+	    		if(pieces.length > 1 && pieces[0].length==0) {
+	    			// locale based
+	    			surveyCurrentLocale = pieces[1];
+	    			if(pieces.length>2) {
+	    				surveyCurrentSection = pieces[2];
+	    				if(pieces.length>3){
+	    					surveyCurrentId = pieces[3];
+	    				}
+	    			}
+	    		}
+	    	}
+	    	window.processHash = function(){}; // only process one time.
+	    }
+		reloadV();
+	});
 }
 
 function showPossibleProblems(container,loc, session, effectiveCov, requiredCov) {

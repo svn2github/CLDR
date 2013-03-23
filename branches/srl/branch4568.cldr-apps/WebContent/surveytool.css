@@ -1216,13 +1216,16 @@ div#toparea img#stlogo {
 }
 
 #toptitle {
+	font-size: medium;
+}
+
+#toparea #toptitle {
 	padding-top: 0;
 	margin-top: 0;
 	margin-bottom: 0;
 	line-height: 2.5em;
 	font-weight: normal;
 	padding-bottom:  0;
-	font-size: medium;
 }
 
 #toptitle span.title-cldr {
@@ -1609,14 +1612,17 @@ div.topnotices div.unofficial {
 	display: none;
 }
 
-div.topnotices #betanotice {
-    background-color: yellow;
-    padding:  2px;
-    padding-top:  3px;
-	box-shadow: 1px 1px 1px gray;
+body > div.topnotices #betanotice {
 }
 
-div.topnotices div.beta {
+body > div.topnotices div.beta {
+clear: right;
+position: fixed;
+left: 0;
+top: 0;
+z-index: 0;
+}
+div.beta {
 	/*
 -webkit-transform: rotate(-90deg);
 	-webkit-transform-origin: right bottom;
@@ -1628,16 +1634,15 @@ div.topnotices div.beta {
 -khtml-transform-origin: right bottom;
 */
 /* filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); */
+    opacity: 0.9;
 	float: right;
 	font-size: smaller;
-	clear: right;
-	position: fixed;
-	left: 0;
-	top: 0;
-	opacity: 0.9;
-	z-index: 0;
 	margin-top:  2px;
 	margin-left:  2px;
+background-color: yellow;
+padding:  2px;
+padding-top:  3px;
+box-shadow: 1px 1px 1px gray;
 }
 
 div.debugJsp {
@@ -2544,10 +2549,17 @@ body.claro > div#footer {
 }
 
 #topstuff {
-	height:  8em;
 }
 
-#topstuff > div#progress {
+#topstuff #toptitle {
+}
+
+#st-menubar  {
+    width: 40em;
+    display:  inline-block;
+}
+
+#botstuff > div#progress {
 }
 
 html.claro, body.claro {

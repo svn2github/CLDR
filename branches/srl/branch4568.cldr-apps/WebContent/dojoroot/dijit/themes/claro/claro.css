@@ -1,5 +1,6 @@
 /* @override 
-	http://127.0.0.1:8080/cldr-apps/dojoroot/dijit/themes/claro/claro.css */
+	http://127.0.0.1:8080/cldr-apps/dojoroot/dijit/themes/claro/claro.css
+	http://naf.:8080/cldr-apps/dojoroot/dijit/themes/claro/claro.css */
 
 .dijitReset {
 	
@@ -3323,6 +3324,13 @@ div.dijitTabDisabled, .dj_ie div.dijitTabDisabled {
   background-image: linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
   _background-image: none;
 }
+
+#title-locale, #title-page, title-item {
+    border-left: 3px solid #dab6b6;
+    padding-left:  3px;
+    padding-right:  1px;
+}
+
 .claro .dijitMenu {
   background-color: #ffffff;
   border: 1px solid #759dc0;

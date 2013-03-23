@@ -501,7 +501,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
     /**
      * IP blacklist
      */
-    Hashtable<String, Object> BAD_IPS = new Hashtable<String, Object>();
+    static Hashtable<String, Object> BAD_IPS = new Hashtable<String, Object>();
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (!ensureStartup(request, response)) {
@@ -1483,7 +1483,6 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
     }
 
     /*
-     * 
      */
     public JSONObject statusJSON() throws JSONException {
         Runtime r = Runtime.getRuntime();
@@ -1671,162 +1670,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
         }
     }
 
-    /**
-     * set the session.
-     */
-    String setSession(WebContext ctx) {
-        String message = null;
-        // get the context
-        CookieSession mySession = null;
-        String myNum = ctx.field(QUERY_SESSION);
-        // get the uid
-        String password = ctx.field(QUERY_PASSWORD);
-        if (password.isEmpty()) {
-            password = ctx.field(QUERY_PASSWORD_ALT);
-        }
-        boolean letmein = vap.equals(ctx.field("letmein"));
-        String email = ctx.field(QUERY_EMAIL);
-        if ("admin@".equals(email) && vap.equals(password)) {
-            letmein = true; /*
-                             * don't require the DB password from admin, VAP is
-                             * ok
-                             */
-        }
-
-        {
-            String myEmail = ctx.getCookieValue(QUERY_EMAIL);
-            String myPassword = ctx.getCookieValue(QUERY_PASSWORD);
-            if (myEmail != null && (email == null || email.isEmpty())) {
-                email = myEmail;
-                if (myPassword != null && (password == null || password.isEmpty())) {
-                    password = myPassword;
-                }
-            }
-        }
-        UserRegistry.User user;
-        // /*srl*/ SurveyLog.logger.warning("isBusted: " + isBusted + ", reg: "
-        // + reg);
-
-        // SurveyLog.logger.warning("reg.get  pw="+password+", email="+email+", lmi="+ctx.field("letmein")+", lmigood="+vap.equals(ctx.field("letmein")));
-
-        user = reg.get(password, email, ctx.userIP(), letmein);
-        if (user != null) {
-            user.touch();
-        }
-        // SurveyLog.logger.warning("user= "+user);
-
-        if (ctx.request == null && ctx.session != null) {
-            return "using canned session"; // already set - for testing
-        }
-
-        HttpSession httpSession = ctx.request.getSession(true);
-        boolean idFromSession = false;
-        if (myNum.equals(SURVEYTOOL_COOKIE_NONE)) {
-            httpSession.removeAttribute(SURVEYTOOL_COOKIE_SESSION);
-        }
-        if (user != null) {
-            mySession = CookieSession.retrieveUser(user.email);
-            if (mySession != null) {
-                if (null == CookieSession.retrieve(mySession.id)) {
-                    mySession = null; // don't allow dead sessions to show up
-                                      // via the user list.
-                } else {
-                    // message =
-                    // "<i id='sessionMessage'>Reconnecting to your previous session.</i>";
-                    myNum = mySession.id;
-                }
-            }
-        }
-
-        // Retreive a number from the httpSession if present
-        if ((httpSession != null) && (mySession == null) && ((myNum == null) || (myNum.length() == 0))) {
-            String aNum = (String) httpSession.getAttribute(SURVEYTOOL_COOKIE_SESSION);
-            if ((aNum != null) && (aNum.length() > 0)) {
-                myNum = aNum;
-                idFromSession = true;
-            }
-        }
-
-        if ((mySession == null) && (myNum != null) && (myNum.length() > 0)) {
-            mySession = CookieSession.retrieve(myNum);
-            if (mySession == null) {
-                idFromSession = false;
-            }
-            if ((mySession == null) && (!myNum.equals(SURVEYTOOL_COOKIE_NONE))) {
-                // message =
-                // "<i id='sessionMessage'>(Sorry, This session has expired. ";
-                if (user == null) {
-                    message = "You may have to log in again. ";
-                }
-                // message = message + ")</i><br>";
-            }
-        }
-        if ((idFromSession == false) && (httpSession != null) && (mySession != null)) { // can
-                                                                                        // we
-                                                                                        // elide
-                                                                                        // the
-                                                                                        // 's'?
-            String aNum = (String) httpSession.getAttribute(SURVEYTOOL_COOKIE_SESSION);
-            if ((aNum != null) && (mySession.id.equals(aNum))) {
-                idFromSession = true; // it would have matched.
-            } else {
-                // ctx.println("[Confused? cs="+aNum +", s=" + mySession.id +
-                // "]");
-            }
-        }
-        // Can go from anon -> logged in.
-        // can NOT go from one logged in account to another.
-        if ((mySession != null) && (mySession.user != null) && (user != null) && (mySession.user.id != user.id)) {
-            mySession = null; // throw it out.
-        }
-
-        if (mySession == null && user == null) {
-            mySession = CookieSession.checkForAbuseFrom(ctx.userIP(), BAD_IPS, ctx.request.getHeader("User-Agent"));
-            if (mySession != null) {
-                ctx.println("<h1>Note: Your IP, " + ctx.userIP() + " has been throttled for making " + BAD_IPS.get(ctx.userIP())
-                        + " connections. Try turning on cookies, or obeying the 'META ROBOTS' tag.</h1>");
-                ctx.flush();
-                // try {
-                // Thread.sleep(15000);
-                // } catch(InterruptedException ie) {
-                // }
-                ctx.session = null;
-                // ctx.println("Now, go away.");
-                return "Bad IP.";
-            }
-        }
-        if (mySession == null) {
-            mySession = new CookieSession(user == null, ctx.userIP());
-            if (!myNum.equals(SURVEYTOOL_COOKIE_NONE)) {
-                // ctx.println("New session: " + mySession.id + "<br>");
-            }
-            idFromSession = false;
-        }
-        ctx.session = mySession;
-
-        if (!idFromSession) { // suppress 's' if cookie was valid
-            ctx.addQuery(QUERY_SESSION, mySession.id);
-        } else {
-            // ctx.println("['s' suppressed]");
-        }
-
-        if (httpSession != null) {
-            httpSession.setAttribute(SURVEYTOOL_COOKIE_SESSION, mySession.id);
-            httpSession.setMaxInactiveInterval(CookieSession.USER_TO / 1000);
-        }
-
-        if (user != null) {
-            ctx.session.setUser(user); // this will replace any existing session
-                                       // by this user.
-            ctx.session.user.ip = ctx.userIP();
-        } else {
-            if ((email != null) && (email.length() > 0) && (ctx.session.user == null)) {
-                message = "<strong id='sessionMessage'>" + (ctx.iconHtml("stop", "failed login") + "login failed.</strong><br>");
-            }
-        }
-        CookieSession.reap();
-        return message;
-    }
+    
 
     // protected void printMenu(WebContext ctx, String which, String menu,
     // String title, String key) {
@@ -3626,7 +3470,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
 
         setLocale(ctx);
 
-        String sessionMessage = setSession(ctx);
+        String sessionMessage = ctx.setSession();
 
         if (ctx.session == null) {
             return;
