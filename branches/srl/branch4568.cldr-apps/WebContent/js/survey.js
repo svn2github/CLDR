@@ -102,9 +102,10 @@ function stStopPropagation(e) {
 	}
 }
 
-function replaceHash(hash) {
-	window.location.replace("#"+hash);
+window.replaceHash = function() {
+	window.location.replace("#"+"x@" + surveyCurrentId);
 }
+
 var disconnected = false;
 
 var stdebug_enabled=(window.location.search.indexOf('&stdebug=')>-1);
@@ -1004,7 +1005,8 @@ dojo.ready(function() {
 //			return;
 //		}
 		if(tr && tr.sethash) {
-			replaceHash(tr.sethash);
+			surveyCurrentId = tr.sethash;
+			replaceHash();
 		}
 		setLastShown(hideIfLast);
 
@@ -1757,7 +1759,7 @@ function updateRow(tr, theRow) {
 		tr.xpstrid = theRow.xpstrid;
 		if(tr.xpstrid) {
 			tr.id = "r@"+tr.xpstrid;
-			tr.sethash = "x@"+tr.xpstrid;
+			tr.sethash = tr.xpstrid;
 		}
 	}
 	var children = getTagChildren(tr);
@@ -2515,155 +2517,316 @@ function showRows(container,xpath,session,coverage) {
 }
 
 var surveyCurrentId = null;
+var _thePages = null;
 
 /**
  * Utilities for the 'v.jsp' (new dispatcher) page
  * @method showV
  */
-function reloadV() {
-	require(["dojo/parser", "dijit/MenuBar", "dijit/MenuBarItem", "dijit/PopupMenuBarItem",
-	         "dijit/DropDownMenu", "dijit/MenuItem"]);
-
-    dojo.ready(function(){
-
-        
-        var theDiv = dojo.byId("DynamicDataSection");
-        
-    	var pucontent = dojo.byId("itemInfo");
-    	theDiv.pucontent = pucontent;
-
-    	theDiv.stui = loadStui();
-    	
-		if(theDiv.theLoadingMessage) {
-			theDiv.theLoadingMessage.style.display="none";
-			theDiv.removeChild(theDiv.theLoadingMessage);
-			theDiv.theLoadingMessage=null;
-		}
-
-    	theDiv.theLoadingMessage = createChunk(stui_str("loading"), "i", "loadingMsg");
-    	theDiv.appendChild(theDiv.theLoadingMessage);
-
-    	// now, load. Use a show-er function for indirection.
-    	var shower = null;
-    	var theTable = theDiv.theTable;
-    	shower = function() {
-    	
-    		if(!theTable) {
-    			var theTableList = theDiv.getElementsByTagName("table");
-    			if(theTableList) {
-    				theTable = theTableList[0];
-    				theDiv.theTable = theTable;
-    			}
-    		} else {
-    			theTable.style.display='none';
-    		}
-
-    		var theLoader = theDiv.loader;
-    		if(!theLoader) {
-    			theLoader =  cloneAnon(dojo.byId("proto-loading"));
-    			theDiv.appendChild(theLoader);
-    			theDiv.loader = theLoader;
-    		}
-    		
-    		showLoader(theDiv.loader, theDiv.stui.loading);
-    		
-    		dojo.ready(function() {
-    		    var errorHandler = function(err, ioArgs){
-    		    	console.log('Error: ' + err + ' response ' + ioArgs.xhr.responseText);
-    		        showLoader(theDiv.loader,stopIcon + "<h1>Could not refresh the page - you may need to <a href='javascript:window.location.reload(true);'>refresh</a> the page if the SurveyTool has restarted..</h1> <hr>Error while fetching : "+err.name + " <br> " + err.message + "<div style='border: 1px solid red;'>" + ioArgs.xhr.responseText + "</div>");
-    		    };
-    		    var loadHandler = function(json){
-    		        try {
-    		        	showLoader(theDiv.loader,stui.loading2);
-    		        	if(!json) {
-    		        		console.log("!json");
-    				        showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no data!" + "</div>");
-    		        	} else if(json.err) {
-    		        		console.log("json.err!" + json.err);
-    		        		showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + json.err + "</div>");
-    		        		handleDisconnect("while loading",json);
-    				    } else if(!json.section) {
-    		        		console.log("!json.section");
-    				        showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no section" + "</div>");
-    		        		handleDisconnect("while loading- no section",json);
-    				    } else if(!json.section.rows) {
-    		        		console.log("!json.section.rows");
-    				        showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no rows" + "</div>");				        
-    		        		handleDisconnect("while loading- no rows",json);
-    		        	} else {
-    		        		stdebug("json.section.rows OK..");
-    		        		showLoader(theDiv.loader, "loading..");
-    		        		if(json.dataLoadTime) {
-    		        			updateIf("dynload", json.dataLoadTime);
-    		        		}
-    		        		var theId = surveyCurrentId;
-    		        		if(theId == null) theId = '';
-    		        		window.location.hash = '#/' + json.locale + '/' + json.pageId + '/' + theId;
-    		        		updateIf("title-locale", json.localeDisplayName);
-    		        		updateIf("title-page", json.pageName);
-    		        		updateIf("title-item", "");
-    		        		
-    		        		showInPop2("", null, null, null, true); /* show the box the first time */
-    		        		doUpdate(theDiv.id, function() {
-    		        				showLoader(theDiv.loader,stui.loading3);
-    		        				insertRows(theDiv,json.pageId,surveySessionId,json); // pageid is the xpath..
-    		        				processHash(theDiv);
-    		        		});
-    		        	}
-    		        	
-    		           }catch(e) {
-    		               console.log("Error in ajax post [showV]  " + e.message + " / " + e.name );
-    				        handleDisconnect("Exception while  loading: " + e.message + ", n="+e.name, null); // in case the 2nd line doesn't work
-//    				        showLoader(theDiv.loader,"Exception while  loading: "+e.name + " <br> " +  "<div style='border: 1px solid red;'>" + e.message+ "</div>");
-//    			               console.log("Error in ajax post [showRows]  " + e.message);
-    		           }
-    		    };
-    		    var xhrArgs = {
-    		            url: contextPath + "/RefreshRow.jsp?json=t&_="+surveyCurrentLocale+"&s="+surveySessionId+"&x="+surveyCurrentSection+"&strid="+surveyCurrentId+cacheKill(),
-    		            handleAs:"json",
-    		            load: loadHandler,
-    		            error: errorHandler
-    		        };
-    		    //window.xhrArgs = xhrArgs;
-//    		    console.log('xhrArgs = ' + xhrArgs);
-    		    queueXhr(xhrArgs);
-    		});
-    	};
-    	
-    	shower(); // first load
-    	theDiv.shower = shower;
-    	showers[theDiv.id]=shower;
-    	
-    	
-    });
-}
-
 function showV() {
-	require(["dojo/parser", "dijit/MenuBar", "dijit/MenuBarItem", "dijit/PopupMenuBarItem",
-	         "dijit/DropDownMenu", "dijit/MenuItem"]);
+	// REQUIRES
+	require([
+	         "dojo/ready",
+	         "dojo/dom",
+	         "dojo/parser", 
+	         "dijit/DropDownMenu",
+	         "dijit/form/DropDownButton",
+	         "dijit/MenuItem",
+	         "dijit/form/TextBox",
+	         "dijit/form/Button",
+	         "dijit/CheckedMenuItem",
+	         "dijit/registry",
+	         "dijit/PopupMenuItem",
+	         "dijit/form/Select",
+	         "dojo/domReady!"
+	         ],
+	         // HANDLES
+	         function(
+	        		 ready,
+	        		 dom,
+	        		 parser,
+	        		 DropDownMenu,
+	        		 DropDownButton,
+	        		 MenuItem,
+	        		 TextBox,
+	        		 Button,
+	        		 CheckedMenuItem,
+	        		 registry,
+	        		 PopupMenuItem,
+	        		 Select
+	         ) {
 
-	dojo.ready(function() {
+		// one time.
 		// processHash
 		{
-	    	var hash = window.location.hash;
-	    	if(hash) {
-	    		var pieces = hash.substr(1).split("/");
-	    		if(pieces.length > 1 && pieces[0].length==0) {
-	    			// locale based
-	    			surveyCurrentLocale = pieces[1];
-	    			if(pieces.length>2) {
-	    				surveyCurrentSection = pieces[2];
-	    				if(pieces.length>3){
-	    					surveyCurrentId = pieces[3];
-	    				}
-	    			}
-	    		}
-	    	}
-	    	window.processHash = function(){}; // only process one time.
-	    }
-		reloadV();
-	});
-}
+			var hash = window.location.hash;
+			if(hash) {
+				var pieces = hash.substr(1).split("/");
+				if(pieces.length > 1 && pieces[0].length==0) {
+					// locale based
+					surveyCurrentLocale = pieces[1];
+					if(pieces.length>2) {
+						surveyCurrentPage = pieces[2];
+						if(pieces.length>3){
+							surveyCurrentId = pieces[3];
+						}
+					}
+				}
+			}
+			window.processHash = function(){}; // only process one time.
+		}
+		
+		// TODO - rewrite using AMD
+		function myLoad(url, message, handler) {
+			var errorHandler = function(err, ioArgs){
+				console.log('Error: ' + err + ' response ' + ioArgs.xhr.responseText);
+				showLoader(theDiv.loader,stopIcon + "<h1>Could not refresh the page - you may need to <a href='javascript:window.location.reload(true);'>refresh</a> the page if the SurveyTool has restarted..</h1> <hr>Error while fetching : "+err.name + " for " + message + " <br> " + err.message + "<div style='border: 1px solid red;'>" + ioArgs.xhr.responseText + "</div>");
+			};
+			var loadHandler = function(json){
+				try {
+					handler(json);
+				}catch(e) {
+					console.log("Error in ajax post ["+message+"]  " + e.message + " / " + e.name );
+					handleDisconnect("Exception while  loading: " + message + " - "  + e.message + ", n="+e.name, null); // in case the 2nd line doesn't work
+				}
+			};
+			var xhrArgs = {
+					url: url,
+					handleAs:"json",
+					load: loadHandler,
+					error: errorHandler
+			};
+			queueXhr(xhrArgs);
+		}
+		
+		/**
+		 * @method replaceHash
+		 */
+		window.replaceHash = function() {
+			var theId = window.surveyCurrentId;
+			if(theId == null) theId = '';
+			window.location.hash = '#/' + window.surveyCurrentLocale + '/' + window.surveyCurrentPage + '/' + theId;
+			updateIf("title-item", theId);
+		};
+		
+		/**
+		 * Update the #hash and menus to the current settings.
+		 * @method updateHashAndMenus
+		 */
+		function updateHashAndMenus() {
+			replaceHash(); // update the hash
+			updateIf("title-locale", surveyCurrentLocaleName);
+			
+			/**
+			 * Just update the titles of the menus. Internal to updateHashAndMenus
+			 * @method updateMenuTitles
+			 */
+			function updateMenuTitles(menuMap) {
+				if(!menuMap) {
+					updateIf("title-section", "-");
+					updateIf("title-page", surveyCurrentPage); 
+				} else {
+					var mySection = menuMap.pageToSection[surveyCurrentPage];
+					var myPage = mySection.pageMap[surveyCurrentPage];
+					surveyCurrentSection = mySection.id;
+					updateIf("title-section", mySection.name);
+					updateIf("title-page", myPage.name);
+				}
+			}
+			
+			/**
+			 * @method updateMenus
+			 */
+			function updateMenus(menuMap) {
+				updateMenuTitles(menuMap);
+
+				// first, update display names
+				var mySection = menuMap.pageToSection[surveyCurrentPage];
+				var myPage = mySection.pageMap[surveyCurrentPage];
+				
+				
+				// update menus under 'page' - peer pages
+				var menuPage = registry.byId("menu-page");
+				menuPage.destroyDescendants(false);
+				for(var k in mySection.pages) { // use given order
+					(function(aPage) {
+				        var pageMenu = new CheckedMenuItem({
+				            label: aPage.name,
+				            checked:   (aPage.id == surveyCurrentPage),
+				        //    iconClass:"dijitEditorIcon dijitEditorIconSave",
+				            onClick: function(){ 
+				            									surveyCurrentId = ''; // no id if jumping pages
+				            									surveyCurrentPage = aPage.id;
+				            									updateMenuTitles(menuMap);
+				            									reloadV();
+				            							},
+				        	// TODO: disabled via coverage
+				        });
+				        menuPage.addChild(pageMenu);
+					})(mySection.pages[k]);
+
+				}
+				
+				var menuSection = registry.byId("menu-section");
+				menuSection.destroyDescendants(false);
+				for(var j in menuMap.sections) {
+					(function (aSection){
+						var dropDown = new DropDownMenu();
+						for(var k in aSection.pages) { // use given order
+							(function(aPage) {
+						        var pageMenu = new CheckedMenuItem({
+						            label: aPage.name,
+						            checked:   (aPage.id == surveyCurrentPage),
+						        //    iconClass:"dijitEditorIcon dijitEditorIconSave",
+						            onClick: function(){ 
+						            									surveyCurrentId = ''; // no id if jumping pages
+						            									surveyCurrentPage = aPage.id;
+						            									updateMenuTitles(menuMap);
+						            									reloadV();
+						            							},
+						        	// TODO: disabled via coverage
+						        });
+						        dropDown.addChild(pageMenu);
+							})(aSection.pages[k]);
+
+						}
+						var sectionMenuItem = new PopupMenuItem({
+							label: aSection.name,
+							popup: dropDown,
+							// TODO: disabled via coverage
+						});
+						menuSection.addChild(sectionMenuItem);
+					})(menuMap.sections[j]);
+				}
+			}
+			
+			if(_thePages == null || _thePages.loc != surveyCurrentLocale ) {
+				// show the raw IDs while loading.
+				updateIf("title-section", surveyCurrentSection); // only use of SCS
+				updateIf("title-page", surveyCurrentPage);
+				
+				var url = contextPath + "/SurveyAjax?_="+surveyCurrentLocale+"&s="+surveySessionId+"&what=menus"+cacheKill();
+				myLoad(url, "menus for " + surveyCurrentLocale, function(json) {
+					var menus = json.menus;
+					// set up some hashes
+					menus.sectionMap = {};
+					menus.pageToSection = {};
+					for(var k in menus.sections) {
+						menus.sectionMap[menus.sections[k].id] = menus.sections[k];
+						menus.sections[k].pageMap = {};
+						for(var j in menus.sections[k].pages) {
+							menus.sections[k].pageMap[menus.sections[k].pages[j].id] = menus.sections[k].pages[j];
+							menus.pageToSection[menus.sections[k].pages[j].id] = menus.sections[k];
+						}
+					}
+					updateMenus(menus);
+					_thePages = menus;
+				});
+			} else {
+				// go ahead and update
+				updateMenus(_thePages);
+			}
+			
+		}
+
+		
+		function reloadV() {
+
+
+			var theDiv = dojo.byId("DynamicDataSection");
+
+			var pucontent = dojo.byId("itemInfo");
+			theDiv.pucontent = pucontent;
+
+			theDiv.stui = loadStui();
+
+			if(theDiv.theLoadingMessage) {
+				theDiv.theLoadingMessage.style.display="none";
+				theDiv.removeChild(theDiv.theLoadingMessage);
+				theDiv.theLoadingMessage=null;
+			}
+
+			theDiv.theLoadingMessage = createChunk(stui_str("loading"), "i", "loadingMsg");
+			theDiv.appendChild(theDiv.theLoadingMessage);
+
+			// now, load. Use a show-er function for indirection.
+			var shower = null;
+			var theTable = theDiv.theTable;
+			shower = function() {
+				updateHashAndMenus();
+
+				if(!theTable) {
+					var theTableList = theDiv.getElementsByTagName("table");
+					if(theTableList) {
+						theTable = theTableList[0];
+						theDiv.theTable = theTable;
+					}
+				} else {
+					theTable.style.display='none';
+				}
+
+				var theLoader = theDiv.loader;
+				if(!theLoader) {
+					theLoader =  cloneAnon(dojo.byId("proto-loading"));
+					theDiv.appendChild(theLoader);
+					theDiv.loader = theLoader;
+				}
+
+				showLoader(theDiv.loader, theDiv.stui.loading);
+
+				var url = contextPath + "/RefreshRow.jsp?json=t&_="+surveyCurrentLocale+"&s="+surveySessionId+"&x="+surveyCurrentPage+"&strid="+surveyCurrentId+cacheKill();
+				console.log("vrows: " + url);
+				myLoad(url, "(loading vrows)", function(json) {
+						showLoader(theDiv.loader,stui.loading2);
+						if(!json) {
+							console.log("!json");
+							showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no data!" + "</div>");
+						} else if(json.err) {
+							console.log("json.err!" + json.err);
+							showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + json.err + "</div>");
+							handleDisconnect("while loading",json);
+						} else if(!json.section) {
+							console.log("!json.section");
+							showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no section" + "</div>");
+							handleDisconnect("while loading- no section",json);
+						} else if(!json.section.rows) {
+							console.log("!json.section.rows");
+							showLoader(theDiv.loader,"Error while  loading: <br><div style='border: 1px solid red;'>" + "no rows" + "</div>");				        
+							handleDisconnect("while loading- no rows",json);
+						} else {
+							stdebug("json.section.rows OK..");
+							showLoader(theDiv.loader, "loading..");
+							if(json.dataLoadTime) {
+								updateIf("dynload", json.dataLoadTime);
+							}
+
+							surveyCurrentSection = '';
+							surveyCurrentPage = json.pageId;
+							surveyCurrentLocaleName = json.localeDisplayName;
+							updateHashAndMenus();
+
+							showInPop2("", null, null, null, true); /* show the box the first time */
+							doUpdate(theDiv.id, function() {
+								showLoader(theDiv.loader,stui.loading3);
+								insertRows(theDiv,json.pageId,surveySessionId,json); // pageid is the xpath..
+								processHash(theDiv);
+							});
+						}
+				});
+			}; // end shower
+
+			shower(); // first load
+			theDiv.shower = shower;
+			showers[theDiv.id]=shower;
+
+		}  // end reloadV
+
+		ready(function(){
+			reloadV(); // call it
+		});
+
+	});  // end require()
+} // end showV
 
 function showPossibleProblems(container,loc, session, effectiveCov, requiredCov) {
 	 surveyCurrentLocale = loc;

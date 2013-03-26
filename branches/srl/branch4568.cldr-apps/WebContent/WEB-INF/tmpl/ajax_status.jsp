@@ -1,5 +1,6 @@
 <%@page import="org.unicode.cldr.util.VettingViewer"%>
 <%@ page import="org.unicode.cldr.web.*" %>
+<%@ page import="org.unicode.cldr.util.*" %>
 <!--  begin ajax_status.jsp -->
 <link rel="stylesheet" href="<%= request.getContextPath() %>/dojoroot/dijit/themes/claro/claro.css" />
 <%= VettingViewer.getHeaderStyles() %>
@@ -16,6 +17,11 @@ var contextPath = '<%= request.getContextPath() %>';
 var surveyCurrentId = '';
 <%
 String surveyCurrentLocale = request.getParameter(SurveyMain.QUERY_LOCALE);
+String surveyCurrentLocaleName = "";
+if(surveyCurrentLocale!=null) {
+	CLDRLocale aloc = CLDRLocale.getInstance(surveyCurrentLocale);
+	surveyCurrentLocaleName = aloc.getDisplayName();
+}
 String surveyCurrentSection = request.getParameter(SurveyMain.QUERY_SECTION);
 if(surveyCurrentSection==null) surveyCurrentSection="";
 String surveyCurrentForum = request.getParameter(SurveyForum.F_XPATH);
@@ -24,6 +30,7 @@ if(surveyCurrentLocale!=null&&surveyCurrentLocale.length()>0&&
 %>
 var surveyLocaleUrl='&<%= SurveyMain.QUERY_LOCALE %>=<%= surveyCurrentLocale %>';
 var surveyCurrentLocale = '<%= surveyCurrentLocale %>';
+var surveyCurrentLocaleName = '<%= surveyCurrentLocaleName %>';
 var surveyCurrentSection  = '<%= surveyCurrentSection %>';
 var surveyOfficial = <%= !SurveyMain.isUnofficial() %>;
 var surveyCurrentSection  = '<%= surveyCurrentSection %>';
@@ -32,7 +39,9 @@ var BUG_URL_BASE = '<%= SurveyMain.BUG_URL_BASE %>';
 var surveyCurrentLocaleStamp = 0;
 <% }else{ %>
 var surveyCurrentLocale = null;
+var surveyCurrentLocaleName = null;
 var surveyCurrentLocaleStamp = 0;
+var surveyCurrentSection  = '';
 var surveyLocaleUrl='';
 <% } 
 

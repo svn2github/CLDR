@@ -106,11 +106,13 @@
                                 coverage.toString(),
                                 WebContext.LoadingShow.dontShowLoading);
                         section.setUserAndFileForVotelist(mySession.user,null);
-                    } else {
+                    } else if (xp!=null) {
 					    baseXp = XPathTable.xpathToBaseXpath(xp);
 						section = ctx.getSection(baseXp,matcher,
 								coverage.toString(),
 								WebContext.LoadingShow.dontShowLoading);
+                    } else {
+                    	throw new IllegalArgumentException("no xpath, section, or id given");
                     }
 				} catch (Throwable t) {
 					SurveyLog.logException(t,"on loading " + locale+":"+ baseXp);
@@ -142,13 +144,12 @@
 					    dsets.put("default",PathHeaderSort.name);
 					    dsets.put(PathHeaderSort.name,section.createDisplaySet(SortMode.getInstance(PathHeaderSort.name),null)); // the section creates the sort
 					}
-										
+							
 					try {
 						JSONWriter r = new JSONWriter(out).object()
 								.key("stro").value(STFactory.isReadOnlyLocale(ctx.getLocale()))
 								.key("baseXpath").value(baseXp)
-                                .key("pageId").value(pageId.name())
-                                .key("pageName").value(pageId.toString())
+                                .key("pageId").value((pageId!=null)?pageId.name():null)
 								.key("section").value(section)
 								.key("localeDisplayName").value(ctx.getLocale().getDisplayName())
 								.key("displaySets").value(dsets)

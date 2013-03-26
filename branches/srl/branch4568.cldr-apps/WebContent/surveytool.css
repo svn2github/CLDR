@@ -2551,7 +2551,12 @@ body.claro > div#footer {
 #topstuff {
 }
 
-#topstuff #toptitle {
+#topstuff #toptitle > span::after{
+    content: "»";
+}
+
+span#title-item::after {
+    content:  "" !important;
 }
 
 #st-menubar  {
@@ -2560,6 +2565,13 @@ body.claro > div#footer {
 }
 
 #botstuff > div#progress {
+}
+
+#toptitle > span > .dijitButtonNode {
+    text-decoration: underline !important;
+    background-color: inherit !important;
+    border:  none !important;
+	color: #358cc3;
 }
 
 html.claro, body.claro {
@@ -2576,6 +2588,19 @@ html.claro, body.claro {
 
 span.editableHere {
     padding:  2px;
+}
+.titlePart {
+}
+
+.titlePart::before {
+}
+
+#title-page {
+    font-weight: bold;
+}
+
+#title-item {
+    font-family: "Courier New", Courier, mono;
 }
 
 span.editableHere:hover {

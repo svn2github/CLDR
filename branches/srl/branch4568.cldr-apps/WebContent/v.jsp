@@ -14,7 +14,6 @@ if(SurveyMain.isBusted!=null) {
 } else if(sm==null || !SurveyMain.isSetup) {
         %>Attempting to start SurveyTool..
         
-        <iframe src="<%= survURL %>" width=10 height=10 %></iframe>
         <%
             String url = request.getContextPath() + request.getServletPath(); // TODO add query
             // JavaScript based redirect
@@ -28,12 +27,23 @@ if(SurveyMain.isBusted!=null) {
                   </script>
             </head>
             <body>
-              If you are not redirected in a few seconds, you can click: <a href='<%= url %>'>here.</a>
+            <noscript>
+            <h1>
+                JavaScript is required.
+            </h1></noscript>
+              If you are not redirected in a few seconds, you can click: <a id='redir' href='<%= url %>'>here.</a>
+              <script type="application/javascript">
+                            document.getElementById("redir").href = '<%= url %>' + document.location.search +  document.location.hash;
+              </script>
             <%
             
             if(sm!=null) {
         %>
                 <%= sm.startupThread.htmlStatus() %>
+                <hr>
+                <!--  attempt to start via iframe -->
+                        <iframe 'src="<%= survURL %>" width=10 height=10 %></iframe>
+                
         <%
             }
         return;
@@ -97,9 +107,54 @@ surveySessionId = '<%= ctx.session.id %>';
                 <span class='title-cldr'>CLDR <%= ctx.sm.getNewVersion() %> Survey Tool
         <%=  (ctx.sm.phase()!=SurveyMain.Phase.SUBMIT)?ctx.sm.phase().toString():"" %>
          </span>
-         <span id='title-locale'></span>
-         <span id='title-page'></span>
-         <span id='title-item'></span>
+
+        <span class='titlePart'>
+            <a class='notselected' href='<%= survURL  %>'>Locales</a>
+        </span>
+      
+         <div id='title-locale' data-dojo-type="dijit/form/DropDownButton">
+              <span>(locale)</span>
+              <div id='menu-locale' data-dojo-type="dijit/DropDownMenu"></div>
+         </div>
+         
+         <div id='title-section' data-dojo-type="dijit/form/DropDownButton">
+              <span>(section)</span>
+              <div id='menu-section' data-dojo-type="dijit/DropDownMenu"></div>
+         </div>
+
+         <div id='title-page' data-dojo-type="dijit/form/DropDownButton">
+              <span>(page)</span>
+              <div id='menu-page' data-dojo-type="dijit/DropDownMenu"></div>
+         </div>
+
+         <span class='titlePart'  id='title-item'></span>
+        </div>
+        
+        <div id="lowerstuff">
+            <% if(ctx.session !=null && ctx.session.user != null) {
+                  boolean haveCookies = (ctx.getCookie(SurveyMain.QUERY_EMAIL)!=null&&ctx.getCookie(SurveyMain.QUERY_PASSWORD)!=null);
+                  String cookieMessage = haveCookies?"<!-- and Forget Me-->":"";
+              %>
+              <span  class='userinfo'>
+               <span class='user_email'>&lt;<%= ctx.session.user.email %>&gt;</span>
+               <span class='user_name'><%= ctx.session.user.name %></span>
+               <span class='user_org'>(<%= ctx.session.user.org %>)</span>
+              </span>
+              
+               <a class='notselected' href='<%= ctx.base() + "?do=logout" %>'>Logout<%= cookieMessage %></a>
+               |
+            <% } %>
+            <a class='notselected' href='<%= survURL  %>?do=options'>Manage</a> 
+            |
+            <a id='generalHelpLink' class='notselected'  href='<%= SurveyMain.GENERAL_HELP_URL %>'><%= SurveyMain.GENERAL_HELP_NAME %></a>
+            | 
+            
+            
+            <label>
+            Coverage:
+            <select name="title-coverage" data-dojo-type="dijit/form/Select">
+            </select>
+            </label>
         </div>
         
 

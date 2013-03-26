@@ -3325,12 +3325,6 @@ div.dijitTabDisabled, .dj_ie div.dijitTabDisabled {
   _background-image: none;
 }
 
-#title-locale, #title-page, title-item {
-    border-left: 3px solid #dab6b6;
-    padding-left:  3px;
-    padding-right:  1px;
-}
-
 .claro .dijitMenu {
   background-color: #ffffff;
   border: 1px solid #759dc0;
