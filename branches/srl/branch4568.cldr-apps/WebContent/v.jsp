@@ -114,7 +114,11 @@ surveySessionId = '<%= ctx.session.id %>';
       
          <div id='title-locale' data-dojo-type="dijit/form/DropDownButton">
               <span>(locale)</span>
-              <div id='menu-locale' data-dojo-type="dijit/DropDownMenu"></div>
+              <div id='menu-locale' data-dojo-type="dijit/DropDownMenu">
+                        <div data-dojo-type="dijit/MenuItem"
+                            data-dojo-props=" onClick:function(){  window.location='<%= survURL %>?_=' + surveyCurrentLocale;    }">
+                            General Info</div>
+              </div>
          </div>
          
          <div id='title-section' data-dojo-type="dijit/form/DropDownButton">
@@ -126,10 +130,10 @@ surveySessionId = '<%= ctx.session.id %>';
               <span>(page)</span>
               <div id='menu-page' data-dojo-type="dijit/DropDownMenu"></div>
          </div>
-
+         
          <span class='titlePart'  id='title-item'></span>
-        </div>
-        
+         
+        </div> <%-- end of toptitle --%>         
         <div id="lowerstuff">
             <% if(ctx.session !=null && ctx.session.user != null) {
                   boolean haveCookies = (ctx.getCookie(SurveyMain.QUERY_EMAIL)!=null&&ctx.getCookie(SurveyMain.QUERY_PASSWORD)!=null);
@@ -147,19 +151,25 @@ surveySessionId = '<%= ctx.session.id %>';
             <a class='notselected' href='<%= survURL  %>?do=options'>Manage</a> 
             |
             <a id='generalHelpLink' class='notselected'  href='<%= SurveyMain.GENERAL_HELP_URL %>'><%= SurveyMain.GENERAL_HELP_NAME %></a>
-            | 
-            
-            
-            <label>
+					|
+
+					<div data-dojo-type="dijit/form/DropDownButton" id="reportMenu">
+					<span>Review</span>
+					<div data-dojo-type="dijit/DropDownMenu">
+					         <% for (SurveyMain.ReportMenu m : SurveyMain.ReportMenu.values()) { %>
+						<div data-dojo-type="dijit/MenuItem"
+							data-dojo-props=" onClick:function(){
+                                                window.location='<%= survURL + "?" + m.urlQuery() %>&_=' + surveyCurrentLocale;
+                                        }"><%= m.display() %></div>
+          <% } %>
+                    </div>
+                   </div>
+
             Coverage:
-            <select name="title-coverage" data-dojo-type="dijit/form/Select">
+            <select title='work in progress..' name="title-coverage" data-dojo-type="dijit/form/Select">
+                <option title='work in progress...' selected='true' disabled='true'>Optional</option>
             </select>
-            </label>
-        </div>
-        
-
-
-
+        </div> <%-- end of lowerstuff --%>
     </div> <%-- end of topstuff --%>
     <div id="DynamicDataSection" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="splitter:true, region:'center'" ></div>
     <div id="itemInfo" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="splitter:true, region:'trailing'" ></div>

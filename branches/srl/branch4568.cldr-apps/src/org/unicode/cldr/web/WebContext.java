@@ -692,6 +692,37 @@ public class WebContext implements Cloneable, Appendable {
             return context() + theServletPath;
         }
     }
+    
+    /**
+     * Get the new '/v' viewing URL. Note that this will include a fragment, do NOT append to the result (pass in something in queryAppend)
+     * @param loc locale to view.
+     * @param page pageID to view. Example:  PageId.Africa (shouldn't be null- yet)
+     * @param strid strid to view. Example: "12345678" or null
+     * @param queryAppend  this will be appended as the query. Example: "?email=foo@bar"
+     * @return
+     */
+    public String vurl(CLDRLocale loc, PageId page, String strid, String queryAppend) {
+        StringBuilder sb = new StringBuilder(request.getContextPath());
+        sb.append("/v");
+        if(queryAppend!=null && !queryAppend.isEmpty()) {
+            sb.append(queryAppend);
+        }
+        sb.append('#'); // hash
+ 
+        // locale
+        sb.append('/');
+        sb.append(loc.getBaseName());
+        
+        // page
+        sb.append('/');
+        sb.append(page.name());
+        
+        if(strid!=null && !strid.isEmpty()) {
+            sb.append('/');
+            sb.append(strid);
+        }
+        return sb.toString();
+    }
 
     public void setServletPath(String path) {
         theServletPath = path;

@@ -192,6 +192,39 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
             return cphase;
         }
     };
+    
+    public enum ReportMenu {
+        PRIORITY_ITEMS("Priority Items", SurveyMain.R_VETTING),
+        DATE_TIME("Date/Time", "r_datetime&calendar=gregorian"),
+        ZONES("Zones", "r_zones"),
+        NUMBERS("Numbers", "r_compact");
+        
+        private String display;
+        private String url;
+        
+        private ReportMenu(String d, String u) {
+            display=d;
+            url=u;
+        }
+        
+        public String urlStub() {
+            return url;
+        }
+        
+        public String urlQuery() {
+            return SurveyMain.QUERY_SECTION + "=" + urlStub();
+        }
+        public String urlFull(String base, String locale) {
+            return base + "?_=" + locale + "&" + urlQuery();
+        }
+        public String urlFull(String base) {
+            return base + "?" +  urlQuery();
+        }
+        
+        public String display() {
+            return display;
+        }
+    };
 
     // ===== Configuration state
     private static Phase currentPhase = Phase.SUBMIT;
@@ -3524,27 +3557,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
                             || ph.getSurveyToolStatus() == SurveyToolStatus.DEPRECATED) {
                         whyBad = "PathHeader status: " + ph.getSurveyToolStatus().name();
                     } else {
-                        StringBuilder redirTo = new StringBuilder(ctx.base());
-                        redirTo.append("?_=" + ctx.field("_"));
-                        PageId newPage = ph.getPageId();
-                        redirTo.append("&x=" + newPage.name());
-                        // if(ph.getPageId()!=pageId) .. don't care
-                        String ecl = ctx.getEffectiveCoverageLevel(ctx.getLocale().toString());
-                        Level l = Level.valueOf(ecl.toUpperCase());
-                        Level need = Level.fromLevel(getSupplementalDataInfo().getCoverageValue(xpath,
-                                ctx.getLocale().toULocale()));
-                        // if( (need.getLevel()!=l.getLevel() ||
-                        // newPage!=ctx.getPageId()) &&
-                        // (ph.getSurveyToolStatus()==SurveyToolStatus.READ_WRITE
-                        // ||
-                        // ph.getSurveyToolStatus()==SurveyToolStatus.READ_ONLY)
-                        // &&
-                        // need.getLevel()<101) {
-                        if (need.getLevel() > l.getLevel()) {
-                            redirTo.append("&p_covlev=" + need.name().toLowerCase());
-                        }
-                        redirTo.append("#x@" + strid + "@redir");
-                        ctx.response.sendRedirect(redirTo.toString());
+                        ctx.response.sendRedirect(ctx.vurl(CLDRLocale.getInstance(ctx.field("_")), ph.getPageId(), strid, null));
                         return; // exit
                         // }
                     }
@@ -5171,13 +5184,14 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
      * @param b (ignored)
      */
     private void showPathList(WebContext ctx, String xpath, String typeToSubtype, boolean b) {
-        ctx.includeFragment("DynamicDataSection.jsp");
-        ctx.println("<script type='text/javascript'>     showRows('DynamicDataSection', '"
-                + xpath + "', '" + ctx.session.id + "','" + ctx.getEffectiveCoverageLevel(ctx.getLocale())
-                + "');       </script>");
-        // } else {
-        // showPathListOld(ctx,xpath,typeToSubtype,b);
-        // }
+        if(ctx.hasField("OLD") && isUnofficial()) {
+            ctx.includeFragment("DynamicDataSection.jsp");
+            ctx.println("<script type='text/javascript'>     showRows('DynamicDataSection', '"
+                    + xpath + "', '" + ctx.session.id + "','" + ctx.getEffectiveCoverageLevel(ctx.getLocale())
+                    + "');       </script>");
+        } else {
+            ctx.println("<script type='text/javascript'>window.location=' " + ctx.vurl(ctx.getLocale(), ctx.getPageId(), null, null) + "/'+window.location.hash.substring(1);</script>");
+        }
     }
 
     private void showPathList(WebContext ctx, String xpath, PageId pageId) {
