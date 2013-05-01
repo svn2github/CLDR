@@ -3,6 +3,7 @@
         <tstamp/>
         <property name="src.dir" value="."/>
         <property name="build.dir" value="classes"/>
+        <property name="libs.dir" value="libs"/>
         <property name="jar.file" value="cldr.jar"/>
         <property name="jarSrc.file" value="cldrsrc.jar"/>
         <property name="doc.dir" value="doc"/>
@@ -15,7 +16,13 @@
         
         <path id="build.classpath">
             <pathelement path="${build.dir}"/>
+            <pathelement path="${libs.dir}"/>
         </path>
+
+        <property name="CLDR_DIR" value="${env.CLDR_DIR}"/>
+        <property name="env.JVM_OPTIONS" value="-DCLDR_DIR=${CLDR_DIR} -DDEBUG=false -Dverbose=false"/>
+        <property name="jvm_options" value="${env.JVM_OPTIONS}"/>
+
         
         <condition property="is.icu4j.classes.set" >
             <or>
@@ -23,7 +30,6 @@
                 <isset property="env.ICU4J_JAR" />
             </or>
         </condition > 
-        <fail unless="is.icu4j.classes.set" message="Please set the ICU4J_CLASSES or ICU4J_JAR environment variable."/>
         
         <condition property="is.utilities.classes.set" >
             <or>
@@ -31,12 +37,13 @@
                 <isset property="env.UTILITIES_JAR" />
             </or>
         </condition > 
-        <fail unless="is.utilities.classes.set" message="Please set the ICU4J_CLASSES or UTILITIES_JAR environment variable."/>        
+
         <mkdir dir="${build.dir}"/>
         
         <path id="project.class.path">
             <pathelement path="${java.class.path}/"/>
             <pathelement path="${build.dir}"/>
+            <fileset dir="${libs.dir}" includes="*.jar"/>
             <pathelement path="${env.ICU4J_CLASSES}"/>
             <pathelement path="${env.CLDR_CLASSES}"/>
             <pathelement location="${env.ICU4J_JAR}"/>
@@ -59,9 +66,9 @@
     </target>
 
     <!-- build everything but dist-related stuff -->
-    <target name="all" depends="util,ant-plugin,tool,posix,icu,test,ooo" description="build all primary targets"/>
+    <target name="all" depends="util,ant-plugin,tool,posix,icu,json,test" description="build all primary targets"/>
     <target name="ant-plugin" depends="init" description="build utility classes">
-        <javac includes="org/unicode/cldr/ant/*.java"
+        <javac includeantruntime="false" includes="org/unicode/cldr/ant/*.java"
             excludes="**/CVS/**/*"
             srcdir="${src.dir}"
             destdir="${build.dir}"
@@ -72,7 +79,7 @@
             encoding="UTF-8"/>
     </target>
     <target name="util" depends="init" description="build utility classes">
-        <javac includes="org/unicode/cldr/draft/**/*.java org/unicode/cldr/util/**/*.java com/**/*.java"
+        <javac includeantruntime="false" includes="org/unicode/cldr/draft/**/*.java org/unicode/cldr/util/**/*.java com/**/*.java"
             excludes="**/CVS/**/* org/unicode/cldr/draft/Ids.java"
             srcdir="${src.dir}"
             destdir="${build.dir}"
@@ -89,7 +96,7 @@
         </copy>
     </target>
     <target name="tool" depends="init,util" description="build tool classes">
-        <javac includes="org/unicode/cldr/tool/**/*.java"
+        <javac includeantruntime="false" includes="org/unicode/cldr/tool/**/*.java"
             excludes="**/CVS/**/*"
             srcdir="${src.dir}"
             destdir="${build.dir}"
@@ -106,7 +113,7 @@
         </copy>
     </target>
     <target name="posix" depends="init,util" description="build posix conversion tool">
-        <javac includes="org/unicode/cldr/posix/**/*.java"
+        <javac includeantruntime="false" includes="org/unicode/cldr/posix/**/*.java"
             excludes="**/CVS/**/*"
             srcdir="${src.dir}"
             destdir="${build.dir}"
@@ -116,8 +123,8 @@
             debug="on" deprecation="off"
             encoding="UTF-8"/>
     </target>
-	<target name="icu" depends="init, ant-plugin, util" description="build posix conversion tool">
-	        <javac includes="org/unicode/cldr/icu/**/*.java"
+	<target name="icu" depends="init, ant-plugin, util" description="build ICU conversion tool">
+	        <javac includeantruntime="false" includes="org/unicode/cldr/icu/**/*.java"
 	            excludes="**/CVS/**/*"
 	            srcdir="${src.dir}"
 	            destdir="${build.dir}"
@@ -126,9 +133,32 @@
                     target="1.6"
 	            debug="on" deprecation="off"
 	            encoding="UTF-8"/>
+        <!-- copy data files into classes.. -->
+        <mkdir dir="${build.dir}/org/unicode/cldr/icu"/>
+        <copy todir="${build.dir}/org/unicode/cldr/icu">
+            <fileset dir="${src.dir}/org/unicode/cldr/icu" 
+                excludes="**/CVS/**/* **/**/*.java"/>
+        </copy>
+	</target>
+	<target name="json" depends="init, ant-plugin, util" description="build json conversion tool">
+	        <javac includeantruntime="false" includes="org/unicode/cldr/json/**/*.java"
+	            excludes="**/CVS/**/*"
+	            srcdir="${src.dir}"
+	            destdir="${build.dir}"
+                classpathref="project.class.path"
+	            source="1.6"
+                    target="1.6"
+	            debug="on" deprecation="off"
+	            encoding="UTF-8"/>
+        <!-- copy data files into classes.. -->
+        <mkdir dir="${build.dir}/org/unicode/cldr/json"/>
+        <copy todir="${build.dir}/org/unicode/cldr/json">
+            <fileset dir="${src.dir}/org/unicode/cldr/json" 
+                excludes="**/CVS/**/* **/**/*.java"/>
+        </copy>
 	</target>
     <target name="test" depends="init,util,tool" description="build tests">
-        <javac includes="org/unicode/cldr/test/**/*.java"
+        <javac includeantruntime="false" includes="org/unicode/cldr/test/**/*.java org/unicode/cldr/unittest/**/*.java"
             excludes="**/CVS/**/*"
             srcdir="${src.dir}"
             destdir="${build.dir}"
@@ -143,17 +173,12 @@
             <fileset dir="${src.dir}/org/unicode/cldr/test" 
                 excludes="**/CVS/**/* **/**/*.java"/>
         </copy>
-    </target>
-   <target name="ooo" depends="init,icu,util" description="build OpenOffice.org conversion tools">
-        <javac includes="org/unicode/cldr/ooo/**/*.java"
-            excludes="**/CVS/**/*"
-            srcdir="${src.dir}"
-            destdir="${build.dir}"
-            classpathref="project.class.path"
-            source="1.6"
-            target="1.6"
-            debug="on" deprecation="off"
-            encoding="UTF-8"/>
+        <!-- and unittest files -->
+        <mkdir dir="${build.dir}/org/unicode/cldr/unittest"/>
+        <copy todir="${build.dir}/org/unicode/cldr/unittest">
+            <fileset dir="${src.dir}/org/unicode/cldr/unittest" 
+                excludes="**/CVS/**/* **/**/*.java"/>
+        </copy>
     </target>
     <target name="clean" depends="init" description="remove all build targets">
         <delete dir="${build.dir}"/>
@@ -163,7 +188,7 @@
     <target name="jar" depends="all" description="build full 'cldr.jar' jar file">
         <jar jarfile="${jar.file}"
             compress="true"
-            includes="org/unicode/cldr/draft/**/*,org/unicode/cldr/util/**/*,org/unicode/cldr/tool/**/*,org/unicode/cldr/test/**/*,org/unicode/cldr/posix/**/*,org/unicode/cldr/ooo/**/*,org/unicode/cldr/ant/**/*,org/unicode/cldr/icu/**/*"
+            includes="org/unicode/cldr/draft/**/*,org/unicode/cldr/util/**/*,org/unicode/cldr/tool/**/*,org/unicode/cldr/test/**/*,org/unicode/cldr/posix/**/*,org/unicode/cldr/ant/**/*,org/unicode/cldr/json/**/*,org/unicode/cldr/icu/**/*"
             basedir="${build.dir}"/>
     </target>
   <!-- Docs stuff -->
@@ -196,4 +221,22 @@
   <target name="icu4c" depends="init, ant-plugin, icu">
     <ant dir="${env.ICU4C_DIR}/source/data" antfile="build.xml" target="all" />
   </target>   
+
+
+    <target name="check" description="Run the standard CLDR test suite" depends="init">
+        <antcall target="_runCheck">
+            <param name="runcheck.arg" value="-n -w"/>
+            <param name="runcheck.jvmarg" value="${jvm_options}"/>
+        </antcall>
+    </target>
+
+   <target name="_runCheck" depends="init,test">
+        <echo message="JVM argument:   ${runcheck.jvmarg} -Djava.awt.headless=true"/>
+        <echo message="Test argument:   ${runcheck.arg}"/>
+        <java classname="org.unicode.cldr.unittest.TestAll" fork="yes" failonerror="true" classpathref="project.class.path">
+            <arg line="${runcheck.arg}"/>
+            <jvmarg line="${runcheck.jvmarg} -Djava.awt.headless=true"/>
+        </java>
+   </target>
+
 </project>

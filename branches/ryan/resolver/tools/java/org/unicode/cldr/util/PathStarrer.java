@@ -6,17 +6,18 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ibm.icu.dev.test.util.CollectionUtilities;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.text.Transform;
 
 /**
  * Transforms a path by replacing attributes with .*
+ * 
  * @author markdavis
  */
-public class PathStarrer implements Transform<String,String> {
-    static final String STAR_PATTERN = "([^\"]*)";
+public class PathStarrer implements Transform<String, String> {
+    static final String STAR_PATTERN = "([^\"]*+)";
     static final Pattern ATTRIBUTE_PATTERN = Pattern.compile("=\"([^\"]*)\"");
-    
+
     private String starredPathString;
     private final List<String> attributes = new ArrayList<String>();
     private final List<String> protectedAttributes = Collections.unmodifiableList(attributes);
@@ -32,7 +33,7 @@ public class PathStarrer implements Transform<String,String> {
             int start = starAttributeMatcher.start(1);
             int end = starAttributeMatcher.end(1);
             starredPath.append(path.substring(lastEnd, start));
-            starredPath.append(".*");
+            starredPath.append(substitutionPattern);
 
             attributes.add(path.substring(start, end));
             lastEnd = end;
@@ -41,15 +42,15 @@ public class PathStarrer implements Transform<String,String> {
         starredPathString = starredPath.toString();
         return starredPathString;
     }
-    
+
     public List<String> getAttributes() {
         return protectedAttributes;
     }
-    
+
     public String getAttributesString(String separator) {
         return CollectionUtilities.join(attributes, separator);
     }
-    
+
     public String getResult() {
         return starredPathString;
     }

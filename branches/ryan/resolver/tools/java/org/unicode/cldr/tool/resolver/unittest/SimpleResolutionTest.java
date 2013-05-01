@@ -13,7 +13,7 @@ import org.unicode.cldr.tool.resolver.CldrResolver;
 import org.unicode.cldr.tool.resolver.ResolutionType;
 import org.unicode.cldr.tool.resolver.ResolverUtils;
 import org.unicode.cldr.util.CLDRFile;
-import org.unicode.cldr.util.LanguageTagParser;
+import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
 
 /**
@@ -62,7 +62,7 @@ public class SimpleResolutionTest extends ResolverTest {
   protected Map<String, String> getFullyResolvedToolData(String locale) {
     if (fullyResolvedFromTool.get(locale) == null) { // Cache miss
       // Get parent by truncation
-      String parent = LanguageTagParser.getParent(locale);
+      String parent = LocaleIDParser.getParent(locale);
       if (parent == null) {
         // locale is root, just grab it straight out of the unresolved data
         fullyResolvedFromTool.put(locale,

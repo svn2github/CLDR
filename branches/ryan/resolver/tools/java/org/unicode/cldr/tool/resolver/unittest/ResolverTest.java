@@ -14,7 +14,7 @@ import org.unicode.cldr.tool.resolver.ResolutionType;
 import org.unicode.cldr.tool.resolver.ResolverUtils;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
-import org.unicode.cldr.util.CLDRFile.Factory;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
 
 import com.ibm.icu.dev.test.TestFmwk;

@@ -1,11 +1,23 @@
 package org.unicode.cldr.tool;
 
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.SupplementalDataInfo;
+import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData;
+import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData.Type;
+import org.unicode.cldr.util.SupplementalDataInfo.CurrencyDateInfo;
+import org.unicode.cldr.util.SupplementalDataInfo.PopulationData;
+
+import com.ibm.icu.impl.Row;
+import com.ibm.icu.impl.Row.R2;
 
 public class LikelySubtags {
     static final boolean DEBUG = true;
@@ -13,29 +25,68 @@ public class LikelySubtags {
 
     private Map<String, String> toMaximized;
     private boolean favorRegion = false;
+    private SupplementalDataInfo supplementalDataInfo;
+    private Map<String, String> currencyToLikelyTerritory = new HashMap<String, String>();
 
     /**
-     * Create the likely subtags. 
+     * Create the likely subtags.
+     * 
      * @param toMaximized
      */
     public LikelySubtags(Map<String, String> toMaximized) {
-        this.toMaximized = toMaximized;
+        this(SupplementalDataInfo.getInstance(), toMaximized);
     }
 
     /**
-     * Create the likely subtags. 
+     * Create the likely subtags.
+     * 
      * @param toMaximized
      */
     public LikelySubtags(SupplementalDataInfo supplementalDataInfo) {
-        this.toMaximized = supplementalDataInfo.getLikelySubtags();
+        this(supplementalDataInfo, supplementalDataInfo.getLikelySubtags());
     }
 
     /**
-     * Create the likely subtags. 
+     * Create the likely subtags.
+     * 
+     * @param toMaximized
+     */
+    public LikelySubtags(SupplementalDataInfo supplementalDataInfo, Map<String, String> toMaximized) {
+        this.supplementalDataInfo = supplementalDataInfo;
+        this.toMaximized = toMaximized;
+
+        Date now = new Date();
+        Set<Row.R2<Double, String>> sorted = new TreeSet<Row.R2<Double, String>>();
+        for (String territory : supplementalDataInfo.getTerritoriesWithPopulationData()) {
+            PopulationData pop = supplementalDataInfo.getPopulationDataForTerritory(territory);
+            double population = pop.getPopulation();
+            sorted.add(Row.of(-population, territory));
+        }
+        for (R2<Double, String> item : sorted) {
+            String territory = item.get1();
+            Set<CurrencyDateInfo> targetCurrencyInfo = supplementalDataInfo.getCurrencyDateInfo(territory);
+            if (targetCurrencyInfo == null) {
+                continue;
+            }
+            for (CurrencyDateInfo cdi : targetCurrencyInfo) {
+                String currency = cdi.getCurrency();
+                if (!currencyToLikelyTerritory.containsKey(currency) && cdi.getStart().before(now)
+                    && cdi.getEnd().after(now) && cdi.isLegalTender()) {
+                    currencyToLikelyTerritory.put(currency, territory);
+                }
+            }
+        }
+        // System.out.println("Currency to Territory:\n\t" +
+        // CollectionUtilities.join(currencyToLikelyTerritory.entrySet(), "\n\t"));
+    }
+
+    /**
+     * Create the likely subtags.
+     * 
      * @param toMaximized
      */
     public LikelySubtags() {
-        this.toMaximized = SupplementalDataInfo.getInstance().getLikelySubtags();
+        this(SupplementalDataInfo.getInstance());
     }
 
     public boolean isFavorRegion() {
@@ -119,13 +170,14 @@ public class LikelySubtags {
             if (region.length() != 0) {
                 result = toMaximized.get(ltp.setRegion("").toString());
                 if (result != null) {
-                    return ltp.set(result).setScript(script).setRegion(region).setVariants(variants).setExtensions(extensions).toString();
+                    return ltp.set(result).setScript(script).setRegion(region).setVariants(variants)
+                        .setExtensions(extensions).toString();
                 }
             }
         }
-        //    if (!language.equals("und") && script.length() != 0 && region.length() != 0) {
-        //      return languageTag; // it was ok, and we couldn't do anything with it
-        //    }
+        // if (!language.equals("und") && script.length() != 0 && region.length() != 0) {
+        // return languageTag; // it was ok, and we couldn't do anything with it
+        // }
         return null; // couldn't maximize
     }
 
@@ -141,11 +193,11 @@ public class LikelySubtags {
         String language = ltp.getLanguage();
         String region = ltp.getRegion();
         String script = ltp.getScript();
-        // try building up from shorter to longer, and find the first  that matches
+        // try building up from shorter to longer, and find the first that matches
         // could be more optimized, but for this code we want simplest
-        String[] trials = {language, 
-                language + TAG_SEPARATOR + (favorRegion ? region : script), 
-                language + TAG_SEPARATOR + (!favorRegion ? region : script)};
+        String[] trials = { language,
+            language + TAG_SEPARATOR + (favorRegion ? region : script),
+            language + TAG_SEPARATOR + (!favorRegion ? region : script) };
         for (String trial : trials) {
             String newMaximized = maximize(trial, toMaximized);
             if (maximized.equals(newMaximized)) {
@@ -153,5 +205,43 @@ public class LikelySubtags {
             }
         }
         return maximized;
+    }
+
+    static final Map<String, String> EXTRA_SCRIPTS =
+        Builder.with(new HashMap<String, String>())
+            .on("crs", "pcm", "tlh").put("Latn")
+            .freeze();
+
+    public String getLikelyScript(String code) {
+        String max = this.maximize(code);
+
+        String script = null;
+        if (max != null) {
+            script = new LanguageTagParser().set(max).getScript();
+        } else {
+            Map<Type, BasicLanguageData> data = supplementalDataInfo.getBasicLanguageDataMap(code);
+            if (data != null) {
+                for (BasicLanguageData item : data.values()) {
+                    Set<String> scripts = item.getScripts();
+                    if (scripts == null || scripts.size() == 0) continue;
+                    script = scripts.iterator().next();
+                    Type type = item.getType();
+                    if (type == Type.primary) {
+                        break;
+                    }
+                }
+            }
+            if (script == null) {
+                script = EXTRA_SCRIPTS.get(code);
+                if (script == null) {
+                    script = "Zzzz";
+                }
+            }
+        }
+        return script;
+    }
+
+    public String getLikelyTerritoryFromCurrency(String code) {
+        return currencyToLikelyTerritory.get(code);
     }
 }

@@ -1,6 +1,16 @@
 package org.unicode.cldr.unittest;
 
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import org.unicode.cldr.test.OutdatedPaths;
+import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.PathHeader;
 
 import com.ibm.icu.dev.test.TestFmwk;
 
@@ -9,9 +19,49 @@ public class TestOutdatedPaths extends TestFmwk {
         new TestOutdatedPaths().run(args);
     }
 
+    OutdatedPaths outdatedPaths = new OutdatedPaths();
+
     public void TestBasic() {
-        OutdatedPaths paths = new OutdatedPaths();
-        assertEquals("English should have none", 0, paths.countOutdated("en"));
-        assertEquals("French should have at least one", 455, paths.countOutdated("fr")); // update this when GenerateBirth is rerun.
+        assertEquals("English should have none", 0, outdatedPaths.countOutdated("en"));
+
+        // Update the number when GenerateBirth is rerun.
+
+        assertTrue("French should have at least one", outdatedPaths.countOutdated("fr") > 10);
+
+        // If this path is not outdated, find another one
+
+//        assertTrue(
+//                "Test one path known to be outdated. Use TestShow -v to find a path, and verify that it is outdated",
+//                outdatedPaths
+//                .isOutdated(
+//                        "fr",
+//                        "//ldml/dates/fields/field[@type=\"week\"]/relative[@type=\"-1\"]"));
     }
+
+    // use for debugging
+    public void TestShow() {
+        if (isVerbose()) {
+            Factory factory = Factory.make(CldrUtility.MAIN_DIRECTORY, ".*");
+            String locale = "fr";
+            CLDRFile fr = factory.make(locale, false);
+            PathHeader.Factory pathHeaders = PathHeader.getFactory(factory.make("en", false));
+            Map<PathHeader,String> sorted = new TreeMap<PathHeader, String>();
+            logln("Count:\t" + outdatedPaths.countOutdated(locale));
+            for (String spath : fr) {
+                if (outdatedPaths.isOutdated(locale, spath)) {
+                    sorted.put(pathHeaders.fromPath(spath),"");
+                }
+            }
+            for (Entry<PathHeader, String> entry : sorted.entrySet()) {
+                PathHeader p = entry.getKey();
+                String originalPath = p.getOriginalPath();
+                logln("Eng: " + outdatedPaths.getPreviousEnglish(originalPath)
+                        + "\t=>\t" + TestAll.TestInfo.getInstance().getEnglish().getStringValue(originalPath)
+                        + "\tNative: " + fr.getStringValue(originalPath) 
+                        + "\tPath: " + p.toString() 
+                        + "\tXML Path: " + originalPath);
+            }
+        }
+    }
+
 }

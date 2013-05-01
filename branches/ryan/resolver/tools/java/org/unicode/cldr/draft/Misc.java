@@ -2,7 +2,6 @@ package org.unicode.cldr.draft;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,24 +15,24 @@ import org.unicode.cldr.unittest.TestAll;
 import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
-import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.CLDRFile.WinningChoice;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
+import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.PluralSnapshot;
+import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData;
 import org.unicode.cldr.util.Timer;
 
-import com.ibm.icu.dev.test.util.BagFormatter;
-import com.ibm.icu.dev.test.util.CollectionUtilities;
+import com.ibm.icu.dev.util.BagFormatter;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.impl.Row;
 import com.ibm.icu.impl.Row.R2;
-import com.ibm.icu.lang.CharSequences;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.lang.UProperty;
 import com.ibm.icu.lang.UScript;
-import com.ibm.icu.text.CollationKey;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.DateTimePatternGenerator;
@@ -51,15 +50,12 @@ import com.ibm.icu.util.ULocale;
 
 public class Misc {
     public static void main(String[] args) throws IOException {
-        showDefaultContent("bn", "sw", "mr", "ta", "ms", "am", "af", "zu", "et", "is", "ur", "te", "gu", "kn", "ml", "gl", "eu");
-        if (true) return;
+        showDefaultContent("bn", "sw", "mr", "ta", "ms", "am", "af", "zu", "et", "is", "ur", "te", "gu", "kn", "ml",
+            "gl", "eu");
         showSortKey();
         showNumberSamples();
         showDateSamples();
-        if(true) return;
         showExemplarSize();
-        if (true)
-            return;
 
         doNFC();
         showPlurals();
@@ -95,8 +91,6 @@ public class Misc {
             }
             System.out.println(locale + "\t" + CollectionUtilities.join(scripts, " "));
         }
-        if (true)
-            return;
 
         StringTransform unicode = Transliterator.getInstance("hex/unicode");
         UnicodeSet exclude = new UnicodeSet("[:bidimirrored:]");
@@ -116,7 +110,7 @@ public class Misc {
             if (rev == -1)
                 continue;
             System.out.println(
-                    unicode.transform(UTF16.valueOf(i))
+                unicode.transform(UTF16.valueOf(i))
                     + "\t" + UTF16.valueOf(i)
                     + "\t" + name
                     + "\t" + UTF16.valueOf(rev)
@@ -125,12 +119,12 @@ public class Misc {
         }
         System.out.println(Locale.SIMPLIFIED_CHINESE);
         System.out.println(Locale.TRADITIONAL_CHINESE);
-        for (String s : ULocale.getISOCountries()) {
+        for (String s : StandardCodes.make().getGoodCountries()) {
             System.out.println(s + "\t" + ULocale.getDisplayCountry("und-" + s, ULocale.ENGLISH));
         }
     }
 
-    private static void showDefaultContent(String...strings) {
+    private static void showDefaultContent(String... strings) {
         SupplementalDataInfo sdi = SupplementalDataInfo.getInstance();
         final TestInfo info = TestAll.TestInfo.getInstance();
         CLDRFile english = info.getEnglish();
@@ -138,7 +132,7 @@ public class Misc {
         for (String string : strings) {
             String defCon = null;
             for (String dc : defaultContents) {
-                if (string.equals(LanguageTagParser.getParent(dc))) {
+                if (string.equals(LocaleIDParser.getParent(dc))) {
                     defCon = dc;
                     break;
                 }
@@ -150,20 +144,20 @@ public class Misc {
     private static void showSortKey() {
         String[] tests = "a ä A ぁ あ ァ ｧ ア ｱ ㋐".split(" ");
         RuleBasedCollator c = (RuleBasedCollator) Collator.getInstance(ULocale.ENGLISH);
-        c.setStrength(c.QUATERNARY);
+        c.setStrength(RuleBasedCollator.QUATERNARY);
         c.setCaseLevel(true);
         c.setHiraganaQuaternary(true);
         for (String test : tests) {
-            for (boolean caseLevel : new boolean[] {false, true}) {
+            for (boolean caseLevel : new boolean[] { false, true }) {
                 c.setCaseLevel(caseLevel);
-                for (boolean hiraganaQuaternary : new boolean[] {false, true}) {
+                for (boolean hiraganaQuaternary : new boolean[] { false, true }) {
                     c.setHiraganaQuaternary(hiraganaQuaternary);
                     System.out.print((caseLevel ? "Cl\t" : "\t"));
                     System.out.print((hiraganaQuaternary ? "Hl\t" : "\t"));
                     System.out.print(test + "\t");
                     RawCollationKey key = c.getRawCollationKey(test, null);
                     for (byte item : key.bytes) {
-                        System.out.print(Integer.toHexString(0xFF&item) + "\t");
+                        System.out.print(Integer.toHexString(0xFF & item) + "\t");
                     }
                     System.out.println();
                 }
@@ -172,7 +166,7 @@ public class Misc {
     }
 
     private static void showNumberSamples() {
-        String[] tests = {"a$b", "abcd_defg-hi", "abcd-defg$xy", "ab-d$efg-419", "root", "", "und"};
+        String[] tests = { "a$b", "abcd_defg-hi", "abcd-defg$xy", "ab-d$efg-419", "root", "", "und" };
         for (String test : tests) {
             ULocale locale = ULocale.forLanguageTag(test);
             System.out.println(test + " -> " + locale);
@@ -185,29 +179,31 @@ public class Misc {
     }
 
     private static void showDateSamples() {
-        Map<String, Row.R2<Integer,Integer>> specials = Builder.with(new TreeMap<String,Row.R2<Integer,Integer>>())
-        .put("full-date", Row.of(DateFormat.FULL, DateFormat.NONE))
-        .put("long-date", Row.of(DateFormat.LONG, DateFormat.NONE))
-        .put("medium-date", Row.of(DateFormat.MEDIUM, DateFormat.NONE))
-        .put("short-date", Row.of(DateFormat.SHORT, DateFormat.NONE))
-        .put("full-time", Row.of(DateFormat.NONE, DateFormat.FULL))
-        .put("long-time", Row.of(DateFormat.NONE, DateFormat.LONG))
-        .put("medium-time", Row.of(DateFormat.NONE, DateFormat.MEDIUM))
-        .put("short-time", Row.of(DateFormat.NONE, DateFormat.SHORT))
-        .freeze();
-        Date sample = new Date(2011-1900, 12-1, 30,14,45,59);
+        Map<String, Row.R2<Integer, Integer>> specials = Builder.with(new TreeMap<String, Row.R2<Integer, Integer>>())
+            .put("full-date", Row.of(DateFormat.FULL, DateFormat.NONE))
+            .put("long-date", Row.of(DateFormat.LONG, DateFormat.NONE))
+            .put("medium-date", Row.of(DateFormat.MEDIUM, DateFormat.NONE))
+            .put("short-date", Row.of(DateFormat.SHORT, DateFormat.NONE))
+            .put("full-time", Row.of(DateFormat.NONE, DateFormat.FULL))
+            .put("long-time", Row.of(DateFormat.NONE, DateFormat.LONG))
+            .put("medium-time", Row.of(DateFormat.NONE, DateFormat.MEDIUM))
+            .put("short-time", Row.of(DateFormat.NONE, DateFormat.SHORT))
+            .freeze();
+        Date sample = new Date(2011 - 1900, 12 - 1, 30, 14, 45, 59);
         final ULocale english = ULocale.ENGLISH;
         final ULocale otherLocale = new ULocale("el");
-        DateTimePatternGenerator englishGenerator = DateTimePatternGenerator.getInstance(english);                
-        DateTimePatternGenerator otherGenerator = DateTimePatternGenerator.getInstance(otherLocale);                
-        for (String dp : new String[]{"d", "h", "H", "hm", "Hm", "Hms", "hms", "hmv", "Hmv", "hv", "Hv", "M", "Md", "MEd", "MMM", "MMMd", 
-                "MMMEd", "ms", "y", "yM", "yMd", "yMEd", "yMMM", "yMMMd", "yMMMEd", "yMMMM", "yQ", "yQQQ", "EEEd", 
-                "full-date", "long-date", "medium-date", "short-date", "full-time", "long-time", "medium-time", "short-time", 
-                "MMMM", "MMMMd", "E", "Ed", "GGGGyMd", "GGGGyMMMMEEEEdd", "GGGGyyyyMMMMd", "HHmm", "HHmmss", "HHmmZ", 
-                "Hmm", "MMd", "MMdd", "MMMdd", "MMMEEEd", "MMMMdd", "MMMMEd", "MMMMEEEd", "mmss", "yMMMMccccd", "yyMM", 
-                "yyMMdd", "yyMMM", "yyMMMd", "yyMMMEEEd", "yyQ", "yyQQQQ", "yyyy", "yyyyLLLL", "yyyyM", "yyyyMEEEd", 
-                "yyyyMM", "yyyyMMM", "yyyyMMMM", "yyyyMMMMEEEEd", "yyyyQQQQ",
-                "hmz", "hz", "LLL", "LLLL", "MMMMEEEEd", "yMMMMd", "yMMMMEEEEd"
+        DateTimePatternGenerator englishGenerator = DateTimePatternGenerator.getInstance(english);
+        DateTimePatternGenerator otherGenerator = DateTimePatternGenerator.getInstance(otherLocale);
+        for (String dp : new String[] { "d", "h", "H", "hm", "Hm", "Hms", "hms", "hmv", "Hmv", "hv", "Hv", "M", "Md",
+            "MEd", "MMM", "MMMd",
+            "MMMEd", "ms", "y", "yM", "yMd", "yMEd", "yMMM", "yMMMd", "yMMMEd", "yMMMM", "yQ", "yQQQ", "EEEd",
+            "full-date", "long-date", "medium-date", "short-date", "full-time", "long-time", "medium-time",
+            "short-time",
+            "MMMM", "MMMMd", "E", "Ed", "GGGGyMd", "GGGGyMMMMEEEEdd", "GGGGyyyyMMMMd", "HHmm", "HHmmss", "HHmmZ",
+            "Hmm", "MMd", "MMdd", "MMMdd", "MMMEEEd", "MMMMdd", "MMMMEd", "MMMMEEEd", "mmss", "yMMMMccccd", "yyMM",
+            "yyMMdd", "yyMMM", "yyMMMd", "yyMMMEEEd", "yyQ", "yyQQQQ", "yyyy", "yyyyLLLL", "yyyyM", "yyyyMEEEd",
+            "yyyyMM", "yyyyMMM", "yyyyMMMM", "yyyyMMMMEEEEd", "yyyyQQQQ",
+            "hmz", "hz", "LLL", "LLLL", "MMMMEEEEd", "yMMMMd", "yMMMMEEEEd"
         }) {
             final String formattedEnglish = getFormatted(specials, sample, dp, english, englishGenerator);
             final String formattedOther = getFormatted(specials, sample, dp, otherLocale, otherGenerator);
@@ -215,9 +211,10 @@ public class Misc {
         }
     }
 
-    private static String getFormatted(Map<String, Row.R2<Integer, Integer>> specials, Date sample, String dp, ULocale ulocale,
-            DateTimePatternGenerator generator) {
-        Row.R2<Integer,Integer> special = specials.get(dp);
+    private static String getFormatted(Map<String, Row.R2<Integer, Integer>> specials, Date sample, String dp,
+        ULocale ulocale,
+        DateTimePatternGenerator generator) {
+        Row.R2<Integer, Integer> special = specials.get(dp);
         DateFormat df;
         if (special != null) {
             df = DateFormat.getDateTimeInstance(special.get0(), special.get1(), ulocale);
@@ -260,29 +257,30 @@ public class Misc {
                 }
             }
             String nativeName = cldrFile.getName(baseLanguage);
-            nameAndInfo.add(englishName + "\t" + nativeName + "\t" + baseLanguage + "\t" + UScript.getShortName(script));
+            nameAndInfo
+                .add(englishName + "\t" + nativeName + "\t" + baseLanguage + "\t" + UScript.getShortName(script));
         }
 
         for (String item : nameAndInfo) {
             System.out.println(item);
         }
-        //        for (String localeCode : locales) {
-        //            String baseLanguage = ltp.set(localeCode).getLanguage();
-        //            R2<List<String>, String> temp = lang2replacement.get(baseLanguage);
-        //            if (temp != null) {
-        //                baseLanguage = temp.get0().get(0);
-        //            }
-        //            int size = -1;
+        // for (String localeCode : locales) {
+        // String baseLanguage = ltp.set(localeCode).getLanguage();
+        // R2<List<String>, String> temp = lang2replacement.get(baseLanguage);
+        // if (temp != null) {
+        // baseLanguage = temp.get0().get(0);
+        // }
+        // int size = -1;
         //
-        //            try {
-        //                CLDRFile cldrFile = factory.make(baseLanguage, false);
-        //                UnicodeSet set = cldrFile.getExemplarSet("", WinningChoice.WINNING);
-        //                size = set.size();
-        //            } catch (Exception e) {
-        //            }
+        // try {
+        // CLDRFile cldrFile = factory.make(baseLanguage, false);
+        // UnicodeSet set = cldrFile.getExemplarSet("", WinningChoice.WINNING);
+        // size = set.size();
+        // } catch (Exception e) {
+        // }
         //
-        //            System.out.println(localeCode + "\t" + size);
-        //        }
+        // System.out.println(localeCode + "\t" + size);
+        // }
     }
 
     static final Normalizer2 nfc = Normalizer2.getInstance(null, "nfc", Normalizer2.Mode.COMPOSE);
@@ -378,9 +376,9 @@ public class Misc {
                 return s.toString();
             }
             return nfd.normalizeSecondAndAppend(
-                    new StringBuilder(s.subSequence(0, normalizedUpTo)),
-                    s.subSequence(normalizedUpTo, s.length()))
-                    .toString();
+                new StringBuilder(s.subSequence(0, normalizedUpTo)),
+                s.subSequence(normalizedUpTo, s.length()))
+                .toString();
         }
 
         public static int isNormalizedUpTo(CharSequence s) {

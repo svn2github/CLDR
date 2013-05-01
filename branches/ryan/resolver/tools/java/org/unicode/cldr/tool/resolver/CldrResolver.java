@@ -9,8 +9,9 @@ import com.ibm.icu.dev.tool.UOption;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
-import org.unicode.cldr.util.CLDRFile.Factory;
-import org.unicode.cldr.util.LanguageTagParser;
+import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.LocaleIDParser;
+import org.unicode.cldr.util.SimpleXMLSource;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -75,8 +76,12 @@ public class CldrResolver {
     ResolutionType resolutionType = ResolutionType.SIMPLE;
     String localeRegex = ".*";
     String srcDir = CldrUtility.MAIN_DIRECTORY;
-    String destDir = System.getProperty("user.dir");
-
+    File dest = new File(CldrUtility.GEN_DIRECTORY, "resolver");
+    if (!dest.exists()) {
+        dest.mkdir();
+    }
+    String destDir = dest.getAbsolutePath();
+    
     // Parse the options
     if (RESOLUTION_TYPE.doesOccur) {
       try {
@@ -294,24 +299,21 @@ public class CldrResolver {
     String locale = file.getLocaleID();
     String parentLocale = null;
     CLDRFile truncationParent = null;
-    String realParent = null;
     if (resolutionType == ResolutionType.SIMPLE) {
       // Make parent file
       ResolverUtils.debugPrintln("Making parent file by truncation...", 3);
-      parentLocale = LanguageTagParser.getParent(locale);
+      parentLocale = LocaleIDParser.getParent(locale);
       truncationParent = cldrFactory.make(parentLocale, true);
-      realParent = CLDRFile.getParent(locale);
     }
 
     // Create empty file to hold (partially or fully) resolved data
     ResolverUtils.debugPrint("Creating empty CLDR file to store resolved data...", 3);
     // False/unresolved because it needs to be mutable.
-    CLDRFile resolved = new CLDRFile(new CLDRFile.SimpleXMLSource(null, locale), false);
+    CLDRFile resolved = new CLDRFile(new SimpleXMLSource(locale));
     ResolverUtils.debugPrintln("done.", 3);
 
     if (resolutionType == ResolutionType.SIMPLE) {
-      ResolverUtils.debugPrintln("Filtering against truncation parent " + parentLocale
-          + " (real parent: " + realParent + ")...", 2);
+      ResolverUtils.debugPrintln("Filtering against parent " + parentLocale + "...", 2);
     } else {
       ResolverUtils.debugPrintln(
           "Removing aliases"
@@ -494,7 +496,7 @@ public class CldrResolver {
   private static CLDRFile resolveRootLocale(CLDRFile cldrFile, ResolutionType resolutionType) {
     // False/unresolved because it needs to be mutable
     CLDRFile partiallyResolved =
-        new CLDRFile(new CLDRFile.SimpleXMLSource(null, cldrFile.getLocaleID()), false);
+        new CLDRFile(new SimpleXMLSource(cldrFile.getLocaleID()));
     ResolverUtils.debugPrintln("Removing aliases"
         + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "") + "...",
         2);

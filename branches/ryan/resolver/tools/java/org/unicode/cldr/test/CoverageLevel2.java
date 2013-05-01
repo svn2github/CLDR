@@ -1,5 +1,6 @@
 package org.unicode.cldr.test;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -12,57 +13,68 @@ import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.RegexLookup.RegexFinder;
+import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.CoverageLevelInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.CoverageVariableInfo;
 import org.unicode.cldr.util.Timer;
 
-import com.ibm.icu.dev.test.util.CollectionUtilities;
+import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.util.ULocale;
 
 public class CoverageLevel2 {
+
+    // To modify the results, see /cldr/common/supplemental/coverageLevels.xml
+
     private RegexLookup<Level> lookup = null;
-    
-    enum SetMatchType {Target_Language, Target_Scripts, Target_Territories, Target_TimeZones, Target_Currencies, Calendar_List}
+    private static StandardCodes sc = StandardCodes.make();
+
+    enum SetMatchType {
+        Target_Language, Target_Scripts, Target_Territories, Target_TimeZones, Target_Currencies, Target_Plurals, Calendar_List
+    }
 
     private static class LocaleSpecificInfo {
         CoverageVariableInfo cvi;
         String targetLanguage;
     }
-    
+
     final LocaleSpecificInfo myInfo = new LocaleSpecificInfo();
 
     /**
-     * We define a regex finder for use in the lookup. It has extra tests based on the ci value and the cvi value, duplicating
+     * We define a regex finder for use in the lookup. It has extra tests based on the ci value and the cvi value,
+     * duplicating
      * what was in SupplementalDataInfo. It uses the sets instead of converting to regex strings.
+     * 
      * @author markdavis
-     *
+     * 
      */
     public static class MyRegexFinder extends RegexFinder {
         final private SetMatchType additionalMatch;
         final private CoverageLevelInfo ci;
-        
+
         public MyRegexFinder(String pattern, String additionalMatch, CoverageLevelInfo ci) {
             super(pattern);
             // remove the ${ and the }, and change - to _.
-            this.additionalMatch = additionalMatch == null ? null : SetMatchType.valueOf(additionalMatch.substring(2, additionalMatch.length()-1).replace('-', '_'));
+            this.additionalMatch = additionalMatch == null ? null : SetMatchType.valueOf(additionalMatch.substring(2,
+                additionalMatch.length() - 1).replace('-', '_'));
             this.ci = ci;
         }
+
         @Override
         public boolean find(String item, Object context) {
             LocaleSpecificInfo localeSpecificInfo = (LocaleSpecificInfo) context;
-            if (ci.inLanguageSet != null 
-                    && !ci.inLanguageSet.contains(localeSpecificInfo.targetLanguage)) {
-               return false;
+            if (ci.inLanguageSet != null
+                && !ci.inLanguageSet.contains(localeSpecificInfo.targetLanguage)) {
+                return false;
             }
-            if (ci.inScriptSet != null 
-                    && CollectionUtilities.containsNone(ci.inScriptSet, localeSpecificInfo.cvi.targetScripts)) {
+            if (ci.inScriptSet != null
+                && CollectionUtilities.containsNone(ci.inScriptSet, localeSpecificInfo.cvi.targetScripts)) {
                 return false;
-             }
-            if (ci.inTerritorySet != null 
-                    && CollectionUtilities.containsNone(ci.inTerritorySet, localeSpecificInfo.cvi.targetTerritories)) {
+            }
+            if (ci.inTerritorySet != null
+                && CollectionUtilities.containsNone(ci.inTerritorySet, localeSpecificInfo.cvi.targetTerritories)) {
                 return false;
-             }
+            }
             boolean result = super.find(item, context); // also sets matcher in RegexFinder
             if (!result) {
                 return false;
@@ -71,22 +83,34 @@ public class CoverageLevel2 {
                 String groupMatch = matcher.group(1);
                 // we match on a group, so get the right one
                 switch (additionalMatch) {
-                case Target_Language: return localeSpecificInfo.targetLanguage.equals(groupMatch);
-                case Target_Scripts: return localeSpecificInfo.cvi.targetScripts.contains(groupMatch);
-                case Target_Territories: return localeSpecificInfo.cvi.targetTerritories.contains(groupMatch);
-                case Target_TimeZones: return localeSpecificInfo.cvi.targetTimeZones.contains(groupMatch);
-                case Target_Currencies: return localeSpecificInfo.cvi.targetCurrencies.contains(groupMatch);
-                case Calendar_List: return localeSpecificInfo.cvi.calendars.contains(groupMatch);
+                case Target_Language:
+                    return localeSpecificInfo.targetLanguage.equals(groupMatch);
+                case Target_Scripts:
+                    return localeSpecificInfo.cvi.targetScripts.contains(groupMatch);
+                case Target_Territories:
+                    return localeSpecificInfo.cvi.targetTerritories.contains(groupMatch);
+                case Target_TimeZones:
+                    return localeSpecificInfo.cvi.targetTimeZones.contains(groupMatch);
+                case Target_Currencies:
+                    return localeSpecificInfo.cvi.targetCurrencies.contains(groupMatch);
+                    // For Target_Plurals, we have to account for the fact that the @count= part might not be in the
+                    // xpath, so we shouldn't reject the match because of that. ( i.e. The regex is usually
+                    // ([@count='${Target-Plurals}'])?
+                case Target_Plurals:
+                    return (groupMatch == null ||
+                        groupMatch.length() == 0 || localeSpecificInfo.cvi.targetPlurals.contains(groupMatch));
+                case Calendar_List:
+                    return localeSpecificInfo.cvi.calendars.contains(groupMatch);
                 }
             }
             return true;
         }
+
         @Override
         public boolean equals(Object obj) {
             return false;
         }
     }
-
 
     private CoverageLevel2(SupplementalDataInfo sdi, String locale) {
         myInfo.targetLanguage = new LanguageTagParser().set(locale).getLanguage();
@@ -96,6 +120,7 @@ public class CoverageLevel2 {
 
     /**
      * get an instance, using CldrUtility.SUPPLEMENTAL_DIRECTORY
+     * 
      * @param locale
      * @return
      * @deprecated Don't use this. call the version which takes a SupplementalDataInfo as an argument.
@@ -105,11 +130,15 @@ public class CoverageLevel2 {
     public static CoverageLevel2 getInstance(String locale) {
         return new CoverageLevel2(SupplementalDataInfo.getInstance(CldrUtility.SUPPLEMENTAL_DIRECTORY), locale);
     }
+
     public static CoverageLevel2 getInstance(SupplementalDataInfo sdi, String locale) {
         return new CoverageLevel2(sdi, locale);
     }
 
     public Level getLevel(String path) {
+        if (path == null) {
+            return Level.UNDETERMINED;
+        }
         synchronized (lookup) { // synchronize on the class, since the Matchers are changed during the matching process
             Level result = lookup.get(path, myInfo, null);
             return result == null ? Level.OPTIONAL : result;
@@ -119,7 +148,21 @@ public class CoverageLevel2 {
     public int getIntLevel(String path) {
         return getLevel(path).getLevel();
     }
-    
+
+    public static Level getRequiredLevel(String localeID, Map<String, String> options) {
+        Level result;
+        // see if there is an explicit level
+        String localeType = options.get("CoverageLevel.requiredLevel");
+        if (localeType != null) {
+            result = Level.get(localeType);
+            if (result != Level.UNDETERMINED) {
+                return result;
+            }
+        }
+        // otherwise, see if there is an organization level
+        return sc.getLocaleCoverageLevel(options.get("CoverageLevel.localeType"), localeID);
+    }
+
     public static void main(String[] args) {
         // quick test
         // TODO convert to unit test
@@ -137,7 +180,7 @@ public class CoverageLevel2 {
         }
         long oldTime = timer.getDuration();
         System.out.println(timer.toString(1));
-        
+
         timer.start();
         for (String path : englishPaths) {
             int newLevel = cv2.getIntLevel(path);

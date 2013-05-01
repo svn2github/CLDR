@@ -6,11 +6,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.StringId;
 
@@ -20,28 +25,26 @@ import org.unicode.cldr.util.StringId;
  * last time the English changed. For efficiency, it only keeps a record of
  * those values in trunk that are out of date.
  * <p>
- * That is, to get the set of outdated values, the caller should do the
- * following:
+ * That is, to get the set of outdated values, the caller should do the following:
  * <ol>
- * <li>Test to see if the user has voted for a value for the path. If so, don't
- * include.
- * <li>Test to see if the winning value for the path is different from the trunk
- * value. If so, don't include.
- * <li>Test with isOutdated(path) to see if the trunk value was outdated. If
- * not, don't include.
+ * <li>Test to see if the user has voted for a value for the path. If so, don't include.
+ * <li>Test to see if the winning value for the path is different from the trunk value. If so, don't include.
+ * <li>Test with isOutdated(path) to see if the trunk value was outdated. If not, don't include.
  * <li>Otherwise, include this path in the set of outdated items.
  * </ol>
  * <p>
  * To update the data file, use GenerateBirth.java.
  */
 public class OutdatedPaths {
+
+    public static final String OUTDATED_DIR = "births/";
     public static final String OUTDATED_ENGLISH_DATA = "outdatedEnglish.data";
     public static final String OUTDATED_DATA = "outdated.data";
-    
-    private static final boolean       DEBUG = CldrUtility.getProperty("debug", false);
-    
+
+    private static final boolean DEBUG = CldrUtility.getProperty("OutdatedPathsDebug", false);
+
     private final HashMap<String, Set<Long>> localeToData = new HashMap<String, Set<Long>>();
-    private final HashMap<Long,String> pathToPrevious = new HashMap<Long,String>();
+    private final HashMap<Long, String> pathToPrevious = new HashMap<Long, String>();
 
     /**
      * Creates a new OutdatedPaths, using the data file "outdated.data" in the same directory as this class.
@@ -51,7 +54,7 @@ public class OutdatedPaths {
     public OutdatedPaths() {
         this(null);
     }
-    
+
     /**
      * Loads the data from the specified directory, using the data file "outdated.data".
      * 
@@ -60,13 +63,18 @@ public class OutdatedPaths {
     public OutdatedPaths(String directory) {
         try {
             DataInputStream dataIn = openDataInput(directory, OUTDATED_DATA);
+            Map<Long, PathHeader> id2header = new HashMap();
+            if (DEBUG) {
+                Factory factory = Factory.make(CldrUtility.MAIN_DIRECTORY, ".*");
+                id2header = getIdToPath(factory);
+            }
             while (true) {
                 String locale = dataIn.readUTF();
                 if (locale.equals("$END$")) {
                     break;
                 }
                 if (DEBUG) {
-                    System.out.println("Locale: " + locale);
+                    System.out.println("OutdatedPaths: Locale: " + locale);
                 }
                 final HashSet<Long> data = new HashSet<Long>();
                 int size = dataIn.readInt();
@@ -74,13 +82,13 @@ public class OutdatedPaths {
                     long item = dataIn.readLong();
                     data.add(item);
                     if (DEBUG) {
-                        System.out.println(item);
+                        System.out.println(locale + "\t" + id2header.get(item));
                     }
                 }
-                localeToData.put(locale, data);
+                localeToData.put(locale, Collections.unmodifiableSet(data));
             }
             dataIn.close();
-            
+
             // now previous English
 
             dataIn = openDataInput(directory, OUTDATED_ENGLISH_DATA);
@@ -92,7 +100,7 @@ public class OutdatedPaths {
                 long pathId = dataIn.readLong();
                 String previous = dataIn.readUTF();
                 if (DEBUG) {
-                    System.out.println(pathId + "\t" + previous);
+                    System.out.println("en\t(" + previous + ")\t" + id2header.get(pathId));
                 }
                 pathToPrevious.put(pathId, previous);
             }
@@ -107,11 +115,23 @@ public class OutdatedPaths {
         }
     }
 
+    public Map<Long, PathHeader> getIdToPath(Factory factory) {
+        Map<Long, PathHeader> result = new HashMap<Long, PathHeader>();
+        CLDRFile english = factory.make("en", true);
+        PathHeader.Factory pathHeaders = PathHeader.getFactory(english);
+        for (String s : english) {
+            long id = StringId.getId(s);
+            PathHeader pathHeader = pathHeaders.fromPath(s);
+            result.put(id, pathHeader);
+        }
+        return result;
+    }
+
     private DataInputStream openDataInput(String directory, String filename) throws FileNotFoundException {
         String dataFileName = filename;
-        InputStream fileInputStream = directory == null 
-        ? OutdatedPaths.class.getResourceAsStream(dataFileName) 
-                : new FileInputStream(new File(directory, dataFileName));
+        InputStream fileInputStream = directory == null
+            ? CldrUtility.getInputStream(OUTDATED_DIR + dataFileName)
+            : new FileInputStream(new File(directory, dataFileName));
 
         DataInputStream dataIn = new DataInputStream(fileInputStream);
         return dataIn;
@@ -135,14 +155,15 @@ public class OutdatedPaths {
             return false;
         }
         Boolean toSkip = SKIP_PATHS.get(distinguishedPath);
-        if (toSkip != null)  {
+        if (toSkip != null) {
             return false;
         }
         return result;
     }
-    
+
     /**
      * The same as isOutdated, but also returns paths that aren't skipped.
+     * 
      * @param locale
      * @param distinguishedPath
      * @return
@@ -155,16 +176,17 @@ public class OutdatedPaths {
         long id = StringId.getId(distinguishedPath);
         return data.contains(id);
     }
-    
+
     /**
      * Is this path to be skipped? (because the English is normally irrelevant).
+     * 
      * @param distinguishedPath
      * @return
      */
     public boolean isSkipped(String distinguishedPath) {
         return SKIP_PATHS.get(distinguishedPath) != null;
     }
-    
+
     /**
      * Returns true if the value for the path is outdated in trunk. See class
      * description for more info.
@@ -176,23 +198,23 @@ public class OutdatedPaths {
         long id = StringId.getId(distinguishedPath);
         return pathToPrevious.get(id);
     }
-    
+
     static RegexLookup<Boolean> SKIP_PATHS = new RegexLookup<Boolean>()
-    .add("/exemplarCharacters", true)
-    .add("/references", true)
-    .add("/delimiters/[^/]*uotation", true)
-    .add("/posix", true)
-    .add("/pattern", true)
-    .add("/fields/field[^/]*/displayName", true)
-    .add("/dateFormatItem", true)
-    .add("/numbers/symbols", true)
-    .add("/fallback", true)
-    .add("/quarters", true)
-    .add("/months", true)
-    ;
-    
+        .add("/exemplarCharacters", true)
+        .add("/references", true)
+        .add("/delimiters/[^/]*uotation", true)
+        .add("/posix", true)
+        .add("/pattern", true)
+        .add("/fields/field[^/]*/displayName", true)
+        .add("/dateFormatItem", true)
+        .add("/numbers/symbols", true)
+        .add("/fallback", true)
+        .add("/quarters", true)
+        .add("/months", true);
+
     /**
      * Returns the number of outdated paths.
+     * 
      * @param locale
      * @return number of outdated paths.
      */

@@ -1,9 +1,7 @@
 package org.unicode.cldr.tool;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,16 +10,14 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.unicode.cldr.draft.Iterables;
-import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
-import org.unicode.cldr.util.CLDRFile.Factory;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
+import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.SupplementalDataInfo;
 
-import com.ibm.icu.dev.test.util.CollectionUtilities;
-import com.ibm.icu.dev.test.util.Relation;
+import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.impl.Row.R2;
 import com.ibm.icu.text.UnicodeSet;
 
@@ -29,11 +25,10 @@ public class GenerateAliases {
     public static void main(String[] args) {
         new Builder().getAliases();
     }
-    
-    static class Builder {
-        Map<String,String> aliasMap = new LinkedHashMap<String,String>();
-        Factory factory = CLDRFile.Factory.make(CldrUtility.MAIN_DIRECTORY, ".*");
 
+    static class Builder {
+        Map<String, String> aliasMap = new LinkedHashMap<String, String>();
+        Factory factory = Factory.make(CldrUtility.MAIN_DIRECTORY, ".*");
 
         SupplementalDataInfo dataInfo = SupplementalDataInfo.getInstance();
         Set<String> defaultContents = dataInfo.getDefaultContentLocales();
@@ -44,7 +39,7 @@ public class GenerateAliases {
         Relation<String, String> goodToBadTerritories = getGoodToBad(aliasInfo, "territory");
         Relation<String, String> goodToBadScripts = getGoodToBad(aliasInfo, "script");
 
-        //sh      //ldml/alias[@source="sr_Latn"][@path="//ldml"]
+        // sh //ldml/alias[@source="sr_Latn"][@path="//ldml"]
         LanguageTagParser ltp = new LanguageTagParser();
         final Set<String> available = factory.getAvailable();
 
@@ -61,9 +56,9 @@ public class GenerateAliases {
                     addAlias("deprecated", "sh" + localeID.substring(7), localeID);
                 }
             }
-            
-            Map<String,String> likely = new TreeMap<String,String>();
-            
+
+            Map<String, String> likely = new TreeMap<String, String>();
+
             // get all the combinations
             for (String max : likelySubtags.getToMaximized().values()) {
                 likely.put(max, getDefaultContents(max));
@@ -87,16 +82,16 @@ public class GenerateAliases {
                 if (!available.contains(base)) { // skip seed locales
                     continue;
                 }
-                //            if (!localeID.contains("_")) {
-                //                continue; // skip languages not represented
-                //            }
+                // if (!localeID.contains("_")) {
+                // continue; // skip languages not represented
+                // }
                 if (available.contains(localeID) && !isWholeAlias(factory, localeID)) {
                     continue;
                 }
                 targetID = getDefaultContents(targetID);
                 addAlias("default", localeID, targetID);
             }
-            
+
             for (String localeID : available) {
                 if (aliasMap.get(localeID) != null) {
                     continue;
@@ -106,36 +101,37 @@ public class GenerateAliases {
                 }
             }
 
-            //System.out.println(CollectionUtilities.join(aliasMap.entrySet(), "\n"));
+            // System.out.println(CollectionUtilities.join(aliasMap.entrySet(), "\n"));
         }
 
         private void addToLikely(Map<String, String> likely) {
             String partial = ltp.toString();
             final String target = getDefaultContents(partial);
-            String parent = LanguageTagParser.getParent(partial);
+            String parent = LocaleIDParser.getSimpleParent(partial);
             if (target.equals(parent)) {
                 return;
             }
             likely.put(partial, target);
         }
-        
+
         static final Set<String> HAS_MULTIPLE_SCRIPTS = org.unicode.cldr.util.Builder.with(new HashSet<String>())
             .addAll("ha", "ku", "zh", "sr", "uz", "sh").freeze();
-        
+
         private boolean hasMultipleScripts(String localeID) {
             LanguageTagParser ltp = new LanguageTagParser().set(localeID);
             return HAS_MULTIPLE_SCRIPTS.contains(ltp.getLanguage());
         }
 
         private String getDefaultContents(String localeID) {
-            String targetID = hasMultipleScripts(localeID) ? likelySubtags.maximize(localeID) :  likelySubtags.minimize(localeID);
-            
+            String targetID = hasMultipleScripts(localeID) ? likelySubtags.maximize(localeID) : likelySubtags
+                .minimize(localeID);
+
             if (targetID == null) {
                 System.out.println("missingLikely" + "\t" + localeID);
                 return localeID;
             }
             while (defaultContents.contains(targetID)) {
-                String parent = LanguageTagParser.getParent(targetID);
+                String parent = LocaleIDParser.getSimpleParent(targetID);
                 if (parent == null || parent.equals("root)")) {
                     break;
                 }
@@ -143,14 +139,15 @@ public class GenerateAliases {
             }
             return targetID;
         }
-        
+
         public Map<String, String> getAliases() {
             return aliasMap;
         }
 
         static final UnicodeSet NUMBERS = new UnicodeSet("[0-9]");
 
-        private  Relation<String, String> getGoodToBad(Map<String, Map<String, R2<List<String>, String>>> aliasInfo, String tag) {
+        private Relation<String, String> getGoodToBad(Map<String, Map<String, R2<List<String>, String>>> aliasInfo,
+            String tag) {
             Relation<String, String> result = Relation.of(new TreeMap<String, Set<String>>(), TreeSet.class);
             Map<String, R2<List<String>, String>> map = aliasInfo.get(tag);
             for (Entry<String, R2<List<String>, String>> entity : map.entrySet()) {
@@ -165,15 +162,14 @@ public class GenerateAliases {
                     continue;
                 }
                 if (NUMBERS.containsAll(key)) { // special check for items like 172
-                    continue; 
+                    continue;
                 }
                 result.put(list.iterator().next(), key);
             }
             return result;
         }
 
-
-        private  void addAlias(String title, String localeID, String targetID) {
+        private void addAlias(String title, String localeID, String targetID) {
             ltp.set(localeID);
             Set<String> languages = addExtras(ltp.getLanguage(), goodToBadLanguages);
             Set<String> scripts = addExtras(ltp.getScript(), goodToBadScripts);
@@ -205,7 +201,8 @@ public class GenerateAliases {
                             }
                             final boolean wholeAlias = isWholeAlias(factory, newTag);
                             if (!available.contains(newTag) || wholeAlias) {
-                                System.out.println(title + "\t" + newTag + "\t→\t" + targetID + (wholeAlias ? "\talias-already" : ""));
+                                System.out.println(title + "\t" + newTag + "\t→\t" + targetID
+                                    + (wholeAlias ? "\talias-already" : ""));
                                 aliasMap.put(newTag, targetID);
                             }
                         }
@@ -213,20 +210,19 @@ public class GenerateAliases {
                 }
             }
         }
-        
+
         /*
          * Problems
-missingLikely    tl                                                                  
-missingLikely   tl_PH                                                                   
-sr_YU   ->  conflict with   sr                                                          
-sr_CS   ->  conflict with   sr_Cyrl_CS                                                          
-sr_CS   ->  conflict with   sr_Cyrl_CS                                                          
-sh_CS   ->  conflict with   sr_Latn_CS                                                          
-sh_YU   ->  conflict with   sr_Latn_RS
+         * missingLikely tl
+         * missingLikely tl_PH
+         * sr_YU -> conflict with sr
+         * sr_CS -> conflict with sr_Cyrl_CS
+         * sr_CS -> conflict with sr_Cyrl_CS
+         * sh_CS -> conflict with sr_Latn_CS
+         * sh_YU -> conflict with sr_Latn_RS
          */
 
-
-        private  Set<String> addExtras(String language, Relation<String, String> goodToBadLanguages) {
+        private Set<String> addExtras(String language, Relation<String, String> goodToBadLanguages) {
             Set<String> languages = new TreeSet<String>();
             languages.add(language);
             Set<String> badLanguages = goodToBadLanguages.get(language);
@@ -236,9 +232,9 @@ sh_YU   ->  conflict with   sr_Latn_RS
             return languages;
         }
 
-        Map<String,Boolean> wholeAliasCache = new HashMap();
-        
-        private  boolean isWholeAlias(Factory factory, String localeID) {
+        Map<String, Boolean> wholeAliasCache = new HashMap();
+
+        private boolean isWholeAlias(Factory factory, String localeID) {
             Boolean result = wholeAliasCache.get(localeID);
             if (result != null) {
                 return result;
