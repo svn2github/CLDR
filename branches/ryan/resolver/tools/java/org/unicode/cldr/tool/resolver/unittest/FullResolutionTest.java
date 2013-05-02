@@ -6,6 +6,7 @@
 package org.unicode.cldr.tool.resolver.unittest;
 
 import org.unicode.cldr.tool.resolver.ResolutionType;
+import org.unicode.cldr.tool.resolver.ResolverUtils;
 import org.unicode.cldr.util.CLDRFile;
 
 /**
@@ -15,7 +16,7 @@ import org.unicode.cldr.util.CLDRFile;
  * 
  * @author ryanmentley@google.com (Ryan Mentley)
  */
-public class FullResolutionTest extends NonSimpleResolutionTest {
+public class FullResolutionTest extends ResolverTest {
   private static final String LOCALES_TO_TEST = ".*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.FULL;
 
@@ -28,12 +29,6 @@ public class FullResolutionTest extends NonSimpleResolutionTest {
   }
 
   @Override
-  protected boolean shouldIgnorePath(String distinguishedPath, CLDRFile file) {
-    return distinguishedPath.endsWith("/alias")
-        || distinguishedPath.startsWith("//ldml/identity/");
-  }
-
-  @Override
   protected String getLocalesToTest() {
     return LOCALES_TO_TEST;
   }
@@ -41,5 +36,10 @@ public class FullResolutionTest extends NonSimpleResolutionTest {
   @Override
   protected ResolutionType getResolutionType() {
     return RESOLUTION_TYPE;
+  }
+
+  @Override
+  protected String canonicalizeDPath(String distinguishedPath, CLDRFile file) {
+    return ResolverUtils.canonicalXpath(file.getFullXPath(distinguishedPath));
   }
 }

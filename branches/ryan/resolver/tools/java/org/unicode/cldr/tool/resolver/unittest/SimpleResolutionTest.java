@@ -24,24 +24,8 @@ import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
  * @author ryanmentley@google.com (Ryan Mentley)
  */
 public class SimpleResolutionTest extends ResolverTest {
-  private static final String LOCALES_TO_TEST = ".*";
+  private static final String LOCALES_TO_TEST = "bn.*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.SIMPLE;
-
-  /**
-   * Holds the unresolved data straight out of the resolver tool. Keyed by
-   * locale, then full XPath in the canonical form retrieved by
-   * {@link ResolverUtils#canonicalXpath(String)}
-   */
-  private Map<String, Map<String, String>> unresolvedFromTool =
-      new HashMap<String, Map<String, String>>();
-
-  /**
-   * Caches the fully-resolved data retrieved from the simple tool output. Keyed
-   * locale, then full XPath in the canonical form retrieved by
-   * {@link ResolverUtils#canonicalXpath(String)}
-   */
-  private Map<String, Map<String, String>> fullyResolvedFromTool =
-      new HashMap<String, Map<String, String>>();
 
   /**
    * This is needed because the testing framework does not detect inherited test
@@ -59,21 +43,22 @@ public class SimpleResolutionTest extends ResolverTest {
    * (java.lang.String)
    */
   @Override
-  protected Map<String, String> getFullyResolvedToolData(String locale) {
-    if (fullyResolvedFromTool.get(locale) == null) { // Cache miss
-      // Get parent by truncation
+  protected Map<String, String> loadToolDataFromResolver(String locale) {
       String parent = LocaleIDParser.getParent(locale);
+      System.out.println(locale + " child of " + parent);
       if (parent == null) {
         // locale is root, just grab it straight out of the unresolved data
-        fullyResolvedFromTool.put(locale,
-            Collections.unmodifiableMap(unresolvedFromTool.get(locale)));
+        return super.loadToolDataFromResolver(locale);
       } else {
-        Map<String, String> resolvedParentMap = getFullyResolvedToolData(parent);
+        Map<String, String> resolvedParentMap = loadToolDataFromResolver(parent);
         Map<String, String> resolvedChildMap = new HashMap<String, String>(resolvedParentMap);
-        Map<String, String> unresolvedChildMap = unresolvedFromTool.get(locale);
+        Map<String, String> unresolvedChildMap = super.loadToolDataFromResolver(locale);
         for (String distinguishedPath : unresolvedChildMap.keySet()) {
 
           String childValue = unresolvedChildMap.get(distinguishedPath);
+          if (distinguishedPath.contains("HNL")) {
+              System.out.println(locale + " " + distinguishedPath + " --> " + childValue);
+          }
           if (childValue.equals(CldrResolver.UNDEFINED)) {
             assertTrue("Child locale " + locale
                 + " should not contain UNDEFINED values unless the truncation parent (" + parent
@@ -95,13 +80,8 @@ public class SimpleResolutionTest extends ResolverTest {
             resolvedChildMap.put(distinguishedPath, childValue);
           }
         }
-        fullyResolvedFromTool.put(locale, Collections.unmodifiableMap(resolvedChildMap));
+        return Collections.unmodifiableMap(resolvedChildMap);
       }
-    }
-
-    // Cache is populated now if it wasn't already; return the result from the
-    // cache
-    return fullyResolvedFromTool.get(locale);
   }
 
   @Override
@@ -115,52 +95,7 @@ public class SimpleResolutionTest extends ResolverTest {
   }
 
   @Override
-  protected SimpleHandler makeHandler(String locale) {
-    return new TestHandler(locale);
-  }
-
-  @Override
-  protected boolean shouldIgnorePath(String distinguishedPath, CLDRFile file) {
-    if (distinguishedPath.endsWith("/alias") || distinguishedPath.startsWith("//ldml/identity/")) {
-      return true;
-    } else {
-      // TODO(ryanmentley): THIS IS A HACK. (see ticket #4088)
-      // REMOVE THE FOLLOWING IF STATEMENT WHEN TICKET 1297 IS RESOLVED
-      // http://unicode.org/cldr/trac/ticket/1297
-      if (distinguishedPath.startsWith("//ldml/layout/orientation")) {
-        return true;
-      }
-      return false;
-    }
-  }
-  
-  @Override
   protected String canonicalizeDPath(String distinguishedPath, CLDRFile file) {
     return ResolverUtils.canonicalXpath(distinguishedPath);
-  }
-
-  private class TestHandler extends SimpleHandler {
-    private String locale;
-
-    /**
-     * Creates a test handler
-     * 
-     * @param locale the locale being handled
-     */
-    public TestHandler(String locale) {
-      this.locale = locale;
-    }
-
-    @Override
-    public void handlePathValue(String path, String value) {
-      String canonicalPath = ResolverUtils.canonicalXpath(path);
-      // Populate the unresolved map
-      if (!unresolvedFromTool.containsKey(locale)) {
-        unresolvedFromTool.put(locale, new HashMap<String, String>());
-      }
-      assertFalse("Duplicate paths should never occur",
-          unresolvedFromTool.get(locale).containsKey(canonicalPath));
-      unresolvedFromTool.get(locale).put(canonicalPath, value);
-    }
   }
 }

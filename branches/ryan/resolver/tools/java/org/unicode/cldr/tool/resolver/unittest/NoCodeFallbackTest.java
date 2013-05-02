@@ -7,6 +7,7 @@ package org.unicode.cldr.tool.resolver.unittest;
 
 import org.unicode.cldr.tool.resolver.CldrResolver;
 import org.unicode.cldr.tool.resolver.ResolutionType;
+import org.unicode.cldr.tool.resolver.ResolverUtils;
 import org.unicode.cldr.util.CLDRFile;
 
 /**
@@ -16,7 +17,7 @@ import org.unicode.cldr.util.CLDRFile;
  * 
  * @author ryanmentley@google.com (Ryan Mentley)
  */
-public class NoCodeFallbackTest extends NonSimpleResolutionTest {
+public class NoCodeFallbackTest extends ResolverTest {
   private static final String LOCALES_TO_TEST = ".*";
   private static final ResolutionType RESOLUTION_TYPE = ResolutionType.NO_CODE_FALLBACK;
 
@@ -25,13 +26,16 @@ public class NoCodeFallbackTest extends NonSimpleResolutionTest {
    * methods
    */
   public void TestNoCodeFallbackResolution() {
+      try {
     TestResolution();
+      } catch(Exception e) {
+          e.printStackTrace();
+      }
   }
 
   @Override
   protected boolean shouldIgnorePath(String distinguishedPath, CLDRFile file) {
-    return distinguishedPath.endsWith("/alias")
-        || distinguishedPath.startsWith("//ldml/identity/")
+    return super.shouldIgnorePath(distinguishedPath, file)
         || file.getSourceLocaleID(distinguishedPath, null).equals(
           CldrResolver.CODE_FALLBACK);
   }
@@ -44,5 +48,10 @@ public class NoCodeFallbackTest extends NonSimpleResolutionTest {
   @Override
   protected ResolutionType getResolutionType() {
     return RESOLUTION_TYPE;
+  }
+
+  @Override
+  protected String canonicalizeDPath(String distinguishedPath, CLDRFile file) {
+    return ResolverUtils.canonicalXpath(file.getFullXPath(distinguishedPath));
   }
 }
