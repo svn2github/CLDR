@@ -27,7 +27,7 @@ public class NoCodeFallbackTest extends ResolverTest {
    */
   public void TestNoCodeFallbackResolution() {
       try {
-    TestResolution();
+          TestResolution();
       } catch(Exception e) {
           e.printStackTrace();
       }

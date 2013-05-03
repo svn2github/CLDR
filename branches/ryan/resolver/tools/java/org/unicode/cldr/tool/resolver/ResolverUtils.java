@@ -82,7 +82,7 @@ public class ResolverUtils {
    * @throws NullPointerException if {@code xPath == null}
    */
   public static String canonicalXpath(String xPath) {
-    return new XPathParts().initialize(xPath).toString();
+    return new XPathParts().initialize(xPath).toString().replaceAll("\\[@draft=\"\\w++\"]", "");
   }
 
   /**
@@ -105,33 +105,5 @@ public class ResolverUtils {
    */
   static void debugPrintln(String str, int msgVerbosity) {
     debugPrint(str + "\n", msgVerbosity);
-  }
-
-  /**
-   * Resolves a string to a draft status enum object. The resolution is
-   * performed by selecting a value from the DraftStatus enum that starts with
-   * or is equivalent to the given string (case-insensitive), as long as it is
-   * the only DraftStatus that does so.
-   * 
-   * @param str the string to resolve
-   * @return an object of type CLDRFile.DraftStatus, or null if the string
-   *         cannot be unambiguously resolved to a DraftStatus
-   */
-  static DraftStatus draftStatusFromString(String str) {
-    DraftStatus value = null;
-    str = str.toLowerCase(Locale.ENGLISH);
-    for (DraftStatus status : DraftStatus.values()) {
-      if (status.toString().toLowerCase(Locale.ENGLISH).startsWith(str)) {
-        if (value == null) {
-          // This is the first time we've found a DraftStatus that matches
-          value = status;
-        } else {
-          // This string is ambiguous - two DraftStatus names start with it
-          value = null;
-          break;
-        }
-      }
-    }
-    return value;
   }
 }

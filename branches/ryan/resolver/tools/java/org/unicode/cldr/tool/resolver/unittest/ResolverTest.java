@@ -5,9 +5,7 @@
 
 package org.unicode.cldr.tool.resolver.unittest;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.unicode.cldr.tool.resolver.CldrResolver;
@@ -31,15 +29,10 @@ public abstract class ResolverTest extends TestFmwk {
    * @param locale the locale for which to get the map
    * @return an immutable Map from distinguished path to string value
    */
-  protected Map<String, String> loadToolDataFromResolver(String locale) {
+  protected CLDRFile loadToolDataFromResolver(String locale) {
       // Resolve with the tool
-      CLDRFile toolResolved = resolver.resolveLocale(locale, getResolutionType());
-
-      Map<String, String> values = new HashMap<String, String>();
-      for (String path : toolResolved) {
-          values.put(toolResolved.getFullXPath(path), toolResolved.getStringValue(path));
-      }
-      return values;
+      CLDRFile toolResolved = resolver.resolveLocale(locale);
+      return toolResolved;
   }
 
   /**
@@ -79,7 +72,7 @@ public abstract class ResolverTest extends TestFmwk {
   private CldrResolver resolver;
 
   public ResolverTest() {
-      resolver = new CldrResolver(CldrUtility.MAIN_DIRECTORY);
+      resolver = new CldrResolver(CldrUtility.MAIN_DIRECTORY, getResolutionType());
   }
 
   /**
@@ -93,29 +86,27 @@ public abstract class ResolverTest extends TestFmwk {
     for (String locale : locales) {
       CLDRFile cldrResolved = factory.make(locale, true);
       Set<String> cldrPaths = new HashSet<String>();
-      Map<String, String> toolResolved = loadToolDataFromResolver(locale);
+      CLDRFile toolResolved = loadToolDataFromResolver(locale);
       // Check to make sure no paths from the CLDR-resolved version that aren't
       // explicitly excluded get left out
       for (String distinguishedPath : ResolverUtils.getAllPaths(cldrResolved)) {
         // Check if path should be ignored
         if (!shouldIgnorePath(distinguishedPath, cldrResolved)) {
           String canonicalPath = canonicalizeDPath(distinguishedPath, cldrResolved);
-          if (canonicalPath.contains("HNL")) {
-              System.out.println(canonicalPath);
-          }
           String cldrValue = cldrResolved.getStringValue(distinguishedPath);
-          assertTrue("Path " + canonicalPath + " is present in CLDR resolved file for locale "
+          String toolValue = toolResolved.getStringValue(canonicalPath);
+          assertNotNull("Path " + canonicalPath + " is present in CLDR resolved file for locale "
               + locale + " but not in tool resolved file (CLDR value: '" + cldrValue + "').",
-              toolResolved.containsKey(canonicalPath));
+              toolValue);
           assertEquals("Tool resolved value for " + canonicalPath + " in locale " + locale
-              + " should match CLDRFile resolved value", cldrValue, toolResolved.get(canonicalPath));
+              + " should match CLDRFile resolved value", cldrValue, toolValue);
           // Add the path to the Set for the next batch of checks
           cldrPaths.add(canonicalPath);
         }
       }
       // Check to make sure that all paths from the tool-resolved version are
       // also in the CLDR-resolved version
-      for (String canonicalPath : toolResolved.keySet()) {
+      for (String canonicalPath : toolResolved) {
         // Check if path should be ignored
         if (!shouldIgnorePath(canonicalPath, cldrResolved)) {
           assertTrue("Path " + canonicalPath + " is present in tool resolved file for locale "
