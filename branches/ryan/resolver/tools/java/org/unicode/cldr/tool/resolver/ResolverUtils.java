@@ -75,17 +75,6 @@ public class ResolverUtils {
   }
 
   /**
-   * Returns a canonical representation of an XPath for use in comparing XPaths
-   * 
-   * @param xPath the original XPath
-   * @return the canonical representation of xPath
-   * @throws NullPointerException if {@code xPath == null}
-   */
-  public static String canonicalXpath(String xPath) {
-    return new XPathParts().initialize(xPath).toString().replaceAll("\\[@draft=\"\\w++\"]", "");
-  }
-
-  /**
    * Debugging method to print things based on verbosity.
    * 
    * @param str The string to print

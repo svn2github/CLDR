@@ -7,7 +7,6 @@ package org.unicode.cldr.tool.resolver.unittest;
 
 import org.unicode.cldr.tool.resolver.CldrResolver;
 import org.unicode.cldr.tool.resolver.ResolutionType;
-import org.unicode.cldr.tool.resolver.ResolverUtils;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.LocaleIDParser;
 
@@ -88,10 +87,5 @@ public class SimpleResolutionTest extends ResolverTest {
   @Override
   protected ResolutionType getResolutionType() {
     return RESOLUTION_TYPE;
-  }
-
-  @Override
-  protected String canonicalizeDPath(String distinguishedPath, CLDRFile file) {
-    return ResolverUtils.canonicalXpath(distinguishedPath);
   }
 }

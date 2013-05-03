@@ -37,9 +37,4 @@ public class FullResolutionTest extends ResolverTest {
   protected ResolutionType getResolutionType() {
     return RESOLUTION_TYPE;
   }
-
-  @Override
-  protected String canonicalizeDPath(String distinguishedPath, CLDRFile file) {
-    return ResolverUtils.canonicalXpath(file.getFullXPath(distinguishedPath));
-  }
 }

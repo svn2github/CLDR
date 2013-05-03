@@ -247,14 +247,13 @@ public class CldrResolver {
    * @return a {@link CLDRFile} containing the resolved data
    */
   public CLDRFile resolveLocale(String locale) {
-    ResolverUtils.debugPrintln("Processing locale " + locale + "...", 2);
 
     // Create CLDRFile for current (base) locale
-    ResolverUtils.debugPrintln("Making base file...", 3);
     CLDRFile base = cldrFactory.make(locale, true);
 
     CLDRFile resolved = resolvedCache.get(locale);
     if (resolved != null) return resolved;
+    ResolverUtils.debugPrintln("Processing locale " + locale + "...", 3);
     
     // root, having no parent, is a special case, which just gets its aliases
     // removed and then gets printed directly.
@@ -316,7 +315,8 @@ public class CldrResolver {
           if (!areEqual(parentValue, baseValue)) {
               ResolverUtils.debugPrintln("  Adding to resolved file.", 5);
               // Suppress non-distinguishing attributes in simple inheritance
-              resolved.add(distinguishedPath, baseValue);
+              String fullPath = file.getFullXPath(distinguishedPath);
+              resolved.add(fullPath, baseValue);
           }
       }
 
@@ -360,12 +360,11 @@ public class CldrResolver {
     // inheritance model,
     // then copy to the new CLDRFile.
     Set<String> basePaths = ResolverUtils.getAllPaths(file);
-    String fullPath = null;
     for (String distinguishedPath : basePaths) {
       ResolverUtils.debugPrintln("Distinguished path: " + distinguishedPath, 5);
 
-        fullPath = file.getFullXPath(distinguishedPath);
-        ResolverUtils.debugPrintln("Full path: " + fullPath, 5);
+      String fullPath = file.getFullXPath(distinguishedPath);
+      ResolverUtils.debugPrintln("Full path: " + fullPath, 5);
 
       if (distinguishedPath.endsWith("/alias")) {
         // Ignore any aliases.
@@ -450,7 +449,7 @@ public class CldrResolver {
         new CLDRFile(new SimpleXMLSource(cldrFile.getLocaleID()));
     ResolverUtils.debugPrintln("Removing aliases"
         + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "") + "...",
-        2);
+        3);
     // Go through the XPaths, filter out aliases, then copy to the new CLDRFile
     for (String distinguishedPath : ResolverUtils.getAllPaths(cldrFile)) {
       ResolverUtils.debugPrintln("Path: " + distinguishedPath, 5);

@@ -60,15 +60,6 @@ public abstract class ResolverTest extends TestFmwk {
    */
   protected abstract ResolutionType getResolutionType();
 
-  /**
-   * Transform a distinguished XPath to the canonical form that the XML file
-   * will return
-   * 
-   * @param distinguishedPath a distinguished XPath
-   * @return a String in the same form as paths canonicalized from XML files
-   */
-  protected abstract String canonicalizeDPath(String distinguishedPath, CLDRFile file);
-
   private CldrResolver resolver;
 
   public ResolverTest() {
@@ -92,16 +83,15 @@ public abstract class ResolverTest extends TestFmwk {
       for (String distinguishedPath : ResolverUtils.getAllPaths(cldrResolved)) {
         // Check if path should be ignored
         if (!shouldIgnorePath(distinguishedPath, cldrResolved)) {
-          String canonicalPath = canonicalizeDPath(distinguishedPath, cldrResolved);
           String cldrValue = cldrResolved.getStringValue(distinguishedPath);
-          String toolValue = toolResolved.getStringValue(canonicalPath);
-          assertNotNull("Path " + canonicalPath + " is present in CLDR resolved file for locale "
+          String toolValue = toolResolved.getStringValue(distinguishedPath);
+          assertNotNull("Path " + distinguishedPath + " is present in CLDR resolved file for locale "
               + locale + " but not in tool resolved file (CLDR value: '" + cldrValue + "').",
               toolValue);
-          assertEquals("Tool resolved value for " + canonicalPath + " in locale " + locale
+          assertEquals("Tool resolved value for " + distinguishedPath + " in locale " + locale
               + " should match CLDRFile resolved value", cldrValue, toolValue);
           // Add the path to the Set for the next batch of checks
-          cldrPaths.add(canonicalPath);
+          cldrPaths.add(distinguishedPath);
         }
       }
       // Check to make sure that all paths from the tool-resolved version are
