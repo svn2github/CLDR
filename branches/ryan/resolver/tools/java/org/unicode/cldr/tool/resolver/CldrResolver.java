@@ -19,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,16 +31,10 @@ import java.util.TreeSet;
  * Instances of this class are not thread-safe. Any attempts to use an object of
  * this class in multiple threads must be externally synchronized.
  * 
- * @author ryanmentley@google.com (Ryan Mentley)
+ * @author ryanmentley@google.com (Ryan Mentley), jchye@google.com (Jennifer Chye)
  * 
  */
 public class CldrResolver {
-  /**
-   * The value that denotes a non-existent value in the child that exists in the
-   * truncation parent
-   */
-  public static final String UNDEFINED = "\uFFFDNO_VALUE\uFFFD";
-
   /**
    * The name of the code-fallback locale
    */
@@ -71,12 +64,6 @@ public class CldrResolver {
   // This is most useful for simple resolution, where the resolved locales are
   // required to resolve their children.
   private Map<String, CLDRFile> resolvedCache = new LruMap<String, CLDRFile>(5);
-
-  /**
-   * Caches the canonical version of the paths returned by root to work around
-   * CLDR bugs
-   */
-  private Set<String> rootPaths = null;
 
   public static void main(String[] args) {
     UOption.parseArgs(args, OPTIONS);
@@ -196,6 +183,7 @@ public class CldrResolver {
     // Iterate through all the locales
     for (String locale : getLocaleNames(localeRegex)) {
       // Resolve the file
+      ResolverUtils.debugPrintln("Processing locale " + locale + "...", 2);
       CLDRFile resolved = resolveLocale(locale);
 
       // Output the file to disk
@@ -247,47 +235,31 @@ public class CldrResolver {
    * @return a {@link CLDRFile} containing the resolved data
    */
   public CLDRFile resolveLocale(String locale) {
-
     // Create CLDRFile for current (base) locale
     CLDRFile base = cldrFactory.make(locale, true);
-
     CLDRFile resolved = resolvedCache.get(locale);
     if (resolved != null) return resolved;
-    ResolverUtils.debugPrintln("Processing locale " + locale + "...", 3);
     
-    // root, having no parent, is a special case, which just gets its aliases
-    // removed and then gets printed directly.
-    if (locale.equals(ROOT)) {
-      // Remove aliases from root.
-      resolved = resolveRootLocale(base, resolutionType);
-    } else {
-        if (resolutionType == ResolutionType.SIMPLE) {
-            resolved = resolveNonRootLocaleSimple(base);
-        } else {
-            resolved = resolveNonRootLocale(base, resolutionType);
-        }
-    }
-
+    ResolverUtils.debugPrintln("Processing " + locale + "...", 2);
+    resolved = resolveLocaleInternal(base, resolutionType);
     resolvedCache.put(locale, resolved);
     return resolved;
   }
 
-  private CLDRFile resolveNonRootLocaleSimple(CLDRFile file) {
+  private CLDRFile resolveLocaleInternal(CLDRFile file, ResolutionType resolutionType) {
       String locale = file.getLocaleID();
-      String parentLocale = locale;
-      // Make parent files.
+      // Make parent files for simple resolution.
       List<CLDRFile> ancestors = new ArrayList<CLDRFile>();
-      do {
-          parentLocale = LocaleIDParser.getParent(parentLocale);
-          ancestors.add(resolveLocale(parentLocale));
-      } while (!parentLocale.equals("root"));
+      if (resolutionType == ResolutionType.SIMPLE && !locale.equals(ROOT)) {
+          String parentLocale = locale;
+          do {
+              parentLocale = LocaleIDParser.getParent(parentLocale);
+              ancestors.add(resolveLocale(parentLocale));
+          } while (!parentLocale.equals(ROOT));
+      }
 
-      // Create empty file to hold (partially or fully) resolved data
-      ResolverUtils.debugPrint("Creating empty CLDR file to store resolved data...", 3);
-      // False/unresolved because it needs to be mutable.
+      // Create empty file to hold (partially or fully) resolved data.
       CLDRFile resolved = new CLDRFile(new SimpleXMLSource(locale));
-      ResolverUtils.debugPrintln("done.", 3);
-      ResolverUtils.debugPrintln("Filtering against parent " + parentLocale + "...", 2);
 
       // Go through the XPaths, filter out appropriate values based on the
       // inheritance model,
@@ -302,93 +274,50 @@ public class CldrResolver {
               continue;
           }
 
+          /*
+           * If we're fully resolving the locale (and, if code-fallback suppression
+           * is enabled, if the value is not from code-fallback) or the values
+           * aren't equal, add it to the resolved file.
+           */
+          if (resolutionType == ResolutionType.NO_CODE_FALLBACK && file.getSourceLocaleID(
+                  distinguishedPath, null).equals(CODE_FALLBACK)) {
+              continue;
+          }
 
+          // For simple resolution, don't add paths to child locales if the parent
+          // locale contains the same path with the same value.
           String baseValue = file.getStringValue(distinguishedPath);
+          if (resolutionType == ResolutionType.SIMPLE) {
+              String parentValue = null;
+              for (CLDRFile ancestor : ancestors) {
+                  parentValue = ancestor.getStringValue(distinguishedPath);
+                  if (parentValue != null) break;
+              }
+              ResolverUtils.debugPrintln(
+                      "    Parent value : " + ResolverUtils.strRep(parentValue), 5);
+              if (areEqual(parentValue, baseValue)) continue;
+          }
 
-          String parentValue = null;
-          for (CLDRFile ancestor : ancestors) {
-              parentValue = ancestor.getStringValue(distinguishedPath);
-              if (parentValue != null) break;
-          }
-          ResolverUtils.debugPrintln(
-                  "    Parent [" + parentLocale + "] value : " + ResolverUtils.strRep(parentValue), 5);
-          if (!areEqual(parentValue, baseValue)) {
-              ResolverUtils.debugPrintln("  Adding to resolved file.", 5);
-              // Suppress non-distinguishing attributes in simple inheritance
-              String fullPath = file.getFullXPath(distinguishedPath);
-              resolved.add(fullPath, baseValue);
-          }
+          ResolverUtils.debugPrintln("  Adding to resolved file.", 5);
+          // Suppress non-distinguishing attributes in simple inheritance
+          String fullPath = file.getFullXPath(distinguishedPath);
+          ResolverUtils.debugPrintln("Full path: " + fullPath, 5);
+          resolved.add(fullPath, baseValue);
       }
 
-      // The undefined value is only needed for the simple inheritance resolution
-      // Add undefined values for anything in the parent but not the child
+      // Sanity check in simple resolution to make sure that all paths in the parent are also in the child.
       ResolverUtils.debugPrintln(
               "Adding UNDEFINED values based on " + ancestors, 3);
-      for (String distinguishedPath : ResolverUtils.getAllPaths(ancestors.get(0))) {
-          // Do the comparison with distinguished paths to prevent errors
-          // resulting from duplicate full paths but the same distinguished path
-          if (!basePaths.contains(distinguishedPath)) {
-              resolved.add(distinguishedPath, UNDEFINED);
-              throw new IllegalArgumentException("Why is this path not in " + locale+ "? " + distinguishedPath);
+      if (ancestors.size() > 0) {
+          for (String distinguishedPath : ResolverUtils.getAllPaths(ancestors.get(0))) {
+              // Do the comparison with distinguished paths to prevent errors
+              // resulting from duplicate full paths but the same distinguished path
+              if (!basePaths.contains(distinguishedPath)) {
+                  throw new IllegalArgumentException("Why is this path not in " + locale+ "? " + distinguishedPath);
+              }
           }
       }
       return resolved;
-  }
-
-  /**
-   * Resolves a locale other than root to a {@link CLDRFile}
-   * 
-   * @param file the file to retrieve the data from
-   * @param resolutionType the type of resolution to perform
-   * @return a {@link CLDRFile} containing the resolved data
-   */
-  private CLDRFile resolveNonRootLocale(CLDRFile file, ResolutionType resolutionType) {
-    String locale = file.getLocaleID();
-
-    // Create empty file to hold (partially or fully) resolved data
-    ResolverUtils.debugPrint("Creating empty CLDR file to store resolved data...", 3);
-    // False/unresolved because it needs to be mutable.
-    CLDRFile resolved = new CLDRFile(new SimpleXMLSource(locale));
-    ResolverUtils.debugPrintln("done.", 3);
-
-      ResolverUtils.debugPrintln(
-          "Removing aliases"
-              + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "")
-              + "...", 2);
-
-    // Go through the XPaths, filter out appropriate values based on the
-    // inheritance model,
-    // then copy to the new CLDRFile.
-    Set<String> basePaths = ResolverUtils.getAllPaths(file);
-    for (String distinguishedPath : basePaths) {
-      ResolverUtils.debugPrintln("Distinguished path: " + distinguishedPath, 5);
-
-      String fullPath = file.getFullXPath(distinguishedPath);
-      ResolverUtils.debugPrintln("Full path: " + fullPath, 5);
-
-      if (distinguishedPath.endsWith("/alias")) {
-        // Ignore any aliases.
-        ResolverUtils.debugPrintln("This path is an alias.  Dropping...", 5);
-        continue;
-      }
-
-      String baseValue = file.getStringValue(distinguishedPath);
-
-      /*
-       * If we're fully resolving the locale (and, if code-fallback suppression
-       * is enabled, if the value is not from code-fallback) or the values
-       * aren't equal, add it to the resolved file.
-       */
-      if (resolutionType == ResolutionType.NO_CODE_FALLBACK && file.getSourceLocaleID(
-              distinguishedPath, null).equals(CODE_FALLBACK)) {
-          continue;
-      }
-      ResolverUtils.debugPrintln("  Adding to resolved file.", 5);
-      // Suppress non-distinguishing attributes in simple inheritance
-      resolved.add(fullPath, baseValue);
-    }
-
-    return resolved;
   }
 
   /**
@@ -434,48 +363,6 @@ public class CldrResolver {
   }
 
   /**
-   * Creates a copy of a CLDRFile with the aliases removed. This is really only
-   * used for root, as it's a lot more efficient to remove aliases as we iterate
-   * through for other locales.
-   * 
-   * @param cldrFile the CLDRFile whose aliases to remove
-   * @param resolutionType the type of resolution to use when processing the
-   *        file
-   * @return a copy of cldrFile with aliases removed
-   */
-  private static CLDRFile resolveRootLocale(CLDRFile cldrFile, ResolutionType resolutionType) {
-    // False/unresolved because it needs to be mutable
-    CLDRFile partiallyResolved =
-        new CLDRFile(new SimpleXMLSource(cldrFile.getLocaleID()));
-    ResolverUtils.debugPrintln("Removing aliases"
-        + (resolutionType == ResolutionType.NO_CODE_FALLBACK ? " and code-fallback" : "") + "...",
-        3);
-    // Go through the XPaths, filter out aliases, then copy to the new CLDRFile
-    for (String distinguishedPath : ResolverUtils.getAllPaths(cldrFile)) {
-      ResolverUtils.debugPrintln("Path: " + distinguishedPath, 5);
-      if (distinguishedPath.endsWith("/alias")) {
-        ResolverUtils.debugPrintln("  This path is an alias.  Dropping...", 5);
-        continue;
-      } else if (resolutionType == ResolutionType.NO_CODE_FALLBACK
-          && cldrFile.getSourceLocaleID(distinguishedPath, null).equals(CODE_FALLBACK)) {
-        ResolverUtils.debugPrintln("  This path is in code-fallback.  Dropping...", 5);
-        continue;
-      } else {
-        String value = cldrFile.getStringValue(distinguishedPath);
-        if (resolutionType == ResolutionType.SIMPLE) {
-          // Distinguished attributes only for simple inheritance model
-          partiallyResolved.add(distinguishedPath, value);
-        } else {
-          // Full attributes for everything else
-          String fullPath = cldrFile.getFullXPath(distinguishedPath);
-          partiallyResolved.add(fullPath, value);
-        }
-      }
-    }
-    return partiallyResolved;
-  }
-
-  /**
    * Convenience method to compare objects that works with nulls
    * 
    * @param o1 the first object
@@ -491,5 +378,4 @@ public class CldrResolver {
       return o1.equals(o2);
     }
   }
-
 }
