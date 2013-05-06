@@ -4,7 +4,9 @@
  */
 package org.unicode.cldr.unittest;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.unicode.cldr.tool.resolver.CldrResolver;
@@ -29,21 +31,21 @@ public class TestCldrResolver extends TestFmwk {
       try {
       new ResolverTest(ResolutionType.SIMPLE) {
           @Override
-          protected CLDRFile loadToolDataFromResolver(String locale) {
-              String parent = LocaleIDParser.getParent(locale);
+          protected Map<String, String> loadToolDataFromResolver(String locale) {
+              String parent = LocaleIDParser.getSimpleParent(locale);
               if (parent == null) {
                 // locale is root, just grab it straight out of the unresolved data
                 return super.loadToolDataFromResolver(locale);
               } else {
-                CLDRFile resolvedParent = loadToolDataFromResolver(parent);
-                CLDRFile resolvedChild = resolvedParent.cloneAsThawed();
-                CLDRFile unresolvedChild = super.loadToolDataFromResolver(locale);
-                for (String distinguishedPath : unresolvedChild) {
+                Map<String, String> resolvedParent = loadToolDataFromResolver(parent);
+                Map<String, String> resolvedChild = new HashMap<String, String>(resolvedParent);
+                Map<String, String> unresolvedChild = super.loadToolDataFromResolver(locale);
+                for (String distinguishedPath : unresolvedChild.keySet()) {
 
-                  String childValue = unresolvedChild.getStringValue(distinguishedPath);
+                  String childValue = unresolvedChild.get(distinguishedPath);
                   if (!distinguishedPath.startsWith("//ldml/identity/")) {
                     // Ignore the //ldml/identity/ elements
-                    String parentValue = resolvedParent.getStringValue(distinguishedPath);
+                    String parentValue = resolvedParent.get(distinguishedPath);
                     assertNotEquals(
                         "Child ("
                             + locale
@@ -52,7 +54,7 @@ public class TestCldrResolver extends TestFmwk {
                             childValue, parentValue);
                     }
                     // Overwrite the parent value
-                    resolvedChild.add(distinguishedPath, childValue);
+                    resolvedChild.put(distinguishedPath, childValue);
                   }
                 return resolvedChild;
               }
@@ -98,9 +100,14 @@ public class TestCldrResolver extends TestFmwk {
      * @param locale the locale for which to get the map
      * @return an immutable Map from distinguished path to string value
      */
-    protected CLDRFile loadToolDataFromResolver(String locale) {
+    protected Map<String, String> loadToolDataFromResolver(String locale) {
         // Resolve with the tool
-        return resolver.resolveLocale(locale);
+        CLDRFile file = resolver.resolveLocale(locale);
+        Map<String, String> values = new HashMap<String, String>();
+        for (String path : file) {
+            values.put(path, file.getStringValue(path));
+        }
+        return values;
     }
 
     /**
@@ -131,14 +138,14 @@ public class TestCldrResolver extends TestFmwk {
       for (String locale : locales) {
         CLDRFile cldrResolved = factory.make(locale, true);
         Set<String> cldrPaths = new HashSet<String>();
-        CLDRFile toolResolved = loadToolDataFromResolver(locale);
+        Map<String, String> toolResolved = loadToolDataFromResolver(locale);
         // Check to make sure no paths from the CLDR-resolved version that aren't
         // explicitly excluded get left out
         for (String distinguishedPath : ResolverUtils.getAllPaths(cldrResolved)) {
           // Check if path should be ignored
           if (!shouldIgnorePath(distinguishedPath, cldrResolved)) {
             String cldrValue = cldrResolved.getStringValue(distinguishedPath);
-            String toolValue = toolResolved.getStringValue(distinguishedPath);
+            String toolValue = toolResolved.get(distinguishedPath);
             assertNotNull("Path " + distinguishedPath + " is present in CLDR resolved file for locale "
                 + locale + " but not in tool resolved file (CLDR value: '" + cldrValue + "').",
                 toolValue);
@@ -150,11 +157,12 @@ public class TestCldrResolver extends TestFmwk {
         }
         // Check to make sure that all paths from the tool-resolved version are
         // also in the CLDR-resolved version
-        for (String canonicalPath : toolResolved) {
+        for (String canonicalPath : toolResolved.keySet()) {
           // Check if path should be ignored
           if (!shouldIgnorePath(canonicalPath, cldrResolved)) {
             assertTrue("Path " + canonicalPath + " is present in tool resolved file for locale "
-                + locale + " but not in CLDR resolved file.", cldrPaths.contains(canonicalPath));
+                + locale + " but not in CLDR resolved file.",
+                cldrPaths.contains(canonicalPath) || toolResolved.get(canonicalPath).equals(CldrResolver.UNDEFINED));
           }
         }
       }

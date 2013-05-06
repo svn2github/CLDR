@@ -36,6 +36,10 @@ import java.util.TreeSet;
  */
 public class CldrResolver {
   /**
+   * 
+   */
+  public static final String UNDEFINED = "�UNDEFINED�";
+  /**
    * The name of the code-fallback locale
    */
   public static final String CODE_FALLBACK = "code-fallback";
@@ -253,7 +257,7 @@ public class CldrResolver {
       if (resolutionType == ResolutionType.SIMPLE && !locale.equals(ROOT)) {
           String parentLocale = locale;
           do {
-              parentLocale = LocaleIDParser.getParent(parentLocale);
+              parentLocale = LocaleIDParser.getSimpleParent(parentLocale);
               ancestors.add(resolveLocale(parentLocale));
           } while (!parentLocale.equals(ROOT));
       }
@@ -300,20 +304,24 @@ public class CldrResolver {
 
           ResolverUtils.debugPrintln("  Adding to resolved file.", 5);
           // Suppress non-distinguishing attributes in simple inheritance
-          String fullPath = file.getFullXPath(distinguishedPath);
-          ResolverUtils.debugPrintln("Full path: " + fullPath, 5);
-          resolved.add(fullPath, baseValue);
+          String path = resolutionType == ResolutionType.SIMPLE ?
+                  distinguishedPath : file.getFullXPath(distinguishedPath);
+          ResolverUtils.debugPrintln("Path to be saved: " + path, 5);
+          resolved.add(path, baseValue);
       }
 
       // Sanity check in simple resolution to make sure that all paths in the parent are also in the child.
-      ResolverUtils.debugPrintln(
-              "Adding UNDEFINED values based on " + ancestors, 3);
       if (ancestors.size() > 0) {
-          for (String distinguishedPath : ResolverUtils.getAllPaths(ancestors.get(0))) {
+          CLDRFile ancestor = ancestors.get(0);
+          ResolverUtils.debugPrintln(
+                  "Adding UNDEFINED values based on ancestor: " + ancestor.getLocaleID(), 3);
+          for (String distinguishedPath : ResolverUtils.getAllPaths(ancestor)) {
               // Do the comparison with distinguished paths to prevent errors
               // resulting from duplicate full paths but the same distinguished path
-              if (!basePaths.contains(distinguishedPath)) {
-                  throw new IllegalArgumentException("Why is this path not in " + locale+ "? " + distinguishedPath);
+              if (!basePaths.contains(distinguishedPath) &&
+                      !ancestor.getStringValue(distinguishedPath).equals(UNDEFINED)) {
+                  ResolverUtils.debugPrintln(
+                          "Added UNDEFINED value for path: " + distinguishedPath, 4);
               }
           }
       }
