@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE cldrInfo SYSTEM "../dtd/cldrInfo.dtd">
+<!--
+Copyright © 1991-2013 Unicode, Inc.
+CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
+For terms of use, see http://www.unicode.org/copyright.html
+-->
+
+<cldrInfo>
+  <version version="24">
+    <phase type="SUBMIT">
+      <begin date="2013-04-30"/>
+      <!-- ... -->
+    </phase>
+    <release type="ga" date="2013-12-31" tentative="true"/> <!-- real date? -->
+  </version>
+  <version version="23.1">
+    <release type="ga" date="2013-05-15"/>
+  </version>
+  <!-- ... -->
+
+  <version version="2.0">
+    <release type="ga" date="2011-05-25"/>
+  </version>
+
+  <version version="1.9">
+    <release type="ga" date="2010-12-01"/>
+  </version>
+
+<!-- ... -->
+  <version version="1.8.1">
+    <release type="ga" date="2010-04-29"/>
+  </version>
+  <version version="1.8">
+    <release type="ga" date="2010-03-17"/>
+  </version>
+<!-- ... -->
+  <version version="1.7.2">
+    <release type="ga" date="2009-12-10"/>
+  </version>
+<!-- ... -->
+  <version version="1.7.1.2">
+    <release type="ga" date="2009-11-11"/>
+  </version>
+<!-- ... -->
+</cldrInfo>
+
+<!-- Local Variables: -->
+<!-- compile-command: "XMLValidator cldrInfo.xmlo" -->
+<!-- End: -->
