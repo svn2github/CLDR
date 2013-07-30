@@ -281,20 +281,26 @@ public class DtdData extends XMLFileReader.SimpleHandler  {
         DTD_TYPE_TO_FILE = Collections.unmodifiableMap(temp);
     }
 
-    static final Map<File, DtdData> CACHE = new ConcurrentHashMap<File, DtdData>();
+    static final Map<Pair<File, CLDRFile.DtdType>, DtdData> CACHE = 
+            new ConcurrentHashMap<Pair<File, CLDRFile.DtdType>, DtdData>();
 
-    public static synchronized DtdData getInstance(CLDRFile.DtdType type) {
-        DtdData simpleHandler = CACHE.get(type);
+    public static DtdData getInstance(CLDRFile.DtdType type) {
+        return getInstance(type, new File(DTD_TYPE_TO_FILE.get(type)));
+    }
+    
+    public static synchronized DtdData getInstance(CLDRFile.DtdType type, File dtdFile) {
+        Pair<File, CLDRFile.DtdType> k = new Pair<File, CLDRFile.DtdType>(dtdFile, type);
+        DtdData simpleHandler = CACHE.get(k);
         if (simpleHandler == null) {
             simpleHandler = new DtdData(type);
             XMLFileReader xfr = new XMLFileReader().setHandler(simpleHandler);
             StringReader s = new StringReader("<?xml version='1.0' encoding='UTF-8' ?>"
-                    + "<!DOCTYPE ldml SYSTEM '" + DTD_TYPE_TO_FILE.get(type) + "'>");
+                    + "<!DOCTYPE ldml SYSTEM '" + dtdFile + "'>");
             xfr.read(type.toString(), s, -1, true); //  DTD_TYPE_TO_FILE.get(type)
             if (simpleHandler.ROOT.children.size() == 0) {
                 throw new IllegalArgumentException(); // should never happen
             }
-            CACHE.put(type, simpleHandler);
+            CACHE.put(k, simpleHandler);
         }
         return simpleHandler;
     }
