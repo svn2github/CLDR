@@ -1,28 +1,23 @@
 package org.unicode.cldr.util;
 
+import java.io.File;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
-import java.util.Comparator;
 
-import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.CLDRFile.DtdType;
-import org.unicode.cldr.util.CldrUtility.ComparableComparator;
-import org.unicode.cldr.util.With.SimpleIterator;
 
-import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.dev.util.Relation;
 
 /**
@@ -181,6 +176,48 @@ public class DtdData extends XMLFileReader.SimpleHandler  {
         public Map<Attribute, Integer> getAttributes() {
             return Collections.unmodifiableMap(attributes);
         }
+        /**
+         * Return the element matching name 'name' or null.
+         * @param name
+         * @return
+         */
+        public Element getChildByName(String name) {
+            for(Element e : children.keySet()) {
+                if(name.equals(e.name)) {
+                    return e;
+                }
+            }
+            return null;
+        }
+        public Attribute getAttributeByName(String name) {
+            for(Attribute e : attributes.keySet()) {
+                if(name.equals(e.name)) {
+                    return e;
+                }
+            }
+            return null;
+        }
+        public String getAttributeValue(String attr) {
+            Attribute a = getAttributeByName(attr);
+            if(a!=null) return a.value;
+            return null;
+        }
+        
+        /**
+         * Given a slash separated path, such as "ldml/identity/version", return the element "version" or null.
+         * @param path
+         * @return element or null
+         */
+        public Element getByPath(String path) {
+            String pathSplit[] = path.split("/");
+            Element e = this;
+            for(int i=0;i<pathSplit.length;i++) {
+                if(e!=null) {
+                    e = e.getChildByName(pathSplit[i]);
+                }
+            }
+            return e;
+        }
     }
 
     private Element elementFrom(String name) {
@@ -244,7 +281,7 @@ public class DtdData extends XMLFileReader.SimpleHandler  {
         DTD_TYPE_TO_FILE = Collections.unmodifiableMap(temp);
     }
 
-    static final EnumMap<CLDRFile.DtdType, DtdData> CACHE = new EnumMap<CLDRFile.DtdType, DtdData>(CLDRFile.DtdType.class);
+    static final Map<File, DtdData> CACHE = new ConcurrentHashMap<File, DtdData>();
 
     public static synchronized DtdData getInstance(CLDRFile.DtdType type) {
         DtdData simpleHandler = CACHE.get(type);
@@ -404,4 +441,17 @@ public class DtdData extends XMLFileReader.SimpleHandler  {
     //        }
     //    }
 
+    /**
+     * Traverse the DTD to get the current cldrVersion, as specified in ldml.dtd on identity/version:cldrVersion
+     * @return the version number if known, else null
+     */
+    public static String getCldrVersion() {
+        DtdData dtd = DtdData.getInstance(DtdType.ldml);      
+        Element version = dtd.ROOT.getByPath("identity/version");
+        if(version != null) {
+            return version.getAttributeValue("cldrVersion");
+        } else {
+            return null;
+        }
+    }
 }

@@ -196,6 +196,7 @@ public class SimpleXMLSource extends XMLSource {
         this.dtdVersionInfo = dtdVersionInfo;
     }
 
+    @Override
     public VersionInfo getDtdVersionInfo() {
         return dtdVersionInfo;
     }

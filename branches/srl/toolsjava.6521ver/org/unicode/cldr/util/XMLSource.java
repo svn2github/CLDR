@@ -1554,6 +1554,10 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
      */
     public abstract void getPathsWithValue(String valueToMatch, String pathPrefix, Set<String> result);
 
+    /**
+     * Get the VersionInfo corresponding to the DTD's cldrVersion attribute.
+     * @return VersionInfo corresponding to the DTD's cldrVersion attribute
+     */
     public VersionInfo getDtdVersionInfo() {
         return null;
     }

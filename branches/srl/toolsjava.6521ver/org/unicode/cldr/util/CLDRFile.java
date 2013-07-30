@@ -2899,10 +2899,18 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         return distinguishedXPath.getNonDistinguishingAttributes(fullPath, result, skipList);
     }
 
+    /**
+     * Get the String corresponding to the DTD's cldrVersion attribute.
+     * @return String corresponding to the DTD's cldrVersion attribute
+     */
     public String getDtdVersion() {
         return dataSource.getDtdVersionInfo().toString();
     }
 
+    /**
+     * Get the VersionInfo corresponding to the DTD's cldrVersion attribute.
+     * @return VersionInfo corresponding to the DTD's cldrVersion attribute
+     */
     public VersionInfo getDtdVersionInfo() {
         return dataSource.getDtdVersionInfo();
     }
