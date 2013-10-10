@@ -1,11 +1,13 @@
 package org.unicode.cldr.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.MissingResourceException;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -13,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.unicode.cldr.test.CheckCLDR;
+import org.unicode.cldr.util.CLDRConfig.Environment;
 import org.unicode.cldr.web.CookieSession;
 import org.unicode.cldr.web.SurveyLog;
 import org.unicode.cldr.web.SurveyMain;
@@ -21,6 +24,7 @@ import org.unicode.cldr.web.UserRegistry;
 
 public class CLDRConfigImpl extends CLDRConfig implements JSONString {
 
+    public static final String CLDR_PROPERTIES = "cldr.properties";
     /**
      * 
      */
@@ -95,7 +99,7 @@ public class CLDRConfigImpl extends CLDRConfig implements JSONString {
                 // }
             }
             homeFile = new File(homeParent, "cldr");
-            propFile = new File(homeFile, "cldr.properties");
+            propFile = new File(homeFile, CLDR_PROPERTIES);
             if (!propFile.exists()) {
                 System.err.println("Does not exist: " + propFile.getAbsolutePath());
                 createBasicCldr(homeFile); // attempt to create
@@ -107,7 +111,7 @@ public class CLDRConfigImpl extends CLDRConfig implements JSONString {
             cldrHome = homeFile.getAbsolutePath();
         } else {
             homeFile = new File(cldrHome);
-            propFile = new File(homeFile, "cldr.properties");
+            propFile = new File(homeFile, CLDR_PROPERTIES);
         }
 
         SurveyLog.setDir(homeFile);
@@ -150,13 +154,30 @@ public class CLDRConfigImpl extends CLDRConfig implements JSONString {
 
         isInitted = true;
     }
+    
+    public void writeHelperFile(String hostportpath, File helperFile) throws IOException {
+        if (!helperFile.exists()) {
+            OutputStream file = new FileOutputStream(helperFile, false); // Append
+            PrintWriter pw = new PrintWriter(file);
+            String vap = (String)survprops.get("CLDR_VAP");
+            pw.write("<h3>Survey Tool admin interface link</h3>");
+            pw.write("If the SurveyTool is in maintenance mode, you can configure it here: ");
+            String url0 = hostportpath + "cldr-setup.jsp" + "?vap=" + vap;
+            pw.write("<b>SurveyTool Setup:</b>  <a href='" + url0 + "'>" + url0 + "</a><hr>");
+            String url = hostportpath + ("AdminPanel.jsp") + "?vap=" + vap;
+            pw.write("<b>Admin Panel:</b>  <a href='" + url + "'>" + url + "</a>");
+            pw.write("<hr>if you change the admin password ( CLDR_VAP in config.properties ), please: 1. delete this admin.html file 2. restart the server 3. navigate back to the main SurveyTool page.<p>");
+            pw.close();
+            file.close();
+        }
+    }
 
     private void createBasicCldr(File homeFile) {
         System.err.println("Attempting to create /cldr  dir at " + homeFile.getAbsolutePath());
 
         try {
             homeFile.mkdir();
-            File propsFile = new File(homeFile, "cldr.properties");
+            File propsFile = new File(homeFile, CLDR_PROPERTIES);
             OutputStream file = new FileOutputStream(propsFile, false); // Append
             PrintWriter pw = new PrintWriter(file);
 
@@ -167,6 +188,9 @@ public class CLDRConfigImpl extends CLDRConfig implements JSONString {
             pw.println("## make sure these settings are OK,\n## and comment out CLDR_MESSAGE for normal operation");
             pw.println("##");
             pw.println("## SurveyTool must be reloaded, or the web server restarted, \n## for these to take effect.");
+            pw.println();
+            pw.println("## Put the SurveyTool in setup mode. This enables cldr-setup.jsp?vap=(CLDR_VAP)");
+            pw.println("CLDR_MAINTENANCE=true");
             pw.println();
             pw.println("## your password. Login as user 'admin@' and this password for admin access.");
             pw.println("CLDR_VAP=" + UserRegistry.makePassword("admin@"));
