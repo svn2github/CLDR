@@ -30,8 +30,7 @@ import com.ibm.icu.text.UTF16;
  * @author markdavis
  */
 public class DtdData extends XMLFileReader.SimpleHandler {
-    private static final boolean SHOW_PROGRESS = CldrUtility.getProperty("verbose", false);
-    private static final boolean SHOW_ALL = CldrUtility.getProperty("show_all", false);
+    private static final boolean SHOW_ALL = false; // CldrUtility.getProperty("show_all", false);
     private static final boolean DEBUG = false;
     private static final Pattern FILLER = Pattern.compile("[^-a-zA-Z0-9#_]");
 
