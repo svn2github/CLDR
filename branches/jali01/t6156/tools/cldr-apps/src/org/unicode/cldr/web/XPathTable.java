@@ -458,14 +458,14 @@ public class XPathTable {
         if (oldAlt != null) {
             String newAlt = LDMLUtilities.parseAlt(oldAlt)[0]; // #0 : altType
             if (newAlt == null) {
-                lastAtts.remove(LDMLConstants.ALT); // alt dropped out existence
+                xpp.removeAttribute(-1, LDMLConstants.ALT); // alt dropped out existence
             } else {
-                lastAtts.put(LDMLConstants.ALT, newAlt);
+                xpp.putAttributeValue(-1, LDMLConstants.ALT, newAlt);
             }
         }
 
         // always remove draft
-        lastAtts.remove(LDMLConstants.DRAFT);
+        xpp.removeAttribute(-1, LDMLConstants.DRAFT);
 
         String removed = xpp.toString();
 
@@ -645,12 +645,15 @@ public class XPathTable {
     public String whatFromPathToTinyXpath(String path, XPathParts xpp, String what) {
         xpp.clear();
         xpp.initialize(path);
-        Map lastAtts = xpp.getAttributes(-1);
-        String type = (String) lastAtts.remove(what);
-        lastAtts.remove(LDMLConstants.ALT);
-        lastAtts.remove(LDMLConstants.TYPE);
-        lastAtts.remove(LDMLConstants.DRAFT);
-        lastAtts.remove(LDMLConstants.REFERENCES);
+        Map<String,String> lastAtts = xpp.getAttributes(-1);
+        String type = lastAtts.get(what);
+        if (type != null) {
+            xpp.removeAttribute(-1, what);
+        }
+        xpp.removeAttribute(-1, LDMLConstants.ALT);
+        xpp.removeAttribute(-1, LDMLConstants.TYPE);
+        xpp.removeAttribute(-1, LDMLConstants.DRAFT);
+        xpp.removeAttribute(-1, LDMLConstants.REFERENCES);
         // SurveyLog.logger.warning("Type on " + path + " with -1 is " + type );
         if ((type == null) && (path.indexOf(what) >= 0))
             try {
@@ -660,7 +663,10 @@ public class XPathTable {
                 // +", "+path+" with "+n+" is " + type );
                 lastAtts = xpp.getAttributes(n);
                 if (lastAtts != null) {
-                    type = (String) lastAtts.remove(what);
+                    type = lastAtts.get(what);
+                    if (type != null) {
+                        xpp.removeAttribute(n, what);
+                    }
                 }
             }
         } catch (ArrayIndexOutOfBoundsException aioobe) {

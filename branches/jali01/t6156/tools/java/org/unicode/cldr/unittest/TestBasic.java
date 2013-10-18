@@ -23,16 +23,22 @@ import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
+import org.unicode.cldr.util.CLDRFile.DtdType;
 import org.unicode.cldr.util.CLDRFile.Status;
 import org.unicode.cldr.util.CLDRFile.WinningChoice;
+import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CharacterFallbacks;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.DtdData;
+import org.unicode.cldr.util.DtdData.Attribute;
+import org.unicode.cldr.util.DtdData.Element;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.StandardCodes;
+import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralType;
 import org.unicode.cldr.util.XMLFileReader;
@@ -47,6 +53,8 @@ import com.ibm.icu.dev.test.TestFmwk;
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.impl.Row;
 import com.ibm.icu.impl.Row.R2;
+import com.ibm.icu.impl.Row.R3;
+import com.ibm.icu.impl.Utility;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.DecimalFormat;
@@ -60,6 +68,8 @@ import com.ibm.icu.util.ULocale;
 
 public class TestBasic extends TestFmwk {
     static TestInfo testInfo = TestInfo.getInstance();
+
+    private static final SupplementalDataInfo SUPPLEMENTAL_DATA_INFO = testInfo.getSupplementalDataInfo();
 
     /**
      * Simple test that loads each file in the cldr directory, thus verifying that
@@ -77,9 +87,9 @@ public class TestBasic extends TestFmwk {
 
     private final String localeRegex = CldrUtility.getProperty("locale", ".*");
 
-    private final String commonDirectory = CldrUtility.COMMON_DIRECTORY;
+    private final String commonDirectory = CLDRPaths.COMMON_DIRECTORY;
 
-    private final String mainDirectory = CldrUtility.MAIN_DIRECTORY;
+    private final String mainDirectory = CLDRPaths.MAIN_DIRECTORY;
 
     // private final boolean showForceZoom = Utility.getProperty("forcezoom", false);
 
@@ -88,28 +98,148 @@ public class TestBasic extends TestFmwk {
     private final Exception[] internalException = new Exception[1];
 
     public void TestDtds() throws IOException {
-        checkDtds(commonDirectory + "/collation");
-        checkDtds(commonDirectory + "/main");
-        checkDtds(commonDirectory + "/rbnf");
-        checkDtds(commonDirectory + "/segments");
-        checkDtds(commonDirectory + "/supplemental");
-        checkDtds(commonDirectory + "/transforms");
+        Relation<Row.R2<DtdType, String>,String> foundAttributes 
+        = Relation.of(new TreeMap<Row.R2<DtdType, String>,Set<String>>(), TreeSet.class);
+        checkDtds(new File(CLDRPaths.BASE_DIRECTORY), 0, foundAttributes);
+        if (foundAttributes.size() > 0) {
+            showFoundElements(foundAttributes);
+        }
     }
 
-    private void checkDtds(String directory) throws IOException {
-        File directoryFile = new File(directory);
+    private void checkDtds(File directoryFile, int level, Relation<R2<DtdType, String>, String> foundAttributes) throws IOException {
+        boolean deepCheck = getInclusion() >= 10;
         File[] listFiles = directoryFile.listFiles();
         String canonicalPath = directoryFile.getCanonicalPath();
+        String indent = Utility.repeat("\t", level);
         if (listFiles == null) {
-            throw new IllegalArgumentException("Empty directory: " + canonicalPath);
+            throw new IllegalArgumentException(indent + "Empty directory: " + canonicalPath);
         }
-        logln("Checking files for DTD errors in: " + canonicalPath);
+        logln(indent + "Checking files for DTD errors in: " + canonicalPath);
         for (File fileName : listFiles) {
-            if (!fileName.toString().endsWith(".xml") || fileName.getName().startsWith(".")) {
+            String name = fileName.getName();
+            if (name.startsWith(".")) {
+                continue;
+            } else if (fileName.isDirectory()) {
+                if (name.equals("tools") || name.equals("specs") 
+                        || name.equals("cldr-apps") || name.equals("Servers") || name.equals("cldr-tools")) {
+                    continue;
+                }
+                if (name.equals("exemplars")) {
+                    logKnownIssue("6743", "Bad xml files");
+                    continue;
+                }
+                checkDtds(fileName, level+1, foundAttributes);
+            } else if (name.endsWith(".xml")) {
+                check(fileName);
+                if (deepCheck // takes too long to do all the time
+                    // fileName.getCanonicalPath().compareTo("/Users/markdavis/workspace/cldr/common/supplemental") >= 0
+                    ) {
+                    CLDRFile cldrfile = CLDRFile.loadFromFile(fileName, "temp", DraftStatus.unconfirmed);
+                    for (String xpath : cldrfile) {
+                        String fullPath = cldrfile.getFullXPath(xpath);
+                        if (fullPath == null) {
+                            fullPath = cldrfile.getFullXPath(xpath);
+                            assertNotNull("", fullPath);
+                            continue;
+                        }
+                        XPathParts parts = XPathParts.getFrozenInstance(fullPath);
+                        DtdType type = parts.getDtdData().dtdType;
+                        for (int i = 0; i < parts.size(); ++i) {
+                            String element = parts.getElement(i);
+                            if (element.equals("reset")) {
+                                int debug = 1;
+                            }
+                            R2<DtdType, String> typeElement = Row.of(type, element);
+                            if (parts.getAttributeCount(i) == 0) {
+                                foundAttributes.put(typeElement, "NONE");
+                            } else {
+                                for (String attribute : parts.getAttributeKeys(i)) {
+                                    String value = parts.getAttributeValue(i, attribute);
+                                    foundAttributes.put(typeElement, attribute);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void showFoundElements(Relation<Row.R2<DtdType, String>, String> foundAttributes) {
+        Relation<Row.R2<DtdType, String>,String> theoryAttributes 
+        = Relation.of(new TreeMap<Row.R2<DtdType, String>,Set<String>>(), TreeSet.class);
+        for (DtdType type : DtdType.values()) {
+            DtdData dtdData = DtdData.getInstance(type);
+            for (Element element : dtdData.getElementFromName().values()) {
+                String name = element.getName();
+                Set<Attribute> attributes = element.getAttributes().keySet();
+                R2<DtdType, String> typeElement = Row.of(type, name);
+                if (attributes.isEmpty()) {
+                    theoryAttributes.put(typeElement, "NONE");
+                } else {
+                    for (Attribute attribute : attributes) {
+                        theoryAttributes.put(typeElement, attribute.name);
+                    }
+                }
+            }
+        }
+        Relation<String, R3<Boolean, DtdType, String>> attributesToTypeElementUsed 
+        = Relation.of(new TreeMap<String, Set<R3<Boolean, DtdType, String>>>(), LinkedHashSet.class);
+        
+        for (Entry<R2<DtdType, String>, Set<String>> s : theoryAttributes.keyValuesSet()) {
+            R2<DtdType, String> typeElement = s.getKey();
+            Set<String> theoryAttributeSet = s.getValue();
+            DtdType type = typeElement.get0();
+            String element = typeElement.get1();
+            if (element.equals("ANY") || element.equals("PCDATA")) {
                 continue;
             }
-            check(fileName);
+            boolean deprecatedElement = SUPPLEMENTAL_DATA_INFO.isDeprecated(type, element, "*", "*");
+            String header = type + "\t" + element + "\t" + (deprecatedElement ? "X" : "") + "\t";
+            Set<String> usedAttributes = foundAttributes.get(typeElement);
+            Set<String> unusedAttributes = new LinkedHashSet(theoryAttributeSet);
+            if (usedAttributes == null) {
+                System.out.println(header + "<NOT-FOUND>\t\t" + siftDeprecated(type, element, unusedAttributes, attributesToTypeElementUsed, false));
+                continue;
+            }
+            unusedAttributes.removeAll(usedAttributes);
+            System.out.println(header 
+                + siftDeprecated(type, element, usedAttributes, attributesToTypeElementUsed, true) 
+                + "\t" + siftDeprecated(type, element, unusedAttributes, attributesToTypeElementUsed, false));
         }
+        
+        System.out.println("Undeprecated Attributes\t");
+        for (Entry<String, R3<Boolean, DtdType, String>> s : attributesToTypeElementUsed.keyValueSet()) {
+            R3<Boolean, DtdType, String> typeElementUsed = s.getValue();
+            System.out.println(s.getKey() 
+                + "\t" + typeElementUsed.get0()
+                + "\t" + typeElementUsed.get1()
+                + "\t" + typeElementUsed.get2()
+                );
+        }
+    }
+
+    private String siftDeprecated(DtdType type, String element, Set<String> attributeSet, Relation<String, R3<Boolean, DtdType, String>> attributesToTypeElementUsed, boolean used) {
+        StringBuilder b = new StringBuilder();
+        StringBuilder bdep = new StringBuilder();
+        for (String attribute : attributeSet) {
+            String attributeName = "«" + attribute + (CLDRFile.isDistinguishing(type, element, attribute) ? "*" : "") + "»";
+            if (SUPPLEMENTAL_DATA_INFO.isDeprecated(type, element, attribute, "*")) {
+                if (bdep.length() != 0) {
+                    bdep.append(" ");
+                }
+                bdep.append(attributeName);
+            } else {
+                if (b.length() != 0) {
+                    b.append(" ");
+                }
+                b.append(attributeName);
+                if (!"NONE".equals(attribute)) {
+                    attributesToTypeElementUsed.put(attribute, Row.of(used, type, element));
+                }
+            }
+        }
+        return b.toString() + "\t" + bdep.toString();
     }
 
     class MyErrorHandler implements ErrorHandler {
@@ -163,10 +293,10 @@ public class TestBasic extends TestFmwk {
                 continue;
 
             final UnicodeSet OK_CURRENCY_FALLBACK = (UnicodeSet) new UnicodeSet("[\\u0000-\\u00FF]")
-                .addAll(safeExemplars(file, ""))
-                .addAll(safeExemplars(file, "auxiliary"))
-                .addAll(safeExemplars(file, "currencySymbol"))
-                .freeze();
+            .addAll(safeExemplars(file, ""))
+            .addAll(safeExemplars(file, "auxiliary"))
+            .addAll(safeExemplars(file, "currencySymbol"))
+            .freeze();
             UnicodeSet badSoFar = new UnicodeSet();
 
             for (Iterator<String> it = file.iterator(); it.hasNext();) {
@@ -243,12 +373,12 @@ public class TestBasic extends TestFmwk {
         CLDRFile english = cldrFactory.make("en", true);
         Map<String, Counter<Level>> abstactPaths = new TreeMap<String, Counter<Level>>();
         RegexTransform abstractPathTransform = new RegexTransform(RegexTransform.Processing.ONE_PASS)
-            .add("//ldml/", "")
-            .add("\\[@alt=\"[^\"]*\"\\]", "")
-            .add("=\"[^\"]*\"", "=\"*\"")
-            .add("([^]])\\[", "$1\t[")
-            .add("([^]])/", "$1\t/")
-            .add("/", "\t");
+        .add("//ldml/", "")
+        .add("\\[@alt=\"[^\"]*\"\\]", "")
+        .add("=\"[^\"]*\"", "=\"*\"")
+        .add("([^]])\\[", "$1\t[")
+        .add("([^]])/", "$1\t/")
+        .add("/", "\t");
 
         for (String locale : cldrFactory.getAvailable()) {
             // if (locale.equals("root") && !localeRegex.equals("root"))
@@ -265,7 +395,7 @@ public class TestBasic extends TestFmwk {
                 }
                 // collect abstracted paths
                 String abstractPath = abstractPathTransform.transform(path);
-                Level level = testInfo.getSupplementalDataInfo().getCoverageLevel(path, locale);
+                Level level = SUPPLEMENTAL_DATA_INFO.getCoverageLevel(path, locale);
                 if (level == Level.OPTIONAL) {
                     level = Level.COMPREHENSIVE;
                 }
@@ -305,7 +435,7 @@ public class TestBasic extends TestFmwk {
         Factory cldrFactory = testInfo.getCldrFactory();
         CLDRFile english = cldrFactory.make("en", true);
 
-        Relation<String, String> pathToLocale = Relation.of(new TreeMap<String, Set<String>>(CLDRFile.ldmlComparator),
+        Relation<String, String> pathToLocale = Relation.of(new TreeMap<String, Set<String>>(CLDRFile.getLdmlComparator()),
             TreeSet.class, null);
 
         for (String locale : cldrFactory.getAvailable()) {
@@ -457,7 +587,7 @@ public class TestBasic extends TestFmwk {
     }
 
     public void TestDefaultContents() {
-        Set<String> defaultContents = testInfo.getSupplementalDataInfo().getDefaultContentLocales();
+        Set<String> defaultContents = SUPPLEMENTAL_DATA_INFO.getDefaultContentLocales();
         Relation<String, String> parentToChildren = Relation.<String, String>of(new TreeMap<String, Set<String>>(), TreeSet.class);
         for (String child : testInfo.getCldrFactory().getAvailable()) {
             if (child.equals("root")) {
@@ -524,13 +654,13 @@ public class TestBasic extends TestFmwk {
                 "likelyMax(locale=" + locale + ")" +
                     " == " +
                     "likelyMax(defaultContent=" + localeParent + ")",
-                maxLocaleParent,
-                maxLocale);
+                    maxLocaleParent,
+                    maxLocale);
         }
 
     }
 
-    static final Map<String, String> likelyData = testInfo.getSupplementalDataInfo().getLikelySubtags();
+    static final Map<String, String> likelyData = SUPPLEMENTAL_DATA_INFO.getLikelySubtags();
 
     public void TestLikelySubtagsComplete() {
         LanguageTagParser ltp = new LanguageTagParser();
@@ -557,7 +687,7 @@ public class TestBasic extends TestFmwk {
         final String localeParent = LocaleIDParser.getParent(locale);
         CLDRFile parentFile = testInfo.getCldrFactory().make(localeParent, true);
         int funnyCount = 0;
-        for (Iterator<String> it = cldrFile.iterator("", CLDRFile.ldmlComparator); it.hasNext();) {
+        for (Iterator<String> it = cldrFile.iterator("", CLDRFile.getLdmlComparator()); it.hasNext();) {
             String path = it.next();
             if (path.contains("/identity")) {
                 continue;
@@ -583,7 +713,7 @@ public class TestBasic extends TestFmwk {
 
     public void TestCoreData() {
         Set<String> availableLanguages = testInfo.getCldrFactory().getAvailableLanguages();
-        PluralInfo rootRules = testInfo.getSupplementalDataInfo().getPlurals(PluralType.cardinal, "root");
+        PluralInfo rootRules = SUPPLEMENTAL_DATA_INFO.getPlurals(PluralType.cardinal, "root");
         EnumSet<MissingType> errors = EnumSet.of(MissingType.collation);
         EnumSet<MissingType> warnings = EnumSet.of(MissingType.collation, MissingType.index_exemplars,
             MissingType.punct_exemplars);
@@ -592,7 +722,7 @@ public class TestBasic extends TestFmwk {
         XPathParts parts = new XPathParts();
 
         // collect collation info
-        Factory collationFactory = Factory.make(CldrUtility.COLLATION_DIRECTORY, ".*", DraftStatus.contributed);
+        Factory collationFactory = Factory.make(CLDRPaths.COLLATION_DIRECTORY, ".*", DraftStatus.contributed);
         for (String localeID : collationFactory.getAvailable()) {
             if (localeID.equals("root")) {
                 CLDRFile cldrFile = collationFactory.make(localeID, false, DraftStatus.contributed);
@@ -644,7 +774,7 @@ public class TestBasic extends TestFmwk {
                     continue;
                 }
 
-                PluralInfo pluralInfo = testInfo.getSupplementalDataInfo().getPlurals(PluralType.cardinal, localeID);
+                PluralInfo pluralInfo = SUPPLEMENTAL_DATA_INFO.getPlurals(PluralType.cardinal, localeID);
                 if (pluralInfo == rootRules) {
                     logln(name + " is missing " + MissingType.plurals.toString());
                     warnings.add(MissingType.plurals);

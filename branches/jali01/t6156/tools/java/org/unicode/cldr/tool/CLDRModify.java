@@ -31,6 +31,7 @@ import org.unicode.cldr.test.QuickCheck;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRFile.Status;
+import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.CldrUtility.SimpleLineComparator;
 import org.unicode.cldr.util.DateTimeCanonicalizer;
@@ -46,6 +47,7 @@ import org.unicode.cldr.util.StringId;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
+import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
 
 import com.ibm.icu.dev.tool.UOption;
@@ -212,8 +214,8 @@ public class CLDRModify {
     private static final UOption[] options = {
         UOption.HELP_H(),
         UOption.HELP_QUESTION_MARK(),
-        UOption.SOURCEDIR().setDefault(CldrUtility.MAIN_DIRECTORY),
-        UOption.DESTDIR().setDefault(CldrUtility.GEN_DIRECTORY + "main/"),
+        UOption.SOURCEDIR().setDefault(CLDRPaths.MAIN_DIRECTORY),
+        UOption.DESTDIR().setDefault(CLDRPaths.GEN_DIRECTORY + "main/"),
         UOption.create("match", 'm', UOption.REQUIRES_ARG).setDefault(".*"),
         UOption.create("join", 'j', UOption.OPTIONAL_ARG),
         UOption.create("minimize", 'r', UOption.NO_ARG),
@@ -237,14 +239,14 @@ public class CLDRModify {
         + "-"
         + options[SOURCEDIR].shortName
         + "\t source directory. Default = -s"
-        + CldrUtility.getCanonicalName(CldrUtility.MAIN_DIRECTORY)
+        + CldrUtility.getCanonicalName(CLDRPaths.MAIN_DIRECTORY)
         + XPathParts.NEWLINE
         + "\tExample:-sC:\\Unicode-CVS2\\cldr\\common\\gen\\source\\"
         + XPathParts.NEWLINE
         + "-"
         + options[DESTDIR].shortName
         + "\t destination directory. Default = -d"
-        + CldrUtility.getCanonicalName(CldrUtility.GEN_DIRECTORY + "main/")
+        + CldrUtility.getCanonicalName(CLDRPaths.GEN_DIRECTORY + "main/")
         + XPathParts.NEWLINE
         + "-m<regex>\t to restrict the locales to what matches <regex>"
         + XPathParts.NEWLINE
@@ -393,6 +395,7 @@ public class CLDRModify {
                 long lastTime = System.currentTimeMillis();
                 int spin = 0;
                 System.out.format(locales.size() + " Locales:\t%s\n", locales.toString());
+                int totalRemoved = 0;
                 for (String test : locales) {
                     spin++;
                     if (SHOW_PROCESSING) {
@@ -472,14 +475,16 @@ public class CLDRModify {
                             retainIfTrue.setParentFile(toRemove);
                             List<String> removed = DEBUG ? null : new ArrayList<String>();
                             k.removeDuplicates(toRemove, COMMENT_REMOVALS, retainIfTrue, removed);
-                            if (removed != null) {
+                            if (removed != null && removed.size() != 0) {
+                                totalRemoved += removed.size();
                                 Set<PathHeader> sorted = new TreeSet<PathHeader>();
                                 for (String path : removed) {
                                     sorted.add(pathHeaderFactory.fromPath(path));
                                 }
                                 for (PathHeader pathHeader : sorted) {
-                                    System.out.println(test + "\t" + pathHeader + "\t" + pathHeader.getOriginalPath());
+                                    System.out.println("\t# " + test + "\t" + pathHeader + "\t" + pathHeader.getOriginalPath());
                                 }
+                                System.out.println("\t# " + test + "\t# Removed:\t" + removed.size());
                             }
                         }
                     }
@@ -514,7 +519,7 @@ public class CLDRModify {
 
                         System.out.println(k.getStringValue(testPath));
                         // if (true) return;
-                        Set orderedSet = new TreeSet(CLDRFile.ldmlComparator);
+                        Set orderedSet = new TreeSet(CLDRFile.getLdmlComparator());
                         CollectionUtilities.addAll(k.iterator(), orderedSet);
                         for (Iterator it3 = orderedSet.iterator(); it3.hasNext();) {
                             String path = (String) it3.next();
@@ -537,7 +542,7 @@ public class CLDRModify {
                         QuickCheck.check(new File(targetDir, test + ".xml"));
                     }
 
-                    CldrUtility.generateBat(sourceDir, test + ".xml", targetDir, test + ".xml", lineComparer);
+                    ToolUtilities.generateBat(sourceDir, test + ".xml", targetDir, test + ".xml", lineComparer);
 
                     /*
                      * boolean ok = Utility.areFileIdentical(sourceDir + test + ".xml",
@@ -551,6 +556,9 @@ public class CLDRModify {
                 }
                 if (totalSkeletons.size() != 0) {
                     System.out.println("Total Skeletons" + totalSkeletons);
+                }
+                if (totalRemoved > 0) {
+                    System.out.println("# Removed:\t" + totalRemoved);
                 }
             } finally {
                 fixList.handleCleanup();
@@ -592,7 +600,7 @@ public class CLDRModify {
             // if (!path.equals(status.pathWhereFound)) { // remove items just there for aliases
             // return Retention.REMOVE;
             // }
-            if ("root".equals(localeId)) {
+            if (XMLSource.ROOT_ID.equals(localeId) || XMLSource.CODE_FALLBACK_ID.equals(localeId)) {
                 return Retention.RETAIN;
             }
             return Retention.RETAIN_IF_DIFFERENT;
@@ -931,7 +939,7 @@ public class CLDRModify {
         fixList.add('z', "remove metaData deprecated", new CLDRFilter() {
 
             Set<String> didRemove = new TreeSet<String>();
-            SupplementalDataInfo sdi = SupplementalDataInfo.getInstance(CldrUtility.DEFAULT_SUPPLEMENTAL_DIRECTORY);
+            SupplementalDataInfo sdi = SupplementalDataInfo.getInstance(CLDRPaths.DEFAULT_SUPPLEMENTAL_DIRECTORY);
             Map<String, Map<String, Relation<String, String>>> deprecationInfo = sdi.getDeprecationInfo();
 
             Map ourTypes[] = null;
@@ -2309,7 +2317,7 @@ public class CLDRModify {
         // TODO before modifying, make sure that it is fully resolved.
         // then minimize against the NEW parents
 
-        Set<String> removal = new TreeSet<String>(CLDRFile.ldmlComparator);
+        Set<String> removal = new TreeSet<String>(CLDRFile.getLdmlComparator());
         CLDRFile replacements = SimpleFactory.makeFile("temp");
         fixList.setFile(k, cldrFactory, removal, replacements);
 

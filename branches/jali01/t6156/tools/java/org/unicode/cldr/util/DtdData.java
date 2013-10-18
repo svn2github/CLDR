@@ -1,14 +1,21 @@
 package org.unicode.cldr.util;
 
+import java.io.File;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -17,21 +24,22 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.util.CLDRFile.DtdType;
 
 import com.ibm.icu.dev.util.Relation;
+import com.ibm.icu.text.UTF16;
 
 /**
  * An immutable object that contains the structure of a DTD.
  * @author markdavis
  */
 public class DtdData extends XMLFileReader.SimpleHandler {
-    static final boolean SHOW_PROGRESS = CldrUtility.getProperty("verbose", false);
-    static final boolean SHOW_ALL = CldrUtility.getProperty("show_all", false);
-    static final boolean DEBUG = true;
-    static final Pattern FILLER = Pattern.compile("[^-a-zA-Z0-9#]");
+    private static final boolean SHOW_PROGRESS = CldrUtility.getProperty("verbose", false);
+    private static final boolean SHOW_ALL = CldrUtility.getProperty("show_all", false);
+    private static final boolean DEBUG = false;
+    private static final Pattern FILLER = Pattern.compile("[^-a-zA-Z0-9#_]");
 
-    final Map<String, Element> nameToElement = new HashMap<String, Element>();
-    final Relation<String, Attribute> nameToAttributes = Relation.of(new TreeMap<String, Set<Attribute>>(), LinkedHashSet.class);
-    final Set<Element> elements = new HashSet<Element>();
-    final Set<Attribute> attributes = new HashSet<Attribute>();
+    private final Relation<String, Attribute> nameToAttributes = Relation.of(new TreeMap<String, Set<Attribute>>(), LinkedHashSet.class);
+    private Map<String, Element> nameToElement = new HashMap<String, Element>();
+    private MapComparator<String> attributeComparator;
+    private MapComparator<String> elementComparator;
 
     public final Element ROOT;
     public final Element PCDATA = elementFrom("PCDATA");
@@ -63,22 +71,23 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     }
 
     public enum AttributeType {
-        CDATA, IDREF, IDREFS, ENTITY, ENTITIES, NMTOKEN, NMTOKENS, ENUMERATED_TYPE
+        CDATA, ID, IDREF, IDREFS, ENTITY, ENTITIES, NMTOKEN, NMTOKENS, ENUMERATED_TYPE
     }
 
-    public static class Attribute {
+    public static class Attribute implements Named {
         public final String name;
         public final Element element;
         public final Mode mode;
-        public final String value;
+        public final String defaultValue;
         public final AttributeType type;
         public final Map<String, Integer> values;
 
         private Attribute(Element element2, String aName, Mode mode2, String[] split, String value2) {
             element = element2;
-            name = aName;
+            name = aName.intern();
             mode = mode2;
-            value = value2;
+            defaultValue = value2 == null ? null 
+                : value2.intern();
             AttributeType _type = AttributeType.ENUMERATED_TYPE;
             Map _values = Collections.EMPTY_MAP;
             if (split.length == 1) {
@@ -87,16 +96,17 @@ public class DtdData extends XMLFileReader.SimpleHandler {
                 } catch (Exception e) {
                 }
             }
+            type = _type;
+
             if (_type == AttributeType.ENUMERATED_TYPE) {
                 LinkedHashMap<String, Integer> temp = new LinkedHashMap<String, Integer>();
                 for (String part : split) {
                     if (part.length() != 0) {
-                        temp.put(part, temp.size());
+                        temp.put(part.intern(), temp.size());
                     }
                 }
                 _values = Collections.unmodifiableMap(temp);
             }
-            type = _type;
             values = _values;
         }
 
@@ -108,7 +118,12 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         public String features() {
             return (type == AttributeType.ENUMERATED_TYPE ? values.keySet().toString() : type.toString())
                 + (mode == Mode.NULL ? "" : ", mode=" + mode)
-                + (value == null ? "" : ", default=" + value);
+                + (defaultValue == null ? "" : ", default=" + defaultValue);
+        }
+
+        @Override
+        public String getName() {
+            return name;
         }
     }
 
@@ -119,7 +134,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
 
     private void addAttribute(String eName, String aName, String type, String mode, String value) {
         Attribute a = new Attribute(nameToElement.get(eName), aName, Mode.forString(mode), FILLER.split(type), value);
-        nameToAttributes.put(aName, a);
+        getAttributesFromName().put(aName, a);
         CldrUtility.putNew(a.element.attributes, a, a.element.attributes.size());
     }
 
@@ -127,14 +142,18 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         EMPTY, ANY, PCDATA, CHILDREN
     }
 
-    public static class Element {
+    interface Named {
+        String getName();
+    }
+
+    public static class Element implements Named {
         public final String name;
         private ElementType type;
         private final Map<Element, Integer> children = new LinkedHashMap<Element, Integer>();
         private final Map<Attribute, Integer> attributes = new LinkedHashMap<Attribute, Integer>();
 
         private Element(String name2) {
-            name = name2;
+            name = name2.intern();
         }
 
         private void setChildren(DtdData dtdData, String model) {
@@ -184,13 +203,17 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         public Map<Attribute, Integer> getAttributes() {
             return Collections.unmodifiableMap(attributes);
         }
+
+        @Override
+        public String getName() {
+            return name;
+        }
     }
 
     private Element elementFrom(String name) {
         Element result = nameToElement.get(name);
         if (result == null) {
             nameToElement.put(name, result = new Element(name));
-            elements.add(result);
         }
         return result;
     }
@@ -237,16 +260,16 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         throw new XMLFileReader.AbortException();
     }
 
-    static final Map<CLDRFile.DtdType, String> DTD_TYPE_TO_FILE;
-    static {
-        EnumMap<CLDRFile.DtdType, String> temp = new EnumMap<CLDRFile.DtdType, String>(CLDRFile.DtdType.class);
-        temp.put(CLDRFile.DtdType.ldml, CldrUtility.COMMON_DIRECTORY + "dtd/ldml.dtd");
-        temp.put(CLDRFile.DtdType.supplementalData, CldrUtility.COMMON_DIRECTORY + "dtd/ldmlSupplemental.dtd");
-        temp.put(CLDRFile.DtdType.ldmlBCP47, CldrUtility.COMMON_DIRECTORY + "dtd/ldmlBCP47.dtd");
-        temp.put(CLDRFile.DtdType.keyboard, CldrUtility.BASE_DIRECTORY + "keyboards/dtd/ldmlKeyboard.dtd");
-        temp.put(CLDRFile.DtdType.platform, CldrUtility.BASE_DIRECTORY + "keyboards/dtd/ldmlPlatform.dtd");
-        DTD_TYPE_TO_FILE = Collections.unmodifiableMap(temp);
-    }
+//    static final Map<CLDRFile.DtdType, String> DTD_TYPE_TO_FILE;
+//    static {
+//        EnumMap<CLDRFile.DtdType, String> temp = new EnumMap<CLDRFile.DtdType, String>(CLDRFile.DtdType.class);
+//        temp.put(CLDRFile.DtdType.ldml, CldrUtility.BASE_DIRECTORY + "common/dtd/ldml.dtd");
+//        temp.put(CLDRFile.DtdType.supplementalData, CldrUtility.BASE_DIRECTORY + "common/dtd/ldmlSupplemental.dtd");
+//        temp.put(CLDRFile.DtdType.ldmlBCP47, CldrUtility.BASE_DIRECTORY + "common/dtd/ldmlBCP47.dtd");
+//        temp.put(CLDRFile.DtdType.keyboard, CldrUtility.BASE_DIRECTORY + "keyboards/dtd/ldmlKeyboard.dtd");
+//        temp.put(CLDRFile.DtdType.platform, CldrUtility.BASE_DIRECTORY + "keyboards/dtd/ldmlPlatform.dtd");
+//        DTD_TYPE_TO_FILE = Collections.unmodifiableMap(temp);
+//    }
 
     static final EnumMap<CLDRFile.DtdType, DtdData> CACHE = new EnumMap<CLDRFile.DtdType, DtdData>(CLDRFile.DtdType.class);
 
@@ -256,46 +279,96 @@ public class DtdData extends XMLFileReader.SimpleHandler {
             simpleHandler = new DtdData(type);
             XMLFileReader xfr = new XMLFileReader().setHandler(simpleHandler);
             StringReader s = new StringReader("<?xml version='1.0' encoding='UTF-8' ?>"
-                + "<!DOCTYPE ldml SYSTEM '" + DTD_TYPE_TO_FILE.get(type) + "'>");
+                + "<!DOCTYPE ldml SYSTEM '" + new File(CLDRConfig.getInstance().getCldrBaseDirectory(),type.dtdPath).getAbsolutePath() + "'>");
             xfr.read(type.toString(), s, -1, true); //  DTD_TYPE_TO_FILE.get(type)
             if (simpleHandler.ROOT.children.size() == 0) {
                 throw new IllegalArgumentException(); // should never happen
             }
+            simpleHandler.freeze();
             CACHE.put(type, simpleHandler);
         }
         return simpleHandler;
+    }
+
+    private void freeze() {
+        MergeLists<String> elementMergeList = new MergeLists<String>();
+        elementMergeList.add(dtdType.toString());
+        MergeLists<String> attributeMergeList = new MergeLists<String>();
+        attributeMergeList.add("_q");
+
+        for (Element element : nameToElement.values()) {
+            if (element.children.size() > 0) {
+                Collection<String> names = getNames(element.children.keySet());
+                elementMergeList.add(names);
+                if (DEBUG) {
+                    System.out.println(element.getName() + "\t→\t" + names);
+                }
+            }
+            if (element.attributes.size() > 0) {
+                Collection<String> names = getNames(element.attributes.keySet());
+                attributeMergeList.add(names);
+                if (DEBUG) {
+                    System.out.println(element.getName() + "\t→\t@" + names);
+                }
+            }
+        }
+        List<String> elementList = elementMergeList.merge();
+        List<String> attributeList = attributeMergeList.merge();
+        if (DEBUG) {
+            System.out.println("Element Ordering:\t" + elementList);
+            System.out.println("Attribute Ordering:\t" + attributeList);
+        }
+        // double-check
+        //        for (Element element : elements) {
+        //            if (!MergeLists.hasConsistentOrder(elementList, element.children.keySet())) {
+        //                throw new IllegalArgumentException("Failed to find good element order: " + element.children.keySet());
+        //            }
+        //            if (!MergeLists.hasConsistentOrder(attributeList, element.attributes.keySet())) {
+        //                throw new IllegalArgumentException("Failed to find good attribute order: " + element.attributes.keySet());
+        //            }
+        //        }
+        elementComparator = new MapComparator(elementList).setErrorOnMissing(true).freeze();
+        attributeComparator = new MapComparator(attributeList).setErrorOnMissing(true).freeze();
+        nameToAttributes.freeze();
+        nameToElement = Collections.unmodifiableMap(nameToElement);
+    }
+
+    private Collection<String> getNames(Collection<? extends Named> keySet) {
+        List<String> result = new ArrayList();
+        for (Named e : keySet) {
+            result.add(e.getName());
+        }
+        return result;
     }
 
     public enum DtdItem {
         ELEMENT, ATTRIBUTE, ATTRIBUTE_VALUE
     }
 
-    public interface AttributeValueComparatorFactory {
-        public Comparator<String> getAttributeValueComparator(String element, String attribute);
+    public interface AttributeValueComparator {
+        public int compare(String element, String attribute, String value1, String value2);
     }
 
-    public Comparator<String> getDtdComparator(AttributeValueComparatorFactory avcf) {
-        return new DtdComparator(avcf);
+    public Comparator<String> getDtdComparator(AttributeValueComparator avc) {
+        return new DtdComparator(avc);
     }
 
     private class DtdComparator implements Comparator<String> {
-        private final AttributeValueComparatorFactory avcf;
-        private transient XPathParts a = new XPathParts();
-        private transient XPathParts b = new XPathParts();
+        private final AttributeValueComparator avc;
 
-        public DtdComparator(AttributeValueComparatorFactory avcf) {
-            this.avcf = avcf;
+        public DtdComparator(AttributeValueComparator avc) {
+            this.avc = avc;
         }
 
         @Override
-        public synchronized int compare(String arg0, String arg1) {
-            a.set(arg0);
-            b.set(arg1);
+        public int compare(String path1, String path2) {
+            XPathParts a = XPathParts.getFrozenInstance(path1);
+            XPathParts b = XPathParts.getFrozenInstance(path2);
             int max = Math.max(a.size(), b.size());
             String baseA = a.getElement(0);
             String baseB = b.getElement(0);
             if (!ROOT.name.equals(baseA) || !ROOT.name.equals(baseB)) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Comparing two different DTDs: " + baseA + ", " + baseB);
             }
             Element parent = ROOT;
             Element elementA;
@@ -315,7 +388,24 @@ public class DtdData extends XMLFileReader.SimpleHandler {
                 // we have two ways to compare the attributes. One based on the dtd,
                 // and one based on explicit comparators
 
-                attributes: for (Entry<Attribute, Integer> attr : elementA.attributes.entrySet()) {
+                // at this point the elements are the same and correspond to elementA
+                // in the dtd
+                
+                // Handle the special added elements
+                String aqValue = a.getAttributeValue(i, "_q");
+                if (aqValue != null) {
+                    String bqValue = b.getAttributeValue(i, "_q");
+                    if (!aqValue.equals(bqValue)) {
+                        int aValue = Integer.parseInt(aqValue);
+                        int bValue = Integer.parseInt(bqValue);
+                        return aValue - bValue;
+                    }
+                    --countA;
+                    --countB;
+                }
+
+                attributes: 
+                for (Entry<Attribute, Integer> attr : elementA.attributes.entrySet()) {
                     Attribute main = attr.getKey();
                     String valueA = a.getAttributeValue(i, main.name);
                     String valueB = b.getAttributeValue(i, main.name);
@@ -332,9 +422,8 @@ public class DtdData extends XMLFileReader.SimpleHandler {
                             break attributes;
                         }
                         continue; // TODO
-                    } else if (avcf != null) {
-                        Comparator<String> comp = avcf.getAttributeValueComparator(elementA.name, main.name);
-                        return comp.compare(valueA, valueB);
+                    } else if (avc != null) {
+                        return avc.compare(elementA.name, main.name, valueA, valueB);
                     } else if (main.values.size() != 0) {
                         int aa = main.values.get(valueA);
                         int bb = main.values.get(valueB);
@@ -349,6 +438,22 @@ public class DtdData extends XMLFileReader.SimpleHandler {
             }
             return a.size() - b.size();
         }
+    }
+
+    public MapComparator<String> getAttributeComparator() {
+        return attributeComparator;
+    }
+
+    public MapComparator<String> getElementComparator() {
+        return elementComparator;
+    }
+
+    public Relation<String, Attribute> getAttributesFromName() {
+        return nameToAttributes;
+    }
+
+    public Map<String, Element> getElementFromName() {
+        return nameToElement;
     }
 
     //    private static class XPathIterator implements SimpleIterator<Node> {

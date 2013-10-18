@@ -222,7 +222,7 @@ public class CheckNumbers extends FactoryCheckCLDR {
         } catch (Exception e) {
             result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
                 .setSubtype(Subtype.illegalNumberFormat)
-                .setMessage(e.getMessage()));
+                .setMessage(e.getMessage() == null ? e.toString() : e.getMessage()));
         }
         return this;
     }
@@ -498,11 +498,11 @@ public class CheckNumbers extends FactoryCheckCLDR {
             return this;
         }
 
-        protected void getArguments(Map inout) {
+        protected void getArguments(Map<String, String> inout) {
             currentPattern = currentInput = currentFormatted = currentReparsed = "?";
             double d;
             try {
-                currentPattern = (String) inout.get("pattern");
+                currentPattern = inout.get("pattern");
                 if (currentPattern != null)
                     df.applyPattern(currentPattern);
                 else
@@ -512,7 +512,7 @@ public class CheckNumbers extends FactoryCheckCLDR {
                 return;
             }
             try {
-                currentInput = (String) inout.get("input");
+                currentInput = inout.get("input");
                 if (currentInput == null) {
                     currentInput = getSampleInput();
                 }
