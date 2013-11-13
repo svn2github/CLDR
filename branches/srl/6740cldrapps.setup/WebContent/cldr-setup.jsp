@@ -4,7 +4,7 @@
 <%@page import="org.tmatesoft.sqljet.core.internal.lang.SqlParser.commit_stmt_return"%>
 <%@page import="java.util.Properties"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	import="org.unicode.cldr.web.*,org.unicode.cldr.util.*,java.io.*"
+	import="org.unicode.cldr.web.*,org.unicode.cldr.util.*,java.io.*,java.util.Set,java.util.TreeSet"
     pageEncoding="UTF-8"
     %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -21,7 +21,8 @@
     is.close();
     
     final String DOCLINK = "<a href='http://cldr.unicode.org/development'>cldr.unicode.org</a>";
-    
+	int errs=0;
+
     %><%!
     	static void writeProps(Properties survProps, File propsFile, HttpServletRequest request) throws IOException {
     			File backup = new File(propsFile.getParentFile(), propsFile.getName()+".backup");
@@ -172,7 +173,7 @@ if(request.getParameter("remove_maint")!=null) {
 	    SurveyMain.busted("Restart out of maint mode");
 	}
 	%>
-	<h1>Now, restart the web server and then click this button to administer:</h1>
+	<h1>Now, restart the web server and then click this button to go to the Admin page:</h1>
 										<form action="<%= request.getContextPath() %>/survey?vap=" METHOD="GET">
 									<input  type='submit' value='Return to the SurveyTool' /></form>
 
@@ -189,6 +190,7 @@ if(request.getParameter("remove_maint")!=null) {
 	<html>
 	<head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link href="surveytool.css" rel="stylesheet" type="text/css"/>
 	<title>CLDR | SurveyTool Configurator</title>
 	</head>
 	<body>
@@ -198,18 +200,18 @@ if(request.getParameter("remove_maint")!=null) {
 	<%
 	{
 		String setupvars[] = {
-//				"CLDR_VAP", "Password - can be left alone",
-				"CLDR_COMMON", "Where to find the 'common' data. If left at the default, it will be checked out automatically.",
-				"CLDR_SEED", "Where to find the 'seed' data. If left at the default, it will be checked out automatically.",
-				"CLDR_OLDVERSION", "What is the current version of CLDR? A good value might be " + (VersionInfo.getInstance(CLDRFile.GEN_VERSION).getMajor()-1),
-				"CLDR_NEWVERSION", "What is the new version of CLDR? A good value might be " + CLDRFile.GEN_VERSION ,
-				"CLDR_MESSAGE",   "You must change this field to be empty to allow normal startup.",
-				"CLDR_HEADER", "This is a welcome to your users. Can be blank.",
-				"CLDR_PHASE", "Which phase is SurveyTool in? A good option might be: " + org.unicode.cldr.web.SurveyMain.Phase.BETA.name(),
+				"CLDR_VAP", "This is the master password (the 'VAP') for the surveytool. You may leave this value as is or change it.",
+				"CLDR_DIR", "If you already have CLDR's trunk (http://unicode.org/repos/cldr/trunk) checked out somewhere else, enter its path here. <br>If left as the default, it will be checked out automatically in a later step.",
+				"CLDR_OLDVERSION", "Required: What is the previous released version of CLDR? (One possible value: " + (VersionInfo.getInstance(CLDRFile.GEN_VERSION).getMajor()-1),
+				"CLDR_NEWVERSION", "Required: What is the version of CLDR being surveyed for? (One possible value:  " + CLDRFile.GEN_VERSION ,
+				"CLDR_PHASE", "Required: What phase is the SurveyTool in? A good phase for testing is: " + org.unicode.cldr.web.SurveyMain.Phase.BETA.name(),
+				"CLDR_MESSAGE",   "This message is only used when you wish the SurveyTool to be offline. Leave blank for normal startup",
+				"CLDR_HEADER", "This message is displayed at the top of each SurveyTool page. It may be removed if desired.",
 		};
 		int which = 0;
 		String value = null;
 		String field = null;
+		int whichF = -1;
 		String whichT = request.getParameter("which");
 		if(whichT!=null) {
 			which = Integer.parseInt(whichT);
@@ -228,44 +230,127 @@ if(request.getParameter("remove_maint")!=null) {
 		for(int i=0;i<setupvars.length;i+=2) {
 			String param = request.getParameter(setupvars[i]);
 			if(param != null) {
-				value = WebContext.decodeFieldString(param);				
-//				which = i;
+				value = WebContext.decodeFieldString(param);
+				if(value != null) {
+					value = value.trim();
+				}
+				whichF = i;
 				field = setupvars[i];
 			}
 		}
 		if(value!=null && field!=null) {
-			if(value.length()==0) {
-				survProps.remove(field);
-			} else {
-				survProps.put(field, value);
+			String valueErr = null;
+			
+			if(field.equals("CLDR_VAP")) {
+				if(value==null || value.trim().length()==0) {
+					valueErr = "This parameter may not be left blank.";
+				}
+			} else  if(field.equals("CLDR_OLDVERSION") || field.equals("CLDR_NEWVERSION")) {
+				if(value==null || value.trim().length()==0) {
+					valueErr = "Version number must not be null.";
+					value = "";
+				} else {
+					try {
+						final String asString = com.ibm.icu.util.VersionInfo.getInstance(value).toString();
+						if(asString == null) {
+							valueErr = "Version number is not valid";
+						} else {
+							// value = asString; //  25 -> 25.0.0.0 - not good.
+						}
+					} catch (IllegalArgumentException iae) {
+						valueErr = iae.getMessage();
+					}
+				}
+			} else if(field.equals("CLDR_PHASE")) {
+				try {
+					org.unicode.cldr.web.SurveyMain.Phase p  = org.unicode.cldr.web.SurveyMain.Phase.valueOf(value.toUpperCase());
+					value = p.toString().toUpperCase();
+				} catch (Throwable t) {
+					Set<String>  s = new TreeSet<String>();
+					for(org.unicode.cldr.web.SurveyMain.Phase p : org.unicode.cldr.web.SurveyMain.Phase.values()) {
+						s.add("<tt class='codebox'>"+p.name().toUpperCase()+"</tt>");
+					}
+					valueErr = "Possible phases: " + com.ibm.icu.text.ListFormatter.getInstance().format(s);
+				}
 			}
-			%>Set <tt><%= field %></tt> = <tt><%= value %></tt><br/>Writing propfile..<%
-			writeProps(survProps, propsFile, request);
+			
+			if(valueErr == null) {
+				String getFirst = survProps.getProperty(field, null);
+				if(value.length()==0) {
+					survProps.remove(field);
+				} else {
+					if(!value.equals(getFirst)) {
+						survProps.put(field, value);
+					}
+				}
+				String getNow = survProps.getProperty(field, null);
+				
+				if(getNow!=getFirst) {
+					%><div class='okayText'>Set <tt><%= field %></tt> = <tt><%= value %></tt><br/>Updated cldr.properties..<%
+					writeProps(survProps, propsFile, request);
+					%></div><%
+				} else {
+					%><div class='squoText'>No change: <tt><%= field %></tt> = <tt><%= value %></tt></div><%
+				}
+			} else {
+				which = whichF; // redo this one.
+				%><div class='stopText'>Could not change <tt><%= field %></tt> to <tt><%= value %></tt><br/><%= valueErr %><%
+				%></div><%
+			}
 		}
 		
 		%><div style='padding: 1em; margin: 1em; border: 1px solid gray;'><%
 		if(which < setupvars.length) {
 			%>
-			<hr>
-			<h3><tt><%= setupvars[which+0] %></tt> - <%= setupvars[which+1] %></h3>
-			<label>Value=<input size='80' name='<%= setupvars[which+0] %>' value='<%= survProps.getProperty(setupvars[which+0], "") %>'></label>
-			<hr>
+			<h1 class='selected'><%= setupvars[which+0] %></h1>
+			<div class='st_setup_text'>
+			<%= setupvars[which+1] %>
+			</div>
+			<label><tt><%= setupvars[which+0] %></tt>=<input size='80' name='<%= setupvars[which+0] %>' value='<%= survProps.getProperty(setupvars[which+0], "") %>'></label>
 			<%
 		} else {
 			%>
-				Now...
-				<ol>
+				<ol class='st_setup'>
+						<li>There must be a valid copy of CLDR in the CLDR_DIR directory (<tt class='codebox'><%= survProps.getProperty("CLDR_DIR") %></tt>). 
+								<%
+									final String rootXmlPath =  "common/main/root.xml";
+									final File cldrDir = new File(survProps.getProperty(SurveyMain.CLDR_DIR));
+									final File rootXml = new File(cldrDir, rootXmlPath);
+									String fileErr = null;
+									final String thePath = SurveyMain.CLDR_DIR +" ="+ cldrDir.getAbsolutePath() + " :";
+									final String checkoutFix = "Please consider running <pre>svn checkout "+SurveyMain.CLDR_DIR_REPOS+" "+cldrDir.getAbsolutePath()+"</pre> to fix this situation. Then try reloading this page.";
+									
+									if(!cldrDir.isDirectory()) {
+										fileErr = thePath + " not a directory. <br>" + checkoutFix;
+									} else if(!rootXml.canRead()) {
+										fileErr = thePath + " - can't read " + rootXmlPath + " <br>"+checkoutFix + " (may need to delete the directory first)";
+									}
+									
+									if(fileErr == null) { %>
+									<div class='okayText'><%= thePath  %></div>
+									<% } else { 
+									errs++;
+									%>
+									<div class='stopText'><%= fileErr  %></div>
+									<% }  %>
+						</li>
+				
+				
+				
 						<li>You must set up the database, see <a href='http://cldr.unicode.org/development/running-survey-tool/cldr-properties/db'>here</a>.
 					<% 
 						boolean hasDS=false;
 						try {
 							hasDS = DBUtils.getInstance().hasDataSource();	
 						} catch(Throwable t) {
+							errs++;
 							out.println("Got this error:<pre style='border: 1px solid red; background-color: goldenrod; height: 20em; 	overflow: scroll; font-size: small;'>"+t.toString()+"</pre>");
 						}
-						if(!hasDS) { %>
-						<b>Database source was not found ..</b> 
+						if(!hasDS) { 
+						errs++; %>
+						<div class='stopText'>Database source was not found .. 
 						<pre><%= DBUtils.getDbBrokenMessage() %></pre>
+						</div>
 						<br>
 						For MySQL, see the links given here.
 						
@@ -273,37 +358,43 @@ if(request.getParameter("remove_maint")!=null) {
 						Restart the web server and reload this page to try again.
 						</li>
 					<% } else { %>
-						<b style='color: green;'>Congratulations! You seem to have a database source up and running.</b>
-						<li>That's all! press the <b>Remove Maint Mode</b> button below, and restart your web server!</li>
+						<div class='okayText'>Congratulations! You seem to have a database source up and running.</div>
 					<% } %>
 					
 									
 				</ol>
 				
-				<ol>
-				</ol>
 				
 			<%
 		}
 		%></div><%
 		
 		if(which<setupvars.length-1) {
+			 final int remain = ((setupvars.length-which)/2);
 		     %>
 		     	<button value='<%= which+2 %>' name='which'>
 		     	<b>
-		     		Save and Continue (<%= ((setupvars.length-which)/2) + " to go!" %>)
+		     		Save and Continue (<%= remain + " to go!" %>)
 		     		</b>
 		     	</button>
 		     <%	
+		     
+		     if(remain==1) {
+		    	 %> <i>(Note: this next step may take a little while - we may have to do some checkouts)</i> <%
+		     }
 		}
 	}
 	%><input name='vap' type='hidden' value='<%= vap %>'></form>
 	
 	<hr>
 	<p>
+	<% if(errs==0) { %>
 		<li>When you are done with ALL items, click this button and then restart the web server:
 				<form action="<%= request.getContextPath()+request.getServletPath() %>" METHOD="POST"><input name='vap' type='hidden' value='<%= vap %>'><input name='remove_maint' type='submit' value='Remove Maint Mode'></form>
 			</li>
+	<%  } else { %>
+		<div class='stopText'>Errors exist, please fix them and reload this page or restart the server.</div>
+	<%   } %>
 	<hr>
 	<a href='<%= request.getContextPath() %>'>Return to the SurveyTool main</a> | See documentation at <%= DOCLINK %>
 	</body>

@@ -200,8 +200,7 @@ public class CLDRConfigImpl extends CLDRConfig implements JSONString {
             pw.println();
             pw.println("## Special message shown to users as to why survey tool is down.");
             pw.println("## Comment out for normal start-up.");
-            pw.println("CLDR_MESSAGE=Welcome to SurveyTool@" + SurveyMain.localhost() + ". Please edit "
-                + propsFile.getAbsolutePath() + ". Comment out CLDR_MESSAGE to continue normal startup.");
+            pw.println("#CLDR_MESSAGE=");
             pw.println();
             pw.println("## Special message shown to users.");
             pw.println("CLDR_HEADER=Welcome to SurveyTool@" + SurveyMain.localhost() + ". Please edit "
