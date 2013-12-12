@@ -715,7 +715,7 @@ public class TestSTFactory extends TestFmwk {
             logln("Set up test DB: " + ElapsedTimer.elapsedTime(start));
 
             ElapsedTimer et0 = new ElapsedTimer("clearing directory");
-            File cacheDir = TestAll.getEmptyDir(CACHETEST);
+            //File cacheDir = TestAll.getEmptyDir(CACHETEST);
             logln(et0.toString());
 
             et0 = new ElapsedTimer("setup SurveyMain");
@@ -723,9 +723,9 @@ public class TestSTFactory extends TestFmwk {
             CookieSession.sm = sm; // hack - of course.
             logln(et0.toString());
 
-            sm.fileBase = CLDRPaths.MAIN_DIRECTORY;
-            sm.fileBaseSeed = new File(CLDRPaths.BASE_DIRECTORY, "seed/main/").getAbsolutePath();
-            sm.setFileBaseOld(CLDRPaths.BASE_DIRECTORY);
+            SurveyMain.fileBase = CLDRPaths.MAIN_DIRECTORY;
+            SurveyMain.fileBaseSeed = new File(CLDRPaths.BASE_DIRECTORY, "seed/main/").getAbsolutePath();
+            SurveyMain.setFileBaseOld(CLDRPaths.BASE_DIRECTORY);
             // sm.twidPut(Vetting.TWID_VET_VERBOSE, true); // set verbose
             // vetting
             SurveyLog.logger = Logger.getAnonymousLogger();
