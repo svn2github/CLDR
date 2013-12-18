@@ -177,6 +177,7 @@ public class SurveyAjax extends HttpServlet {
     public static final String AJAX_STATUS_SCRIPT = "ajax_status.jspf";
     public static final String WHAT_VERIFY = "verify";
     public static final String WHAT_SUBMIT = "submit";
+    public static final String WHAT_DELETE = "delete";
     public static final String WHAT_GETROW = "getrow";
     public static final String WHAT_PREF = "pref";
     public static final String WHAT_GETVV = "vettingviewer";
@@ -373,7 +374,7 @@ public class SurveyAjax extends HttpServlet {
                 if (mySession == null) {
                     sendError(out, "Missing/Expired Session (idle too long? too many users?): " + sess);
                 } else {
-                    if (what.equals(WHAT_VERIFY) || what.equals(WHAT_SUBMIT)) {
+                    if (what.equals(WHAT_VERIFY) || what.equals(WHAT_SUBMIT) || what.equals(WHAT_DELETE)) {
                         mySession.userDidAction();
                         CLDRLocale locale = CLDRLocale.getInstance(loc);
                         Map<String, String> options = DataSection.getOptions(null, mySession, locale);
@@ -473,7 +474,6 @@ public class SurveyAjax extends HttpServlet {
                                         throw new InternalError("User cannot modify locale.");
                                     }
 
-                                    SupplementalDataInfo sdi = mySession.sm.getSupplementalDataInfo();
                                     PathHeader ph = stf.getPathHeader(xp);
                                     CheckCLDR.Phase cPhase = CLDRConfig.getInstance().getPhase();
                                     SurveyToolStatus phStatus = ph.getSurveyToolStatus();
@@ -548,9 +548,19 @@ public class SurveyAjax extends HttpServlet {
                                     r.put("cPhase", cPhase);
                                     r.put("phStatus", phStatus);
                                     r.put("covLev", covLev);
+                                } else if (what.equals(WHAT_DELETE)) {
+                                    if (!UserRegistry.userCanModifyLocale(mySession.user, locale)) {
+                                        throw new InternalError("User cannot modify locale.");
+                                    }
+                                    
+                                    ballotBox.deleteValue(mySession.user, xp, val);
+                                    String delRes = ballotBox.getResolver(xp).toString();
+                                    if (DEBUG)
+                                        System.err.println("Voting result ::  " + delRes);
+                                    r.put("deleteResultRaw", delRes);
                                 }
                             } catch (Throwable t) {
-                                SurveyLog.logException(t, "Processing submission " + locale + ":" + xp);
+                                SurveyLog.logException(t, "Processing submission/deletion " + locale + ":" + xp);
                                 r.put("err", "Exception: " + t.toString());
                             } finally {
                                 if (uf != null)
@@ -720,9 +730,8 @@ public class SurveyAjax extends HttpServlet {
                         if (!"null".equals(eff)) {
                             optMap.put("CheckCoverage.localeType", eff);
                         }
-                        CheckCLDR checkCldr = uf.getCheck(eff, optMap);
 
-                        List<CheckStatus> checkCldrResult = (List) uf.hash.get(SurveyMain.CHECKCLDR_RES + eff);
+                        List<CheckStatus> checkCldrResult = (List<CheckStatus>) uf.hash.get(SurveyMain.CHECKCLDR_RES + eff);
 
                         if (checkCldrResult == null) {
                             r.put("possibleProblems", new JSONArray());
@@ -1107,7 +1116,7 @@ public class SurveyAjax extends HttpServlet {
      * @param r
      */
     private void setLocaleStatus(SurveyMain sm, String locale, JSONWriter r) {
-        if (locale != null && locale.length() > 0 && SurveyMain.isBusted == null && sm.isSetup) {
+        if (locale != null && locale.length() > 0 && SurveyMain.isBusted == null && SurveyMain.isSetup) {
             CLDRLocale loc = CLDRLocale.getInstance(locale);
             if (loc != null && SurveyMain.getLocalesSet().contains(loc)) {
                 r.put("localeStampName", loc.getDisplayName());

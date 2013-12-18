@@ -42,8 +42,6 @@ import com.ibm.icu.text.SimpleDateFormat;
 
 public class TestSTFactory extends TestFmwk {
 
-    private static final String CACHETEST = "cachetest";
-
     TestAll.WebTestInfo testInfo = WebTestInfo.getInstance();
 
     STFactory gFac = null;
@@ -195,12 +193,12 @@ public class TestSTFactory extends TestFmwk {
     public void TestDenyVote() throws SQLException, IOException {
         STFactory fac = getFactory();
         final String somePath2 = "//ldml/localeDisplayNames/keys/key[@type=\"numbers\"]";
-        String originalValue2 = null;
+        //String originalValue2 = null;
         String changedTo2 = null;
         // test votring for a bad locale
         {
             CLDRLocale locale2 = CLDRLocale.getInstance("mt_MT");
-            CLDRFile mt_MT = fac.make(locale2, false);
+            //CLDRFile mt_MT = fac.make(locale2, false);
             BallotBox<User> box = fac.ballotBoxForLocale(locale2);
 
             try {
@@ -212,7 +210,7 @@ public class TestSTFactory extends TestFmwk {
         }
         {
             CLDRLocale locale2 = CLDRLocale.getInstance("en");
-            CLDRFile mt_MT = fac.make(locale2, false);
+            //CLDRFile mt_MT = fac.make(locale2, false);
             BallotBox<User> box = fac.ballotBoxForLocale(locale2);
 
             try {
@@ -224,7 +222,7 @@ public class TestSTFactory extends TestFmwk {
         }
         {
             CLDRLocale locale2 = CLDRLocale.getInstance("nb");
-            CLDRFile nb = fac.make(locale2, false);
+            //CLDRFile nb = fac.make(locale2, false);
             BallotBox<User> box = fac.ballotBoxForLocale(locale2);
             final String bad_xpath = "//ldml/units/unitLength[@type=\"format\"]/unit[@type=\"murray\"]/unitPattern[@count=\"many\"]";
 
@@ -354,7 +352,7 @@ public class TestSTFactory extends TestFmwk {
                         proto.email = email;
                         proto.name = name;
                         proto.org = org;
-                        proto.password = fac.sm.reg.makePassword(proto.email);
+                        proto.password = UserRegistry.makePassword(proto.email);
                         proto.userlevel = level.getSTLevel();
                         proto.locales = UserRegistry.normalizeLocaleList(locales);
                         System.err.println("locale list was  " + proto.locales);
