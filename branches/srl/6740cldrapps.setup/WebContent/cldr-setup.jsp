@@ -318,7 +318,7 @@ if(request.getParameter("remove_maint")!=null) {
 									final File rootXml = new File(cldrDir, rootXmlPath);
 									String fileErr = null;
 									final String thePath = SurveyMain.CLDR_DIR +" ="+ cldrDir.getAbsolutePath() + " :";
-									final String checkoutFix = "Please consider running <pre>svn checkout "+SurveyMain.CLDR_DIR_REPOS+" "+cldrDir.getAbsolutePath()+"</pre> to fix this situation. Then try reloading this page.";
+									final String checkoutFix = "Please consider running <pre>svn checkout "+SurveyMain.CLDR_DIR_REPOS+" "+cldrDir.getAbsolutePath()+"</pre> to fix this situation, or go back and fix <b>CLDR_DIR</b> to point to a valid CLDR root. Then try reloading this page.";
 									
 									if(!cldrDir.isDirectory()) {
 										fileErr = thePath + " not a directory. <br>" + checkoutFix;
