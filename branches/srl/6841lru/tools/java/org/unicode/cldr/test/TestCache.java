@@ -22,10 +22,15 @@ public abstract class TestCache implements XMLSource.Listener {
         protected List<CheckStatus> possibleProblems = new ArrayList<CheckStatus>();
         CLDRFile file;
         CheckCLDR cc = createCheck();
-        private Map<String, String> options;
+        private CheckCLDR.Options options;
 
-        protected TestResultBundle(CLDRLocale locale, Map<String, String> options) {
+        protected TestResultBundle(CLDRLocale locale, CheckCLDR.Options options) {
             cc.setCldrFileToCheck(file = getFactory().make(locale.getBaseName(), true), this.options = options,
+                possibleProblems);
+        }
+        @Deprecated
+        protected TestResultBundle(CLDRLocale locale, Map<String, String> options) {
+            cc.setCldrFileToCheck(file = getFactory().make(locale.getBaseName(), true), this.options = new CheckCLDR.Options(options),
                 possibleProblems);
         }
 
@@ -75,7 +80,7 @@ public abstract class TestCache implements XMLSource.Listener {
      * 
      * @param locale
      */
-    public abstract TestResultBundle getBundle(CLDRLocale locale, Map<String, String> options);
+    public abstract TestResultBundle getBundle(CLDRLocale locale, CheckCLDR.Options options);
 
     /**
      * Create a check using the options

@@ -24,6 +24,7 @@ import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.test.CheckCLDR.CompoundCheckCLDR;
 import org.unicode.cldr.test.CheckCLDR.FormatDemo;
+import org.unicode.cldr.test.CheckCLDR.Options;
 import org.unicode.cldr.test.CheckCLDR.Phase;
 import org.unicode.cldr.test.CheckCLDR.SimpleDemo;
 import org.unicode.cldr.test.ExampleGenerator.ExampleContext;
@@ -335,7 +336,7 @@ public class ConsoleCheckCLDR {
         Set<PathHeader> paths = new TreeSet<PathHeader>(); // CLDRFile.ldmlComparator);
         Map m = new TreeMap();
         // double testNumber = 0;
-        Map<String, String> options = new HashMap<String, String>();
+        Options options = new Options();
         FlexibleDateFromCLDR fset = new FlexibleDateFromCLDR();
         Set<String> englishPaths = null;
 
@@ -379,12 +380,12 @@ public class ConsoleCheckCLDR {
                 if (level.compareTo(Level.BASIC) <= 0) continue;
             } else if (!isLanguageLocale) {
                 // otherwise, skip all language locales
-                options.put("CheckCoverage.skip", "true");
+                options.set("CheckCoverage.skip", "true");
             }
 
             // if (coverageLevel != null) options.put("CoverageLevel.requiredLevel", coverageLevel.toString());
-            if (organization != null) options.put("CoverageLevel.localeType", organization);
-            options.put("phase", phase.toString());
+            if (organization != null) options.set("CoverageLevel.localeType", organization);
+            options.set("phase", phase.toString());
             // options.put("SHOW_TIMES", "true");
 
             if (SHOW_LOCALE) System.out.println();

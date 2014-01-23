@@ -1079,7 +1079,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
             return false;
         }
 
-        public TestResultBundle getTestResultData(Map<String, String> options) {
+        public TestResultBundle getTestResultData(CheckCLDR.Options options) {
             synchronized (gTestCache) {
                 return gTestCache.getBundle(locale, options);
             }
@@ -1417,8 +1417,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
         return get(CLDRLocale.getInstance(locale));
     }
 
-    @SuppressWarnings("unchecked")
-    public TestCache.TestResultBundle getTestResult(CLDRLocale loc, Map<String, String> options) {
+    public TestCache.TestResultBundle getTestResult(CLDRLocale loc, CheckCLDR.Options options) {
         return get(loc).getTestResultData(options);
     }
 
@@ -2031,7 +2030,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     /**
      * For tests.
      */
-    static private Map<String, String> basicOptions = Collections.unmodifiableMap(SurveyMain.basicOptionsMap());
+    static private CheckCLDR.Options basicOptions = (SurveyMain.basicOptionsMap());
     
     /**
      * Return the table for old votes 

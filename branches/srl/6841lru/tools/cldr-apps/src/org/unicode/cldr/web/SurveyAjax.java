@@ -381,7 +381,7 @@ public class SurveyAjax extends HttpServlet {
                     if (what.equals(WHAT_VERIFY) || what.equals(WHAT_SUBMIT) || what.equals(WHAT_DELETE)) {
                         mySession.userDidAction();
                         CLDRLocale locale = CLDRLocale.getInstance(loc);
-                        Map<String, String> options = DataSection.getOptions(null, mySession, locale);
+                        CheckCLDR.Options options = DataSection.getOptions(null, mySession, locale);
                         STFactory stf = sm.getSTFactory();
                         TestResultBundle cc = stf.getTestResult(locale, options);
                         int id = Integer.parseInt(xpath);
@@ -735,12 +735,12 @@ public class SurveyAjax extends HttpServlet {
                         String req = request.getParameter("req");
 
                         UserLocaleStuff uf = sm.getUserFile(mySession, locale);
-                        Map<String, String> optMap = SurveyMain.basicOptionsMap();
+                        CheckCLDR.Options optMap = SurveyMain.basicOptionsMap();
                         if (!"null".equals(req)) {
-                            optMap.put("CheckCoverage.requiredLevel", req);
+                            optMap.set(CheckCLDR.Options.Option.CoverageLevel_requiredLevel, req);
                         }
                         if (!"null".equals(eff)) {
-                            optMap.put("CheckCoverage.localeType", eff);
+                            optMap.set(CheckCLDR.Options.Option.CoverageLevel_localeType, eff);
                         }
 
                         List<CheckStatus> checkCldrResult = (List<CheckStatus>) uf.hash.get(SurveyMain.CHECKCLDR_RES + eff);

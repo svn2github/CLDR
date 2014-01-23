@@ -2417,20 +2417,21 @@ public class DataSection implements JSONString {
      * @param locale
      * @return
      */
-    public static Map<String, String> getOptions(WebContext ctx, CookieSession session, CLDRLocale locale) {
-        Map<String, String> options;
+    public static CheckCLDR.Options getOptions(WebContext ctx, CookieSession session, CLDRLocale locale) {
+        CheckCLDR.Options options;
         if (ctx != null) {
-            options = ctx.getOptionsMap();
+            options = (ctx.getOptionsMap(SurveyMain.basicOptionsMap()));
         } else {
             // ugly
-            options = SurveyMain.basicOptionsMap();
+            options = (SurveyMain.basicOptionsMap());
             String def = CookieSession.sm
-                .getListSetting(session.settings(), SurveyMain.PREF_COVLEV, WebContext.PREF_COVLEV_LIST, false);
-            options.put("CheckCoverage.requiredLevel", def);
+                .getListSetting(session.settings(), SurveyMain.PREF_COVLEV, 
+                    WebContext.PREF_COVLEV_LIST, false);
+            options.set(CheckCLDR.Options.Option.CoverageLevel_requiredLevel, def);
 
             String org = session.getEffectiveCoverageLevel(locale.toString());
             if (org != null) {
-                options.put("CoverageLevel.localeType", org);
+                options.set(CheckCLDR.Options.Option.CoverageLevel_localeType, org);
             }
         }
         return options;

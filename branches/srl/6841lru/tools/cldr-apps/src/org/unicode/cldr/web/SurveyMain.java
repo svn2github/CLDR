@@ -66,6 +66,7 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.unicode.cldr.icu.LDMLConstants;
 import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
+import org.unicode.cldr.test.CheckCLDR.Options.Option;
 import org.unicode.cldr.test.ExampleGenerator;
 import org.unicode.cldr.test.ExampleGenerator.HelpMessages;
 import org.unicode.cldr.util.CLDRConfig;
@@ -4691,18 +4692,9 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
      * @see org.unicode.cldr.test.CheckCoverage#check(String, String, String,
      *      Map, List)
      */
-    public static Map<String, String> basicOptionsMap() {
-        Map<String, String> options = new HashMap<String, String>();
-
-        // the following is highly suspicious. But, CheckCoverage seems to
-        // require it.
-        options.put("submission", "true");
-        // options.put("CheckCoverage.requiredLevel", "minimal");
-
-        // pass in the current ST phase
-        options.put("phase", phase().getCPhase().name().toLowerCase());
-
-        return options;
+    public static CheckCLDR.Options basicOptionsMap() {
+        return new CheckCLDR.Options().set(CheckCLDR.Options.Option.phase, 
+            phase().getCPhase().name().toLowerCase());
     }
 
     public CheckCLDR createCheck() {
@@ -4867,7 +4859,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
             hash.clear();
         }
 
-        public CheckCLDR getCheck(String ptype, Map<String, String> options) {
+        public CheckCLDR getCheck(String ptype, CheckCLDR.Options options) {
             CheckCLDR checkCldr = (CheckCLDR) hash.get(CHECKCLDR + ptype);
             if (checkCldr == null) {
                 List<CheckStatus> checkCldrResult = new ArrayList<CheckStatus>();

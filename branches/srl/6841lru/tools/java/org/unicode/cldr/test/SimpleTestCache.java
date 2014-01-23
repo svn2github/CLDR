@@ -7,10 +7,12 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CLDRLocale.SublocaleProvider;
 import org.unicode.cldr.util.LruMap;
+import org.unicode.cldr.util.Pair;
 import org.unicode.cldr.util.XMLSource;
 
 /**
@@ -25,16 +27,7 @@ public class SimpleTestCache extends TestCache {
      * @param o
      * @return
      */
-    private static String optionsToHash(Map<String, String> o) {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> k : o.entrySet()) {
-            sb.append(k.getKey()).append("=").append(k.getValue()).append("\n");
-        }
-        return sb.toString();
-    }
-
-    LruMap<CLDRLocale, Map<String, Reference<TestResultBundle>>> map = new LruMap<CLDRLocale, Map<String, Reference<TestResultBundle>>>(
-        4);
+    LruMap<Pair<CLDRLocale,CheckCLDR.Options>, Reference<TestResultBundle>> map = new LruMap<Pair<CLDRLocale, CheckCLDR.Options>, Reference<TestResultBundle>>(12);
 
     /*
      * (non-Javadoc)
@@ -51,30 +44,29 @@ public class SimpleTestCache extends TestCache {
         for (CLDRLocale sub : ((SublocaleProvider) getFactory()).subLocalesOf(locale)) {
             valueChanged(xpath, sub);
         }
-        map.remove(locale); // remove all
+        Vector<Pair<CLDRLocale,CheckCLDR.Options>> toRemove = new Vector<Pair<CLDRLocale,CheckCLDR.Options>>();
+        for(Pair<CLDRLocale,CheckCLDR.Options> k : map.keySet()) {
+            if(k.getFirst()==locale) {
+                toRemove.add(k);
+            }
+        }
+        // avoid concurrent remove
+        for(Pair<CLDRLocale,CheckCLDR.Options> k : toRemove) {
+            map.remove(k);
+        }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.unicode.cldr.test.TestCache#getBundle(org.unicode.cldr.util.CLDRLocale, java.util.Map)
-     */
     @Override
-    public TestResultBundle getBundle(CLDRLocale locale, Map<String, String> options) {
-        Map<String, Reference<TestResultBundle>> r = map.get(locale);
-        if (r == null) {
-            r = new TreeMap<String, Reference<TestResultBundle>>();
-            map.put(locale, r);
-        }
-        String k = optionsToHash(options);
-        Reference<TestResultBundle> ref = r.get(k);
+    public TestResultBundle getBundle(CLDRLocale locale, CheckCLDR.Options options) {
+        Pair<CLDRLocale,CheckCLDR.Options> k = new Pair<CLDRLocale,CheckCLDR.Options>(locale,options);
+        Reference<TestResultBundle> ref = map.get(k);
         TestResultBundle b = (ref != null ? ref.get() : null);
         if (false) System.err.println("Bundle " + b + " for " + k);
         if (b == null) {
             // ElapsedTimer et = new ElapsedTimer("New test bundle " + locale + " opt " + options);
             b = new TestResultBundle(locale, options);
             // System.err.println(et.toString());
-            r.put(k, new SoftReference<TestResultBundle>(b));
+            map.put(k, new SoftReference<TestResultBundle>(b));
         }
         return b;
     }
