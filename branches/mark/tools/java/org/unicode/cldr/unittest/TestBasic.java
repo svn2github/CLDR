@@ -15,6 +15,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -131,7 +133,7 @@ public class TestBasic extends TestFmwkPlus {
     }
 
     private void checkDtds(File directoryFile, int level, Relation<R2<DtdType, String>, String> foundAttributes,
-            List<TimingInfo> data) throws IOException {
+        List<TimingInfo> data) throws IOException {
         boolean deepCheck = getInclusion() >= 10;
         File[] listFiles = directoryFile.listFiles();
         String canonicalPath = directoryFile.getCanonicalPath();
@@ -279,25 +281,25 @@ public class TestBasic extends TestFmwkPlus {
         File file;
         long nanos;
     }
-    
+
     public TimingInfo check(File systemID) {
         long start = System.nanoTime();
         try (InputStream fis=InputStreamFactory.createInputStream(systemID)){
-//            FileInputStream fis = new FileInputStream(systemID);
+            //            FileInputStream fis = new FileInputStream(systemID);
             XMLReader xmlReader = XMLFileReader.createXMLReader(true);
             xmlReader.setErrorHandler(new MyErrorHandler());
             InputSource is = new InputSource(fis);
             is.setSystemId(systemID.toString());
             xmlReader.parse(is);
-//            fis.close();
+            //            fis.close();
         } catch (SAXException |IOException e) {
             errln("\t" + "Can't read " + systemID + "\t" + e.getClass() + "\t" + e.getMessage());
         } 
-//        catch (SAXParseException e) {
-//            errln("\t" + "Can't read " + systemID + "\t" + e.getClass() + "\t" + e.getMessage());
-//        } catch (IOException e) {
-//            errln("\t" + "Can't read " + systemID + "\t" + e.getClass() + "\t" + e.getMessage());
-//        }
+        //        catch (SAXParseException e) {
+        //            errln("\t" + "Can't read " + systemID + "\t" + e.getClass() + "\t" + e.getMessage());
+        //        } catch (IOException e) {
+        //            errln("\t" + "Can't read " + systemID + "\t" + e.getClass() + "\t" + e.getMessage());
+        //        }
         TimingInfo timingInfo = new TimingInfo();
         timingInfo.nanos = System.nanoTime() - start;
         timingInfo.file = systemID;
@@ -455,18 +457,18 @@ public class TestBasic extends TestFmwkPlus {
         return result;
     }
 
-//    public void TestCLDRFileCache() {
-//        long start = System.nanoTime();
-//        Factory cldrFactory = testInfo.getCldrFactory();
-//        String unusualLocale = "hi";
-//        CLDRFile file = cldrFactory.make(unusualLocale, true);
-//        long afterOne = System.nanoTime();
-//        logln("First: " + (afterOne-start));
-//        CLDRFile file2 = cldrFactory.make(unusualLocale, true);
-//        long afterTwo = System.nanoTime();
-//        logln("Second: " + (afterTwo-afterOne));
-//    }
-//    
+    //    public void TestCLDRFileCache() {
+    //        long start = System.nanoTime();
+    //        Factory cldrFactory = testInfo.getCldrFactory();
+    //        String unusualLocale = "hi";
+    //        CLDRFile file = cldrFactory.make(unusualLocale, true);
+    //        long afterOne = System.nanoTime();
+    //        logln("First: " + (afterOne-start));
+    //        CLDRFile file2 = cldrFactory.make(unusualLocale, true);
+    //        long afterTwo = System.nanoTime();
+    //        logln("Second: " + (afterTwo-afterOne));
+    //    }
+    //    
     public void TestPaths() {
         Relation<String, String> distinguishing = Relation.of(new TreeMap<String, Set<String>>(), TreeSet.class);
         Relation<String, String> nonDistinguishing = Relation.of(new TreeMap<String, Set<String>>(), TreeSet.class);
@@ -1070,5 +1072,41 @@ public class TestBasic extends TestFmwkPlus {
 
     public void sortPaths(Comparator<String> dc, String... array) {
         Arrays.sort(array, 0, array.length, dc);
+    }
+
+    public void TestNoDefaultScripts() {
+        ScriptChecker scriptChecker = new ScriptChecker();
+        for (String base : testInfo.getCLDRDataDirectories()) {
+            if (base.contains("seed") || base.contains("exemplars")) {
+                //logKnownIssue(arg0, arg1)
+                continue;
+            }
+            scriptChecker.checkNoDefaultScripts(testInfo.getCldrBaseDirectory(), base);
+        }
+    }
+
+    private class ScriptChecker {
+        LanguageTagParser ltp = new LanguageTagParser();
+        LikelySubtags likely = new LikelySubtags();
+        Matcher langScriptMatcher = Pattern.compile("([a-z]{2,3})_([A-Z][a-z]{3})(.*)").matcher("");
+
+        private void checkNoDefaultScripts(File dir, String name) {
+            File baseFile = new File(dir, name);
+            if (baseFile.isDirectory()) {
+                if (!name.equals("transforms")) {
+                    for (String subfile : baseFile.list()) {
+                        checkNoDefaultScripts(baseFile, subfile);
+                    }
+                }
+            } else if (langScriptMatcher.reset(name).matches()) {
+                String lang = langScriptMatcher.group(1);
+                String likelyScript = likely.getLikelyScript(lang);
+                String actualScript = langScriptMatcher.group(2);
+                if (assertNotEquals("Locale name should not have default script: " + baseFile, likelyScript, actualScript)) {
+                    // if they are different, test to make sure the base exists
+                    assertTrue("Locale must contain base for " + baseFile, Arrays.asList(dir.list()).contains(lang + ".xml"));
+                }
+            }    
+        }
     }
 }

@@ -131,7 +131,7 @@
 			<languageMatch desired="zh_HK" supported="zh_TW" percent="10" oneway="true" />
 			<languageMatch desired="zu" supported="en" percent="10" oneway="true" />
 			<!-- Script Matches -->
-			<languageMatch desired="sr_Latn" supported="sr_Cyrl" percent="90" /> <!-- Most serbs can read either script. -->
+			<languageMatch desired="sr_Latn" supported="sr" percent="90" /> <!-- Most serbs can read either script. -->
 			<languageMatch desired="*_Hans" supported="*_Hant" percent="85" oneway="true" /> <!-- Readers of simplified can read traditional much better than reverse. -->
 			<languageMatch desired="*_Hant" supported="*_Hans" percent="75" oneway="true" />
 			<!-- Region Matches -->

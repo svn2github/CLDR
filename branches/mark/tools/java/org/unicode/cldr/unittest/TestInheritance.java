@@ -234,7 +234,10 @@ public class TestInheritance extends TestFmwk {
                 errln("Missing base locale for: " + localeID);
             }
             base2locales.put(base, localeID);
-            if (!script.isEmpty() && !base.equals("en")) { // HACK for en
+            if (!script.isEmpty()
+                && !base.equals("en")
+                 && !base.equals("rs")
+                ) { // HACK for en
                 base2scripts.put(base, script);
             }
         }

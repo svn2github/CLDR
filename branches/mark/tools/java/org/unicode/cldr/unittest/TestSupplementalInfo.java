@@ -621,6 +621,7 @@ public class TestSupplementalInfo extends TestFmwk {
                 + "\n\t\t"
                 + CldrUtility.join(missing24only, "\n\t\t", new NameCodeTransform(testInfo.getEnglish(), CLDRFile.TERRITORY_NAME)));
         }
+        boolean debug = true;
     }
 
     public static class NameCodeTransform implements StringTransform {
@@ -924,14 +925,14 @@ public class TestSupplementalInfo extends TestFmwk {
         // and if we don't have a base, we must have two items
         for (String base : baseToLanguages.keySet()) {
             Set<String> languagesForBase = baseToLanguages.getAll(base);
-            if (languagesForBase.contains(base)) {
-                if (languagesForBase.size() > 1) {
-                    errln("Cannot have base alone with other scripts:\t" + languagesForBase);
+            if (!languagesForBase.contains(base)) {
+                if (!logKnownIssue("6114", "Need to fix remaining cases without base")) {
+                    errln("Must have base alone with other scripts:\t" + base + "\t" + languagesForBase);
                 }
-            } else {
-                if (languagesForBase.size() == 1) {
-                    errln("Cannot have only one script for language:\t" + languagesForBase);
-                }
+//            } else {
+//                if (languagesForBase.size() == 1) {
+//                    errln("Cannot have only one script for language:\t" + languagesForBase);
+//                }
             }
         }
     }
@@ -1165,6 +1166,9 @@ public class TestSupplementalInfo extends TestFmwk {
             CLDRLocale loc = CLDRLocale.getInstance(locale);
             String baseLanguage = loc.getLanguage();
             String defaultScript = supp.getDefaultScript(baseLanguage);
+            if (defaultScript == null) {
+                assertNotNull("Default script for " + baseLanguage, defaultScript);
+            }
 
             String defaultContentScript = baseToDefaultContentScript.get(baseLanguage);
             if (defaultContentScript != null) {
@@ -1236,9 +1240,9 @@ public class TestSupplementalInfo extends TestFmwk {
                     continue;
                 }
                 Set<Count> counts = pluralInfo.getCounts();
-//                if (counts.size() == 1) {
-//                    continue; // skip checking samples
-//                }
+                //                if (counts.size() == 1) {
+                //                    continue; // skip checking samples
+                //                }
                 HashSet<String> samples = new HashSet<String>();
                 EnumSet<Count> countsWithNoSamples = EnumSet.noneOf(Count.class);
                 Relation<String, Count> samplesToCounts = Relation.of(new HashMap(), LinkedHashSet.class);
@@ -1267,7 +1271,7 @@ public class TestSupplementalInfo extends TestFmwk {
     }
 
     static final boolean SHOW_KNOWN_ERROR = false;
-    
+
     public void errOrLog(boolean causeError, String message) {
         if (causeError && 
             (SHOW_KNOWN_ERROR || !logKnownIssue("6290", "Fix this once we have all ordinal messages."))) {
