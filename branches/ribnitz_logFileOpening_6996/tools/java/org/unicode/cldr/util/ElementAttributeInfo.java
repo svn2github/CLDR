@@ -1,8 +1,8 @@
 package org.unicode.cldr.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -89,8 +89,8 @@ public class ElementAttributeInfo {
     private ElementAttributeInfo(String filename, CLDRFile.DtdType type) throws IOException {
         // StringBufferInputStream fis = new StringBufferInputStream(
         // "<!DOCTYPE ldml SYSTEM \"http://www.unicode.org/cldr/dtd/1.2/ldml.dtd\"><ldml></ldml>");
-        FileInputStream fis = new FileInputStream(filename);
-        try {
+//        FileInputStream fis = new FileInputStream(filename);
+        try (InputStream fis=InputStreamFactory.createInputStream(new File(filename))){
             XMLReader xmlReader = CLDRFile.createXMLReader(true);
             this.dtdType = type;
             MyDeclHandler me = new MyDeclHandler(this);
@@ -106,9 +106,7 @@ public class ElementAttributeInfo {
             getElement2Attributes().freeze();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            fis.close();
-        }
+        } 
     }
 
     private DtdType getDtdType() {
