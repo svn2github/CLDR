@@ -2,8 +2,8 @@ package org.unicode.cldr.util;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class FindDTDOrder implements DeclHandler, ContentHandler, ErrorHandler {
                     xmlReader.setProperty(
                         "http://xml.org/sax/properties/declaration-handler", me);
 
-                    FileInputStream fis;
+//                    FileInputStream fis;
                     InputSource is;
                     me.recordingAttributeElements = true;
                     String filename = CLDRPaths.MAIN_DIRECTORY + "/root.xml";
@@ -77,8 +77,8 @@ public class FindDTDOrder implements DeclHandler, ContentHandler, ErrorHandler {
                     if (DEBUG) {
                         System.out.println("Opening " + dtd.getCanonicalFile());
                     }
-
-                    fis = new FileInputStream(filename);
+                    try (InputStream fis=InputStreamFactory.createInputStream(new File(filename))) {
+                   // fis = new FileInputStream(filename);
                     if (DEBUG) {
                         BufferedReader b = new BufferedReader(new InputStreamReader(fis));
                         for (int i = 0; i < 30; ++i) {
@@ -90,8 +90,8 @@ public class FindDTDOrder implements DeclHandler, ContentHandler, ErrorHandler {
                     is = new InputSource(fis);
                     is.setSystemId(file.getCanonicalPath() + "/../");
                     xmlReader.parse(is);
-                    fis.close();
-
+                    //fis.close();
+                }
                     me.recordingAttributeElements = false;
                     filename = CLDRPaths.DEFAULT_SUPPLEMENTAL_DIRECTORY
                         + "/supplementalData.xml";
@@ -99,12 +99,13 @@ public class FindDTDOrder implements DeclHandler, ContentHandler, ErrorHandler {
                     if (DEBUG) {
                         System.out.println("Opening " + file2.getCanonicalFile());
                     }
-
-                    fis = new FileInputStream(filename);
+                    try (InputStream fis=InputStreamFactory.createInputStream(new File(filename))) {
+//                    fis = new FileInputStream(filename);
                     is = new InputSource(fis);
                     is.setSystemId(file.getCanonicalPath() + "/../");
                     xmlReader.parse(is);
-                    fis.close();
+//                    fis.close();
+                    }
                     // Then Attributes
                     List<String> rawDtdAttributeOrder = Collections.unmodifiableList(new ArrayList<String>(me.attributeSet));
                     List<String> metadataAttributeOrder = SupplementalDataInfo.getInstance().getAttributeOrder();
