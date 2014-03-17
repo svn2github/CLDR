@@ -259,20 +259,26 @@ public class XMLValidator {
                         // Parse as text, line by line
                         // Since we already know it should be text, this should
                         // work better than parsing by bytes.
-                        FileReader fr = new FileReader(filename);
-                        BufferedReader br = new BufferedReader(fr);
-                        StringBuffer buffer = new StringBuffer();
-                        for (;;) {
-                            String tmp = br.readLine();
+                        StringBuffer buffer=null;
+                        try (FileReader fr = new FileReader(filename);
+                            BufferedReader br = new BufferedReader(fr);) {
+                            // log that we opened the file
+                            FileOpeningCounter.getInstance().add(filename);
+                            // Instantiate a new StringBuffer
+                            buffer=new StringBuffer();
+//                            StringBuffer buffer = new StringBuffer();
+                            for (;;) {
+                                String tmp = br.readLine();
 
-                            if (tmp == null) {
-                                break;
+                                if (tmp == null) {
+                                    break;
+                                }
+
+                                buffer.append(tmp);
+                                buffer.append("\n"); // Put in the newlines as well
                             }
-
-                            buffer.append(tmp);
-                            buffer.append("\n"); // Put in the newlines as well
                         }
-                        br.close();
+//                        br.close();
                         DocumentBuilder docBuilder = dfactory
                             .newDocumentBuilder();
                         doc = docBuilder.newDocument();

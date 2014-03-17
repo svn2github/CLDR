@@ -8,12 +8,13 @@
  */
 package org.unicode.cldr.util;
 
-import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -30,6 +31,7 @@ import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+
 /**
  * Convenience class to make reading XML data files easier. The main method is read();
  * This is meant for XML data files, so the contents of elements must either be all other elements, or
@@ -40,6 +42,11 @@ import org.xml.sax.helpers.XMLReaderFactory;
  */
 public class XMLFileReader {
     static final boolean SHOW_ALL = false;
+    // More verbose output / timings on file reads
+    private static final boolean DEBUG_FILE_READS = false;
+    
+    // when debugging use a CSV Format, rather than a human-readable one (useful for pasting elsewhere)
+    private static final boolean USE_CSV_FOR_DEBUG=true;
     /**
      * Handlers to use in read()
      */
@@ -72,7 +79,16 @@ public class XMLFileReader {
         this.simpleHandler = simpleHandler;
         return this;
     }
-
+    private static class DataFormatter {
+        private  static String getCSV(String separator, String fname, long size, long timeTaken) {
+            StringBuilder sb=new StringBuilder(fname);
+            sb.append(separator);
+            sb.append(size);
+            sb.append(separator);
+            sb.append(timeTaken);
+            return sb.toString();
+        }
+    }
     /**
      * Read an XML file. Return a list of alternating items, where the even items are the paths,
      * and the odd ones are values. The order of the elements matches what was in the file.
@@ -86,13 +102,46 @@ public class XMLFileReader {
      * @return list of alternating values.
      */
     public XMLFileReader read(String fileName, int handlers, boolean validating) {
-        try {
-            InputStream fis = new FileInputStream(fileName);
+       File f=new File(fileName) ;
+       long started=System.currentTimeMillis();
+       final XMLFileReader result;
+       FileOpeningCounter.getInstance().add(fileName);
+       try (BufferedReader rdr=Files.newBufferedReader(f.toPath(),Charset.forName("UTF-8"))) {
+//        try (InputStream fis=InputStreamFactory.createInputStream(new File(fileName))) {
+//            InputStream fis = new FileInputStream(fileName);
             // fis = new DebuggingInputStream(fis);
-            return read(fileName, new InputStreamReader(fis, Charset.forName("UTF-8")), handlers, validating);
+            result= read(fileName, rdr, handlers, validating);
         } catch (IOException e) {
-            throw (IllegalArgumentException) new IllegalArgumentException("Can't read " + fileName).initCause(e);
+//            throw (IllegalArgumentException) new IllegalArgumentException("Can't read " + fileName).initCause(e);
+            throw new IllegalArgumentException("Can't read " + fileName, e);
         }
+      
+        if (DEBUG_FILE_READS) {
+            long endTime=System.currentTimeMillis();
+            long duration=endTime -started;
+            int cldrPos=fileName.lastIndexOf("/cldr");
+            StringBuilder sb=new StringBuilder();
+            if (USE_CSV_FOR_DEBUG) {
+                String strippedPath=fileName.substring(cldrPos+5+1);
+                sb.append(DataFormatter.getCSV(",", strippedPath, f.length(), duration));
+            } else {
+                sb.append("Read file '");
+                sb.append(fileName);
+                sb.append("' of size ");
+                sb.append(f.length());
+                sb.append(" in ");
+                sb.append(duration);
+                sb.append(" milliseconds, with");
+                if (duration==0) {
+                    sb.append(f.length());
+                } else {
+                    sb.append(f.length()/duration);
+                }
+                sb.append(" bytes/ms");
+            }
+            System.out.println(sb.toString());
+        }
+        return result;
     }
 
     public XMLFileReader read(String systemID, Reader reader, int handlers, boolean validating) {

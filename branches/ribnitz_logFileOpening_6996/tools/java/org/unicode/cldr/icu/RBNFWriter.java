@@ -17,6 +17,8 @@ import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.util.Date;
 
+import org.unicode.cldr.util.FileOpeningCounter;
+
 import com.ibm.icu.dev.tool.UOption;
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.impl.Utility;
@@ -69,6 +71,10 @@ public class RBNFWriter {
 
         PrintWriter out = BagFormatter.openUTF8Writer(options[DESTDIR].value + File.separator, tofile);
         FileInputStream inFileStream = new FileInputStream(options[SOURCEDIR].value + File.separator + fromfile);
+        File inFile=new File(options[SOURCEDIR].value,fromfile);
+        if (inFile.canRead()) {
+            FileOpeningCounter.getInstance().add(inFile.getCanonicalPath());
+        }
         InputStreamReader inFileReader = new InputStreamReader(inFileStream, "UTF-8");
         BufferedReader in = new BufferedReader(inFileReader);
 

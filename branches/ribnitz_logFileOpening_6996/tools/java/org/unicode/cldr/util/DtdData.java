@@ -471,6 +471,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
         StringReader s = new StringReader("<?xml version='1.0' encoding='UTF-8' ?>"
             + "<!DOCTYPE " + type
             + " SYSTEM '" + file.getAbsolutePath() + "'>");
+        FileOpeningCounter.getInstance().add(file.getAbsolutePath());
         xfr.read(type.toString(), s, -1, true); //  DTD_TYPE_TO_FILE.get(type)
     }
 

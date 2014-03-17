@@ -14,6 +14,7 @@ import java.util.TreeSet;
 
 import org.unicode.cldr.draft.ScriptCategories.RemapType;
 import org.unicode.cldr.util.CLDRPaths;
+import org.unicode.cldr.util.FileOpeningCounter;
 import org.unicode.cldr.util.CldrUtility.CollectionComparator;
 
 import com.ibm.icu.dev.util.BagFormatter;
@@ -180,6 +181,10 @@ public class FormatSpecialData {
             // File file1 = new File(externalForm);
             // boolean x = file1.canRead();
             // final InputStream resourceAsStream = new FileInputStream(file1);
+            File f= new File(file);
+            if (f.canRead()) {
+                FileOpeningCounter.getInstance().add(file);
+            }
             final InputStream resourceAsStream = class1.getResourceAsStream(file);
             InputStreamReader reader = new InputStreamReader(resourceAsStream, UTF8);
             BufferedReader bufferedReader = new BufferedReader(reader, 1024 * 64);

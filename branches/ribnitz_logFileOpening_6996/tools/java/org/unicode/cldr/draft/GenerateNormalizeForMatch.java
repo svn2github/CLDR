@@ -22,6 +22,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.FileOpeningCounter;
+
 import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.DateFormat;
@@ -746,6 +748,9 @@ public class GenerateNormalizeForMatch {
 
     static BufferedReader openUTF8Reader(String filename) throws IOException {
         File file = new File(filename);
+        if (file.canRead()) {
+            FileOpeningCounter.getInstance().add(filename);
+        }        
         System.out.println("Reading:\t" + file.getCanonicalPath());
         return new BufferedReader(new InputStreamReader(new FileInputStream(file), UTF8), 1024 * 64);
     }

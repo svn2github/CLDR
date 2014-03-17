@@ -249,9 +249,12 @@ public class CldrUtility {
      */
     public static boolean areFileIdentical(String file1, String file2, String[] failureLines,
         LineComparer lineComparer) throws IOException {
+        FileOpeningCounter fileCounter=FileOpeningCounter.getInstance();
         BufferedReader br1 = new BufferedReader(new FileReader(file1), 32 * 1024);
+        fileCounter.add(file1);
         try {
             BufferedReader br2 = new BufferedReader(new FileReader(file2), 32 * 1024);
+            fileCounter.add(file2);
             try {
                 String line1 = "";
                 String line2 = "";

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.FileOpeningCounter;
 import org.unicode.cldr.util.With;
 import org.unicode.cldr.util.With.SimpleIterator;
 
@@ -97,6 +98,7 @@ public final class FileUtilities {
 
         public FileProcessor process(String fileName) {
             try {
+//                FileOpeningCounter.getInstance().add(fileName);
                 FileInputStream fileStream = new FileInputStream(fileName);
                 InputStreamReader reader = new InputStreamReader(fileStream, FileUtilities.UTF8);
                 BufferedReader bufferedReader = new BufferedReader(reader, 1024 * 64);
@@ -118,6 +120,8 @@ public final class FileUtilities {
         }
 
         public FileProcessor process(BufferedReader in, String fileName) {
+            // log that we are reading a File
+           FileOpeningCounter.getInstance().add(fileName);
             handleStart();
             String line = null;
             lineCount = 1;
@@ -178,6 +182,10 @@ public final class FileUtilities {
             if (charset == null) {
                 charset = UTF8;
             }
+            File f=new File(file);
+            if (f.canRead()) {
+                FileOpeningCounter.getInstance().add(f.getAbsolutePath());
+            }
             InputStreamReader reader = new InputStreamReader(resourceAsStream, charset);
             BufferedReader bufferedReader = new BufferedReader(reader, 1024 * 64);
             return bufferedReader;
@@ -198,7 +206,11 @@ public final class FileUtilities {
 
     public static BufferedReader openFile(String directory, String file, Charset charset) {
         try {
-            return new BufferedReader(new InputStreamReader(new FileInputStream(new File(directory, file)), charset));
+            File f=new File(directory, file);
+            if (f.canRead()) {
+                FileOpeningCounter.getInstance().add(f.getAbsolutePath());
+            }
+            return new BufferedReader(new InputStreamReader(new FileInputStream(f), charset));
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException(e); // handle dang'd checked exception
         }

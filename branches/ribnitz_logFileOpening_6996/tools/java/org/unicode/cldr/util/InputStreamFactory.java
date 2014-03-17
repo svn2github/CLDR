@@ -21,8 +21,11 @@ public class InputStreamFactory {
      * @throws SecurityException - if a security manager exists and its checkRead method denies read access to the file
      */
     public static InputStream createInputStream(File f) throws FileNotFoundException {
-        FileInputStream fis = new FileInputStream(f);
-        return InputStreamFactory.buffer(fis);
+        if (f.canRead()) {
+           FileOpeningCounter.getInstance().add(f.getPath());
+        }
+       FileInputStream fis=new FileInputStream(f);
+       return InputStreamFactory.buffer(fis);
     }
 
     /**

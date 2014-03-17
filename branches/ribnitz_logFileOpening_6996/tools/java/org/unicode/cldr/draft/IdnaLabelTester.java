@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.FileOpeningCounter;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.PrettyPrinter;
@@ -304,6 +305,9 @@ public class IdnaLabelTester {
         try {
             File file1 = new File(file);
             // System.out.println("Reading:\t" + file1.getCanonicalPath());
+            if (file1.canRead()) {
+                FileOpeningCounter.getInstance().add(file);
+            }
             return new BufferedReader(new InputStreamReader(new FileInputStream(file1), UTF8), 1024 * 64);
         } catch (Exception e) {
             File f = new File(file);

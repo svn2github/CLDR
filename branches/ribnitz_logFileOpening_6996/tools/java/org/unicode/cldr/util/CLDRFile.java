@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -151,7 +152,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     private boolean locked;
     private DtdType dtdType;
 
-    XMLSource dataSource; // TODO(jchye): make private
+   XMLSource dataSource; // TODO(jchye): make private
 
     private File supplementalDirectory;
 
@@ -225,12 +226,15 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
             final CLDRFile cldrFile;
             if (USE_LOADING_BUFFER) {
                 // Use Buffering -  improves performance at little cost to memory footprint
+
                 // try (InputStream fis = new BufferedInputStream(new FileInputStream(f),32000);) {
                 try (InputStream fis = InputStreamFactory.createInputStream(f)) {
                     cldrFile = load(fullFileName, localeName, fis, minimalDraftStatus, source);
                     return cldrFile;
                 }
             } else {
+                // count opening the file
+                FileOpeningCounter.getInstance().add(fullFileName);
                 // previous version - do not use buffering
                 try (InputStream fis = new FileInputStream(f);) {
                     cldrFile = load(fullFileName, localeName, fis, minimalDraftStatus, source);
@@ -275,7 +279,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     private static CLDRFile load(String fileName, String localeName, InputStream fis, DraftStatus minimalDraftStatus,
         XMLSource source) {
         try {
-            fis = new StripUTF8BOMInputStream(fis);
+            InputStream fis1 = new StripUTF8BOMInputStream(fis);
             CLDRFile cldrFile = new CLDRFile(source);
             MyDeclHandler DEFAULT_DECLHANDLER = new MyDeclHandler(cldrFile, minimalDraftStatus);
 
@@ -286,7 +290,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
             xmlReader.setErrorHandler(DEFAULT_DECLHANDLER);
             xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", DEFAULT_DECLHANDLER);
             xmlReader.setProperty("http://xml.org/sax/properties/declaration-handler", DEFAULT_DECLHANDLER);
-            InputSource is = new InputSource(fis);
+            InputSource is = new InputSource(fis1);
             is.setSystemId(fileName);
             xmlReader.parse(is);
             if (DEFAULT_DECLHANDLER.isSupplemental < 0) {
@@ -2282,7 +2286,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         if (localeOrTZID.contains("-") && !localeOrTZID.contains("@") && !localeOrTZID.contains("_")) {
             localeOrTZID = ULocale.forLanguageTag(localeOrTZID).toString().replace("__", "_");
         }
-
+        
         boolean isCompound = localeOrTZID.contains("_");
         String name = isCompound && onlyConstructCompound ? null : getName(LANGUAGE_NAME, localeOrTZID, altPicker);
         // TODO - handle arbitrary combinations
@@ -2884,8 +2888,12 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
                 "normalizedPathMap:" + normalizedPathMap.size();
         }
 
-        private static Map<String, String> distinguishingMap = new HashMap<String, String>();
-        private static Map<String, String> normalizedPathMap = new HashMap<String, String>();
+//        private static Map<String, String> distinguishingMap = new HashMap<String, String>();
+        private static Map<String, String> distinguishingMap = new ConcurrentHashMap<String, String>();
+        
+//        private static Map<String, String> normalizedPathMap = new HashMap<String, String>();
+        private static Map<String, String> normalizedPathMap = new ConcurrentHashMap<String, String>();
+        
         private static XPathParts distinguishingParts = new XPathParts(getAttributeOrdering(), null);
         static {
             distinguishingMap.put("", ""); // seed this to make the code simpler
