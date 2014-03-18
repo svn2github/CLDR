@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -88,6 +89,11 @@ public class FileOpeningCounter {
          * @return
          */
         Collection<StackTraceElement> getStackTrace();
+        
+        /** 
+         * get the creation time as a unix timestamp
+         * @return
+         */
         long getCreationTime();
     }
     
@@ -97,11 +103,16 @@ public class FileOpeningCounter {
      *
      */
     private static class FileOpeningCounterData implements StacktraceGettable {
-        private Collection<StackTraceElement> stackTrace;
+        private final Collection<StackTraceElement> stackTrace;
         private String  callingClass;
         private String callingMethod;
         private int lineNo;
         private final long creationTime;
+        /*
+         * This class contains data that is unchanging, once assigned; for this 
+         * reason, calculating and storing the hashCode is feasible.
+         */
+        private final int hashCode;
        
         /**
          * Instantiate getting stacktrace automatically
@@ -132,7 +143,7 @@ public class FileOpeningCounter {
                if (curCls.contains("FileOpeningCounterData")) {
                    continue;
                }
-               // The call to FileOpeningCounter is probably uninteresting too.
+               // The call to FileOpeningCounter is probably not interesting either
                if (curCls.equals(FileOpeningCounter.class.getCanonicalName())) {
                    // these are not interesting
                    continue;
@@ -142,6 +153,8 @@ public class FileOpeningCounter {
                lineNo=cur.getLineNumber();
                break;
             }
+            // done assigning all fields, calculate the hashCode
+            hashCode=Objects.hash(stackTrace,creationTime,callingClass,callingMethod,lineNo);
         }
         public Collection<StackTraceElement> getStackTrace() {
             return Collections.unmodifiableCollection(stackTrace);
@@ -162,13 +175,7 @@ public class FileOpeningCounter {
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((callingClass == null) ? 0 : callingClass.hashCode());
-            result = prime * result + ((callingMethod == null) ? 0 : callingMethod.hashCode());
-            result = prime * result + lineNo;
-            result = prime * result + ((stackTrace == null) ? 0 : stackTrace.hashCode());
-            return result;
+          return hashCode;
         }
 
         @Override
@@ -183,28 +190,22 @@ public class FileOpeningCounter {
                 return false;
             }
             FileOpeningCounterData other = (FileOpeningCounterData) obj;
-            if (callingClass == null) {
-                if (other.callingClass != null) {
-                    return false;
-                }
-            } else if (!callingClass.equals(other.callingClass)) {
+            if (hashCode!=other.hashCode) {
                 return false;
             }
-            if (callingMethod == null) {
-                if (other.callingMethod != null) {
-                    return false;
-                }
-            } else if (!callingMethod.equals(other.callingMethod)) {
+            // calling class is assumed to be non-null
+            if (!callingClass.equals(other.callingClass)) {
+                return false;
+            }
+           // callingMethod is asasumed to be non-null
+            if (!callingMethod.equals(other.callingMethod)) {
                 return false;
             }
             if (lineNo != other.lineNo) {
                 return false;
             }
-            if (stackTrace == null) {
-                if (other.stackTrace != null) {
-                    return false;
-                }
-            } else if (!stackTrace.equals(other.stackTrace)) {
+           // stackTrace is assumed to be non-null
+            if (!stackTrace.equals(other.stackTrace)) {
                 return false;
             }
             return true;
@@ -217,11 +218,45 @@ public class FileOpeningCounter {
      *
      */
     private static interface FileOpeningCounterInterface {
+        /**
+         * Add the file with the given name to the counting
+         * @param fileName
+         */
         void add(String fileName);
+        
+        /**
+         * return the Stacktraces associated with the filename 
+         * @param filename
+         * @return
+         */
         Collection<? extends StacktraceGettable> get(String filename);
+        
+        /**
+         * Get a consolidated list of entries (stacktraces, and number of occurrences associated with the given file
+         * @param filename
+         * @return
+         */
         Collection<Entry<? extends StacktraceGettable, Integer>> getConsolidated(String filename);
+        
+        /**
+         * Get a collection of Files, which occur at least minOccurs times
+         * @param minOccurs
+         * @return
+         */
         Collection<Map.Entry<String,Integer>> getKeysWithOcurrences(int minOccurs);
+        
+        /**
+         * Get the number of times Filename occurs
+         * @param fileName
+         * @return
+         */
         int getNumOccurrences(String fileName);
+        
+        /**
+         * Remove all entries associated with filename, and return them as a Collection
+         * @param filename
+         * @return
+         */
         Collection<? extends StacktraceGettable> removeAll(String filename);
     }
     
@@ -235,7 +270,8 @@ public class FileOpeningCounter {
 
         @Override
         public void add(String fileName) {
-           // do nothing  
+           // do nothing
+            
         }
 
         @Override
@@ -249,7 +285,7 @@ public class FileOpeningCounter {
         }
 
         @Override
-        public Collection<Map.Entry<String, Integer>> getKeysWithOcurrences(int minOccurs) {
+        public Collection<Entry<String, Integer>> getKeysWithOcurrences(int minOccurs) {
             return Collections.emptyList();
         }
 
@@ -519,6 +555,10 @@ public class FileOpeningCounter {
         return toString(1);
     }
 
+    /**
+     * Query whether counting file openings is enabled.
+     * @return
+     */
     public boolean isEnabled() {
         return COUNT_FILE_OPENINGS;
     }
