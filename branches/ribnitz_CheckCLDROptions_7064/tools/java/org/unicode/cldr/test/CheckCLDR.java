@@ -12,13 +12,12 @@ import java.io.IOException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +41,6 @@ import org.unicode.cldr.util.VoteResolver;
 import com.ibm.icu.dev.util.ElapsedTimer;
 import com.ibm.icu.dev.util.TransliteratorUtilities;
 import com.ibm.icu.impl.Row.R3;
-import com.ibm.icu.text.ListFormatter;
 import com.ibm.icu.text.MessageFormat;
 import com.ibm.icu.text.Transliterator;
 
@@ -323,15 +321,14 @@ abstract public class CheckCLDR {
         }
     }
 
-    public static final class Options implements Comparable<Options> {
-
+    public static final class Options  {
         public enum Option {
             locale,
             CoverageLevel_requiredLevel("CoverageLevel.requiredLevel"),
             CoverageLevel_localeType("CoverageLevel.localeType"), SHOW_TIMES, phase,
             CheckCoverage_skip("CheckCoverage.skip");
-
-            private String key;
+            
+            private final String key;
 
             public String getKey() {
                 return key;
@@ -344,25 +341,38 @@ abstract public class CheckCLDR {
             Option() {
                 this.key = name();
             }
+            /**
+             * Reverse lookup key/name (String) -> option 
+             * @param key
+             * @return the corresponding option value; null if there is no option corresponding
+             */
+            public static Option reverseLookup(String key) {
+                for (Option opt: Option.values()) {
+                    if (opt.key.equals(key) || opt.name().equals(key)) {
+                        return opt;
+                    }
+                }
+                return null;
+            }
         };
 
         private static StandardCodes sc = StandardCodes.make();
 
         private final boolean DEBUG_OPTS = false;
 
-        String options[] = new String[Option.values().length];
+        private final EnumMap<Option, String> options=new EnumMap<CheckCLDR.Options.Option, String>(Option.class);
+     //   String options[] = new String[Option.values().length];
         CLDRLocale locale = null;
 
-        private final String key; // for fast compare 
+       // private final String key; // for fast compare 
 
         /**
          * Adopt some other map
          * @param fromOptions
          */
         public Options(Map<String, String> fromOptions) {
-            clear();
+//            clear();
             setAll(fromOptions);
-            key = null; // no key = slow compare
         }
 
         private void setAll(Map<String, String> fromOptions) {
@@ -376,16 +386,17 @@ abstract public class CheckCLDR {
          * @param value
          */
         private void set(String key, String value) {
-            // TODO- cache the map
-            for (Option o : Option.values()) {
-                if (o.getKey().equals(key)) {
-                    set(o, value);
-                    return;
-                }
+            Option opt=Option.reverseLookup(key);
+            // reverseLookup will return null for strings that do not correspond to one of the options
+            if (opt!=null) {
+                options.put(opt,value);
+            } else {
+                throw new IllegalArgumentException("The key '"+key+"' cannot be mapped to the corresponding Enum constant; "
+                    + "valid ones are "+Options.Option.values());
             }
-            throw new IllegalArgumentException("Unknown CLDR option: '" + key + "' - valid keys are: " + Options.getValidKeys());
         }
 
+        /*
         private static String getValidKeys() {
             Set<String> allkeys = new TreeSet<String>();
             for (Option o : Option.values()) {
@@ -394,9 +405,11 @@ abstract public class CheckCLDR {
             return ListFormatter.getInstance().format(allkeys);
         }
 
+         */
         public Options() {
-            clear();
-            key = "".intern(); // null Options.
+         //   options=new EnumMap<CheckCLDR.Options.Option, String>(Option.class);
+           // clear();
+           // key = "".intern(); // null Options.
         }
 
         /**
@@ -404,13 +417,13 @@ abstract public class CheckCLDR {
          * @param options2
          */
         public Options(Options options2) {
-            this.options = Arrays.copyOf(options2.options, options2.options.length);
-            this.key = options2.key;
+            options.putAll(options2.options.clone());
         }
 
         public Options(CLDRLocale locale, CheckCLDR.Phase testPhase, String requiredLevel, String localeType) {
             this.locale = locale;
-            options = new String[Option.values().length];
+        //    options=new EnumMap<CheckCLDR.Options.Option, String>(options);
+            //options = new String[Option.values().length];
             StringBuilder sb = new StringBuilder();
             set(Option.locale, locale.getBaseName());
             sb.append(locale.getBaseName()).append('/');
@@ -420,7 +433,7 @@ abstract public class CheckCLDR {
             sb.append(localeType).append('/');
             set(Option.phase, testPhase.name().toLowerCase());
             sb.append(testPhase.name()).append('/');
-            key = sb.toString().intern();
+           // key = sb.toString().intern();
         }
 
         @Override
@@ -432,33 +445,46 @@ abstract public class CheckCLDR {
         public boolean equals(Object other) {
             if (this == other) return true;
             if (!(other instanceof Options)) return false;
-            if (this.key != null && ((Options) other).key != null) {
-                return (this.key == ((Options) other).key);
-            } else {
-                return this.compareTo((Options) other) == 0;
+            if (hashCode()!=other.hashCode()) {
+                return false;
             }
+            // Lengthy compare 
+            // clone to be safe against modifications
+            Iterator<Option> iter=options.clone().keySet().iterator();
+            Options otherOptions=(Options)other;
+            while (iter.hasNext()) {
+                Option cur=iter.next();
+                String myValue=get(cur);
+                String otherValue=otherOptions.get(cur);
+                if (otherValue==null) {
+                    return false;
+                }
+                if (!myValue.equals(otherValue)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
-        private Options clear(Option o) {
-            set(o, null);
-            return this;
-        }
-
+        /*
         private Options clear() {
-            for (int i = 0; i < options.length; i++) {
-                options[i] = null;
-            }
+//            for (int i = 0; i < options.length; i++) {
+//                options[i] = null;
+//            }
+            options.clear();
             return this;
         }
-
+*/
         private Options set(Option o, String v) {
-            options[o.ordinal()] = v;
+           // options[o.ordinal()] = v;
+            options.put(o, v);
             if (DEBUG_OPTS) System.err.println("Setting " + o + " = " + v);
             return this;
         }
 
         public String get(Option o) {
-            final String v = options[o.ordinal()];
+//            final String v = options[o.ordinal()];
+            String v=options.get(o);
             if (DEBUG_OPTS) System.err.println("Getting " + o + " = " + v);
             return v;
         }
@@ -487,6 +513,7 @@ abstract public class CheckCLDR {
             return (s != null && !s.isEmpty());
         }
 
+        /*
         @Override
         public int compareTo(Options other) {
             if (other == this) return 0;
@@ -494,53 +521,55 @@ abstract public class CheckCLDR {
                 if (key == other.key) return 0;
                 return key.compareTo(other.key);
             }
-            for (int i = 0; i < options.length; i++) {
-                final String s1 = options[i];
-                final String s2 = other.options[i];
-                if (s1 == null && s2 == null) {
-                    // no difference
-                } else if (s1 == null) {
+            Iterator<Option> iter=options.keySet().iterator();
+            while (iter.hasNext()) {
+                Option curElem=iter.next();
+                String s1=options.get(curElem);
+                String s2=other.options.get(curElem);
+                if (s1==null && s2==null) {
+                    continue;
+                }
+                if (s1==null) {
                     return -1;
-                } else if (s2 == null) {
+                }
+                if (s2==null) {
                     return 1;
-                } else {
-                    int rv = s1.compareTo(s2);
-                    if (rv != 0) {
-                        return rv;
-                    }
+                }
+                // still around, need to compare the elements
+                int result=s1.compareTo(s2);
+                if (result!=0) {
+                    return result;
                 }
             }
+            // still around, and no difference -> no difference
             return 0;
+//            for (int i = 0; i < options.length; i++) {
+//                final String s1 = options[i];
+//                final String s2 = other.options[i];
+//                if (s1 == null && s2 == null) {
+//                    // no difference
+//                } else if (s1 == null) {
+//                    return -1;
+//                } else if (s2 == null) {
+//                    return 1;
+//                } else {
+//                    int rv = s1.compareTo(s2);
+//                    if (rv != 0) {
+//                        return rv;
+//                    }
+//                }
+//            }
+//            return 0;
         }
-
+*/
         @Override
         public int hashCode() {
-            if (key != null) return key.hashCode();
-
-            int h = 1;
-            for (int i = 0; i < options.length; i++) {
-                if (options[i] == null) {
-                    h *= 11;
-                } else {
-                    h = (h * 11) + options[i].hashCode();
-                }
-            }
-            return h;
+            return options.hashCode();
         }
 
         @Override
         public String toString() {
-            if (key != null) return "Options:" + key;
-            StringBuilder sb = new StringBuilder();
-            for (Option o : Option.values()) {
-                if (options[o.ordinal()] != null) {
-                    sb.append(o)
-                        .append('=')
-                        .append(options[o.ordinal()])
-                        .append(' ');
-                }
-            }
-            return sb.toString();
+            return options.toString();
         }
     };
 
@@ -563,27 +592,28 @@ abstract public class CheckCLDR {
      */
     public static CompoundCheckCLDR getCheckAll(Factory factory, String nameMatcher) {
         return new CompoundCheckCLDR()
-            .setFilter(Pattern.compile(nameMatcher, Pattern.CASE_INSENSITIVE).matcher(""))
-            //.add(new CheckAttributeValues(factory))
-            .add(new CheckChildren(factory))
-            // .add(new CheckCoverage(factory)) // outmoded
-            .add(new CheckDates(factory))
-            .add(new CheckForCopy(factory))
-            .add(new CheckDisplayCollisions(factory))
-            .add(new CheckExemplars(factory))
-            .add(new CheckForExemplars(factory))
-            .add(new CheckNames())
-            .add(new CheckNumbers(factory))
-            // .add(new CheckZones()) // this doesn't work; many spurious errors that user can't correct
-            .add(new CheckMetazones())
-            .add(new CheckLogicalGroupings())
-            .add(new CheckAlt())
-            .add(new CheckCurrencies())
-            .add(new CheckCasing())
-            .add(new CheckConsistentCasing(factory)) // this doesn't work; many spurious errors that user can't correct
-            .add(new CheckWidths())
-            .add(new CheckPlaceHolders())
-            .add(new CheckNew(factory)) // this is at the end; it will check for other certain other errors and warnings and
+        .setFilter(Pattern.compile(nameMatcher, Pattern.CASE_INSENSITIVE).matcher(""))
+        //.add(new CheckAttributeValues(factory))
+        .add(new CheckChildren(factory))
+        // .add(new CheckCoverage(factory)) // outmoded
+        .add(new CheckDates(factory))
+        .add(new CheckForCopy(factory))
+        .add(new CheckDisplayCollisions(factory))
+        .add(new CheckExemplars(factory))
+        .add(new CheckForExemplars(factory))
+        .add(new CheckNames())
+        .add(new CheckNumbers(factory))
+        // .add(new CheckZones()) // this doesn't work; many spurious errors that user can't correct
+        .add(new CheckMetazones())
+        .add(new CheckLogicalGroupings())
+        .add(new CheckAlt())
+        .add(new CheckCurrencies())
+        .add(new CheckCasing())
+        .add(new CheckConsistentCasing(factory)) // this doesn't work; many spurious errors that user can't correct
+        .add(new CheckWidths())
+      //  .add(new CheckPlaceHolders())
+       .add(new CheckAttributeValues(factory))
+        .add(new CheckNew(factory)) // this is at the end; it will check for other certain other errors and warnings and
         // not add a message if there are any.
         ;
     }
