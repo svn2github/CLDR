@@ -361,17 +361,15 @@ abstract public class CheckCLDR {
         private final boolean DEBUG_OPTS = false;
 
         private final EnumMap<Option, String> options=new EnumMap<CheckCLDR.Options.Option, String>(Option.class);
-     //   String options[] = new String[Option.values().length];
-        CLDRLocale locale = null;
+        
+        private CLDRLocale locale = null;
 
-       // private final String key; // for fast compare 
 
         /**
          * Adopt some other map
          * @param fromOptions
          */
         public Options(Map<String, String> fromOptions) {
-//            clear();
             setAll(fromOptions);
         }
 
@@ -388,28 +386,16 @@ abstract public class CheckCLDR {
         private void set(String key, String value) {
             Option opt=Option.reverseLookup(key);
             // reverseLookup will return null for strings that do not correspond to one of the options
-            if (opt!=null) {
-                options.put(opt,value);
-            } else {
+            if (opt==null) {
                 throw new IllegalArgumentException("The key '"+key+"' cannot be mapped to the corresponding Enum constant; "
                     + "valid ones are "+Options.Option.values());
             }
+            // the key is not null, so the tuple can be added to the map
+            options.put(opt,value);
         }
 
-        /*
-        private static String getValidKeys() {
-            Set<String> allkeys = new TreeSet<String>();
-            for (Option o : Option.values()) {
-                allkeys.add(o.getKey());
-            }
-            return ListFormatter.getInstance().format(allkeys);
-        }
-
-         */
         public Options() {
-         //   options=new EnumMap<CheckCLDR.Options.Option, String>(Option.class);
-           // clear();
-           // key = "".intern(); // null Options.
+            // empty constructor, map initialized automatically
         }
 
         /**
@@ -443,8 +429,15 @@ abstract public class CheckCLDR {
 
         @Override
         public boolean equals(Object other) {
-            if (this == other) return true;
-            if (!(other instanceof Options)) return false;
+            if (this == other) {
+                return true;
+            }
+            if (other==null) {
+                return false;
+            }
+            if (!(other instanceof Options)) {
+                return false;
+            }
             if (hashCode()!=other.hashCode()) {
                 return false;
             }
@@ -465,32 +458,23 @@ abstract public class CheckCLDR {
             }
             return true;
         }
-
-        /*
-        private Options clear() {
-//            for (int i = 0; i < options.length; i++) {
-//                options[i] = null;
-//            }
-            options.clear();
-            return this;
-        }
-*/
+        
         private Options set(Option o, String v) {
-           // options[o.ordinal()] = v;
             options.put(o, v);
             if (DEBUG_OPTS) System.err.println("Setting " + o + " = " + v);
             return this;
         }
 
         public String get(Option o) {
-//            final String v = options[o.ordinal()];
             String v=options.get(o);
             if (DEBUG_OPTS) System.err.println("Getting " + o + " = " + v);
             return v;
         }
 
         public CLDRLocale getLocale() {
-            if (locale != null) return locale;
+            if (locale != null) {
+                return locale;
+            }
             return CLDRLocale.getInstance(get(Option.locale));
         }
 
@@ -513,55 +497,6 @@ abstract public class CheckCLDR {
             return (s != null && !s.isEmpty());
         }
 
-        /*
-        @Override
-        public int compareTo(Options other) {
-            if (other == this) return 0;
-            if (key != null && other.key != null) {
-                if (key == other.key) return 0;
-                return key.compareTo(other.key);
-            }
-            Iterator<Option> iter=options.keySet().iterator();
-            while (iter.hasNext()) {
-                Option curElem=iter.next();
-                String s1=options.get(curElem);
-                String s2=other.options.get(curElem);
-                if (s1==null && s2==null) {
-                    continue;
-                }
-                if (s1==null) {
-                    return -1;
-                }
-                if (s2==null) {
-                    return 1;
-                }
-                // still around, need to compare the elements
-                int result=s1.compareTo(s2);
-                if (result!=0) {
-                    return result;
-                }
-            }
-            // still around, and no difference -> no difference
-            return 0;
-//            for (int i = 0; i < options.length; i++) {
-//                final String s1 = options[i];
-//                final String s2 = other.options[i];
-//                if (s1 == null && s2 == null) {
-//                    // no difference
-//                } else if (s1 == null) {
-//                    return -1;
-//                } else if (s2 == null) {
-//                    return 1;
-//                } else {
-//                    int rv = s1.compareTo(s2);
-//                    if (rv != 0) {
-//                        return rv;
-//                    }
-//                }
-//            }
-//            return 0;
-        }
-*/
         @Override
         public int hashCode() {
             return options.hashCode();
@@ -612,7 +547,7 @@ abstract public class CheckCLDR {
         .add(new CheckConsistentCasing(factory)) // this doesn't work; many spurious errors that user can't correct
         .add(new CheckWidths())
       //  .add(new CheckPlaceHolders())
-       .add(new CheckAttributeValues(factory))
+//       .add(new CheckAttributeValues(factory))
         .add(new CheckNew(factory)) // this is at the end; it will check for other certain other errors and warnings and
         // not add a message if there are any.
         ;
