@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 
 import org.unicode.cldr.draft.FileUtilities;
 
+import com.google.common.base.Splitter;
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.TransliteratorUtilities;
 import com.ibm.icu.impl.Utility;
@@ -352,17 +353,29 @@ public class CldrUtility {
     }
 
     public static List<String> splitList(String source, char separator, boolean trim, List<String> output) {
-        if (output == null) output = new ArrayList<String>();
-        if (source.length() == 0) return output;
-        int pos = 0;
-        do {
-            int npos = source.indexOf(separator, pos);
-            if (npos < 0) npos = source.length();
-            String piece = source.substring(pos, npos);
-            if (trim) piece = piece.trim();
-            output.add(piece);
-            pos = npos + 1;
-        } while (pos < source.length());
+        if (output == null) {
+            output = new ArrayList<String>();
+        }
+        if (source.length() == 0) {
+            return output;
+        }
+        List<String> tmpList;
+        // use Guava
+        if (trim) {
+            tmpList=Splitter.on(separator).omitEmptyStrings().trimResults().splitToList(source);
+        } else {
+            tmpList=Splitter.on(separator).omitEmptyStrings().splitToList(source);
+        }
+        output=new ArrayList<>(tmpList);
+//        int pos = 0;
+//        do {
+//            int npos = source.indexOf(separator, pos);
+//            if (npos < 0) npos = source.length();
+//            String piece = source.substring(pos, npos);
+//            if (trim) piece = piece.trim();
+//            output.add(piece);
+//            pos = npos + 1;
+//        } while (pos < source.length());
         return output;
     }
 
