@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 
 import com.ibm.icu.text.UTF16;
@@ -100,7 +101,8 @@ public class CountryCodeConverter {
             if (line.trim().length() == 0) {
                 return true; // don't show skips
             }
-            String[] pieces = line.split(";");
+            String[] pieces=Patterns.SEMICOLON.split(line);
+//            String[] pieces = line.split(";");
             String country = pieces[0].trim();
             if (!goodAvailableCodes.contains(country)) {
 

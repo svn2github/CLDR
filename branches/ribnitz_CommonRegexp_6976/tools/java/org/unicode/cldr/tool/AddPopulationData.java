@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Counter2;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 
 import com.ibm.icu.text.NumberFormat;
@@ -103,7 +104,8 @@ public class AddPopulationData {
         oldCode = "";
         if (SHOW_ALTERNATE_NAMES) {
             for (String altName : altNames) {
-                String[] pieces = altName.split("\t");
+                String[] pieces=Patterns.TABULATOR.split(altName);
+ //                String[] pieces = altName.split("\t");
                 String code = pieces[0];
                 if (code.equals("ZZ")) continue;
                 if (!code.equals(oldCode)) {
@@ -198,7 +200,8 @@ public class AddPopulationData {
                     || line.startsWith(" This file")) {
                     return false;
                 }
-                String[] pieces = line.split("\t");
+                String[] pieces=Patterns.TABULATOR.split(line);
+//                String[] pieces = line.split("\t");
                 String code = CountryCodeConverter.getCodeFromName(FBLine.Country.get(pieces));
                 if (code == null) {
                     return false;
@@ -242,7 +245,8 @@ public class AddPopulationData {
             if (line.length() == 0) {
                 return true;
             }
-            String[] pieces = line.split(";");
+            String[] pieces= Patterns.SEMICOLON.split(line);
+//            String[] pieces = line.split(";");
             final String code = pieces[0].trim();
             if (code.equals("Code")) {
                 return false;

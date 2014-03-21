@@ -25,6 +25,7 @@ import org.unicode.cldr.util.Iso639Data;
 import org.unicode.cldr.util.Iso639Data.Scope;
 import org.unicode.cldr.util.Iso639Data.Type;
 import org.unicode.cldr.util.Log;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PopulationData;
@@ -336,14 +337,16 @@ public class GenerateEnums {
                 System.out.println("GenerateEnums: Skipping: " + line);
                 continue;
             }
-            String[] sourceValues = line.split("\\s+");
+            String[] sourceValues = Patterns.WHITESPACE.split(line);
+//            String[] sourceValues = line.split("\\s+");
             int code = Integer.parseInt(sourceValues[0]);
             String codeName = threeDigit.format(code);
             macro_name.put(codeName, line);
         }
         codes.close();
         String values = supplementalDataInfo.getValidityInfo().get("$territory").get1().trim();
-        String[] validTerritories = values.split("\\s+");
+        String[] validTerritories= Patterns.WHITESPACE.split(values);
+//        String[] validTerritories = values.split("\\s+");
         for (int i = 0; i < validTerritories.length; ++i) {
             if (corrigendum.contains(validTerritories[i])) {
                 System.out.println("Skipping " + validTerritories[i] + "\t\t"
@@ -488,7 +491,8 @@ public class GenerateEnums {
             parts.set(fullPath);
             String container = parts.getAttributeValue(parts.size() - 1, "type");
             final String containedString = parts.getAttributeValue(-1, "contains");
-            List<String> contained = Arrays.asList(containedString.trim().split("\\s+"));
+            List<String> contained= Arrays.asList(Patterns.WHITESPACE.split(containedString.trim()));
+//            List<String> contained = Arrays.asList(containedString.trim().split("\\s+"));
             containment.put(container, contained);
         }
         // fix recursiveContainment.

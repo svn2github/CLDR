@@ -157,7 +157,8 @@ public class LanguageTagParser {
         int localeExtensionsPosition = languageTag.indexOf('@');
         if (localeExtensionsPosition >= 0) {
             final String localeExtensionsString = languageTag.substring(localeExtensionsPosition + 1);
-            for (String keyValue : localeExtensionsString.split(";")) {
+            for (String keyValue: Patterns.SEMICOLON.split(localeExtensionsString)) {
+//            for (String keyValue : localeExtensionsString.split(";")) {
                 final String[] keyValuePair = keyValue.split("\\=");
                 final String key = keyValuePair[0];
                 final String value = keyValuePair[1];

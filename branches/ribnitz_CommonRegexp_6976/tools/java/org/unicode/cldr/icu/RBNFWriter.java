@@ -17,6 +17,8 @@ import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.util.Date;
 
+import org.unicode.cldr.util.Patterns;
+
 import com.ibm.icu.dev.tool.UOption;
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.impl.Utility;
@@ -123,7 +125,8 @@ public class RBNFWriter {
                     String radixString = null;
                     String ruleString = null;
                     if (ruleText.contains(":")) {
-                        String[] parts = ruleText.split(":");
+                        String[] parts=Patterns.COLON.split(ruleText);
+//                        String[] parts = ruleText.split(":");
                         if (parts[0].startsWith("%")) {
                             if (firstRuleset == false) {
                                 out.println("            </ruleset>");
@@ -154,7 +157,8 @@ public class RBNFWriter {
                                 numberString = numberString.replace('>', RARROW).replaceAll(",", "");
                             } else {
                                 if (numberString.contains("/")) {
-                                    String[] numparts = numberString.split("/");
+                                    String[] numparts=Patterns.SLASH.split(numberString);
+//                                    String[] numparts = numberString.split("/");
                                     numberString = numparts[0];
                                     radixString = numparts[1];
                                 }

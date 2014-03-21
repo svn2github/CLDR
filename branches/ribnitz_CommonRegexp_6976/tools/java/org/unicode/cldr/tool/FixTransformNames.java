@@ -18,6 +18,7 @@ import org.unicode.cldr.util.CLDRTransforms.Direction;
 import org.unicode.cldr.util.CLDRTransforms.ParsedTransformID;
 import org.unicode.cldr.util.CLDRTransforms.Visibility;
 import org.unicode.cldr.util.LanguageTagParser;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes.CodeType;
 import org.unicode.cldr.util.With;
 
@@ -214,7 +215,8 @@ public class FixTransformNames {
     }
 
     private void addX(Map<String, String> oldToNewVariant2, String type, String prefix, String items) {
-        for (String part : items.split("\\s+")) {
+        for (String part: Patterns.WHITESPACE.split(items)) {
+//        for (String part : items.split("\\s+")) {
             String target = prefix + part.toLowerCase(Locale.ENGLISH);
             if (target.length() > 8) {
                 target = target.substring(0, 8);

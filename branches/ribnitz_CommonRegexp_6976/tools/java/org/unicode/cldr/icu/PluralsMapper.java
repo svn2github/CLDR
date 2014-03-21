@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralType;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -79,7 +80,8 @@ public class PluralsMapper {
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attr) throws SAXException {
             if (qName.equals("pluralRules")) {
-                currentLocales = attr.getValue("locales").split("\\s+");
+                currentLocales=Patterns.WHITESPACE.split(attr.getValue("locales"));
+//                currentLocales = attr.getValue("locales").split("\\s+");
             } else if (qName.equals("pluralRule")) {
                 currentCount = attr.getValue("count");
             }

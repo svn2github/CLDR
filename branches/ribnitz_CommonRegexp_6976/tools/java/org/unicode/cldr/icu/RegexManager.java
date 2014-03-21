@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility.VariableReplacer;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup.Merger;
@@ -83,7 +84,8 @@ class RegexManager {
          * @return
          */
         public String process(String arg) {
-            String[] args = arg.split(",");
+            String[] args=Patterns.COMMA.split(arg);
+//            String[] args = arg.split(",");
             if (maxArgs > -1 && args.length > maxArgs) {
                 throw new IllegalArgumentException("Function has too many args: expected "
                     + maxArgs + " but got (" + arg + ")");

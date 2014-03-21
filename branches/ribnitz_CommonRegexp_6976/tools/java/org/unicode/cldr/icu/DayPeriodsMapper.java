@@ -2,6 +2,7 @@ package org.unicode.cldr.icu;
 
 import java.io.File;
 
+import org.unicode.cldr.util.Patterns;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -43,7 +44,8 @@ public class DayPeriodsMapper {
         public void startElement(String uri, String localName, String qName, Attributes attr) throws SAXException {
             if (qName.equals("dayPeriodRules")) {
                 setNum++;
-                String[] locales = attr.getValue("locales").split("\\s+");
+                String[] locales= Patterns.WHITESPACE.split(attr.getValue("locales"));
+//                String[] locales = attr.getValue("locales").split("\\s+");
                 for (String locale : locales) {
                     icuData.add("/locales/" + locale, "set" + setNum);
                 }

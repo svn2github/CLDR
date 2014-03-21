@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,7 +28,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.ibm.icu.dev.util.CollectionUtilities;
+
+
 public class CheckWidths extends CheckCLDR {
+
     /**
      * Set to TRUE to read the constants for the RegexLookup from a file
      */
@@ -35,6 +41,10 @@ public class CheckWidths extends CheckCLDR {
      * Path of the width specification file, relative to the data directory
      */
     private static final String WIDTH_SPECIFICATION_FILE = "test/widthSpecification.xml";
+    /**
+     * Path of the width specification schema, relative to the data directory
+     */
+    private static final String WIDTH_SPECIFICATION_SCHEMA="test/widthSpecification.xsd";
 
     // remember to add this class to the list in CheckCLDR.getCheckAll
     // to run just this test, on just locales starting with 'nl', use CheckCLDR with -fnl.* -t.*CheckWidths.*
@@ -304,6 +314,7 @@ public class CheckWidths extends CheckCLDR {
 
     Set<Limit> found = new LinkedHashSet<Limit>();
 
+    
     /**
      * Class controlling variable and path extraction
      * @author ribnitz
@@ -311,11 +322,72 @@ public class CheckWidths extends CheckCLDR {
      */
     private static class CheckWidthPathAndVariableExtractor implements
         ExtractablePath<String, Limit>, ExtractableVariable {
-        private static CheckWidthPathAndVariableExtractor instance = null;
+        
+        /**
+         * Helper class to provide a static method to extract the first child of the node given and return it as a String
+         * @author ribnitz
+         *
+         */
+        private static class FirstChildValueExtractor {
+            /**
+             * Given a Node, returns the value of the first child, if existent, or null otherwise 
+             * @param aNode
+             * @return
+             */
+            private static String getValueOfFirstChild(Node aNode) {
+                if (aNode != null && aNode.hasChildNodes()) {
+                    Node firstChild = aNode.getFirstChild();
+                    return firstChild.getNodeValue();
+                }
+                return null;
+            }
 
+        }
+        
+        /**
+         * Helper class - Extract the value of the first child of a given node and convert it to the 
+         * enumeration value of the given type
+         * 
+         * @author ribnitz
+         *
+         * @param <E>
+         */
+        private  static class EnumValueExtractor<E extends Enum<E>> {
+            /**
+             * Extract the enum value from the Node given in currentNode, and convert it to an enumeration of type enumType.
+             * @param currentNode
+             * @param enumType
+             * @param errors
+             * @return the enum value obtained, or null if an error occurred
+             */
+            public E getEnumValue(Node currentNode,Class<E> enumType,List<String> errors) {
+                String firstChildVal=FirstChildValueExtractor.getValueOfFirstChild(currentNode);
+                try {
+                   return Enum.valueOf(enumType, firstChildVal);
+                } catch (IllegalArgumentException iae) {
+                    if (currentNode instanceof Element) {
+                        String s="A node named "+((Element)currentNode).getTagName()+" is supposed to contain one of '"+
+                            enumType.getDeclaringClass().getEnumConstants()+"', but was "+firstChildVal;
+                        errors.add(s);
+                    }
+                }
+                return null;
+            }
+        }
+        private static CheckWidthPathAndVariableExtractor instance = null;
+        private final List<String> validationErrors=new ArrayList<>();
+        
         private CheckWidthPathAndVariableExtractor() {
         }
 
+        public boolean isDocumentValid() {
+            return (validationErrors.isEmpty());
+        }
+        
+        public List<String> getValidationErrors() {
+            return Collections.unmodifiableList(validationErrors);
+        }
+        
         public static CheckWidthPathAndVariableExtractor getInstance() {
             synchronized (CheckWidthPathAndVariableExtractor.class) {
                 if (instance == null) {
@@ -343,20 +415,6 @@ public class CheckWidths extends CheckCLDR {
             }
             return null;
         }
-
-        /**
-         * Given a Node, returns the value of the first child, if existent, or null otherwise 
-         * @param aNode
-         * @return
-         */
-        private String getValueOfFirstChild(Node aNode) {
-            if (aNode != null && aNode.hasChildNodes()) {
-                Node firstChild = aNode.getFirstChild();
-                return firstChild.getNodeValue();
-            }
-            return null;
-        }
-
         /**
          * Treat a node which contains a double value, but which may contain an attribute, which will 
          * change the calculation of that value, if set to true.
@@ -364,7 +422,8 @@ public class CheckWidths extends CheckCLDR {
          * @return
          */
         private double extractErrorOrWarningValue(Node curChild) {
-            String cs = getValueOfFirstChild(curChild);
+            String cs = FirstChildValueExtractor.getValueOfFirstChild(curChild);
+            try {
             // the current child is supposed to have one child, which holds a numeric value
             double d = cs == null ? 0 : Double.parseDouble(cs);
             double multiplier = 1;
@@ -378,6 +437,17 @@ public class CheckWidths extends CheckCLDR {
                 }
             }
             return d * multiplier;
+            } catch (NumberFormatException nfe) {
+                // current node was supposed to contain a numeric value, but did not
+                if (curChild!=null) {
+                    String localName=curChild.getLocalName();
+                    if (localName!=null &&!localName.isEmpty()) {
+                        validationErrors.add(
+                            "A node named "+localName+" was supposed to contain a numeric value, but contained '"+cs+"'");
+                    }
+                }
+            }
+            return 1;
         }
 
         /**
@@ -415,19 +485,27 @@ public class CheckWidths extends CheckCLDR {
                             case "limit":
                                 // the current child has a child (Text node) containing 
                                 // the value
-                                nodeVal = getValueOfFirstChild(curChild);
-                                curLim = LimitType.valueOf(nodeVal);
+                               LimitType tmpLim=new EnumValueExtractor<CheckWidths.LimitType>().getEnumValue(curChild, CheckWidths.LimitType.class,validationErrors);
+                               if (tmpLim!=null) {
+                                   curLim=tmpLim;
+                               }
                                 break;
                             case "measure":
-                                nodeVal = getValueOfFirstChild(curChild);
-                                measure = Measure.valueOf(nodeVal);
+                                //  nodeVal = getValueOfFirstChild(curChild);
+                                Measure tmpMeasure=new EnumValueExtractor<CheckWidths.Measure>().getEnumValue(curChild, CheckWidths.Measure.class, validationErrors);
+                                if (tmpMeasure!=null) {
+                                    measure = tmpMeasure;
+                                }
                                 break;
                             case "special":
-                                nodeVal = getValueOfFirstChild(curChild);
-                                special = Special.valueOf(nodeVal);
+                                //  nodeVal = getValueOfFirstChild(curChild);
+                                Special tmpSpecial=new EnumValueExtractor<CheckWidths.Special>().getEnumValue(curChild, CheckWidths.Special.class, validationErrors);
+                                if (tmpSpecial!=null) {
+                                    special = tmpSpecial;
+                                }
                                 break;
                             case "pathName":
-                                nodeVal = getValueOfFirstChild(curChild);
+                                nodeVal = FirstChildValueExtractor.getValueOfFirstChild(curChild);
                                 curPath = nodeVal;
                                 break;
                             }
@@ -440,6 +518,7 @@ public class CheckWidths extends CheckCLDR {
             }
             return null;
         }
+
     }
 
     private static interface LookupInitializable {
@@ -522,6 +601,11 @@ public class CheckWidths extends CheckCLDR {
                                 Limit curVal = pathsReadFromFile.get(curKey);
                                 lookup.add(curKey, new Limit[] { curVal });
                             }
+                        }
+                        if (!exractor.isDocumentValid()) {
+                            // print out the errors
+                            System.err.println("The following validation errors occurred in the file "+
+                                WIDTH_SPECIFICATION_FILE+":\n"+CollectionUtilities.join(exractor.getValidationErrors(), "\n"));
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -623,7 +707,17 @@ public class CheckWidths extends CheckCLDR {
 
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
+    /**
+     * Class controlling variable and path extraction
+     * @author ribnitz
+     *
+     */
+ 
+
+
+   
     public CheckCLDR handleCheck(String path, String fullPath, String value, Options options,
         List<CheckStatus> result) {
         if (value == null) {

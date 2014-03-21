@@ -22,6 +22,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.Patterns;
+
 import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.DateFormat;
@@ -527,7 +529,6 @@ public class GenerateNormalizeForMatch {
             }
             return;
         }
-
         String[] pieces = line.split("\\s*;\\s*");
         final String sourcePiece = pieces[0];
         final String target = pieces.length < 2 ? "" : pieces[1];
@@ -698,7 +699,8 @@ public class GenerateNormalizeForMatch {
             return "";
         }
         StringBuilder result = new StringBuilder();
-        String[] pieces = spaceDelimitedHex.split("\\s+");
+//        String[] pieces = spaceDelimitedHex.split("\\s+");
+        String[] pieces=Patterns.WHITESPACE.split(spaceDelimitedHex);
         for (String piece : pieces) {
             result.append(UTF16.valueOf(Integer.parseInt(piece, 16)));
         }

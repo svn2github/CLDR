@@ -6,6 +6,7 @@ import org.unicode.cldr.icu.ICUResourceWriter.Resource;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceString;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceTable;
 import org.unicode.cldr.util.LDMLUtilities;
+import org.unicode.cldr.util.Patterns;
 import org.w3c.dom.Node;
 
 public class PluralsConverter extends SimpleLDMLConverter {
@@ -41,7 +42,8 @@ public class PluralsConverter extends SimpleLDMLConverter {
             Node child = node.getFirstChild();
 
             String locales = LDMLUtilities.getAttributeValue(node, LDMLConstants.LOCALES);
-            String[] localesArray = locales.split("\\s");
+            String[] localesArray=Patterns.WHITESPACE.split(locales);
+//            String[] localesArray = locales.split("\\s");
 
             if (child == null) {
                 // Create empty resource strings with the locale as the ID.

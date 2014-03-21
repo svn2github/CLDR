@@ -17,6 +17,7 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.XPathParts;
 
 import com.ibm.icu.dev.tool.UOption;
@@ -332,7 +333,8 @@ public class ConvertTransforms extends CLDRConverterTool {
     }
 
     private void showComments(PrintWriter toilet, String value) {
-        String[] lines = value.trim().split("\\r\\n?|\\n");
+        String[] lines= Patterns.NEWLINE.split(value.trim());
+//        String[] lines = value.trim().split("\\r\\n?|\\n");
         for (String line : lines) {
             if (!line.startsWith("#")) {
                 line = "# " + line;

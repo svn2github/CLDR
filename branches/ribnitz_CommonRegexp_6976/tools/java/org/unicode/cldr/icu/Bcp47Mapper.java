@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.unicode.cldr.util.Patterns;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -97,7 +98,8 @@ public class Bcp47Mapper {
             } else if (qName.equals("type")) {
                 String alias = attr.getValue("alias");
                 if (alias == null) return;
-                String[] aliases = alias.split("\\s+");
+                String[] aliases=Patterns.WHITESPACE.split(alias);
+//                String[] aliases = alias.split("\\s+");
                 String mainAlias = aliases[0];
                 icuData.add(typeMapPrefix + formatName(mainAlias),
                     attr.getValue("name"));

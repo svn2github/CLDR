@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.unicode.cldr.json.LdmlConvertRules.SplittableAttributeSpec;
 import org.unicode.cldr.util.CLDRFile.DtdType;
 import org.unicode.cldr.util.DtdData;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.XPathParts;
 import org.unicode.cldr.util.ZoneParser;
 
@@ -174,7 +175,8 @@ public class CldrItem implements Comparable<CldrItem> {
                     node.getName()));
                 String typeValue = node.getDistinguishingAttributes().get("type");
                 typeValue = typeValue.replaceAll("Asia:Taipei", "Asia/Taipei");
-                String[] segments = typeValue.split("/");
+                String[] segments = Patterns.SLASH.split(typeValue);
+//                String[] segments = typeValue.split("/");
                 for (int j = 0; j < segments.length; j++) {
                     CldrNode newNode = CldrNode.createNode(parent, node.getName(),
                         node.getName());
@@ -222,7 +224,8 @@ public class CldrItem implements Comparable<CldrItem> {
                 ArrayList<CldrItem> list = new ArrayList<CldrItem>();
                 String wordString = fullxpp.findAttributeValue(s.element, s.attribute);
                 String[] words = null;
-                words = wordString.trim().split("\\s+");
+                words=Patterns.WHITESPACE.split(wordString.trim());
+//                words = wordString.trim().split("\\s+");
                 XPathParts[] newparts = { newxpp, newfullxpp, untransformednewxpp, untransformednewfullxpp };
                 for (String word : words) {
                     newxpp.set(xpp);
@@ -279,8 +282,10 @@ public class CldrItem implements Comparable<CldrItem> {
         thisxpp.set(untransformedPath);
         otherxpp.set(otherItem.untransformedFullPath);
         if (thisxpp.containsElement("zone") && otherxpp.containsElement("zone")) {
-            String[] thisZonePieces = thisxpp.findAttributeValue("zone", "type").split("/");
-            String[] otherZonePieces = otherxpp.findAttributeValue("zone", "type").split("/");
+            String[] thisZonePieces=Patterns.SLASH.split(thisxpp.findAttributeValue("zone", "type"));
+//            String[] thisZonePieces = thisxpp.findAttributeValue("zone", "type").split("/");
+            String[] otherZonePieces=Patterns.SLASH.split(otherxpp.findAttributeValue("zone", "type"));
+//            String[] otherZonePieces = otherxpp.findAttributeValue("zone", "type").split("/");
             int result = ZoneParser.regionalCompare.compare(thisZonePieces[0], otherZonePieces[0]);
             if (result != 0) {
                 return result;

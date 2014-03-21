@@ -17,6 +17,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.unicode.cldr.ant.CLDRConverterTool.AliasDeprecates;
 import org.unicode.cldr.icu.ResourceSplitter.SplitInfo;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.tool.UOption;
 
@@ -400,7 +401,8 @@ public class CLDRBuild extends Task {
             if (".*".equals(locales)) {
                 this.locales = ANY;
             } else {
-                this.locales = Arrays.asList(locales.split("\\s+"));
+                this.locales=Arrays.asList(Patterns.WHITESPACE.split(locales));
+             //   this.locales = Arrays.asList(locales.split("\\s+"));
             }
         }
 

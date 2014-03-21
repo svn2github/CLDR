@@ -37,6 +37,7 @@ import org.unicode.cldr.icu.LDML2ICUConverter.LDMLServices;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.LocaleIDParser;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SimpleFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -362,7 +363,8 @@ public class DeprecatedConverter {
                 String list = e.getValue();
 
                 log.setStatus(actualLocale + ".xml");
-                String validSubs[] = list.split(" ");
+                String[] validSubs=Patterns.WHITESPACE.split(list);
+//                String validSubs[] = list.split(" ");
                 for (String aSub : validSubs) {
                     String testSub;
                     for (testSub = aSub; testSub != null && !testSub.equals("root") && !testSub.equals(actualLocale); testSub = LocaleIDParser

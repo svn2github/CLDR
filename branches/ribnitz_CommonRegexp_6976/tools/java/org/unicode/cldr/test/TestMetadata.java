@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.XMLFileReader;
 
@@ -203,7 +204,8 @@ public class TestMetadata {
             }
         }
 
-        String[] zones = zoneList.split("\\s+");
+        String[] zones=Patterns.WHITESPACE.split(zoneList);
+//        String[] zones = zoneList.split("\\s+");
         Set<String> metaZoneSet = new TreeSet<String>();
         metaZoneSet.addAll(Arrays.asList(zones));
 

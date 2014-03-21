@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CLDRTransforms;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.text.RuleBasedTransliterator;
 import com.ibm.icu.text.Transliterator;
@@ -70,7 +71,8 @@ public class TestTransforms {
         prefix += "\t";
         if (t instanceof RuleBasedTransliterator) {
             RuleBasedTransliterator rbt = (RuleBasedTransliterator) t;
-            String[] rules = rbt.toRules(true).split("\n");
+            String[] rules=Patterns.NEWLINE.split(rbt.toRules(true));
+//            String[] rules = rbt.toRules(true).split("\n");
             int length = rules.length;
             if (limit >= 0 && limit < length) length = limit;
             for (int i = 0; i < length; ++i) {

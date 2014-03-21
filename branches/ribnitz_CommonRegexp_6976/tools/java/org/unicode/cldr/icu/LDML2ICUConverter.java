@@ -52,6 +52,7 @@ import org.unicode.cldr.icu.ICUResourceWriter.ResourceTable;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LDMLUtilities;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XPathParts;
 import org.w3c.dom.Document;
@@ -834,7 +835,8 @@ public class LDML2ICUConverter extends CLDRConverterTool {
 
     public static ResourceArray getResourceArray(String str, String name) {
         if (str != null) {
-            String[] strs = str.split("\\s+");
+            String[] strs=Patterns.WHITESPACE.split(str);
+//            String[] strs = str.split("\\s+");
             ResourceArray arr = new ResourceArray();
             arr.name = name;
             Resource curr = null;
@@ -2111,7 +2113,8 @@ public class LDML2ICUConverter extends CLDRConverterTool {
                 Resource c = null;
                 String[] values = null;
                 if (name.equals(LDMLConstants.SINGLE_COUNTRIES)) {
-                    values = loc.getBasicAttributeValue(apath, LDMLConstants.LIST).split(" ");
+                    values=Patterns.WHITESPACE.split(loc.getBasicAttributeValue(apath, LDMLConstants.LIST));
+//                    values = loc.getBasicAttributeValue(apath, LDMLConstants.LIST).split(" ");
                 } else {
                     String temp = loc.getBasicAttributeValue(apath, LDMLConstants.CHOICE);
                     if (temp == null) {
@@ -2121,7 +2124,8 @@ public class LDML2ICUConverter extends CLDRConverterTool {
                                 + " must have either type or choice attribute");
                         }
                     }
-                    values = temp.split("\\s+");
+                    values =Patterns.WHITESPACE.split(temp);
+//                    values = temp.split("\\s+");
                 }
 
                 for (int i = 0; i < values.length; i++) {
@@ -3204,7 +3208,8 @@ public class LDML2ICUConverter extends CLDRConverterTool {
     }
 
     public static int getMillis(String time) {
-        String[] strings = time.split(":"); // time is in hh:mm format
+        String[] strings=Patterns.COLON.split(time);  // time is in hh:mm format
+//        String[] strings = time.split(":"); // time is in hh:mm format
         int hours = Integer.parseInt(strings[0]);
         int minutes = Integer.parseInt(strings[1]);
         return (hours * 60 + minutes) * 60 * 1000;

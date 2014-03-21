@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.ICUPropertyFactory;
@@ -85,8 +86,11 @@ public class FrequencyData {
                 line = line.substring(0, commentPos);
             }
             line = line.trim();
-            if (line.length() == 0) continue;
-            String[] pieces = line.split("\\s+");
+            if (line.length() == 0) {
+                continue;
+            }
+            String[] pieces=Patterns.WHITESPACE.split(line);
+//            String[] pieces = line.split("\\s+");
             int code = Integer.parseInt(pieces[0], 16);
 
             if (showProgress && lineCount < 100 || (lineCount % 1000000) == 0 || code == 0x03C2) {

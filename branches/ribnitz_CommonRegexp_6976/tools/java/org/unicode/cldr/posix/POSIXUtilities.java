@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.UTF16;
@@ -360,8 +361,8 @@ public class POSIXUtilities {
     public static String POSIXYesNoExpr(String s)
     {
         StringBuffer result = new StringBuffer();
-        String[] YesNoElements;
-        YesNoElements = s.split(":");
+        String[] YesNoElements=Patterns.COLON.split(s);
+//        YesNoElements = s.split(":");
         for (int i = 0; i < YesNoElements.length; i++)
         {
             String cur = YesNoElements[i];

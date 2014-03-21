@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +29,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
      */
     private static final boolean LOG_PATH_REMOVALS = false;
 
+    private final static Logger logger=Logger.getLogger(CheckDisplayCollisions.class.getName());
     // Get Date-Time in milliseconds
     private static long getDateTimeinMillis(int year, int month, int date) {
         Calendar cal = Calendar.getInstance();
@@ -84,6 +87,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
     }
 
     static final boolean SKIP_TYPE_CHECK = true;
+    
 
     private final Matcher exclusions = Pattern.compile("=\"narrow\"]").matcher(""); // no matches
     private final Matcher typePattern = Pattern.compile("\\[@type=\"([^\"]*+)\"]").matcher("");
@@ -211,6 +215,22 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
             return this;
         }
 
+        if (!paths.isEmpty()) {
+            // paths shouldn't contain any winning paths
+            Iterator<String> pIter=paths.iterator();
+            Set<String> winningPaths=new HashSet<String>();
+            CLDRFile cFile=getResolvedCldrFileToCheck();
+            while (pIter.hasNext()) {
+                String curPath=pIter.next();
+                if (cFile.isWinningPath(curPath)) {
+                    winningPaths.add(curPath);
+                }
+            }
+            // if winning paths is not empty, we have a problem
+            if (!winningPaths.isEmpty()) {
+                int i=1;
+            }
+        }
         // ok, we probably have a collision! Extract the types
         Set<String> collidingTypes = new TreeSet<String>();
 
@@ -310,7 +330,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
      */
     private void log(String string) {
         if (LOG_PATH_REMOVALS) {
-            System.out.println(string);
+            logger.log(Level.FINE,string);
         }
     }
 

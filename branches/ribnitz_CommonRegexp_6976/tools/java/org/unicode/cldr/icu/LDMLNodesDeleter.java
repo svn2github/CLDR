@@ -15,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 import org.unicode.cldr.util.LDMLUtilities;
+import org.unicode.cldr.util.Patterns;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -126,7 +127,8 @@ public class LDMLNodesDeleter {
             try {
                 Document source = LDMLUtilities.parse(sourceFN, false);
                 Node src = LDMLUtilities.getNode(source, "//ldml");
-                String[] list = xpath.split(":");
+                String[] list = Patterns.COLON.split(xpath);
+//                String[] list = xpath.split(":");
                 for (int j = 0; j < list.length; j++) {
                     System.out.println("INFO: Deleting nodes with xpath: " + list[j]);
                     deleteNodes(source, list[j]);

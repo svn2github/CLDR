@@ -39,6 +39,7 @@ import org.unicode.cldr.util.IsoRegionData;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.Log;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.TimezoneFormatter;
@@ -399,7 +400,8 @@ public class CountItems {
             if (zone == null) {
                 throw new IllegalArgumentException("Missing 001 for metazone " + metazone);
             }
-            String continent = zone.split("/")[0];
+            String continent=Patterns.SLASH.split(zone)[0];
+//            String continent = zone.split("/")[0];
 
             final Object country = zoneToCountry.get(zone);
             results.add(new Pair<String, String>(continent + "\t" + country + "\t" + countryToContinent.get(country)
@@ -442,7 +444,8 @@ public class CountItems {
         Map<String, String> zoneNew_Old = new TreeMap<String, String>(col);
         String lastZone = "XXX";
         for (String zone : new TreeSet<String>(zone_country.keySet())) {
-            String[] parts = zone.split("/");
+            String[] parts=Patterns.SLASH.split(zone);
+//            String[] parts = zone.split("/");
             String newPrefix = zone_country.get(zone); // english.getName("tzid", zone_country.get(zone),
                                                        // false).replace(' ', '_');
             if (newPrefix.equals("001")) {
@@ -495,7 +498,8 @@ public class CountItems {
                 if (masked.contains(oldName) != (i == 0)) {
                     continue;
                 }
-                String newCountry = newName.split("/")[0];
+                String newCountry=Patterns.SLASH.split(newName)[0];
+//                String newCountry = newName.split("/")[0];
                 if (!newCountry.equals(lastCountry)) {
                     Log.println("# " + newCountry + "\t"
                         + english.getName("territory", newCountry));

@@ -29,6 +29,7 @@ import org.unicode.cldr.util.ICUServiceBuilder;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.PathStarrer;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.RegexUtilities;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XPathParts;
@@ -456,7 +457,8 @@ public class CheckDates extends FactoryCheckCLDR {
                             "Value should contain a positive hour format and a negative hour format separated by a semicolon.");
                     result.add(item);
                 } else {
-                    String[] formats = value.split(";");
+                    String[] formats=Patterns.SEMICOLON.split(value);
+//                    String[] formats = value.split(";");
                     if (formats[0].equals(formats[1])) {
                         CheckStatus item = new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
                             .setSubtype(Subtype.illegalDatePattern)

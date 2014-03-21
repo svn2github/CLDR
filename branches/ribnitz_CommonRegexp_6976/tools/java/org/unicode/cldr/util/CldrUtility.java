@@ -946,7 +946,8 @@ public class CldrUtility {
     }
 
     public static void callMethod(String methodNames, Class<?> cls) {
-        for (String methodName : methodNames.split(",")) {
+        for (String methodName : Patterns.COMMA.split(methodNames)) {
+     //   for (String methodName : methodNames.split(",")) {
             try {
                 Method method;
                 try {

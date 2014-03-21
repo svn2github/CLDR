@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SimpleFactory;
 
 import com.ibm.icu.dev.util.BagFormatter;
@@ -295,7 +296,8 @@ public class ExtractICUData {
                         accumulatedItems.add(prefix + (++count) + "\"]", "::" + filter + ";");
                     }
                     String rest = instanceMatcher.group(2);
-                    String[] pieces = rest.split(";");
+                    String[] pieces= Patterns.SEMICOLON.split(rest);
+//                    String[] pieces = rest.split(";");
                     for (int i = 0; i < pieces.length; ++i) {
                         String piece = pieces[i].trim();
                         if (piece.length() == 0) continue;

@@ -15,6 +15,7 @@ import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Patterns;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -134,7 +135,8 @@ public class CollationMapper extends Mapper {
             } else if (qName.equals("collations")) {
                 String validSubLocales = attr.getValue("validSubLocales");
                 if (validSubLocales != null) {
-                    subLocales = validSubLocales.split("\\s++");
+                    subLocales=Patterns.POSSESSIVE_WHITESPACE.split(validSubLocales);
+//                    subLocales = validSubLocales.split("\\s++");
                 }
             } else if (qName.equals("version")) {
                 icuData.add("/Version", MapperUtils.formatVersion(attr.getValue("number")));
@@ -176,7 +178,8 @@ public class CollationMapper extends Mapper {
             if (qName.equals("suppress_contractions")) {
                 properties.add("suppressContractions " + currentText.toString());
             } else if (qName.equals("cr")) {
-                String[] lines = currentText.toString().split("\n");
+                String[] lines=Patterns.NEWLINE.split(currentText.toString());
+//                String[] lines = currentText.toString().split("\n");
                 for (String line : lines) {
                     int commentPos = line.indexOf("#");
                     if (commentPos > -1) {

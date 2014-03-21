@@ -7,6 +7,7 @@ import org.unicode.cldr.icu.ICUResourceWriter.ResourceArray;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceString;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceTable;
 import org.unicode.cldr.util.LDMLUtilities;
+import org.unicode.cldr.util.Patterns;
 import org.w3c.dom.Node;
 
 public class SupplementalMetadataConverter extends SimpleLDMLConverter {
@@ -62,7 +63,8 @@ public class SupplementalMetadataConverter extends SimpleLDMLConverter {
                 Resource c = null;
                 arr.name = LDMLConstants.REGION_CODES;
                 String validRegionString = LDMLUtilities.getNodeValue(node).trim();
-                String[] validRegions = validRegionString.split("\\s+");
+                String[] validRegions=Patterns.WHITESPACE.split(validRegionString);
+ //                String[] validRegions = validRegionString.split("\\s+");
                 for (int i = 0; i < validRegions.length; i++) {
                     ResourceString str = new ResourceString();
                     str.val = validRegions[i];

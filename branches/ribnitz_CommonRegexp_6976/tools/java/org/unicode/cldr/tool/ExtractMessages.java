@@ -17,6 +17,7 @@ import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.XMLFileReader;
@@ -540,7 +541,8 @@ class ExtractMessages {
                 break;
             case TIMEZONE:
                 for (String code : sc.getAvailableCodes("tzid")) {
-                    String[] parts = code.split("/");
+//                    String[] parts = code.split("/");
+                    String[] parts=Patterns.SLASH.split(code);
                     addName(parts[parts.length - 1].replace("_", " "), code, false);
                 }
                 // add irregular names
@@ -637,7 +639,8 @@ class ExtractMessages {
             String result = cldrFile.getStringValue(getPath(id));
             // cldrFile.getName(CLDRFile.LANGUAGE_NAME, id, false);
             if (result == null && type == Type.TIMEZONE) {
-                String[] parts = id.split("/");
+                String[] parts= Patterns.SLASH.split(id);
+//                String[] parts = id.split("/");
                 result = parts[parts.length - 1].replace("_", " ");
             }
             return result;

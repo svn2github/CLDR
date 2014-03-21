@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.Patterns;
+
 public class FallbackIterator implements Iterator<String> {
     private static final boolean DEBUG = false;
 
@@ -21,7 +23,8 @@ public class FallbackIterator implements Iterator<String> {
         String source;
 
         public FallbackRule(String string) {
-            String[] data = string.split(";");
+            String[] data=Patterns.SEMICOLON.split(string);
+//            String[] data = string.split(";");
             boolean first = true;
             List<String> strings = new ArrayList<String>();
             for (String datum : data) {

@@ -17,6 +17,7 @@ import org.unicode.cldr.icu.RegexManager.PathValueInfo;
 import org.unicode.cldr.icu.RegexManager.RegexResult;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.CLDRFile.DtdType;
 import org.unicode.cldr.util.Pair;
 import org.unicode.cldr.util.RegexLookup;
@@ -272,7 +273,8 @@ public class SupplementalMapper {
                 boolean splitNeeded = false;
                 int argIndex = info.getSplitRbPathArg();
                 if (argIndex != -1) {
-                    String[] splitArgs = arguments[argIndex].split("\\s++");
+                    String[] splitArgs=Patterns.WHITESPACE.split(arguments[argIndex]);
+                        //                    String[] splitArgs = arguments[argIndex].split("\\s++");
                     // Only split the first splittable argument needed for each rbPath.
                     if (splitArgs.length > 1) {
                         String[] newArgs = arguments.clone();

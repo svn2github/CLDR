@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.XPathParts;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -67,7 +68,8 @@ class BreakIteratorMapper extends Mapper {
                 }
 
                 if (element2.equals("icu:boundaries")) {
-                    type = element.split(":")[1]; // icu:word -> "word"
+                    type=Patterns.COLON.split(element)[1];
+//                    type = element.split(":")[1]; // icu:word -> "word"
                     source = brkSource;
                 } else if (element2.equals("icu:dictionaries")) {
                     type = xpp.getAttributeValue(-1, "type"); // [@type="Laoo"] -> "Laoo"
@@ -83,7 +85,9 @@ class BreakIteratorMapper extends Mapper {
                 } else {
                     source.add(filename.substring(0, filename.lastIndexOf('.'))); // "title.brk" -> "title"
                     icuData.add(
-                        MessageFormat.format("/{0}/{1}:process(dependency)", element2.split(":")[1], type), filename); // "Laoo", "laodict.dict"
+                        MessageFormat.format("/{0}/{1}:process(dependency)", 
+                            /* element2.split(":")*/ Patterns.COLON.split(element2)[1], 
+                            type), filename); // "Laoo", "laodict.dict"
                 }
             }
         }

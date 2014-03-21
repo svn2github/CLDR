@@ -600,7 +600,8 @@ public class ICUServiceBuilder {
 
             // TODO This is a hack for now, since I am ignoring the possibility of quoted text next to the symbol
             if (pattern.contains(";")) { // multi pattern
-                String[] pieces = pattern.split(";");
+                String[] pieces= Patterns.SEMICOLON.split(pattern);
+//                String[] pieces = pattern.split(";");
                 for (int i = 0; i < pieces.length; ++i) {
                     pieces[i] = fixCurrencySpacing(pieces[i], currencySymbol);
                 }

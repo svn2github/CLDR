@@ -31,6 +31,7 @@ import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Iso639Data;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.Iso639Data.Scope;
 import org.unicode.cldr.util.Iso639Data.Source;
 import org.unicode.cldr.util.Iso639Data.Type;
@@ -534,7 +535,8 @@ public class ConvertLanguageData {
             List<String> scripts = null;
             String scriptString = x.get(attribute);
             if (scriptString != null) {
-                scripts = Arrays.asList(scriptString.split("\\s+"));
+                scripts= Arrays.asList(Patterns.WHITESPACE.split(scriptString));
+//                scripts = Arrays.asList(scriptString.split("\\s+"));
             }
             return scripts;
         }
@@ -1791,7 +1793,8 @@ public class ConvertLanguageData {
                 BasicLanguageData.Type status = BasicLanguageData.Type.valueOf(row.get(2));
                 String scripts = row.get(3);
                 if (!checkCode("language", language, row)) continue;
-                for (String script : scripts.split("\\s+")) {
+                for (String script : Patterns.WHITESPACE.split(scripts)) {
+//                for (String script : scripts.split("\\s+")) {
                     if (!checkCode("script", script, row)) continue;
                     // if the script is not modern, demote
                     Info scriptInfo = ScriptMetadata.getInfo(script);
@@ -1980,7 +1983,8 @@ public class ConvertLanguageData {
         while (true) {
             String line = in.readLine();
             if (line == null) break;
-            String[] parts = line.split("\\t");
+            String[] parts = Patterns.TABULATOR.split(line);
+//            String[] parts = line.split("\\t");
             String alpha3 = parts[0];
             alpha3 = stripBrackets(alpha3);
             String languageSubtag = Iso639Data.fromAlpha3(alpha3);

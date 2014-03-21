@@ -19,6 +19,7 @@ import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData;
@@ -220,12 +221,16 @@ public class TestSupplementalData {
         Set<Pair> sorted = new TreeSet<Pair>();
         while (true) {
             String line = codes.readLine();
-            if (line == null)
+            if (line == null) {
                 break;
-            line = line.split("#")[0].trim();
-            if (line.length() == 0)
+            }
+            line=Patterns.HASH.split(line)[0].trim();
+//            line = line.split("#")[0].trim();
+            if (line.length() == 0) {
                 continue;
-            String[] sourceValues = line.split("\\s+");
+            }
+            String[] sourceValues=Patterns.WHITESPACE.split(line);
+//            String[] sourceValues = line.split("\\s+");
             String[] values = new String[5];
             for (int i = 0; i < values.length; ++i) {
                 if (i >= sourceValues.length || sourceValues[i].equals("-"))

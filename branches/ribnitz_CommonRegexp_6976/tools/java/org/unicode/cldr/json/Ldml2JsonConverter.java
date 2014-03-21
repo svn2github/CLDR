@@ -25,6 +25,7 @@ import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.DtdData;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XPathParts;
 
@@ -982,7 +983,8 @@ public class Ldml2JsonConverter {
             String attrValue = escapeValue(attrAsValueMap.get(key));
             // attribute is prefixed with "_" when being used as key.
             if (LdmlConvertRules.ATTRVALUE_AS_ARRAY_SET.contains(key)) {
-                String[] strings = attrValue.trim().split("\\s+");
+                String[] strings=Patterns.WHITESPACE.split(attrValue.trim());
+//                String[] strings = attrValue.trim().split("\\s+");
                 out.add(indent(level + 1) + "\"_" + key + "\": [");
                 for (String s : strings) {
                     out.add(indent(level + 2) + "\"" + s + "\"");

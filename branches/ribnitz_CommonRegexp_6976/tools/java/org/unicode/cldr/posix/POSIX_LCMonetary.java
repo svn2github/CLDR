@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo;
 
 import com.ibm.icu.util.ULocale;
@@ -49,8 +50,11 @@ public class POSIX_LCMonetary {
             .getWinningValue("//ldml/numbers/currencyFormats/currencyFormatLength/currencyFormat[@type='standard']/pattern[@type='standard']");
 
         String[] monetary_formats = new String[2];
-        if (grouping_pattern.indexOf(";") > 0)
-            monetary_formats = grouping_pattern.split(";", 2);
+        if (grouping_pattern.indexOf(";") > 0) {
+            monetary_formats=Patterns.SEMICOLON.split(grouping_pattern,2);
+//            monetary_formats = grouping_pattern.split(";", 2);
+        }
+           
         else
         {
             monetary_formats[POSITIVE] = grouping_pattern;

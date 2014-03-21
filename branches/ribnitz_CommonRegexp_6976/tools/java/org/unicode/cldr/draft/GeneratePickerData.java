@@ -33,6 +33,7 @@ import org.unicode.cldr.draft.GeneratePickerData.CategoryTable.Separation;
 import org.unicode.cldr.tool.Option;
 import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.CLDRPaths;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.lang.UProperty;
@@ -1556,31 +1557,38 @@ class GeneratePickerData {
         }
 
         void getRenameData(String filename) throws IOException {
-            InputStream stream = GeneratePickerData.class.getResourceAsStream(filename);
-            BufferedReader in = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-            while (true) {
-                String line = in.readLine();
-                if (line == null) break;
-                int pos = line.indexOf('#');
-                if (pos >= 0) {
-                    line = line.substring(0, pos);
+//            if (new File(filename).canRead()) {
+//                FileOpeningCounter.getInstance().add(filename);
+//            }
+            try (InputStream stream = GeneratePickerData.class.getResourceAsStream(filename);
+                BufferedReader in = new BufferedReader(new InputStreamReader(stream, "UTF-8"));) {
+                String line=null;
+                while ((line=in.readLine())!=null) {
+                    //   String line = in.readLine();
+                    //  v if (line == null) break;
+                    int pos = line.indexOf('#');
+                    if (pos >= 0) {
+                        line = line.substring(0, pos);
+                    }
+                    line = line.trim();
+                    if (line.length() == 0) {
+                        continue;
+                    }
+                    try {
+                        int breaker = line.indexOf(">");
+                        String source = line.substring(0, breaker).trim();
+                        String target = line.substring(breaker + 1).trim();
+                        renameTable.put(Pattern.compile(source, Pattern.CASE_INSENSITIVE).matcher(""), 
+                            new MatchData(source, target));
+                    } catch (Exception e) { 
+                        // TODO: Be more specific: IllegalArgumentException, ArrayIndexOutOfBoundsException and
+                        // PatternSyntaxException can all be thrown in the try/catch block above.
+                        throw new IllegalArgumentException("Problem with: "+line,e);
+                        //                        throw (RuntimeException) new IllegalArgumentException("Problem with: " + line).initCause(e);
+                    }
                 }
-                line = line.trim();
-                if (line.length() == 0) {
-                    continue;
-                }
-                try {
-                    int breaker = line.indexOf(">");
-                    String source = line.substring(0, breaker).trim();
-                    String target = line.substring(breaker + 1).trim();
-                    renameTable.put(Pattern.compile(source, Pattern.CASE_INSENSITIVE).matcher(""), new MatchData(
-                        source, target));
-                } catch (Exception e) {
-                    throw (RuntimeException) new IllegalArgumentException("Problem with: " + line).initCause(e);
-                }
+                //            in.close();
             }
-            in.close();
-
         }
 
         // static final String[] RENAME_TABLE = {
@@ -1711,6 +1719,10 @@ class GeneratePickerData {
     }
 
     private static void addManualCorrections(String fileName) throws IOException {
+        File f=new File(fileName);
+//        if (f.canRead()) {
+//            FileOpeningCounter.getInstance().add(fileName);
+//        }
         InputStream stream = GeneratePickerData.class.getResourceAsStream(fileName);
         BufferedReader in = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
         while (true) {
@@ -1720,7 +1732,8 @@ class GeneratePickerData {
             if (line.length() == 0 || line.startsWith("#")) {
                 continue;
             }
-            String components[] = line.split(";");
+            String[] components=Patterns.SEMICOLON.split(line);
+;//            String components[] = line.split(";");
             if (components.length != 4) {
                 throw new IOException("Invalid line: <" + line + "> - Expecting 4 ';' separated components");
             }
@@ -1746,6 +1759,11 @@ class GeneratePickerData {
     private static void addEmojiCharacters() throws IOException {
         File emojiSources = new File(unicodeDataDirectory + "/EmojiSources.txt"); // Needs fixing for release vs
                                                                                   // non-released directory
+//        if (emojiSources.canRead()) {
+//            FileOpeningCounter.getInstance().add(emojiSources.getCanonicalPath());
+//        }
+       
+
         FileInputStream fis = new FileInputStream(emojiSources);
         BufferedReader in = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
         UnicodeSet emojiCharacters = new UnicodeSet();

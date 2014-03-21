@@ -199,7 +199,9 @@ public class ConsoleCheckCLDR {
         }
         String factoryFilter = options[FILE_FILTER].value;
         if (factoryFilter.equals("key")) {
-            factoryFilter = "(en|ru|nl|fr|de|it|pl|es|tr|th|ja|zh|ko|ar|bg|sr|uk|ca|hr|cs|da|fil|fi|hu|id|lv|lt|nb|pt|ro|sk|sl|sv|vi|el|he|fa|hi|am|af|et|is|ms|sw|zu|bn|mr|ta|eu|gl|ur|gu|kn|ml|te|zh_Hant|pt_PT|en_GB)";
+            factoryFilter = "(en|ru|nl|fr|de|it|pl|es|tr|th|ja|zh|ko|ar|bg|sr|uk|ca|hr|cs|da|fil|fi|hu|id|"
+                + "lv|lt|nb|pt|ro|sk|sl|sv|vi|el|he|fa|hi|am|af|et|is|ms|sw|zu|bn|mr|ta|"
+                + "eu|gl|ur|gu|kn|ml|te|zh_Hant|pt_PT|en_GB)";
         }
         String checkFilter = options[TEST_FILTER].value;
         String subtypeFilterString = options[SUBTYPE_FILTER].value;
@@ -378,12 +380,12 @@ public class ConsoleCheckCLDR {
         PathShower pathShower = new PathShower();
 
         // call on the files
-        Set locales = new TreeSet(baseFirstCollator);
+        Set<String> locales = new TreeSet<>(baseFirstCollator);
         locales.addAll(cldrFactory.getAvailable());
 
         List<CheckStatus> result = new ArrayList<CheckStatus>();
         Set<PathHeader> paths = new TreeSet<PathHeader>(); // CLDRFile.ldmlComparator);
-        Map m = new TreeMap();
+        Map<String, String> m = new TreeMap<>();
         // double testNumber = 0;
         Map<String, String> options = new HashMap<String, String>();
         FlexibleDateFromCLDR fset = new FlexibleDateFromCLDR();
@@ -399,8 +401,8 @@ public class ConsoleCheckCLDR {
         String lastBaseLanguage = "";
         PathHeader.Factory pathHeaderFactory = PathHeader.getFactory(english);
 
-        for (Iterator it = locales.iterator(); it.hasNext();) {
-            String localeID = (String) it.next();
+        for (Iterator<String> it = locales.iterator(); it.hasNext();) {
+            String localeID =  it.next();
             if (CLDRFile.isSupplementalName(localeID)) continue;
             if (supplementalDataInfo.getDefaultContentLocales().contains(localeID)) {
                 System.out.println("# Skipping default content locale: " + localeID);

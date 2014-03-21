@@ -25,6 +25,7 @@ import org.unicode.cldr.icu.ICUResourceWriter.ResourceString;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceTable;
 import org.unicode.cldr.icu.LDML2ICUConverter.LDMLServices;
 import org.unicode.cldr.util.LDMLUtilities;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.w3c.dom.Node;
 
@@ -864,7 +865,8 @@ public class SupplementalDataParser {
             String order = LDMLUtilities.getAttributeValue(node, LDMLConstants.ORDERING);
 
             // expand territories and create separated ordering array for each
-            String[] territories = tmp.split("\\s+");
+//            String[] territories = tmp.split("\\s+");
+            String[] territories = Patterns.WHITESPACE.split(tmp);
             for (int i = 0; i < territories.length; i++) {
                 res = LDML2ICUConverter.getResourceArray(order, territories[i]);
                 if (current == null) {
@@ -915,7 +917,8 @@ public class SupplementalDataParser {
             if (name.equals(LDMLConstants.MINDAYS) || name.equals(LDMLConstants.FIRSTDAY) ||
                 name.equals(LDMLConstants.WENDSTART) || name.equals(LDMLConstants.WENDEND)) {
                 String territoryString = LDMLUtilities.getAttributeValue(node, LDMLConstants.TERRITORIES);
-                String[] territories = territoryString.split(" ");
+                String[] territories=Patterns.WHITESPACE.split(territoryString);
+//                String[] territories = territoryString.split(" ");
                 for (int i = 0; i < territories.length; i++) {
                     if (name.equals(LDMLConstants.MINDAYS)) {
                         String countString = LDMLUtilities.getAttributeValue(node, LDMLConstants.COUNT);
@@ -1261,7 +1264,8 @@ public class SupplementalDataParser {
                 }
 
                 if (all_aliases != null) {
-                    String[] arr = all_aliases.split("\\s+");
+                    String[] arr=Patterns.WHITESPACE.split(all_aliases);
+//                    String[] arr = all_aliases.split("\\s+");
                     ResourceArray als = new ResourceArray();
                     als.name = LDMLConstants.ALIASES;
                     Resource cur = null;

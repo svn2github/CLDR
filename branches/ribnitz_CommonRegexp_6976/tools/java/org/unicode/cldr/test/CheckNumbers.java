@@ -16,6 +16,7 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.ICUServiceBuilder;
 import org.unicode.cldr.util.PathHeader;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
@@ -133,7 +134,8 @@ public class CheckNumbers extends FactoryCheckCLDR {
 
         // Make sure currency patterns contain a currency symbol
         if (type == NumericType.CURRENCY) {
-            String[] currencyPatterns = value.split(";", 2);
+            String[] currencyPatterns=Patterns.SEMICOLON.split(value,2);
+ //            String[] currencyPatterns = value.split(";", 2);
             for (int i = 0; i < currencyPatterns.length; i++) {
                 if (currencyPatterns[i].indexOf("\u00a4") < 0)
                     result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
@@ -244,7 +246,8 @@ public class CheckNumbers extends FactoryCheckCLDR {
         } else {
             allowedChars = new UnicodeSet("[0-9#@.,E+]");
         }
-        for (String subPattern : value.split(";")) {
+        for (String subPattern: Patterns.SEMICOLON.split(value)) {
+//        for (String subPattern : value.split(";")) {
             // Any unquoted non-special chars are allowed in front of or behind the numerical
             // symbols, but not in between, e.g. " 0000" is okay but "0 000" is not.
             int firstIdx = -1;

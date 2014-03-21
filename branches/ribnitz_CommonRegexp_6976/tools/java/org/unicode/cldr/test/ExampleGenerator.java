@@ -32,6 +32,7 @@ import org.unicode.cldr.util.ICUServiceBuilder;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathDescription;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.PluralSamples;
 import org.unicode.cldr.util.SimpleHtmlParser;
 import org.unicode.cldr.util.SimpleHtmlParser.Type;
@@ -1578,7 +1579,8 @@ public class ExampleGenerator {
             hoursBackground = false; // for the hours case
             gmtFormat = setBackground(cldrFile.getWinningValue("//ldml/dates/timeZoneNames/gmtFormat"));
         }
-        String[] plusMinus = gmtHourString.split(";");
+        String[] plusMinus=Patterns.SEMICOLON.split(gmtHourString);
+//        String[] plusMinus = gmtHourString.split(";");
 
         SimpleDateFormat dateFormat = icuServiceBuilder.getDateFormat("gregorian", plusMinus[hours >= 0 ? 0 : 1]);
         dateFormat.setTimeZone(ZONE_SAMPLE);
