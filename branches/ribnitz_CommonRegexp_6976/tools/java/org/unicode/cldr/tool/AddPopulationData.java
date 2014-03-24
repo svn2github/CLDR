@@ -104,7 +104,7 @@ public class AddPopulationData {
         oldCode = "";
         if (SHOW_ALTERNATE_NAMES) {
             for (String altName : altNames) {
-                String[] pieces=Patterns.TABULATOR.split(altName);
+                String[] pieces=Patterns.splitOnTabulator(altName);
  //                String[] pieces = altName.split("\t");
                 String code = pieces[0];
                 if (code.equals("ZZ")) continue;
@@ -200,7 +200,7 @@ public class AddPopulationData {
                     || line.startsWith(" This file")) {
                     return false;
                 }
-                String[] pieces=Patterns.TABULATOR.split(line);
+                String[] pieces=Patterns.splitOnTabulator(line);
 //                String[] pieces = line.split("\t");
                 String code = CountryCodeConverter.getCodeFromName(FBLine.Country.get(pieces));
                 if (code == null) {
@@ -245,7 +245,7 @@ public class AddPopulationData {
             if (line.length() == 0) {
                 return true;
             }
-            String[] pieces= Patterns.SEMICOLON.split(line);
+            String[] pieces= Patterns.splitOnSemicolon(line);
 //            String[] pieces = line.split(";");
             final String code = pieces[0].trim();
             if (code.equals("Code")) {

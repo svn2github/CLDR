@@ -296,7 +296,7 @@ public class Option {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            args = Patterns.WHITESPACE.split("foo -fen.xml -c a* --path bar -g b -r aaa");
+            args = Patterns.splitOnWhitespace("foo -fen.xml -c a* --path bar -g b -r aaa");
 //            args = "foo -fen.xml -c a* --path bar -g b -r aaa".split("\\s+");
         }
         myOptions.parse(args, true);

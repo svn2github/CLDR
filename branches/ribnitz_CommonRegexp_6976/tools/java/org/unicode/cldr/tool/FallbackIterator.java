@@ -23,7 +23,7 @@ public class FallbackIterator implements Iterator<String> {
         String source;
 
         public FallbackRule(String string) {
-            String[] data=Patterns.SEMICOLON.split(string);
+            String[] data=Patterns.splitOnSemicolon(string);
 //            String[] data = string.split(";");
             boolean first = true;
             List<String> strings = new ArrayList<String>();

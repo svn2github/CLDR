@@ -101,7 +101,7 @@ public class CountryCodeConverter {
             if (line.trim().length() == 0) {
                 return true; // don't show skips
             }
-            String[] pieces=Patterns.SEMICOLON.split(line);
+            String[] pieces=Patterns.splitOnSemicolon(line);
 //            String[] pieces = line.split(";");
             String country = pieces[0].trim();
             if (!goodAvailableCodes.contains(country)) {

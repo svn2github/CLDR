@@ -2056,7 +2056,7 @@ public class CLDRModify {
                     FileUtilities.FileProcessor myReader = new FileUtilities.FileProcessor() {
                         @Override
                         protected boolean handleLine(int lineCount, String line) {
-                            String[] lineParts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line.trim());
+                            String[] lineParts = Patterns.splitOnSemicolonWithWhiteSpace(line.trim());
 //                            String[] lineParts = line.trim().split("\\s*;\\s*");
                             Map<ConfigKeys, ConfigMatch> keyValue = new EnumMap<ConfigKeys, ConfigMatch>(
                                 ConfigKeys.class);

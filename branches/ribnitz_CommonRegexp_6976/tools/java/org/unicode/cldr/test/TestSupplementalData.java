@@ -224,12 +224,12 @@ public class TestSupplementalData {
             if (line == null) {
                 break;
             }
-            line=Patterns.HASH.split(line)[0].trim();
+            line=Patterns.splitOnHash(line)[0].trim();
 //            line = line.split("#")[0].trim();
             if (line.length() == 0) {
                 continue;
             }
-            String[] sourceValues=Patterns.WHITESPACE.split(line);
+            String[] sourceValues=Patterns.splitOnWhitespace(line);
 //            String[] sourceValues = line.split("\\s+");
             String[] values = new String[5];
             for (int i = 0; i < values.length; ++i) {

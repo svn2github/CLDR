@@ -979,7 +979,7 @@ public class PathHeader implements Comparable<PathHeader> {
 
             functionMap.put("calField", new Transform<String, String>() {
                 public String transform(String source) {
-                    String[] fields = Patterns.COLON.split(source,3);
+                    String[] fields = Patterns.splitOnColon(source,3);
 //                    String[] fields = source.split(":", 3);
                     order = 0;
                     final List<String> widthValues = Arrays.asList(

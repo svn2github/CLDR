@@ -47,7 +47,7 @@ public class IsoRegionData {
                 String line = codes.readLine();
                 if (line == null)
                     break;
-                  line = Patterns.HASH.split(line)[0].trim();
+                  line = Patterns.splitOnHash(line)[0].trim();
 //                line = line.split("#")[0].trim();
                 if (line.length() == 0)
                     continue;

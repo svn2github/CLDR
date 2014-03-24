@@ -507,7 +507,8 @@ public abstract class Ids implements Comparable<Ids> {
                     // 5,Variant,,#VALUE!,⺄,U+2E84,SECOND_THREE
                     // 6,Main,亅,U+4E85,⼅,U+2F05,HOOK,,,𠄌
 
-                    String[] split = Patterns.COMMA.split(line);
+                    String[] split= Patterns.splitOnComma(line);
+//                    String[] split = Patterns.COMMA.split(line);
 //                    String[] split = line.split(",");
                     // we depend on the file being set up so that the first integer radical has a Main. Detect bad
                     // cases.
@@ -542,7 +543,8 @@ public abstract class Ids implements Comparable<Ids> {
                     System.out.println("debug?");
                 }
                 hacks.line = line;
-                String[] split = line.split("\\s+");
+                String[] split= Patterns.WHITESPACE.split(line);
+//                String[] split = line.split("\\s+");
                 Integer key = split[1].codePointAt(0);
                 Ids ids;
                 try {

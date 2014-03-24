@@ -94,7 +94,7 @@ public class PathUtilities {
         // else {
 
         String defaultCalendarsItems = "gregorian buddhist coptic ethiopic chinese hebrew indian islamic japanese persian roc";
-        return Patterns.WHITESPACE.split(defaultCalendarsItems);
+        return Patterns.splitOnSpaceCharacter(defaultCalendarsItems);
 //        return (defaultCalendarsItems.split(" "));
 
         // }
@@ -104,7 +104,7 @@ public class PathUtilities {
     {
         String defaultMetazonesItems = "Africa America Antarctica Asia Australia Europe Atlantic Indian Pacific";
 //        return (defaultMetazonesItems.split(" "));
-        return Patterns.WHITESPACE.split(defaultMetazonesItems);
+        return Patterns.splitOnSpaceCharacter(defaultMetazonesItems);
     }
 
     private static Map<String, String> mzXpathToContinent = new HashMap<String, String>();

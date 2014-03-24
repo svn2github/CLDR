@@ -1143,7 +1143,7 @@ public class SupplementalDataInfo {
         }
         // HACK
         String currentScript = null;
-        for (String s : Patterns.SPACE_CHARACTER.split(
+        for (String s : Patterns.splitOnSpaceCharacter(
             "Latn aa af agq ak asa ast bas bem bez bm br ca cgg cs cy da dav de dje dua dyo ebu ee en eo es et eu ewo ff fi fil "
             + "fo fr fur fy ga gd gl gsw guz gv haw hr hu ia id ig is it jgo jmc kab kam kde kea khq ki kkj kl kln ksb ksf ksh kw "
             + "lag lg lkt ln lt lu luo luy lv mas mer mfe mg mgh mgo mt mua naq nb nd nl nmg nn nnh nr nso nus nyn om pl pt rm rn "
@@ -1315,7 +1315,7 @@ public class SupplementalDataInfo {
             if (data == null) {
                 measurementData.put(measurementType, data = new HashMap<String, String>());
             }
-            for (String territory : Patterns.WHITESPACE.split(territories)) {
+            for (String territory : Patterns.splitOnWhitespace(territories)) {
 //            for (String territory : territories.trim().split("\\s+")) {
                 data.put(territory, type);
             }
@@ -1330,7 +1330,7 @@ public class SupplementalDataInfo {
             // String[] allowed = parts.getAttributeValue(-1, "allowed").trim().split("\\s+");
             PreferredAndAllowedHour preferredAndAllowedHour = new PreferredAndAllowedHour(preferred,
                 parts.getAttributeValue(-1, "allowed"));
-            for (String region: Patterns.WHITESPACE.split(parts.getAttributeValue(-1, "regions").trim())) {
+            for (String region: Patterns.splitOnWhitespace(parts.getAttributeValue(-1, "regions").trim())) {
 //            for (String region : parts.getAttributeValue(-1, "regions").trim().split("\\s+")) {
                 PreferredAndAllowedHour oldValue = timeData.put(region, preferredAndAllowedHour);
                 if (oldValue != null) {
@@ -1361,7 +1361,7 @@ public class SupplementalDataInfo {
             if (keyAlias != null) {
                 bcp47Aliases.putAll((R2<String, String>) Row.of(key, "").freeze(),
 //                    Arrays.asList(keyAlias.trim().split("\\s+")));
-                    Arrays.asList(Patterns.WHITESPACE.split(keyAlias.trim())));
+                    Arrays.asList(Patterns.splitOnWhitespace(keyAlias.trim())));
             }
 
             if (keyDescription != null) {
@@ -1467,7 +1467,7 @@ public class SupplementalDataInfo {
         private void handleParentLocales() {
             String parent = parts.getAttributeValue(-1, "parent");
             String locales = parts.getAttributeValue(-1, "locales");
-            String[] pl=Patterns.WHITESPACE.split(locales);
+            String[] pl=Patterns.splitOnWhitespace(locales);
 //            String[] pl = locales.split(" ");
 //            for (int i = 0; i < pl.length; i++) {
              for (String currentLocale: pl) {
@@ -1479,7 +1479,7 @@ public class SupplementalDataInfo {
         private void handleCalendarPreferenceData() {
             String territoryString = parts.getAttributeValue(-1, "territories");
             String orderingString = parts.getAttributeValue(-1, "ordering");
-            String[] calendars=Patterns.WHITESPACE.split(orderingString);
+            String[] calendars=Patterns.splitOnSpaceCharacter(orderingString);
 //            String[] calendars = orderingString.split(" ");
             String[] territories = Patterns.WHITESPACE.split(territoryString);
 //            String[] territories = territoryString.split(" ");
@@ -1535,7 +1535,7 @@ public class SupplementalDataInfo {
             String temp = parts.getAttributeValue(index, attribute);
             Collection<String> elements = temp == null ? defaultValue : Arrays.asList(
                 //temp.split("\\s+"));
-                Patterns.WHITESPACE.split(temp));
+                Patterns.splitOnWhitespace(temp));
             return elements;
         }
 
@@ -1566,7 +1566,7 @@ public class SupplementalDataInfo {
             if (parts.contains("defaultContent")) {
                 String defContent = parts.getAttributeValue(-1, "locales").trim();
 //                String[] defLocales = defContent.split("\\s+");
-                String[] defLocales= Patterns.WHITESPACE.split(defContent);
+                String[] defLocales= Patterns.splitOnWhitespace(defContent);
                 defaultContentLocales = Collections.unmodifiableSet(new TreeSet<String>(Arrays.asList(defLocales)));
                 for (String defaultContentLocale : defaultContentLocales) {
                     int pos = LocaleIDParser.getScriptPosition(defaultContentLocale);
@@ -1605,7 +1605,7 @@ public class SupplementalDataInfo {
                     validityInfo.put(attributes.get("id"), Row.of(attributes.get("type"), value));
                     if ("$language".equals(attributes.get("id")) && "choice".equals(attributes.get("type"))) {
 //                        String[] validCodeArray = value.trim().split("\\s+");
-                        String[] validCodeArray = Patterns.WHITESPACE.split(value.trim());
+                        String[] validCodeArray = Patterns.splitOnWhitespace(value.trim());
                         CLDRLanguageCodes = Collections.unmodifiableSet(new TreeSet<String>(Arrays
                             .asList(validCodeArray)));
                     }
@@ -1618,15 +1618,15 @@ public class SupplementalDataInfo {
                 }
             } else if (level2.equals("attributeOrder")) {
 //                attributeOrder = Arrays.asList(value.trim().split("\\s+"));
-                attributeOrder = Arrays.asList(Patterns.WHITESPACE.split(value.trim()));
+                attributeOrder = Arrays.asList(Patterns.splitOnWhitespace(value.trim()));
                 return true;
             } else if (level2.equals("elementOrder")) {
 //                elementOrder = Arrays.asList(value.trim().split("\\s+"));
-                elementOrder= Arrays.asList(Patterns.WHITESPACE.split(value.trim()));
+                elementOrder= Arrays.asList(Patterns.splitOnWhitespace(value.trim()));
                 return true;
             } else if (level2.equals("serialElements")) {
 //                serialElements = Arrays.asList(value.trim().split("\\s+"));
-                serialElements = Arrays.asList(Patterns.WHITESPACE.split(value.trim()));
+                serialElements = Arrays.asList(Patterns.splitOnWhitespace(value.trim()));
                 return true;
             } else if (level2.equals("deprecated")) {
                 // <deprecated>
@@ -2581,7 +2581,7 @@ public class SupplementalDataInfo {
                 } else {
                     Set<CLDRLocale> localeList = new HashSet<CLDRLocale>();
 //                    String[] el = localeAttrib.split(" ");
-                    String[] el= Patterns.WHITESPACE.split(localeAttrib);
+                    String[] el= Patterns.splitOnSpaceCharacter(localeAttrib);
                     for (int i = 0; i < el.length; i++) {
                         localeList.add(CLDRLocale.getInstance(el[i]));
                     }
@@ -2867,7 +2867,7 @@ public class SupplementalDataInfo {
 
     private void addDayPeriodInfo() {
 //        String[] locales = lastDayPeriodLocales.split("\\s+");
-        String[] locales= Patterns.WHITESPACE.split(lastDayPeriodLocales);
+        String[] locales= Patterns.splitOnWhitespace(lastDayPeriodLocales);
         DayPeriodInfo temp = dayPeriodBuilder.finish(locales);
         for (String locale : locales) {
             localeToDayPeriodInfo.put(locale, temp);
@@ -2928,7 +2928,7 @@ public class SupplementalDataInfo {
 
     private void addPluralRanges(String localesString) {
 //        final String[] locales = localesString.split("\\s+");
-        final String[] locales=Patterns.WHITESPACE.split(localesString);
+        final String[] locales=Patterns.splitOnWhitespace(localesString);
         lastPluralRanges = new PluralRanges();
         for (String locale : locales) {
             if (localeToPluralRanges.containsKey(locale)) {
@@ -2941,7 +2941,7 @@ public class SupplementalDataInfo {
 
     private void addPluralInfo(PluralType pluralType) {
 //        final String[] locales = lastPluralLocales.split("\\s+");
-        final String[] locales=Patterns.WHITESPACE.split(lastPluralLocales);
+        final String[] locales=Patterns.splitOnWhitespace(lastPluralLocales);
         PluralInfo info = new PluralInfo(lastPluralMap, pluralType);
         Map<String, PluralInfo> localeToInfo = localeToPluralInfo2.get(pluralType);
         for (String locale : locales) {

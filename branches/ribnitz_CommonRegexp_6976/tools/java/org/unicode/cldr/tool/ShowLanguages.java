@@ -741,7 +741,7 @@ public class ShowLanguages {
                     String aliasAttributes = attributes.get("aliases");
                     if (aliasAttributes != null) {
 //                        String[] aliasesList = aliasAttributes.split("\\s+");
-                        String[] aliasesList=Patterns.WHITESPACE.split(aliasAttributes);
+                        String[] aliasesList=Patterns.splitOnWhitespace(aliasAttributes);
 
                         for (int i = 0; i < aliasesList.length; ++i) {
                             String alias = aliasesList[i];
@@ -1532,7 +1532,7 @@ public class ShowLanguages {
          * @return
          */
         private String getFirstWhitespaceSplit(String temp) {
-            return Patterns.WHITESPACE.split(temp)[0];
+            return Patterns.splitOnWhitespace(temp)[0];
         }
 
         private String getVendorStatus(String locale, String vendor, Map<String, Map<String, Level>> vendordata) {
@@ -1810,7 +1810,7 @@ public class ShowLanguages {
 //        }
 
         private void addTerritoryInfo(String territoriesList, String type, String info) {
-            String[] territories = Patterns.WHITESPACE.split(territoriesList);
+            String[] territories = Patterns.splitOnWhitespace(territoriesList);
 //            String[] territories = territoriesList.split("\\s+");
             territoryTypes.add(type);
             for (int i = 0; i < territories.length; ++i) {
@@ -2444,7 +2444,7 @@ public class ShowLanguages {
          */
         private String getName(int type, String oldcode, boolean codeFirst) {
             if (oldcode.contains(" ")) {
-                String[] result = Patterns.WHITESPACE.split(oldcode);
+                String[] result = Patterns.splitOnWhitespace(oldcode);
 //                String[] result = oldcode.split("\\s+");
                 for (int i = 0; i < result.length; ++i) {
                     result[i] = getName(type, result[i], codeFirst);

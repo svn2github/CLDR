@@ -98,13 +98,14 @@ public class Bcp47Mapper {
             } else if (qName.equals("type")) {
                 String alias = attr.getValue("alias");
                 if (alias == null) return;
-                String[] aliases=Patterns.WHITESPACE.split(alias);
+                String[] aliases=Patterns.splitOnWhitespace(alias);
 //                String[] aliases = alias.split("\\s+");
                 String mainAlias = aliases[0];
                 icuData.add(typeMapPrefix + formatName(mainAlias),
                     attr.getValue("name"));
-                for (int i = 1; i < aliases.length; i++) {
-                    icuData.add(typeAliasPrefix + formatName(aliases[i]),
+              //  for (int i = 1; i < aliases.length; i++) {
+                for (String currentAlias: aliases) {
+                    icuData.add(typeAliasPrefix + formatName(currentAlias /* aliases[i] */),
                         mainAlias);
                 }
             }

@@ -84,7 +84,7 @@ class RegexManager {
          * @return
          */
         public String process(String arg) {
-            String[] args=Patterns.COMMA.split(arg);
+            String[] args=Patterns.splitOnComma(arg);
 //            String[] args = arg.split(",");
             if (maxArgs > -1 && args.length > maxArgs) {
                 throw new IllegalArgumentException("Function has too many args: expected "
@@ -697,7 +697,7 @@ class RegexManager {
         }
         rbPattern.append(rbPath.substring(lastIndex));
         FallbackInfo info = new FallbackInfo(argsUsed, args.size());
-        info.addItem(xpathMatcher, fallbackXpath, Patterns.WHITESPACE_ONCE.split(fallbackValue));
+        info.addItem(xpathMatcher, fallbackXpath, Patterns.splitOnSingleWhitespace(fallbackValue));
 //        info.addItem(xpathMatcher, fallbackXpath, fallbackValue.split("\\s"));
         fallbackConverter.add(new FullMatcher(rbPattern.toString()), info);
     }

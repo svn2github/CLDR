@@ -61,7 +61,7 @@ public class Misc {
         doNFC();
         showPlurals();
 
-        String[] locales = Patterns.WHITESPACE.split("zh en es hi fr ar pt ru id bn ur ja de fil sw pa jv ko tr vi it te mr "
+        String[] locales = Patterns.splitOnWhitespace("zh en es hi fr ar pt ru id bn ur ja de fil sw pa jv ko tr vi it te mr "
             + "th fa ta pl lah gu my ms uk zh_Hant kn su ml nl az or ro uz bho ps ha ku mad yo ig si mg sd hu am om kk el ne "
             + "be mai sr cs km as sv mag mwr sn ny ca bg hne tg bgc ii he dcc ug fuv qu rw min af zu mn bjn so ki hr ak tk fi "
             + "sq da bya sk gn bal nb lua xh bs ht syl ka bjj ban sat hy za luy rn bug bem luo wtm st lo gl ti shn ceb ks mfa "
@@ -152,7 +152,7 @@ public class Misc {
 
     private static void showSortKey() {
 //        String[] tests = "a ä A ぁ あ ァ ｧ ア ｱ ㋐".split(" ");
-        String[] tests=Patterns.SPACE_CHARACTER.split("a ä A ぁ あ ァ ｧ ア ｱ ㋐");
+        String[] tests=Patterns.splitOnSpaceCharacter("a ä A ぁ あ ァ ｧ ア ｱ ㋐");
         RuleBasedCollator c = (RuleBasedCollator) Collator.getInstance(ULocale.ENGLISH);
         c.setStrength(RuleBasedCollator.QUATERNARY);
         c.setCaseLevel(true);
@@ -246,7 +246,7 @@ public class Misc {
         Map<String, R2<List<String>, String>> lang2replacement = type_tag_replacement.get("language");
 
         LanguageTagParser ltp = new LanguageTagParser();
-        String[] locales = Patterns.WHITESPACE.split("en ru nl en-GB fr de it pl pt-BR es tr th ja zh-CN zh-TW ko ar bg sr uk ca "
+        String[] locales = Patterns.splitOnWhitespace("en ru nl en-GB fr de it pl pt-BR es tr th ja zh-CN zh-TW ko ar bg sr uk ca "
             + "hr cs da fil fi hu id lv lt no pt-PT ro sk sl es-419 sv vi el iw fa hi am af et is ms sw zu bn mr ta eu fr-CA gl "
             + "zh-HK ur gu kn ml te");
         Set<String> nameAndInfo = new TreeSet<String>(info.getCollator());

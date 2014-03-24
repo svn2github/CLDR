@@ -400,7 +400,7 @@ public class TestSupplementalInfo extends TestFmwk {
                 }
             }
             Count c = Count.valueOf(row[1]);
-            for (String digit: Patterns.COMMA.split(row[2])) {
+            for (String digit: Patterns.splitOnComma(row[2])) {
 //            for (String digit : row[2].split(",")) {
                 // "99" is special, just to have the result be non-empty
                 countToDigits.put(c, digit.length());

@@ -2156,7 +2156,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     public static String getKey(int type, String code) {
         String[] nameTableRow = NameTable[type];
         if (code.contains("|")) {
-            String[] codes=Patterns.BAR.split(code);
+            String[] codes=Patterns.splitOnBar(code);
          //   String[] codes = code.split("\\|");
             return nameTableRow[0] + codes[0] + nameTableRow[1] + codes[1] + nameTableRow[2];
         } else {

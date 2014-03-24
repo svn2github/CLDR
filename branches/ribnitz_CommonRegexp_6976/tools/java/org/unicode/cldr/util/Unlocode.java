@@ -167,7 +167,7 @@ public class Unlocode {
                     if (line.equals("EOF")) {
                         break;
                     }
-                    String[] parts= Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+                    String[] parts= Patterns.splitOnSemicolonWithWhiteSpace(line);
 //                    String[] parts = line.split("\\s*;\\s*");
                     //System.out.println(Arrays.asList(parts));
                     String locode = parts[0].replace(" ", "");
@@ -267,7 +267,7 @@ public class Unlocode {
             if (line.trim().isEmpty()) {
                 continue;
             }
-            String[] list= Patterns.TABULATOR.split(line);
+            String[] list= Patterns.splitOnTabulator(line);
 //            String[] list = line.split("\t");
             String locode = list[SubdivisionFields.Code_3166_2.ordinal()].trim();
             if (locode.endsWith("*")) {
@@ -580,7 +580,7 @@ public class Unlocode {
                 continue;
             }
 //            String[] parts = line.split("\t");
-            String[] parts=Patterns.TABULATOR.split(line);
+            String[] parts=Patterns.splitOnTabulator(line);
             //System.out.println(Arrays.asList(parts));
             String cityName = parts[2];
             String subdivision = null;

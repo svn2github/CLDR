@@ -117,7 +117,7 @@ public class FixDelimiters {
                 Quotes qalt = new Quotes(line.substring(first + 1, second));
                 R2<Quotes, Quotes> both = Row.of(qmain, qalt);
                 String last = line.substring(second);
-                String[] locales = Patterns.SEMICOLON_WITH_WHITESPACE.split(last);
+                String[] locales = Patterns.splitOnSemicolonWithWhiteSpace(last);
 //                String[] locales = last.split("\\s*;\\s*");
                 for (String locale : locales) {
                     if (!localeString.reset(locale).matches()) {

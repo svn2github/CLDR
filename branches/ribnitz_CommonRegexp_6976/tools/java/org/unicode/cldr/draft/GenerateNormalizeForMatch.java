@@ -529,7 +529,8 @@ public class GenerateNormalizeForMatch {
             }
             return;
         }
-        String[] pieces = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+        String[] pieces= Patterns.splitOnSemicolonWithWhiteSpace(line);
+//        String[] pieces = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
  //        String[] pieces = line.split("\\s*;\\s*");
         final String sourcePiece = pieces[0];
         final String target = pieces.length < 2 ? "" : pieces[1];
@@ -701,7 +702,8 @@ public class GenerateNormalizeForMatch {
         }
         StringBuilder result = new StringBuilder();
 //        String[] pieces = spaceDelimitedHex.split("\\s+");
-        String[] pieces=Patterns.WHITESPACE.split(spaceDelimitedHex);
+//        String[] pieces=Patterns.WHITESPACE.split(spaceDelimitedHex);
+        String[] pieces=Patterns.splitOnWhitespace(spaceDelimitedHex);
         for (String piece : pieces) {
             result.append(UTF16.valueOf(Integer.parseInt(piece, 16)));
         }

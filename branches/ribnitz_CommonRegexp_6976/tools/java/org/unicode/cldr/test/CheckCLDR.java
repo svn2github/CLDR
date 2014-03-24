@@ -1347,7 +1347,7 @@ abstract public class CheckCLDR {
         fileParser.setLineParser(new RegexLineParser() {
             @Override
             public void parse(String line) {
-                String[] fields = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+                String[] fields = Patterns.splitOnSemicolonWithWhiteSpace(line);
 //                String[] fields = line.split("\\s*;\\s*");
                 Subtype subtype = Subtype.valueOf(fields[0]);
                 Pattern locale = Pattern.compile(fields[1]);

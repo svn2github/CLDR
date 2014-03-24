@@ -1732,7 +1732,8 @@ class GeneratePickerData {
             if (line.length() == 0 || line.startsWith("#")) {
                 continue;
             }
-            String[] components=Patterns.SEMICOLON.split(line);
+            String[] components=Patterns.splitOnSemicolon(line);
+//            String[] components=Patterns.SEMICOLON.split(line);
 ;//            String components[] = line.split(";");
             if (components.length != 4) {
                 throw new IOException("Invalid line: <" + line + "> - Expecting 4 ';' separated components");
@@ -1774,11 +1775,13 @@ class GeneratePickerData {
             if (line.length() == 0 || line.startsWith("#")) {
                 continue;
             }
-            String[] components = Patterns.SEMICOLON.split(line);
+            String[] components = Patterns.splitOnSemicolon(line);
+//            String[] components = Patterns.SEMICOLON.split(line);
            // String[] components = line.split(";");
            // String[] codepoints = components[0].split(" ");
-            String[] codepoints =Patterns.SPACE_CHARACTER.split(components[0]);
-            // No support yet for multi-codepoint characters so we skip them
+//            String[] codepoints =Patterns.SPACE_CHARACTER.split(components[0]);
+            String[] codepoints =Patterns.splitOnSpaceCharacter(components[0]);
+                // No support yet for multi-codepoint characters so we skip them
             if (codepoints.length > 1) {
                 continue;
             }

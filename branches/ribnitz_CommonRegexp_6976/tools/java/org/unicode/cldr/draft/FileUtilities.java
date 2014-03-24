@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.With;
 import org.unicode.cldr.util.With.SimpleIterator;
 
@@ -23,7 +24,8 @@ import com.ibm.icu.dev.util.BagFormatter;
 public final class FileUtilities {
 
     public static abstract class SemiFileReader extends FileProcessor {
-        public final static Pattern SPLIT = Pattern.compile("\\s*;\\s*");
+      //  public final static Pattern SPLIT = Pattern.compile("\\s*;\\s*");
+//        public final static Pattern SPLIT=Patterns.SEMICOLON_WITH_WHITESPACE;
 
         protected abstract boolean handleLine(int lineCount, int start, int end, String[] items);
 
@@ -35,7 +37,8 @@ public final class FileUtilities {
         }
 
         protected String[] splitLine(String line) {
-            return SPLIT.split(line);
+//            return SPLIT.split(line);
+            return Patterns.splitOnSemicolonWithWhiteSpace(line);
         }
 
         @Override

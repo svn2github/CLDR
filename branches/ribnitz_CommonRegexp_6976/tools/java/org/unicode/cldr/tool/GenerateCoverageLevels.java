@@ -507,10 +507,12 @@ public class GenerateCoverageLevels {
             }
             String validSubLocales = parts.getAttributeValue(1, "validSubLocales");
             if (validSubLocales != null) {
-                String[] sublocales = Patterns.WHITESPACE.split(validSubLocales);
+                String[] sublocales = Patterns.splitOnWhitespace(validSubLocales);
 //                String[] sublocales = validSubLocales.split("\\s+");
                 for (String sublocale : sublocales) {
-                    if (localeFilter.skipLocale(locale)) continue;
+                    if (localeFilter.skipLocale(locale)) {
+                        continue;
+                    }
                     localesFound.add(sublocale);
                 }
             }

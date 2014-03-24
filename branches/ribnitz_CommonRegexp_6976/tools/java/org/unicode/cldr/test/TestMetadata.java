@@ -204,7 +204,7 @@ public class TestMetadata {
             }
         }
 
-        String[] zones=Patterns.WHITESPACE.split(zoneList);
+        String[] zones=Patterns.splitOnWhitespace(zoneList);
 //        String[] zones = zoneList.split("\\s+");
         Set<String> metaZoneSet = new TreeSet<String>();
         metaZoneSet.addAll(Arrays.asList(zones));

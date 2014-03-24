@@ -123,7 +123,7 @@ public class LDMLUtilities {
             full = resolveAliases(full, sourceDir, locale, ignoreDraft, stack);
             return full;
         }
-        String[] constituents = Patterns.UNDERSCORE.split(locale);
+        String[] constituents = Patterns.splitOnUnderscore(locale);
 //        String[] constituents = locale.split("_");
         String loc = null;
         boolean isAvailable = false;

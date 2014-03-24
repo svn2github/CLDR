@@ -12,6 +12,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.lang.UCharacterEnums.ECharacterCategory;
@@ -212,7 +216,10 @@ public class LDML2ICUBinaryWriter
 
         // do some checks on the directory path
         // replace all backslashes with forward slashes
-        directoryPath = outDir.replace('\\', '/');
+        Pattern b=Pattern.compile("\\");
+        Matcher m=b.matcher(outDir);
+        directoryPath= m.replaceAll("/");
+//        directoryPath = outDir.replace('\\', '/');
 
         // if the path does not end in a slash, then we'll add one
         if (directoryPath.charAt(directoryPath.length() - 1) != '/')

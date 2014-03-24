@@ -11,8 +11,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 
 import org.unicode.cldr.tool.Option.Options;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.impl.Row;
@@ -193,7 +195,8 @@ public class CompareIcuOutput {
             }
             for (int j = 0; j < oldArray.length; j++) {
                 // Ignore whitespace.
-                if (!oldArray[j].replace(" ", "").equals(newArray[j].replace(" ", ""))) {
+                if (spaceTrimmed(oldArray[j]).equals(spaceTrimmed(newArray[j]))) {
+//                if (!oldArray[j].replace(" ", "").equals(newArray[j].replace(" ", ""))) {
                     differ = true;
                     break;
                 }
@@ -202,6 +205,11 @@ public class CompareIcuOutput {
         return differ;
     }
 
+    // Remove all spacing for comparison
+    private static String spaceTrimmed(String inStr) {
+        Matcher m=Patterns.SPACE_CHARACTER.matcher(inStr);
+        return m.replaceAll("");
+    }
     /**
      * Parse an ICU resource bundle into key,value items
      * 

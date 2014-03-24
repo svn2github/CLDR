@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.TransformerException;
 
@@ -751,7 +753,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
 
             if (res != null && ((ResourceTable) res).first != null) {
                 if (loc.getSpecialsFile() != null) {
-                    String dir = specialsDir.replace('\\', '/');
+                    String dir = replaceBackslash(specialsDir);
                     dir = "<path>" + dir.substring(dir.indexOf("/xml"), dir.length());
                     String locName = loc.getLocale();
                     if (res.comment == null) {
@@ -765,8 +767,8 @@ public class LDML2ICUConverter extends CLDRConverterTool {
                 if (writeBinary) {
                     LDML2ICUBinaryWriter.writeBinaryFile(res, destDir, loc.getLocale());
                 } else {
-                    String sourceInfo = sourceDir.replace('\\', '/') + "/" + loc.getLocale() + ".xml";
-
+//                    String sourceInfo = sourceDir.replace('\\', '/') + "/" + loc.getLocale() + ".xml";
+                    String sourceInfo= replaceBackslash(sourceDir)+"/" + loc.getLocale() + ".xml";
                     writer.writeResource(res, sourceInfo);
                 }
             }
@@ -777,10 +779,15 @@ public class LDML2ICUConverter extends CLDRConverterTool {
         }
     }
 
+    private String replaceBackslash(String dirStr) {
+       return BACKSLASH.matcher(dirStr).replaceAll("/");
+    }
+
     private static final String LOCALE_SCRIPT = "LocaleScript";
     private static final String NUMBER_ELEMENTS = "NumberElements";
     private static final String AM_PM_MARKERS = "AmPmMarkers";
     private static final String DTP = "DateTimePatterns";
+    private static final   Pattern BACKSLASH=Pattern.compile("\\");
 
     private static Map<String, String> keyNameMap = new TreeMap<String, String>();
     private static final Map<String, String> deprecatedTerritories = new TreeMap<String, String>();
@@ -835,7 +842,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
 
     public static ResourceArray getResourceArray(String str, String name) {
         if (str != null) {
-            String[] strs=Patterns.WHITESPACE.split(str);
+            String[] strs=Patterns.splitOnWhitespace(str);
 //            String[] strs = str.split("\\s+");
             ResourceArray arr = new ResourceArray();
             arr.name = name;
@@ -2113,7 +2120,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
                 Resource c = null;
                 String[] values = null;
                 if (name.equals(LDMLConstants.SINGLE_COUNTRIES)) {
-                    values=Patterns.WHITESPACE.split(loc.getBasicAttributeValue(apath, LDMLConstants.LIST));
+                    values=Patterns.splitOnSpaceCharacter(loc.getBasicAttributeValue(apath, LDMLConstants.LIST));
 //                    values = loc.getBasicAttributeValue(apath, LDMLConstants.LIST).split(" ");
                 } else {
                     String temp = loc.getBasicAttributeValue(apath, LDMLConstants.CHOICE);
@@ -2124,7 +2131,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
                                 + " must have either type or choice attribute");
                         }
                     }
-                    values =Patterns.WHITESPACE.split(temp);
+                    values =Patterns.splitOnWhitespace(temp);
 //                    values = temp.split("\\s+");
                 }
 
@@ -3208,7 +3215,7 @@ public class LDML2ICUConverter extends CLDRConverterTool {
     }
 
     public static int getMillis(String time) {
-        String[] strings=Patterns.COLON.split(time);  // time is in hh:mm format
+        String[] strings=Patterns.splitOnColon(time);  // time is in hh:mm format
 //        String[] strings = time.split(":"); // time is in hh:mm format
         int hours = Integer.parseInt(strings[0]);
         int minutes = Integer.parseInt(strings[1]);

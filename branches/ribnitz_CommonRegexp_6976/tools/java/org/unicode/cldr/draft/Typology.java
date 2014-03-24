@@ -86,7 +86,7 @@ public class Typology {
                 }
                 uset.addAll(startRaw, endRaw);
             }
-            String[] labels=Patterns.SLASH.split(fullPath);
+            String[] labels=Patterns.splitOnSlash(fullPath);
 //            String[] labels = fullPath.split("/");
             String path = "";
             Set<String> labelSet = new TreeSet<String>();
@@ -146,7 +146,7 @@ public class Typology {
                 }
                 String path2 = prefix + path;
                 temp.put(path2, new UnicodeSet(uset).retainAll(same));
-                String[] labels=Patterns.SLASH.split(path2);
+                String[] labels=Patterns.splitOnSlash(path2);
 //                String[] labels = path2.split("/");
                 String parent = "";
                 for (int j = 0; j < labels.length; ++j) {

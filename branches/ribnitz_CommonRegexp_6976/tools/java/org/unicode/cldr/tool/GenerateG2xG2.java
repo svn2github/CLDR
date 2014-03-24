@@ -273,7 +273,7 @@ public class GenerateG2xG2 {
         String samples = "a A b B \u5416 \u93CA \u516b \u7C3F";
         Set<String> s = new TreeSet<String>(col);
         s.addAll(Arrays.asList(
-            Patterns.SPACE_CHARACTER.split(samples)
+            Patterns.splitOnSpaceCharacter(samples)
             //samples.split(" ")
             ));
         System.out.println(com.ibm.icu.impl.Utility.escape(s.toString()));

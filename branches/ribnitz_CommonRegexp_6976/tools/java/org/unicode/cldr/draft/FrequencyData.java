@@ -89,7 +89,8 @@ public class FrequencyData {
             if (line.length() == 0) {
                 continue;
             }
-            String[] pieces=Patterns.WHITESPACE.split(line);
+            String[] pieces = Patterns.splitOnWhitespace(line);
+//            String[] pieces=Patterns.WHITESPACE.split(line);
 //            String[] pieces = line.split("\\s+");
             int code = Integer.parseInt(pieces[0], 16);
 

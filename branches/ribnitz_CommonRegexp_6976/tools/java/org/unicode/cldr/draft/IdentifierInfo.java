@@ -326,7 +326,8 @@ public class IdentifierInfo {
 
     public static Set<BitSet> parseAlternates(String scriptsSetString) {
         Set<BitSet> result = new HashSet<BitSet>();
-        for (String item: Patterns.SEMICOLON_WITH_WHITESPACE.split(scriptsSetString.trim())) {
+        for (String item: Patterns.splitOnSemicolonWithWhiteSpace(scriptsSetString.trim()))  {
+            //Patterns.SEMICOLON_WITH_WHITESPACE.split(scriptsSetString.trim())) {
         //for (String item : scriptsSetString.trim().split("\\s*;\\s*")) {
             if (!item.isEmpty()) {
                 result.add(parseScripts(item));

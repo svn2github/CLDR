@@ -125,7 +125,7 @@ public class RBNFWriter {
                     String radixString = null;
                     String ruleString = null;
                     if (ruleText.contains(":")) {
-                        String[] parts=Patterns.COLON.split(ruleText);
+                        String[] parts=Patterns.splitOnColon(ruleText);
 //                        String[] parts = ruleText.split(":");
                         if (parts[0].startsWith("%")) {
                             if (firstRuleset == false) {
@@ -157,7 +157,7 @@ public class RBNFWriter {
                                 numberString = numberString.replace('>', RARROW).replaceAll(",", "");
                             } else {
                                 if (numberString.contains("/")) {
-                                    String[] numparts=Patterns.SLASH.split(numberString);
+                                    String[] numparts=Patterns.splitOnSlash(numberString);
 //                                    String[] numparts = numberString.split("/");
                                     numberString = numparts[0];
                                     radixString = numparts[1];

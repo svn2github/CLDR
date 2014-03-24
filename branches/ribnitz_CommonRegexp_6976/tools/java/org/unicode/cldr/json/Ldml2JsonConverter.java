@@ -129,7 +129,7 @@ public class Ldml2JsonConverter {
         FileUtilities.FileProcessor myReader = new FileUtilities.FileProcessor() {
             @Override
             protected boolean handleLine(int lineCount, String line) {
-                String[] lineParts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line.trim());
+                String[] lineParts = Patterns.splitOnSemicolonWithWhiteSpace(line.trim());
 //                String[] lineParts = line.trim().split("\\s*;\\s*");
                 String key, value, section = null, path = null;
                 boolean hasSection = false;
@@ -215,7 +215,9 @@ public class Ldml2JsonConverter {
             result.contains("likelySubtags") ||
             result.contains("parentLocale") ||
             result.contains("locales=")) {
-            result = result.replaceAll("_", "-");
+            Matcher underscoreMatcher=Patterns.UNDERSCORE.matcher(result);
+//            result = result.replaceAll("_", "-");
+            underscoreMatcher.replaceAll("-");
         }
         if (DEBUG) {
             System.out.println("OUT pathStr : " + result);
@@ -870,7 +872,9 @@ public class Ldml2JsonConverter {
 
             sectionItems.clear();
             if (dirName.equals(MAIN)) {
-                pathPrefix = "/cldr/" + dirName + "/" + filename.replaceAll("_", "-") + "/";
+                Matcher underscoreMatcher=Patterns.UNDERSCORE.matcher("/cldr/" + dirName + "/" + filename);
+//                pathPrefix = "/cldr/" + dirName + "/" + filename.replaceAll("_", "-") + "/";
+               pathPrefix= underscoreMatcher.replaceAll("-")+"/";
             } else {
                 pathPrefix = "/cldr/" + dirName + "/";
             }
@@ -878,7 +882,9 @@ public class Ldml2JsonConverter {
 
             String outputDirname;
             if (dirName.equals(MAIN) || dirName.equals(SEGMENTS)) {
-                outputDirname = outputDir + File.separator + filename.replaceAll("_", "-");
+                Matcher underscoreMatcher=Patterns.UNDERSCORE.matcher( outputDir + File.separator + filename);
+//                outputDirname = outputDir + File.separator + filename.replaceAll("_", "-");
+                outputDirname = underscoreMatcher.replaceAll("-");
             } else {
                 outputDirname = outputDir + File.separator + dirName;
             }
@@ -984,7 +990,7 @@ public class Ldml2JsonConverter {
             String attrValue = escapeValue(attrAsValueMap.get(key));
             // attribute is prefixed with "_" when being used as key.
             if (LdmlConvertRules.ATTRVALUE_AS_ARRAY_SET.contains(key)) {
-                String[] strings=Patterns.WHITESPACE.split(attrValue.trim());
+                String[] strings=Patterns.splitOnWhitespace(attrValue.trim());
 //                String[] strings = attrValue.trim().split("\\s+");
                 out.add(indent(level + 1) + "\"_" + key + "\": [");
                 for (String s : strings) {

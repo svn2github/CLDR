@@ -400,7 +400,7 @@ public class CountItems {
             if (zone == null) {
                 throw new IllegalArgumentException("Missing 001 for metazone " + metazone);
             }
-            String continent=Patterns.SLASH.split(zone)[0];
+            String continent=Patterns.splitOnSlash(zone)[0];
 //            String continent = zone.split("/")[0];
 
             final Object country = zoneToCountry.get(zone);
@@ -444,7 +444,7 @@ public class CountItems {
         Map<String, String> zoneNew_Old = new TreeMap<String, String>(col);
         String lastZone = "XXX";
         for (String zone : new TreeSet<String>(zone_country.keySet())) {
-            String[] parts=Patterns.SLASH.split(zone);
+            String[] parts=Patterns.splitOnSlash(zone);
 //            String[] parts = zone.split("/");
             String newPrefix = zone_country.get(zone); // english.getName("tzid", zone_country.get(zone),
                                                        // false).replace(' ', '_');

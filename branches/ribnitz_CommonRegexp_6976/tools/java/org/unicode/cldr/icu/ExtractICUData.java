@@ -112,7 +112,9 @@ public class ExtractICUData {
             String coreName = fileName.substring(0, fileName.length() - 4);
             if (skipFiles.contains(coreName)) continue;
             String id = fixTransID(coreName, attributesOut);
-            String outName = id.replace('/', '-');
+            Matcher slashMatcher=Patterns.SLASH.matcher(id);
+//            String outName = id.replace('/', '-');
+            String outName=slashMatcher.replaceAll("-");
             String attributes = attributesOut[0];
             attributes += "[@direction=\"both\"]";
 
@@ -170,7 +172,9 @@ public class ExtractICUData {
         String[] attributesOut = new String[1];
         attributesOut[0] = "";
         String id = fixTransID(coreName, attributesOut);
-        String outName = id.replace('/', '-');
+        Matcher slashMatcher=Patterns.SLASH.matcher(id);
+//        String outName = id.replace('/', '-');
+        String outName = slashMatcher.replaceAll("-");
         String attributes = attributesOut[0];
         attributes += "[@direction=\"both\"]";
 
@@ -296,7 +300,7 @@ public class ExtractICUData {
                         accumulatedItems.add(prefix + (++count) + "\"]", "::" + filter + ";");
                     }
                     String rest = instanceMatcher.group(2);
-                    String[] pieces= Patterns.SEMICOLON.split(rest);
+                    String[] pieces= Patterns.splitOnSemicolon(rest);
 //                    String[] pieces = rest.split(";");
                     for (int i = 0; i < pieces.length; ++i) {
                         String piece = pieces[i].trim();

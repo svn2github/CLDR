@@ -68,7 +68,7 @@ public class ConvertLanguageData {
 
     // change this if you need to override what is generated for the default contents.
     private static final List<String> defaultOverrides = Arrays.asList(
-        Patterns.WHITESPACE.split("es_ES")
+        Patterns.splitOnWhitespace("es_ES")
 //        "es_ES".split("\\s+")
         ); // und_ZZ
 
@@ -101,7 +101,7 @@ public class ConvertLanguageData {
     static Set<String> skipLocales = new HashSet<String>(
         Arrays
             .asList(
-                Patterns.WHITESPACE_ONCE.split(
+                Patterns.splitOnSingleWhitespace(
                     "sh sh_BA sh_CS sh_YU characters supplementalData supplementalData-old supplementalData-old2 "
                     + "supplementalData-old3 supplementalMetadata root")));
                 
@@ -543,7 +543,7 @@ public class ConvertLanguageData {
             List<String> scripts = null;
             String scriptString = x.get(attribute);
             if (scriptString != null) {
-                scripts= Arrays.asList(Patterns.WHITESPACE.split(scriptString));
+                scripts= Arrays.asList(Patterns.splitOnWhitespace(scriptString));
 //                scripts = Arrays.asList(scriptString.split("\\s+"));
             }
             return scripts;
@@ -1745,7 +1745,7 @@ public class ConvertLanguageData {
     static Set<String> languagesNeeded = new TreeSet<String>(
         Arrays
             .asList(
-                Patterns.WHITESPACE_ONCE.split("ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk "
+                Patterns.splitOnSingleWhitespace("ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk "
                     +"to tw vo yi za lb dv chr syr kha sco gv")));
 //                "ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk to tw vo yi za lb dv chr syr kha sco gv"
 //                .split("\\s")));
@@ -1804,7 +1804,7 @@ public class ConvertLanguageData {
                 BasicLanguageData.Type status = BasicLanguageData.Type.valueOf(row.get(2));
                 String scripts = row.get(3);
                 if (!checkCode("language", language, row)) continue;
-                for (String script : Patterns.WHITESPACE.split(scripts)) {
+                for (String script : Patterns.splitOnWhitespace(scripts)) {
 //                for (String script : scripts.split("\\s+")) {
                     if (!checkCode("script", script, row)) continue;
                     // if the script is not modern, demote
@@ -1994,7 +1994,7 @@ public class ConvertLanguageData {
         while (true) {
             String line = in.readLine();
             if (line == null) break;
-            String[] parts = Patterns.TABULATOR.split(line);
+            String[] parts = Patterns.splitOnTabulator(line);
 //            String[] parts = line.split("\\t");
             String alpha3 = parts[0];
             alpha3 = stripBrackets(alpha3);

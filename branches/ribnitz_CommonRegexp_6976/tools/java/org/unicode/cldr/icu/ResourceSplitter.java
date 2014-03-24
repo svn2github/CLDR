@@ -319,7 +319,7 @@ public class ResourceSplitter {
          * path.
          */
         private void placeResourceAtPath(Resource root, String targetNodePath, Resource res) {
-            String[] nodeNames = Patterns.SLASH.split(targetNodePath);
+            String[] nodeNames = Patterns.splitOnSlash(targetNodePath);
 //            String[] nodeNames = targetNodePath.split("/");
 
             // rename the resource with the last name in the path, and shorten the path

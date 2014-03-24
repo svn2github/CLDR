@@ -124,7 +124,7 @@ public class GenerateCldrCollationTests {
             }
             String originalRules = stringBuilder.toString();
             String rules = fromHex.transliterate(originalRules);
-            String name=Patterns.SLASH.split(rbPath)[2];
+            String name=Patterns.splitOnSlash(rbPath)[2];
 //            String name = rbPath.split("/")[2];
             RuleBasedCollator fixed = generateCollator(locale, name, rules);
             if (fixed != null) {

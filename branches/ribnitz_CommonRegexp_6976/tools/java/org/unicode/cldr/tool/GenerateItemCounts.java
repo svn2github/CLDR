@@ -154,7 +154,7 @@ public class GenerateItemCounts {
                     continue;
                 }
                 String path = entry.getKey();
-                String[] elements= Patterns.SLASH.split(path);
+                String[] elements= Patterns.splitOnSlash(path);
 //                String[] elements = path.split("/");
                 DtdType type = CLDRFile.DtdType.valueOf(elements[1]);
                 String finalElement = elements[elements.length - 1];
@@ -272,7 +272,7 @@ public class GenerateItemCounts {
                 if (line.startsWith("#")) {
                     continue;
                 }
-                String[] parts= Patterns.TABULATOR.split(line);
+                String[] parts= Patterns.splitOnTabulator(line);
 //                String[] parts = line.split("\t");
                 try {
                     String file = parts[0];

@@ -185,7 +185,8 @@ public class IdnaLabelTester {
 
                 // do rules. This could be much more compact, but is broken out for debugging
 
-                String[] pieces = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+                String[] pieces = Patterns.splitOnSemicolonWithWhiteSpace(line);
+//                String[] pieces = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
               //  String[] pieces = line.split("\\s*;\\s*");
                 // if (DEBUG) {
                 // System.out.println(Arrays.asList(pieces));
@@ -236,7 +237,8 @@ public class IdnaLabelTester {
                 if (pos >= 0) line = line.substring(0, pos);
                 line = line.trim();
                 if (line.length() == 0) continue;
-                String[] parts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+                String[] parts= Patterns.splitOnSemicolonWithWhiteSpace(line);
+//                String[] parts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
               //  String[] parts = line.split("\\s*;\\s*");
                 if (parts[2].equals("MA")) continue;
 
@@ -594,7 +596,11 @@ public class IdnaLabelTester {
             String line = in.readLine();
             if (line == null) break;
             try {
-                line = line.trim().replace('#', ';').replace(':', ';');
+                Matcher hashMatcher=Patterns.HASH.matcher(line.trim());
+                 line=hashMatcher.replaceAll(";");
+                 Matcher colonMatcher=Patterns.COLON.matcher(line);
+                 line=colonMatcher.replaceAll(";");
+//                line = line.trim().replace('#', ';').replace(':', ';');
                 
                 String[] parts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
                 //String[] parts = line.split("\\s*;\\s*");

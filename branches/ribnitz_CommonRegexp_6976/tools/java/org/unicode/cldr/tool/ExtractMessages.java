@@ -542,7 +542,7 @@ class ExtractMessages {
             case TIMEZONE:
                 for (String code : sc.getAvailableCodes("tzid")) {
 //                    String[] parts = code.split("/");
-                    String[] parts=Patterns.SLASH.split(code);
+                    String[] parts=Patterns.splitOnSlash(code);
                     addName(parts[parts.length - 1].replace("_", " "), code, false);
                 }
                 // add irregular names
@@ -639,7 +639,7 @@ class ExtractMessages {
             String result = cldrFile.getStringValue(getPath(id));
             // cldrFile.getName(CLDRFile.LANGUAGE_NAME, id, false);
             if (result == null && type == Type.TIMEZONE) {
-                String[] parts= Patterns.SLASH.split(id);
+                String[] parts= Patterns.splitOnSlash(id);
 //                String[] parts = id.split("/");
                 result = parts[parts.length - 1].replace("_", " ");
             }

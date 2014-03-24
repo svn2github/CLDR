@@ -457,7 +457,7 @@ public class CheckDates extends FactoryCheckCLDR {
                             "Value should contain a positive hour format and a negative hour format separated by a semicolon.");
                     result.add(item);
                 } else {
-                    String[] formats=Patterns.SEMICOLON.split(value);
+                    String[] formats=Patterns.splitOnSemicolon(value);
 //                    String[] formats = value.split(";");
                     if (formats[0].equals(formats[1])) {
                         CheckStatus item = new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)

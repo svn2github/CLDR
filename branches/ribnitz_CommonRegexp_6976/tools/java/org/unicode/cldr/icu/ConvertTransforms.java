@@ -333,7 +333,7 @@ public class ConvertTransforms extends CLDRConverterTool {
     }
 
     private void showComments(PrintWriter toilet, String value) {
-        String[] lines= Patterns.NEWLINE.split(value.trim());
+        String[] lines= Patterns.splitOnNewline(value.trim());
 //        String[] lines = value.trim().split("\\r\\n?|\\n");
         for (String line : lines) {
             if (!line.startsWith("#")) {

@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
 
 import org.unicode.cldr.icu.ICUResourceWriter.Resource;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceAlias;
@@ -233,7 +234,7 @@ public class KeyTypeDataConverter {
                         if (type != null) {
                             // type may contain multiple values delimited by space character
 //                            String[] types = type.split(" ");
-                            String[] types=Patterns.WHITESPACE.split(type);
+                            String[] types=Patterns.splitOnSpaceCharacter(type);
                             if (types.length > 1) {
                                 type = types[0];
 
@@ -399,7 +400,10 @@ public class KeyTypeDataConverter {
 
     private static String escapeKey(String key) {
         if (key.contains("/")) {
-            key = "\"" + key.replace('/', ':') + "\"";
+            Matcher slashMatcher=Patterns.SLASH.matcher(key);
+//            key = "\"" + key.replace('/', ':') + "\"";
+            String replaced= slashMatcher.replaceAll(":");
+            key="\""+replaced+"\"";
         }
         return key;
     }

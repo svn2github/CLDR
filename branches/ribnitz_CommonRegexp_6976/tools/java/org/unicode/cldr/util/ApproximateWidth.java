@@ -28,7 +28,8 @@ public class ApproximateWidth {
             @Override
             public void handleComment(String line, int commentCharPosition) {
                 if (line.contains("@missing")) {
-                    String[] items = SPLIT.split(line);
+                    String[] items= Patterns.splitOnSemicolonWithWhiteSpace(line);
+//                    String[] items =SPLIT.split(line);
                     defaultWidth = Integer.parseInt(items[1]);
                 }
             };

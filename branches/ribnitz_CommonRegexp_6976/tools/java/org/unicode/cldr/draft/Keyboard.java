@@ -601,7 +601,7 @@ public class Keyboard {
                     // ignore, handled above
                 } else {
                     LinkedHashSet<String> list = new LinkedHashSet<String>();
-                    for (String item: Patterns.SPACE_CHARACTER.split(attributeValue)) {
+                    for (String item: Patterns.splitOnSpaceCharacter(attributeValue)) {
 //                    for (String item : attributeValue.trim().split(" ")) {
                         final String fixedValue = fixValue(item);
                         if (fixedValue.isEmpty()) {

@@ -52,7 +52,7 @@ public class ShowZoneEquivalences {
         Set<String> singleCountries = new TreeSet<String>(
             Arrays
                 .asList(
-                    Patterns.WHITESPACE.split(
+                    Patterns.splitOnWhitespace(
                         "Africa/Bamako America/Godthab America/Santiago America/Guayaquil "
                         + "    Asia/Shanghai Asia/Tashkent Asia/Kuala_Lumpur Europe/Madrid Europe/Lisbon Europe/London Pacific/Auckland Pacific/Tahiti")));
 //                    "Africa/Bamako America/Godthab America/Santiago America/Guayaquil     Asia/Shanghai Asia/Tashkent Asia/Kuala_Lumpur Europe/Madrid Europe/Lisbon Europe/London Pacific/Auckland Pacific/Tahiti"
@@ -60,7 +60,7 @@ public class ShowZoneEquivalences {
         Set<String> defaultItems = new TreeSet<String>(
             Arrays
                 .asList(
-                    Patterns.WHITESPACE.split(
+                    Patterns.splitOnWhitespace(
                         "Antarctica/McMurdo America/Buenos_Aires Australia/Sydney America/Sao_Paulo America/Toronto "
                        + "Africa/Kinshasa America/Santiago Asia/Shanghai America/Guayaquil Europe/Madrid Europe/London "
                        + "America/Godthab Asia/Jakarta Africa/Bamako America/Mexico_City Asia/Kuala_Lumpur Pacific/Auckland "

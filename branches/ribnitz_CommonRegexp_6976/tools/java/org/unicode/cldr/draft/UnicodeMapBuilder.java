@@ -80,7 +80,7 @@ public class UnicodeMapBuilder<T> {
                 } else if (codelist.length() < 4) {
                     sources.add(codelist);
                 } else {
-                    final String[] codes= Patterns.WHITESPACE.split(codelist);
+                    final String[] codes= Patterns.splitOnWhitespace(codelist);
 //                    final String[] codes = codelist.split("\\s+");
                     for (int i = 0; i < codes.length; ++i) {
                         final String[] range = codes[i].split("\\.\\.");

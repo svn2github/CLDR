@@ -840,7 +840,7 @@ public class Misc {
                 String format = zoneLine.format;
                 if (format.indexOf('/') >= 0) {
                     List<String> abb = Arrays.asList(
-                        Patterns.SLASH.split(format));
+                        Patterns.splitOnSlash(format));
                         //format.split("/"));
                     for (Iterator<String> it3 = abb.iterator(); it3.hasNext();) {
                         add(abbreviations, format.replaceAll("%s", it3.next()), key, lastZoneLine, zoneLine);

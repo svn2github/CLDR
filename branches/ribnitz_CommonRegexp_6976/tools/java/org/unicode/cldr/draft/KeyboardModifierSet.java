@@ -132,7 +132,7 @@ public class KeyboardModifierSet {
         if (input == null) {
             throw new IllegalArgumentException("Input string cannot be null");
         }
-        String modifierSetInputs[] =  Patterns.SPACE_CHARACTER.split(input);
+        String modifierSetInputs[] =  Patterns.splitOnSpaceCharacter(input);
 //        String modifierSetInputs[] = input.trim().split(" ");
         Set<EnumSet<Modifier>> variants = new HashSet<EnumSet<Modifier>>();
         for (String modifierSetInput : modifierSetInputs) {

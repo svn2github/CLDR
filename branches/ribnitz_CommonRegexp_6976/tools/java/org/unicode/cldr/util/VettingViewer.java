@@ -1209,7 +1209,7 @@ public class VettingViewer<T> {
             source.add(
                 new LinkedHashSet<String>(
                     Arrays.asList(
-                        Patterns.UNDERSCORE.split(s))));
+                        Patterns.splitOnUnderscore(s))));
 //                        s.split("_"))));
         }
         Set<Set<String>> oldSource = new LinkedHashSet<Set<String>>();

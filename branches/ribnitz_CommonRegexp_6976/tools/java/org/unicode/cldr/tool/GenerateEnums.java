@@ -337,7 +337,7 @@ public class GenerateEnums {
                 System.out.println("GenerateEnums: Skipping: " + line);
                 continue;
             }
-            String[] sourceValues = Patterns.WHITESPACE.split(line);
+            String[] sourceValues = Patterns.splitOnWhitespace(line);
 //            String[] sourceValues = line.split("\\s+");
             int code = Integer.parseInt(sourceValues[0]);
             String codeName = threeDigit.format(code);
@@ -345,7 +345,7 @@ public class GenerateEnums {
         }
         codes.close();
         String values = supplementalDataInfo.getValidityInfo().get("$territory").get1().trim();
-        String[] validTerritories= Patterns.WHITESPACE.split(values);
+        String[] validTerritories= Patterns.splitOnWhitespace(values);
 //        String[] validTerritories = values.split("\\s+");
         for (int i = 0; i < validTerritories.length; ++i) {
             if (corrigendum.contains(validTerritories[i])) {
@@ -491,7 +491,7 @@ public class GenerateEnums {
             parts.set(fullPath);
             String container = parts.getAttributeValue(parts.size() - 1, "type");
             final String containedString = parts.getAttributeValue(-1, "contains");
-            List<String> contained= Arrays.asList(Patterns.WHITESPACE.split(containedString.trim()));
+            List<String> contained= Arrays.asList(Patterns.splitOnWhitespace(containedString.trim()));
 //            List<String> contained = Arrays.asList(containedString.trim().split("\\s+"));
             containment.put(container, contained);
         }

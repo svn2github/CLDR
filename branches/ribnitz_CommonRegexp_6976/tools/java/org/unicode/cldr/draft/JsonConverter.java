@@ -41,12 +41,12 @@ public class JsonConverter {
 //    static final Set<String> REPLACING_BASE = !COMPACT ? Collections.EMPTY_SET : new HashSet<String>(
 //        Arrays.asList("type id key count".split("\\s")));
     static final Set<String> REPLACING_BASE = !COMPACT ? Collections.EMPTY_SET : new HashSet<String>(
-      Arrays.asList(Patterns.WHITESPACE_ONCE.split("type id key count")));
+      Arrays.asList( Patterns.splitOnSingleWhitespace("type id key count")));
 //    static final Set<String> EXTRA_DISTINGUISHING = new HashSet<String>(
 //        Arrays.asList("locales territory desired supported".split("\\s")));
     static final Set<String> EXTRA_DISTINGUISHING = new HashSet<String>(
         Arrays.asList(
-            Patterns.WHITESPACE_ONCE.split("locales territory desired supported")));
+            Patterns.splitOnSingleWhitespace("locales territory desired supported")));
     static final Relation<String, String> mainInfo = ElementAttributeInfo.getInstance(DtdType.ldml)
         .getElement2Attributes();
     static final Relation<String, String> suppInfo = ElementAttributeInfo.getInstance(DtdType.supplementalData)

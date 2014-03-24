@@ -51,7 +51,7 @@ public class TestLdml2ICU extends TestFmwk {
             public Pair<ExclusionType, String> transform(String source) {
                 String value = null;
                 if (source.contains(";")) {
-                    String[] split=Patterns.SEMICOLON_WITH_WHITESPACE.split(source);
+                    String[] split=Patterns.splitOnSemicolonWithWhiteSpace(source);
 //                    String[] split = source.split("\\s*;\\s*");
                     source = split[0];
                     value = split[1];

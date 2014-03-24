@@ -42,13 +42,14 @@ public class PluralsConverter extends SimpleLDMLConverter {
             Node child = node.getFirstChild();
 
             String locales = LDMLUtilities.getAttributeValue(node, LDMLConstants.LOCALES);
-            String[] localesArray=Patterns.WHITESPACE.split(locales);
+            String[] localesArray=Patterns.splitOnSingleWhitespace(locales);
 //            String[] localesArray = locales.split("\\s");
 
             if (child == null) {
                 // Create empty resource strings with the locale as the ID.
-                for (int i = 0; i < localesArray.length; ++i) {
-                    ResourceString localeString = new ResourceString(localesArray[i], "");
+              //  for (int i = 0; i < localesArray.length; ++i) {
+                for (String curLocale: localesArray) {
+                    ResourceString localeString = new ResourceString(/*localesArray[i] */ curLocale, "");
                     localesTable.appendContents(localeString);
                 }
             } else {

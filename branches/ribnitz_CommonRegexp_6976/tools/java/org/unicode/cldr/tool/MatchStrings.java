@@ -49,9 +49,10 @@ public class MatchStrings {
             String line = in.readLine();
             if (line == null)
                 break;
-            if (line.length() == 0)
+            if (line.length() == 0) {
                 continue;
-            String[] parts= Patterns.WHITESPACE.split(line);
+            }
+            String[] parts= Patterns.splitOnWhitespace(line);
 //            String[] parts = line.split("\\s+");
             String ipa = parts.length > 1 ? parts[1] : "";
             add(parts[0], ipa, parts.length > 2 ? parts[2] : ipa);

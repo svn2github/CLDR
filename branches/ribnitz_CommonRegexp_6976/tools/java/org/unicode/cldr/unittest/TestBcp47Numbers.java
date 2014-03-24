@@ -40,7 +40,7 @@ public class TestBcp47Numbers extends TestFmwk {
             String special = specials.get(cp);
             String shortName, longName;
             if (special != null) {
-                String[] specialParts=Patterns.SEMICOLON.split(special);
+                String[] specialParts=Patterns.splitOnSemicolon(special);
 //                String[] specialParts = special.split(";");
                 shortName = specialParts[0].trim();
                 longName = specialParts[1].trim();

@@ -2,12 +2,14 @@ package org.unicode.cldr.util;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -31,7 +33,7 @@ public class SimpleFactory extends Factory {
      * Variable that customizes the caching of the results of SimpleFactory.make
      * 
      */
-    private static final boolean CACHE_SIMPLE_FACTORIES = false;
+    private static final boolean CACHE_SIMPLE_FACTORIES = true;
 
     /**
      * Number of Factories that should be cached, if caching of factories is enabled
@@ -52,38 +54,55 @@ public class SimpleFactory extends Factory {
 
     private static final int CACHE_LIMIT = 75;
 
+    /**
+     * When set to true, more verbose output will be generated, which is useful for debugging.
+     */
     private static final boolean DEBUG_SIMPLEFACTORY = false;
 
     /**
-     * Simple class used as a key for the map that holds the CLDRFiles -only used in the new version of the code
+     * Base class for different Objects which are used as keys in Maps. It is assumed that the objects are basically immutable; once 
+     * instantiated their fields do not change; which allows to calculate a hashCode once, which can then be returned on the invocation
+     * of hashCode();
      * @author ribnitz
      *
      */
-    private static class CLDRCacheKey {
-        private final String localeName;
-        private final boolean resolved;
-        private final DraftStatus draftStatus;
-        private final String directory;
-
-        public CLDRCacheKey(String localeName, boolean resolved, DraftStatus draftStatus, File directory) {
-            super();
-            this.localeName = localeName;
-            this.resolved = resolved;
-            this.draftStatus = draftStatus;
-            this.directory = directory.toString();
-        }
-
+    private static abstract class HashableKey {
+        /**
+         * Variable to hold the hashCode; note that this is an Integer, so it can be null (if unassigned). A good way to assign it
+         * would be a line of code similar to
+         * <code>hashCode=Objects.hash(field1,field2,field3);</code>
+         * at the end of the constructor of an implementing class.
+         */
+        protected  Integer hashCode=null;
+       
+        /**
+         * Object to use for synchronization in the hash calculation function
+         */
+        protected static final Object HASH_CALCULATION_SYNC=new Object();
+       
+        /**
+         * Return a previously-calculated hashCode, or calculate one based on the fields of the implementing class
+         */
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((directory == null) ? 0 : directory.hashCode());
-            result = prime * result + ((draftStatus == null) ? 0 : draftStatus.hashCode());
-            result = prime * result + ((localeName == null) ? 0 : localeName.hashCode());
-            result = prime * result + (resolved ? 1231 : 1237);
-            return result;
+            synchronized(HASH_CALCULATION_SYNC) {
+                if (hashCode==null) {
+                    // calculate it
+                   Field[] fields=getClass().getDeclaredFields();
+                    if (fields.length>0) {
+                        // Can safely be cased to object, because varargs are not expected to be written to
+                        hashCode=Objects.hash((Object[])fields);
+                    } else {
+                        // do not call Objects.hash(this), as this would introduce a loop.
+                        hashCode=37;
+                    }
+                }
+                return hashCode;
+            }
         }
-
+        /**
+         * Equals of this base class compares the hash value, as it is the only field the class has.
+         */
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -95,22 +114,87 @@ public class SimpleFactory extends Factory {
             if (getClass() != obj.getClass()) {
                 return false;
             }
+            // Two objects that are the same will never have a different hashCode
+            if (hashCode()!=obj.hashCode()) {
+                return false;
+            }
+            return true;
+        }
+        
+        /**
+         * Method to set the hashCode to return
+         * @param hashCode
+         */
+        protected void setHashCode(int hashCode) {
+            synchronized (HASH_CALCULATION_SYNC) {
+                this.hashCode=hashCode;
+            }
+        }
+        
+        /**
+         * Method to clear the hashCode (and to trigger calculartion on the next invocation of hashCode()
+         */
+        protected void clearHashCode() {
+            synchronized (HASH_CALCULATION_SYNC) {
+                hashCode=null;
+            }
+        }
+    }
+    /**
+     * Simple class used as a key for the map that holds the CLDRFiles -only used in the new version of the code
+     * @author ribnitz
+     *
+     */
+    private static final class CLDRCacheKey extends HashableKey {
+        private final String localeName;
+        private final boolean resolved;
+        private final DraftStatus draftStatus;
+        private final String directory;
+        
+        public CLDRCacheKey(String localeName, boolean resolved, DraftStatus draftStatus, File directory) {
+            if (directory==null) {
+                throw new IllegalArgumentException("Directory must not be null");
+            }
+            if (localeName==null) {
+                throw new IllegalArgumentException("Locale must not be null");
+            }
+            if (draftStatus==null) {
+                throw new IllegalArgumentException("DraftStatus must not be null");
+            }
+            this.localeName = localeName;
+            this.resolved = resolved;
+            this.draftStatus = draftStatus;
+            this.directory = directory.toString();
+            // calculate the hashCode
+            setHashCode(Objects.hash(localeName,resolved,draftStatus,directory));
+        }
+
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            // Two objects that are the same will never have a different hashCode
+            if (hashCode()!=obj.hashCode()) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
             CLDRCacheKey other = (CLDRCacheKey) obj;
-            if (directory == null) {
-                if (other.directory != null) {
-                    return false;
-                }
-            } else if (!directory.equals(other.directory)) {
+           // directory is never null
+           if  (!directory.equals(other.directory)) {
                 return false;
             }
             if (draftStatus != other.draftStatus) {
                 return false;
             }
-            if (localeName == null) {
-                if (other.localeName != null) {
-                    return false;
-                }
-            } else if (!localeName.equals(other.localeName)) {
+            // localeName is never null
+            if (!localeName.equals(other.localeName)) {
                 return false;
             }
             if (resolved != other.resolved) {
@@ -120,7 +204,8 @@ public class SimpleFactory extends Factory {
         }
 
         public String toString() {
-            return "[ LocaleName: " + localeName + " Resolved: " + resolved + " Draft status: " + draftStatus + " Direcrory: " + directory + " ]";
+            return "CLDRCacheKey [ LocaleName: "+localeName+" Resolved: "+resolved+" Draft status: "+draftStatus+" Direcrory: "+directory+" ]";
+
         }
     }
 
@@ -130,24 +215,25 @@ public class SimpleFactory extends Factory {
      * @author ribnitz
      *
      */
-    private static class SimpleFactoryLookupKey {
+    private static final class SimpleFactoryLookupKey extends HashableKey {
         private final String directory;
         private final String matchString;
-
+        
         public SimpleFactoryLookupKey(String directory, String matchString) {
-            this.directory = directory;
-            this.matchString = matchString;
+            // Sanity check: do not allow either to be uninitialized/null
+            if (directory==null) {
+                throw new IllegalArgumentException("Directory must not be null");
+            }
+            if (matchString==null) {
+                throw new IllegalArgumentException("MatchString must not be null");
+            }
+            this.directory=directory;
+            this.matchString=matchString;  
+            // calculate the HashCode
+            setHashCode(Objects.hash(directory,matchString));
         }
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((directory == null) ? 0 : directory.hashCode());
-            result = prime * result + ((matchString == null) ? 0 : matchString.hashCode());
-            return result;
-        }
-
+        
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -156,22 +242,20 @@ public class SimpleFactory extends Factory {
             if (obj == null) {
                 return false;
             }
+            // Two objects that are the same will never have a different hashCode
+            if (hashCode()!=obj.hashCode()) {
+                return false;
+            }
             if (getClass() != obj.getClass()) {
                 return false;
             }
             SimpleFactoryLookupKey other = (SimpleFactoryLookupKey) obj;
-            if (directory == null) {
-                if (other.directory != null) {
-                    return false;
-                }
-            } else if (!directory.equals(other.directory)) {
+            // directory must not be null
+           if (!directory.equals(other.directory)) {
                 return false;
             }
-            if (matchString == null) {
-                if (other.matchString != null) {
-                    return false;
-                }
-            } else if (!matchString.equals(other.matchString)) {
+          // matchString must not be null either
+           if (!matchString.equals(other.matchString)) {
                 return false;
             }
             return true;
@@ -197,27 +281,29 @@ public class SimpleFactory extends Factory {
      * @author ribnitz
      *
      */
-    private static class SimpleFactoryCacheKey {
+    private static final class SimpleFactoryCacheKey  extends HashableKey {
         private List<String> sourceDirectories;
         private String matchString;
         private DraftStatus mimimalDraftStatus;
-
+        
         public SimpleFactoryCacheKey(List<String> sourceDirectories, String matchString, DraftStatus mimimalDraftStatus) {
+            if (sourceDirectories==null) {
+                throw new IllegalArgumentException("The list of SourceDirectories must not be null");
+            }
+            if (matchString==null) {
+                throw new IllegalArgumentException("The string to be matched must not be null");
+            }
+            if (mimimalDraftStatus==null) {
+                throw new IllegalArgumentException("The minimal draft status assigned must not be null");
+            }
             this.sourceDirectories = sourceDirectories;
             this.matchString = matchString;
             this.mimimalDraftStatus = mimimalDraftStatus;
+            // calculate the hashCode
+            setHashCode(Objects.hash(sourceDirectories,matchString,mimimalDraftStatus));
         }
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((matchString == null) ? 0 : matchString.hashCode());
-            result = prime * result + ((mimimalDraftStatus == null) ? 0 : mimimalDraftStatus.hashCode());
-            result = prime * result + ((sourceDirectories == null) ? 0 : sourceDirectories.hashCode());
-            return result;
-        }
-
+        
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -226,25 +312,23 @@ public class SimpleFactory extends Factory {
             if (obj == null) {
                 return false;
             }
+            // Two objects that are the same will never have a different hashCode
+            if (hashCode()!=obj.hashCode()) {
+                return false;
+            }
             if (getClass() != obj.getClass()) {
                 return false;
             }
             SimpleFactoryCacheKey other = (SimpleFactoryCacheKey) obj;
-            if (matchString == null) {
-                if (other.matchString != null) {
-                    return false;
-                }
-            } else if (!matchString.equals(other.matchString)) {
+            // matchString must not be null
+            if (!matchString.equals(other.matchString)) {
                 return false;
             }
             if (mimimalDraftStatus != other.mimimalDraftStatus) {
                 return false;
             }
-            if (sourceDirectories == null) {
-                if (other.sourceDirectories != null) {
-                    return false;
-                }
-            } else if (!sourceDirectories.equals(other.sourceDirectories)) {
+           // sourceDirectories must not be null
+            if (!sourceDirectories.equals(other.sourceDirectories)) {
                 return false;
             }
             return true;
@@ -264,10 +348,8 @@ public class SimpleFactory extends Factory {
 
         @Override
         public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("SimpleFactoryCacheKey [sourceDirectories=").append(sourceDirectories).append(", matchString=").append(matchString)
-                .append(", mimimalDraftStatus=").append(mimimalDraftStatus).append("]");
-            return builder.toString();
+            return "SimpleFactoryCacheKey [sourceDirectories="+sourceDirectories+
+                ", matchString="+matchString+", mimimalDraftStatus="+mimimalDraftStatus+"]";
         }
 
     }
@@ -289,9 +371,18 @@ public class SimpleFactory extends Factory {
 //    }
     private DraftStatus minimalDraftStatus = DraftStatus.unconfirmed;
 
-    /* Use WeakValues - automagically remove a value once it is no longer useed elsewhere */
+    /**
+     * Cache that provides a Mapping SimpleFactoryCacheKey -> SimpleFactory. 
+     * 
+     */
     private static Cache<SimpleFactoryCacheKey, SimpleFactory> factoryCache = null;
-    // private static LockSupportMap<SimpleFactoryCacheKey> factoryCacheLocks=new LockSupportMap<>();
+   
+    /**
+     * Since a SimpleFactoryCacheKey can contain several directories, this Cache provides a way
+     * to lookup the key to use for the factory lookup map, provided a SimpleFactoryLookupKey
+     * (which contains just one directory)
+     * 
+     */
     private static Cache<SimpleFactoryLookupKey, SimpleFactoryCacheKey> factoryLookupMap = null;
 
     private SimpleFactory() {
@@ -353,7 +444,8 @@ public class SimpleFactory extends Factory {
     public static Factory make(File sourceDirectory[], String matchString) {
         return make(sourceDirectory, matchString, DraftStatus.unconfirmed);
     }
-
+    
+    
     /**
      * Create a factory from a source directory list
      * 
@@ -370,8 +462,8 @@ public class SimpleFactory extends Factory {
         // we cache simple factories
         List<String> strList = new ArrayList<>();
         List<SimpleFactoryLookupKey> lookupList = new ArrayList<>();
-        for (int i = 0; i < sourceDirectory.length; i++) {
-            String cur = sourceDirectory[i].getAbsolutePath();
+        for (File sourceDir: sourceDirectory) {
+            String cur=sourceDir.getAbsolutePath();
             strList.add(cur);
             lookupList.add(new SimpleFactoryLookupKey(cur, matchString));
         }
@@ -409,7 +501,7 @@ public class SimpleFactory extends Factory {
             return factoryCache.asMap().get(key);
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     private SimpleFactory(File sourceDirectories[], String matchString, DraftStatus minimalDraftStatus) {
         // initialize class based
@@ -421,7 +513,6 @@ public class SimpleFactory extends Factory {
                 resolvedCache[i] = Collections.synchronizedMap(new LruMap<String, CLDRFile>(CACHE_LIMIT));
             }
         } else {
-            // combinedCache=  Collections.synchronizedMap(new LruMap<CLDRCacheKey, CLDRFile>(CACHE_LIMIT)); 
             combinedCache = CacheBuilder.newBuilder().maximumSize(CACHE_LIMIT).build();
         }
         //
@@ -444,13 +535,14 @@ public class SimpleFactory extends Factory {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("{" + getClass().getName())
-            .append(" dirs=");
-        for (File f : sourceDirectories) {
-            sb.append(f.getPath()).append(' ');
+        if (sourceDirectories.length==1) {
+            return "{" + getClass().getName() +" dirs="+sourceDirectories[0].getName()+" }";
         }
-        sb.append('}');
-        return sb.toString();
+        List<String> fileList=new ArrayList<>(sourceDirectories.length);
+        for (File f: sourceDirectories) {
+            fileList.add(f.getName());
+        }
+        return  "{" + getClass().getName() +" dirs="+fileList+" }";
     }
 
     protected Set<String> handleGetAvailable() {
@@ -495,10 +587,6 @@ public class SimpleFactory extends Factory {
             // even with multiple threads.
             //            result = cache.get(localeName);
             //     result=combinedCache.get(cacheKey);
-            Object returned = mapToSynchronizeOn.get(cacheKey);
-            if (returned instanceof CLDRFile) {
-                result = (CLDRFile) returned;
-            }
             if (result != null) {
                 if (DEBUG_SIMPLEFACTORY) {
                     System.out.println("HandleMake:Returning cached result for locale " + localeName);
@@ -510,23 +598,15 @@ public class SimpleFactory extends Factory {
             } else {
                 if (parentDir != null) {
                     if (DEBUG_SIMPLEFACTORY) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("HandleMake: Calling makeFile with locale: ");
-                        sb.append(localeName);
-                        sb.append(", parentDir: ");
-                        sb.append(parentDir.getAbsolutePath());
-                        sb.append(", DraftStatus: ");
-                        sb.append(minimalDraftStatus);
-                        System.out.println(sb.toString());
+                        System.out.println("HandleMake: Calling makeFile with locale: "+localeName+
+                            ", parentDir: "+parentDir.getAbsolutePath()+", DraftStatus: "+minimalDraftStatus);
                     }
                     result = makeFile(localeName, parentDir, minimalDraftStatus);
                     result.freeze();
                 }
             }
             if (result != null) {
-                mapToSynchronizeOn.put(cacheKey, result);
-                //                combinedCache.put(cacheKey, result);
-                //                cache.put(localeName, result);
+                mapToSynchronizeOn.put(cacheKey,result);
             }
             return result;
         }
@@ -630,6 +710,8 @@ public class SimpleFactory extends Factory {
         return sourceDirectories;
     }
 
+   
+    
     @Override
     public File getSourceDirectoryForLocale(String localeName) {
         boolean isSupplemental = CLDRFile.isSupplementalName(localeName);

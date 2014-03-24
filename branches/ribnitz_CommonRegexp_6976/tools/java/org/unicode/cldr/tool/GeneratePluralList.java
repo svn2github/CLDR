@@ -55,7 +55,7 @@ public class GeneratePluralList {
     private void loadNouns() throws IOException {
         BufferedReader reader = FileUtilities.openFile(GeneratePluralList.class, "fractionnum.csv");
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            String[] fields= Patterns.COMMA.split(line);
+            String[] fields= Patterns.splitOnComma(line);
 //            String[] fields = line.split(",");
             String locale = fields[0];
             String count = fields[1];

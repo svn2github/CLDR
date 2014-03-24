@@ -27,7 +27,7 @@ public class PathDescription {
     public static final Set<String> EXTRA_LANGUAGES = new TreeSet<String>(
         Arrays
             .asList(
-                Patterns.BAR.split( 
+                Patterns.splitOnBar( 
                     "ach|af|ak|ak|am|ar|az|be|bem|bg|bh|bn|br|bs|ca|chr|ckb|co|crs|cs|cy|da|de|de_AT|de_CH|ee|"
                     + "el|en|en_AU|en_CA|en_GB|en_US|eo|es|es_419|es_ES|et|eu|fa|fi|fil|fo|fr|fr_CA|fr_CH|fy|ga|"
                     + "gaa|gd|gl|gn|gsw|gu|ha|haw|he|hi|hr|ht|hu|hy|ia|id|ig|is|it|ja|jv|ka|kg|kk|km|kn|ko|kri|ku|"

@@ -8,10 +8,13 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.unicode.cldr.icu.ICUResourceWriter.Resource;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceTable;
 import org.unicode.cldr.icu.ResourceSplitter.ResultInfo;
+import org.unicode.cldr.util.Patterns;
 
 class ICUWriter {
     private static final String LINESEP = System.getProperty("line.separator");
@@ -21,6 +24,8 @@ class ICUWriter {
     private final String dstDirName;
     private final ICULog log;
     private final ResourceSplitter splitter;
+    
+    private final static Pattern BACKSLASH=Pattern.compile("\\");
 
     ICUWriter(String dstDirName, ICULog log, ResourceSplitter splitter) {
         this.dstDirName = dstDirName;
@@ -138,8 +143,10 @@ class ICUWriter {
         // } else {
         // ver = " v" + ver;
         // }
-
-        String tempdir = fileName.replace('\\', '/');
+        
+        Matcher backslashMatcher=BACKSLASH.matcher(fileName);
+//        String tempdir = fileName.replace('\\', '/');
+        String tempdir=backslashMatcher.replaceAll("/");
         int index = tempdir.indexOf("/common");
         if (index > -1) {
             tempdir = "<path>" + tempdir.substring(index, tempdir.length());

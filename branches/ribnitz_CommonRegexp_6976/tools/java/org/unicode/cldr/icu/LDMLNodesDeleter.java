@@ -127,7 +127,7 @@ public class LDMLNodesDeleter {
             try {
                 Document source = LDMLUtilities.parse(sourceFN, false);
                 Node src = LDMLUtilities.getNode(source, "//ldml");
-                String[] list = Patterns.COLON.split(xpath);
+                String[] list = Patterns.splitOnColon(xpath);
 //                String[] list = xpath.split(":");
                 for (int j = 0; j < list.length; j++) {
                     System.out.println("INFO: Deleting nodes with xpath: " + list[j]);

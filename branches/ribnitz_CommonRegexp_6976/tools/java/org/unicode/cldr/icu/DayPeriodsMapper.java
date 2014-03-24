@@ -44,7 +44,7 @@ public class DayPeriodsMapper {
         public void startElement(String uri, String localName, String qName, Attributes attr) throws SAXException {
             if (qName.equals("dayPeriodRules")) {
                 setNum++;
-                String[] locales= Patterns.WHITESPACE.split(attr.getValue("locales"));
+                String[] locales= Patterns.splitOnWhitespace(attr.getValue("locales"));
 //                String[] locales = attr.getValue("locales").split("\\s+");
                 for (String locale : locales) {
                     icuData.add("/locales/" + locale, "set" + setNum);

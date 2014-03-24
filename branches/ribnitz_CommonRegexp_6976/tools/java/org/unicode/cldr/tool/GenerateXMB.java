@@ -1234,7 +1234,7 @@ public class GenerateXMB {
         // start with certain special-case countries
         Set<String> singularCountries = new HashSet<String>(
             Arrays.asList(
-                Patterns.SPACE_CHARACTER.split("CL EC ES NZ PT AQ FM GL KI UM PF")));
+                Patterns.splitOnSpaceCharacter("CL EC ES NZ PT AQ FM GL KI UM PF")));
 //                "CL EC ES NZ PT AQ FM GL KI UM PF".split(" ")));
 
         Map<String, Set<String>> countryToZoneSet = sc.getCountryToZoneSet();
@@ -1387,7 +1387,7 @@ public class GenerateXMB {
 
     private static void displayWsb(String file, EnglishInfo info) {
         try {
-            String[] parts = Patterns.SLASH.split(file);
+            String[] parts = Patterns.splitOnSlash(file);
 //            String[] parts = file.split("/");
             ULocale locale = new ULocale(parts[parts.length - 2]);
             FileInputStream fis = new FileInputStream(file);

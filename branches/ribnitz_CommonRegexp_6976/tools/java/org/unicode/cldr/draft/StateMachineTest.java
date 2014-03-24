@@ -40,7 +40,7 @@ public class StateMachineTest {
             if (line.length() == 0) {
                 continue;
             }
-            String[] trimmedSplitLines=Patterns.SEMICOLON_WITH_WHITESPACE.split(line.trim());
+            String[] trimmedSplitLines=Patterns.splitOnSemicolonWithWhiteSpace(line.trim());
 //            testLines.add(line.trim().split("\\s*;\\s*"));
             testLines.add(trimmedSplitLines);
         }

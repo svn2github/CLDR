@@ -55,7 +55,7 @@ public class TestCoverage extends TestFmwkPlus {
         Set<String> errors = new LinkedHashSet<>();
         Set<String> toTest = new HashSet<>(
             Arrays.asList(
-                Patterns.SPACE_CHARACTER.split("ky mn ms uz az kk pa sr zh lo")));
+                Patterns.splitOnSpaceCharacter("ky mn ms uz az kk pa sr zh lo")));
 //                "ky mn ms uz az kk pa sr zh lo".split(" ")));
         Set<String> defaultContents = sdi.getDefaultContentLocales();
 

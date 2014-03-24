@@ -135,7 +135,7 @@ public class CollationMapper extends Mapper {
             } else if (qName.equals("collations")) {
                 String validSubLocales = attr.getValue("validSubLocales");
                 if (validSubLocales != null) {
-                    subLocales=Patterns.POSSESSIVE_WHITESPACE.split(validSubLocales);
+                    subLocales=Patterns.splitOnPossessiveWhitespace(validSubLocales);
 //                    subLocales = validSubLocales.split("\\s++");
                 }
             } else if (qName.equals("version")) {
@@ -178,7 +178,7 @@ public class CollationMapper extends Mapper {
             if (qName.equals("suppress_contractions")) {
                 properties.add("suppressContractions " + currentText.toString());
             } else if (qName.equals("cr")) {
-                String[] lines=Patterns.NEWLINE.split(currentText.toString());
+                String[] lines=Patterns.splitOnNewline(currentText.toString());
 //                String[] lines = currentText.toString().split("\n");
                 for (String line : lines) {
                     int commentPos = line.indexOf("#");

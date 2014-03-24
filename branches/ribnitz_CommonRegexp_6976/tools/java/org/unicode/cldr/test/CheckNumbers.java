@@ -134,7 +134,7 @@ public class CheckNumbers extends FactoryCheckCLDR {
 
         // Make sure currency patterns contain a currency symbol
         if (type == NumericType.CURRENCY) {
-            String[] currencyPatterns=Patterns.SEMICOLON.split(value,2);
+            String[] currencyPatterns=Patterns.splitOnSemicolon(value,2);
  //            String[] currencyPatterns = value.split(";", 2);
             for (int i = 0; i < currencyPatterns.length; i++) {
                 if (currencyPatterns[i].indexOf("\u00a4") < 0)
@@ -246,7 +246,7 @@ public class CheckNumbers extends FactoryCheckCLDR {
         } else {
             allowedChars = new UnicodeSet("[0-9#@.,E+]");
         }
-        for (String subPattern: Patterns.SEMICOLON.split(value)) {
+        for (String subPattern: Patterns.splitOnSemicolon(value)) {
 //        for (String subPattern : value.split(";")) {
             // Any unquoted non-special chars are allowed in front of or behind the numerical
             // symbols, but not in between, e.g. " 0000" is okay but "0 000" is not.

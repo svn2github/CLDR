@@ -229,7 +229,8 @@ public abstract class CLDRConverterTool {
                 if (obj instanceof CLDRBuild.CoverageLevel) {
                     CLDRBuild.CoverageLevel level = (CLDRBuild.CoverageLevel) obj;
                     if (level.locales != null) {
-                        List<String> localeList = Arrays.asList(Patterns.WHITESPACE.split(level.locales));
+                        List<String> localeList=Arrays.asList(Patterns.splitOnWhitespace(level.locales));
+//                        List<String> localeList = Arrays.asList(Patterns.WHITESPACE.split(level.locales));
 //                        List<String> localeList = Arrays.asList(level.locales.split("\\s+"));
                         if (CLDRBuild.matchesLocale(localeList, localeName) == false) {
                             continue;

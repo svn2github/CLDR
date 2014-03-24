@@ -23,7 +23,7 @@ public class RegexTransformBuilder {
         List<StringTransform> compound = new ArrayList<StringTransform>();
 
         List<Rule> rules = new ArrayList<Rule>();
-        String[] ruleSet =Patterns.SEMICOLON.split(string);
+        String[] ruleSet =Patterns.splitOnSemicolon(string);
 //        String[] ruleSet = string.split(";");
         Matcher m = RULE_PATTERN.matcher("");
         List<String> results = new ArrayList<String>();

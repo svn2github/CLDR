@@ -416,7 +416,7 @@ public class CLDRConfig extends Properties {
      */
     public File[] getCLDRDataDirectories(String list) {
         final File dir = getCldrBaseDirectory();
-        String stubs[] = Patterns.COMMA.split(list);
+        String stubs[] = Patterns.splitOnComma(list);
 //        String stubs[] = list.split(",");
         File[] ret = new File[stubs.length];
         for (int i = 0; i < stubs.length; i++) {

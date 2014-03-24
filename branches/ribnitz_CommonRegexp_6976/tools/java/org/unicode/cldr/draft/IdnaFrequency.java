@@ -82,7 +82,8 @@ public class IdnaFrequency {
                 break;
             }
             try {
-                String[] parts= Patterns.TABULATOR.split(line);
+                String[] parts= Patterns.splitOnTabulator(line);
+//                String[] parts= Patterns.TABULATOR.split(line);
 //                String[] parts = line.split("\t");
                 int cp = Integer.parseInt(parts[0].substring(2), 16);
                 long count = Long.parseLong(parts[1]);

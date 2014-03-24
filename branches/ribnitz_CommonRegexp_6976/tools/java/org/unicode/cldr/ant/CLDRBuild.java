@@ -401,7 +401,8 @@ public class CLDRBuild extends Task {
             if (".*".equals(locales)) {
                 this.locales = ANY;
             } else {
-                this.locales=Arrays.asList(Patterns.WHITESPACE.split(locales));
+                this.locales=Arrays.asList(Patterns.splitOnWhitespace(locales));
+//                this.locales=Arrays.asList(Patterns.WHITESPACE.split(locales));
              //   this.locales = Arrays.asList(locales.split("\\s+"));
             }
         }

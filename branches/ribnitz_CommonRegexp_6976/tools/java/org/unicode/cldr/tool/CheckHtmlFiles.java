@@ -22,6 +22,7 @@ import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.RegexUtilities;
 import org.unicode.cldr.util.SimpleHtmlParser;
 import org.unicode.cldr.util.SimpleHtmlParser.Type;
@@ -48,7 +49,6 @@ public class CheckHtmlFiles {
         "|Modifications" +
         "|(Revision \\d+\\.?)");
     static Pattern SUPPRESS_REVISION = Pattern.compile("Revision \\d+\\.?");
-    static Pattern SPACES = Pattern.compile("\\s+");
 
     enum MyOptions {
 //        old(".*", "/Users/markdavis/Google Drive/Backup-2012-10-09/Documents/indigo/cldr-archive/cldr-22.1/specs/ldml/tr35\\.html", "source data (regex)"),
@@ -269,7 +269,7 @@ public class CheckHtmlFiles {
 
         public void addText(String toAppend) {
             text += TransliteratorUtilities.fromHTML.transform(toAppend);
-            text = SPACES.matcher(text).replaceAll(" ").trim(); // clean up all spaces; make more efficient later
+            text = Patterns.WHITESPACE.matcher(text).replaceAll(" ").trim(); // clean up all spaces; make more efficient later
         }
 
         public boolean isContents() {

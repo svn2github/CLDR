@@ -71,7 +71,7 @@ public class TestTransforms {
         prefix += "\t";
         if (t instanceof RuleBasedTransliterator) {
             RuleBasedTransliterator rbt = (RuleBasedTransliterator) t;
-            String[] rules=Patterns.NEWLINE.split(rbt.toRules(true));
+            String[] rules=Patterns.splitOnNewline(rbt.toRules(true));
 //            String[] rules = rbt.toRules(true).split("\n");
             int length = rules.length;
             if (limit >= 0 && limit < length) length = limit;

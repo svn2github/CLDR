@@ -18,9 +18,11 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 
 import org.unicode.cldr.ant.CLDRConverterTool;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.XPathParts.Comments;
 
@@ -1365,10 +1367,14 @@ public class ICU2LDMLWriter extends CLDRConverterTool
         switch (id)
         {
         case ZONE_ID:
-            curXPath += SEP + LDMLConstants.ZONE + addXType(bund.getKey().replace(':', '/'));
+            Matcher m=Patterns.COLON.matcher(bund.getKey());
+            curXPath += SEP + LDMLConstants.ZONE + addXType(m.replaceAll("/"));
+//            curXPath += SEP + LDMLConstants.ZONE + addXType(bund.getKey().replace(':', '/'));
             break;
         case META_ID:
-            curXPath += SEP + LDMLConstants.METAZONE + addXType(bund.getKey().substring(5).replace(':', '/'));
+             m=Patterns.COLON.matcher(bund.getKey());
+            curXPath += SEP + LDMLConstants.ZONE + addXType(m.replaceAll("/"));
+//            curXPath += SEP + LDMLConstants.METAZONE + addXType(bund.getKey().substring(5).replace(':', '/'));
             break;
         default:
             printError("Invalid ID: " + id);

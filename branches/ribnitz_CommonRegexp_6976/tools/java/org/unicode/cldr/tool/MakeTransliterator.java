@@ -445,7 +445,7 @@ public class MakeTransliterator {
     private static void checkCoreReversibility(PrintWriter skippedOut, String coreRules, String coreBackRules) {
         Transliterator base = Transliterator.createFromRules("foo", coreRules, Transliterator.FORWARD);
         Transliterator back = Transliterator.createFromRules("foo2", coreBackRules, Transliterator.REVERSE);
-        String[] tests=Patterns.WHITESPACE_ONCE.split("bat bait bet beet bit bite bot boat but bute bout boot book boy pat bat vat fat mat "
+        String[] tests=Patterns.splitOnSingleWhitespace("bat bait bet beet bit bite bot boat but bute bout boot book boy pat bat vat fat mat "
             + "tat dat thew father nat sat zoo ash asia gate cat late rate hate yet rang chat jet");
 //        String[] tests = "bat bait bet beet bit bite bot boat but bute bout boot book boy pat bat vat fat mat tat dat thew father nat sat zoo ash asia gate cat late rate hate yet rang chat jet"
 //            .split("\\s");

@@ -75,7 +75,7 @@ public class PivotData {
         XPathParts parts = new XPathParts();
         parts.set(defaultContentList);
         String list = parts.getAttributeValue(-1, "locales");
-        String[] items= Patterns.WHITESPACE.split(list);
+        String[] items= Patterns.splitOnWhitespace(list);
 //        String[] items = list.split("\\s+");
         for (String item : items) {
             if (!fileMatcher.reset(item).matches()) {

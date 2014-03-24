@@ -175,7 +175,7 @@ public class CldrItem implements Comparable<CldrItem> {
                     node.getName()));
                 String typeValue = node.getDistinguishingAttributes().get("type");
                 typeValue = typeValue.replaceAll("Asia:Taipei", "Asia/Taipei");
-                String[] segments = Patterns.SLASH.split(typeValue);
+                String[] segments = Patterns.splitOnSlash(typeValue);
 //                String[] segments = typeValue.split("/");
                 for (int j = 0; j < segments.length; j++) {
                     CldrNode newNode = CldrNode.createNode(parent, node.getName(),
@@ -224,7 +224,7 @@ public class CldrItem implements Comparable<CldrItem> {
                 ArrayList<CldrItem> list = new ArrayList<CldrItem>();
                 String wordString = fullxpp.findAttributeValue(s.element, s.attribute);
                 String[] words = null;
-                words=Patterns.WHITESPACE.split(wordString.trim());
+                words=Patterns.splitOnWhitespace(wordString.trim());
 //                words = wordString.trim().split("\\s+");
                 XPathParts[] newparts = { newxpp, newfullxpp, untransformednewxpp, untransformednewfullxpp };
                 for (String word : words) {
@@ -282,9 +282,9 @@ public class CldrItem implements Comparable<CldrItem> {
         thisxpp.set(untransformedPath);
         otherxpp.set(otherItem.untransformedFullPath);
         if (thisxpp.containsElement("zone") && otherxpp.containsElement("zone")) {
-            String[] thisZonePieces=Patterns.SLASH.split(thisxpp.findAttributeValue("zone", "type"));
+            String[] thisZonePieces=Patterns.splitOnSlash(thisxpp.findAttributeValue("zone", "type"));
 //            String[] thisZonePieces = thisxpp.findAttributeValue("zone", "type").split("/");
-            String[] otherZonePieces=Patterns.SLASH.split(otherxpp.findAttributeValue("zone", "type"));
+            String[] otherZonePieces=Patterns.splitOnSlash(otherxpp.findAttributeValue("zone", "type"));
 //            String[] otherZonePieces = otherxpp.findAttributeValue("zone", "type").split("/");
             int result = ZoneParser.regionalCompare.compare(thisZonePieces[0], otherZonePieces[0]);
             if (result != 0) {

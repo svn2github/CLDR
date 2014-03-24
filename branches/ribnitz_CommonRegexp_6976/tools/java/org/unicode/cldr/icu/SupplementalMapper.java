@@ -273,7 +273,7 @@ public class SupplementalMapper {
                 boolean splitNeeded = false;
                 int argIndex = info.getSplitRbPathArg();
                 if (argIndex != -1) {
-                    String[] splitArgs=Patterns.WHITESPACE.split(arguments[argIndex]);
+                    String[] splitArgs=Patterns.splitOnPossessiveWhitespace(arguments[argIndex]);
                         //                    String[] splitArgs = arguments[argIndex].split("\\s++");
                     // Only split the first splittable argument needed for each rbPath.
                     if (splitArgs.length > 1) {

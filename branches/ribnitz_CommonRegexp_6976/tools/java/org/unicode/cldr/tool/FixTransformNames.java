@@ -215,7 +215,7 @@ public class FixTransformNames {
     }
 
     private void addX(Map<String, String> oldToNewVariant2, String type, String prefix, String items) {
-        for (String part: Patterns.WHITESPACE.split(items)) {
+        for (String part: Patterns.splitOnWhitespace(items)) {
 //        for (String part : items.split("\\s+")) {
             String target = prefix + part.toLowerCase(Locale.ENGLISH);
             if (target.length() > 8) {

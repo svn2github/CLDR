@@ -63,7 +63,7 @@ public class SupplementalMetadataConverter extends SimpleLDMLConverter {
                 Resource c = null;
                 arr.name = LDMLConstants.REGION_CODES;
                 String validRegionString = LDMLUtilities.getNodeValue(node).trim();
-                String[] validRegions=Patterns.WHITESPACE.split(validRegionString);
+                String[] validRegions=Patterns.splitOnWhitespace(validRegionString);
  //                String[] validRegions = validRegionString.split("\\s+");
                 for (int i = 0; i < validRegions.length; i++) {
                     ResourceString str = new ResourceString();

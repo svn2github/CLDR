@@ -68,7 +68,7 @@ class BreakIteratorMapper extends Mapper {
                 }
 
                 if (element2.equals("icu:boundaries")) {
-                    type=Patterns.COLON.split(element)[1];
+                    type=Patterns.splitOnColon(element)[1];
 //                    type = element.split(":")[1]; // icu:word -> "word"
                     source = brkSource;
                 } else if (element2.equals("icu:dictionaries")) {

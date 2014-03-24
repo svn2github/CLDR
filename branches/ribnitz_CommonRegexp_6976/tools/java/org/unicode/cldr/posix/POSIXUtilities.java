@@ -12,6 +12,7 @@ import java.text.StringCharacterIterator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Patterns;
@@ -140,7 +141,10 @@ public class POSIXUtilities {
         else if (cp >= 0x0030 && cp <= 0x0039) // digits
         {
             String n = UCharacter.getExtendedName(cp);
-            result.append(n.replaceAll(" ", "_").replaceAll("DIGIT_", "").toLowerCase());
+            Matcher singleSpaceMatcher=Patterns.SPACE_CHARACTER.matcher(n);
+            String tmp=singleSpaceMatcher.replaceAll("_");
+            result.append(tmp.replaceAll("DIGIT_", "").toLowerCase());
+//            result.append(n.replaceAll(" ", "_").replaceAll("DIGIT_", "").toLowerCase());
         }
         else if ((cp >= 0x0000 && cp <= 0x001F) || (cp >= 0x007F && cp <= 0x009F)) { // Controls
             if (controlCodeNames.isEmpty()) {
@@ -361,7 +365,7 @@ public class POSIXUtilities {
     public static String POSIXYesNoExpr(String s)
     {
         StringBuffer result = new StringBuffer();
-        String[] YesNoElements=Patterns.COLON.split(s);
+        String[] YesNoElements=Patterns.splitOnColon(s);
 //        YesNoElements = s.split(":");
         for (int i = 0; i < YesNoElements.length; i++)
         {

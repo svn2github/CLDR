@@ -866,7 +866,7 @@ public class SupplementalDataParser {
 
             // expand territories and create separated ordering array for each
 //            String[] territories = tmp.split("\\s+");
-            String[] territories = Patterns.WHITESPACE.split(tmp);
+            String[] territories = Patterns.splitOnWhitespace(tmp);
             for (int i = 0; i < territories.length; i++) {
                 res = LDML2ICUConverter.getResourceArray(order, territories[i]);
                 if (current == null) {
@@ -917,7 +917,7 @@ public class SupplementalDataParser {
             if (name.equals(LDMLConstants.MINDAYS) || name.equals(LDMLConstants.FIRSTDAY) ||
                 name.equals(LDMLConstants.WENDSTART) || name.equals(LDMLConstants.WENDEND)) {
                 String territoryString = LDMLUtilities.getAttributeValue(node, LDMLConstants.TERRITORIES);
-                String[] territories=Patterns.WHITESPACE.split(territoryString);
+                String[] territories=Patterns.splitOnSpaceCharacter(territoryString);
 //                String[] territories = territoryString.split(" ");
                 for (int i = 0; i < territories.length; i++) {
                     if (name.equals(LDMLConstants.MINDAYS)) {
@@ -1264,7 +1264,7 @@ public class SupplementalDataParser {
                 }
 
                 if (all_aliases != null) {
-                    String[] arr=Patterns.WHITESPACE.split(all_aliases);
+                    String[] arr=Patterns.splitOnWhitespace(all_aliases);
 //                    String[] arr = all_aliases.split("\\s+");
                     ResourceArray als = new ResourceArray();
                     als.name = LDMLConstants.ALIASES;

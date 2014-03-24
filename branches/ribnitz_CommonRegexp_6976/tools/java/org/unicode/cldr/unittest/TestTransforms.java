@@ -50,9 +50,9 @@ public class TestTransforms extends TestFmwkPlus {
         //        }
         //        System.out.println(englishVowels.toPattern(false));
 
-        String[] cyrillicSplit = Patterns.WHITESPACE.split(cyrillic);
+        String[] cyrillicSplit = Patterns.splitOnWhitespace(cyrillic);
 //        String[] cyrillicSplit = cyrillic.split("\\s+");
-        String[] latinSplit =  Patterns.WHITESPACE.split(latin);
+        String[] latinSplit =  Patterns.splitOnWhitespace(latin);
 //        String[] latinSplit = latin.split("\\s+");
         for (int i = 0; i < cyrillicSplit.length; ++i) {
             assertTransformsTo("Uzbek to Latin", latinSplit[i], cyrillicToLatin, cyrillicSplit[i]);
@@ -225,7 +225,7 @@ public class TestTransforms extends TestFmwkPlus {
                     if (line.startsWith("#")) {
                         continue;
                     }
-                    String[] parts= Patterns.TABULATOR.split(line);
+                    String[] parts= Patterns.splitOnTabulator(line);
 //                    String[] parts = line.split("\t");
                     String source = parts[0];
                     String expected = parts[1];

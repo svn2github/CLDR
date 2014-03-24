@@ -23,7 +23,7 @@ public class SpreadSheet {
             if (DEBUG) {
                 System.out.println("Spreadsheet:\t" + line);
             }
-            String[] parts= Patterns.TABULATOR.split(line);
+            String[] parts= Patterns.splitOnTabulator(line);
 //            String[] parts = line.split("\t");
             List<String> row = new ArrayList<String>(parts.length);
             for (String part : parts) {

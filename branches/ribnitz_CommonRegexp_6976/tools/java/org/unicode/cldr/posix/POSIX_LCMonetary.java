@@ -51,7 +51,7 @@ public class POSIX_LCMonetary {
 
         String[] monetary_formats = new String[2];
         if (grouping_pattern.indexOf(";") > 0) {
-            monetary_formats=Patterns.SEMICOLON.split(grouping_pattern,2);
+            monetary_formats=Patterns.splitOnSemicolon(grouping_pattern,2);
 //            monetary_formats = grouping_pattern.split(";", 2);
         }
            

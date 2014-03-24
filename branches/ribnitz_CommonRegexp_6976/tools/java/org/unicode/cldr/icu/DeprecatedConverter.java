@@ -363,7 +363,7 @@ public class DeprecatedConverter {
                 String list = e.getValue();
 
                 log.setStatus(actualLocale + ".xml");
-                String[] validSubs=Patterns.WHITESPACE.split(list);
+                String[] validSubs=Patterns.splitOnSpaceCharacter(list);
 //                String validSubs[] = list.split(" ");
                 for (String aSub : validSubs) {
                     String testSub;

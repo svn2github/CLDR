@@ -1579,7 +1579,7 @@ public class ExampleGenerator {
             hoursBackground = false; // for the hours case
             gmtFormat = setBackground(cldrFile.getWinningValue("//ldml/dates/timeZoneNames/gmtFormat"));
         }
-        String[] plusMinus=Patterns.SEMICOLON.split(gmtHourString);
+        String[] plusMinus=Patterns.splitOnSemicolon(gmtHourString);
 //        String[] plusMinus = gmtHourString.split(";");
 
         SimpleDateFormat dateFormat = icuServiceBuilder.getDateFormat("gregorian", plusMinus[hours >= 0 ? 0 : 1]);

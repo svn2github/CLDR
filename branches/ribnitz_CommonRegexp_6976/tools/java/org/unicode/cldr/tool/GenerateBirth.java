@@ -221,7 +221,7 @@ public class GenerateBirth {
                 if (xpath.contains("metazone")) {
                     return type.replace("_", " ");
                 } else if (xpath.contains("zone")) {
-                    String[] splits= Patterns.SLASH.split(type);
+                    String[] splits= Patterns.splitOnSlash(type);
 //                    String[] splits = type.split("/");
                     return splits[splits.length - 1].replace("_", " ");
                 }

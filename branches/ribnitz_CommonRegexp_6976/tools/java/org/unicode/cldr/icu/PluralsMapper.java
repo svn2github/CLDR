@@ -80,7 +80,7 @@ public class PluralsMapper {
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attr) throws SAXException {
             if (qName.equals("pluralRules")) {
-                currentLocales=Patterns.WHITESPACE.split(attr.getValue("locales"));
+                currentLocales=Patterns.splitOnWhitespace(attr.getValue("locales"));
 //                currentLocales = attr.getValue("locales").split("\\s+");
             } else if (qName.equals("pluralRule")) {
                 currentCount = attr.getValue("count");
