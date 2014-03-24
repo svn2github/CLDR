@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.unicode.cldr.util.Patterns;
+
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.lang.UCharacterCategory;
 import com.ibm.icu.lang.UScript;
@@ -324,7 +326,8 @@ public class IdentifierInfo {
 
     public static Set<BitSet> parseAlternates(String scriptsSetString) {
         Set<BitSet> result = new HashSet<BitSet>();
-        for (String item : scriptsSetString.trim().split("\\s*;\\s*")) {
+        for (String item: Patterns.SEMICOLON_WITH_WHITESPACE.split(scriptsSetString.trim())) {
+        //for (String item : scriptsSetString.trim().split("\\s*;\\s*")) {
             if (!item.isEmpty()) {
                 result.add(parseScripts(item));
             }

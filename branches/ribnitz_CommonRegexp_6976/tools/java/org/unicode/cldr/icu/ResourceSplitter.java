@@ -13,6 +13,7 @@ import org.unicode.cldr.icu.ICUResourceWriter.Resource;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceInt;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceString;
 import org.unicode.cldr.icu.ICUResourceWriter.ResourceTable;
+import org.unicode.cldr.util.Patterns;
 
 public class ResourceSplitter {
     private final ICULog log;
@@ -318,7 +319,8 @@ public class ResourceSplitter {
          * path.
          */
         private void placeResourceAtPath(Resource root, String targetNodePath, Resource res) {
-            String[] nodeNames = targetNodePath.split("/");
+            String[] nodeNames = Patterns.SLASH.split(targetNodePath);
+//            String[] nodeNames = targetNodePath.split("/");
 
             // rename the resource with the last name in the path, and shorten the path
             int len = nodeNames.length;

@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.unicode.cldr.draft.UnicodeSetBuilder.MyActions;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.text.UnicodeSet;
@@ -39,7 +40,9 @@ public class StateMachineTest {
             if (line.length() == 0) {
                 continue;
             }
-            testLines.add(line.trim().split("\\s*;\\s*"));
+            String[] trimmedSplitLines=Patterns.SEMICOLON_WITH_WHITESPACE.split(line.trim());
+//            testLines.add(line.trim().split("\\s*;\\s*"));
+            testLines.add(trimmedSplitLines);
         }
         in.close();
 

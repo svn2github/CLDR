@@ -41,6 +41,7 @@ import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathDescription;
 import org.unicode.cldr.util.PatternPlaceholders;
 import org.unicode.cldr.util.PatternPlaceholders.PlaceholderInfo;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.PrettyPath;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.RegexLookup.Finder;
@@ -1232,7 +1233,9 @@ public class GenerateXMB {
     static {
         // start with certain special-case countries
         Set<String> singularCountries = new HashSet<String>(
-            Arrays.asList("CL EC ES NZ PT AQ FM GL KI UM PF".split(" ")));
+            Arrays.asList(
+                Patterns.SPACE_CHARACTER.split("CL EC ES NZ PT AQ FM GL KI UM PF")));
+//                "CL EC ES NZ PT AQ FM GL KI UM PF".split(" ")));
 
         Map<String, Set<String>> countryToZoneSet = sc.getCountryToZoneSet();
 
@@ -1384,7 +1387,8 @@ public class GenerateXMB {
 
     private static void displayWsb(String file, EnglishInfo info) {
         try {
-            String[] parts = file.split("/");
+            String[] parts = Patterns.SLASH.split(file);
+//            String[] parts = file.split("/");
             ULocale locale = new ULocale(parts[parts.length - 2]);
             FileInputStream fis = new FileInputStream(file);
             XMLReader xmlReader = XMLFileReader.createXMLReader(false);

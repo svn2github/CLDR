@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.Patterns;
+
 import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.text.UnicodeSet;
 
@@ -78,7 +80,8 @@ public class UnicodeMapBuilder<T> {
                 } else if (codelist.length() < 4) {
                     sources.add(codelist);
                 } else {
-                    final String[] codes = codelist.split("\\s+");
+                    final String[] codes= Patterns.WHITESPACE.split(codelist);
+//                    final String[] codes = codelist.split("\\s+");
                     for (int i = 0; i < codes.length; ++i) {
                         final String[] range = codes[i].split("\\.\\.");
                         final int start = getCodePoint(range[0]);

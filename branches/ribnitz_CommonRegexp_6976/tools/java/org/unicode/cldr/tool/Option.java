@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.Patterns;
+
 /**
  * Simpler mechanism for handling options, where everything can be defined in one place.
  * 
@@ -294,7 +296,8 @@ public class Option {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            args = "foo -fen.xml -c a* --path bar -g b -r aaa".split("\\s+");
+            args = Patterns.WHITESPACE.split("foo -fen.xml -c a* --path bar -g b -r aaa");
+//            args = "foo -fen.xml -c a* --path bar -g b -r aaa".split("\\s+");
         }
         myOptions.parse(args, true);
 

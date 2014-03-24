@@ -31,6 +31,7 @@ import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.TimezoneFormatter;
@@ -838,7 +839,9 @@ public class Misc {
                 //int thisYear = zoneLine.untilYear;
                 String format = zoneLine.format;
                 if (format.indexOf('/') >= 0) {
-                    List<String> abb = Arrays.asList(format.split("/"));
+                    List<String> abb = Arrays.asList(
+                        Patterns.SLASH.split(format));
+                        //format.split("/"));
                     for (Iterator<String> it3 = abb.iterator(); it3.hasNext();) {
                         add(abbreviations, format.replaceAll("%s", it3.next()), key, lastZoneLine, zoneLine);
                     }

@@ -129,7 +129,8 @@ public class Ldml2JsonConverter {
         FileUtilities.FileProcessor myReader = new FileUtilities.FileProcessor() {
             @Override
             protected boolean handleLine(int lineCount, String line) {
-                String[] lineParts = line.trim().split("\\s*;\\s*");
+                String[] lineParts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line.trim());
+//                String[] lineParts = line.trim().split("\\s*;\\s*");
                 String key, value, section = null, path = null;
                 boolean hasSection = false;
                 boolean hasPath = false;

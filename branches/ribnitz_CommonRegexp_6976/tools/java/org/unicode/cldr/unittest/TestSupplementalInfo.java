@@ -39,6 +39,7 @@ import org.unicode.cldr.util.IsoCurrencyParser;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.PluralRanges;
 import org.unicode.cldr.util.PreferredAndAllowedHour;
 import org.unicode.cldr.util.PreferredAndAllowedHour.HourStyle;
@@ -399,7 +400,8 @@ public class TestSupplementalInfo extends TestFmwk {
                 }
             }
             Count c = Count.valueOf(row[1]);
-            for (String digit : row[2].split(",")) {
+            for (String digit: Patterns.COMMA.split(row[2])) {
+//            for (String digit : row[2].split(",")) {
                 // "99" is special, just to have the result be non-empty
                 countToDigits.put(c, digit.length());
             }

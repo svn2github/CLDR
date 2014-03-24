@@ -24,6 +24,7 @@ import org.unicode.cldr.util.CLDRFile.DtdType;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Counter;
 import org.unicode.cldr.util.PathStarrer;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.RegexUtilities;
 import org.unicode.cldr.util.XMLFileReader;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
@@ -153,7 +154,8 @@ public class GenerateItemCounts {
                     continue;
                 }
                 String path = entry.getKey();
-                String[] elements = path.split("/");
+                String[] elements= Patterns.SLASH.split(path);
+//                String[] elements = path.split("/");
                 DtdType type = CLDRFile.DtdType.valueOf(elements[1]);
                 String finalElement = elements[elements.length - 1];
                 starred.print(path);
@@ -270,7 +272,8 @@ public class GenerateItemCounts {
                 if (line.startsWith("#")) {
                     continue;
                 }
-                String[] parts = line.split("\t");
+                String[] parts= Patterns.TABULATOR.split(line);
+//                String[] parts = line.split("\t");
                 try {
                     String file = parts[0];
                     if (file.startsWith("seed/") || !DIR_FILE_MATCHER.reset(file).find()) {

@@ -34,6 +34,7 @@ import org.unicode.cldr.util.InternalCldrException;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.PathHeader.SurveyToolStatus;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.RegexFileParser;
 import org.unicode.cldr.util.RegexFileParser.RegexLineParser;
 import org.unicode.cldr.util.StandardCodes;
@@ -1346,7 +1347,8 @@ abstract public class CheckCLDR {
         fileParser.setLineParser(new RegexLineParser() {
             @Override
             public void parse(String line) {
-                String[] fields = line.split("\\s*;\\s*");
+                String[] fields = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+//                String[] fields = line.split("\\s*;\\s*");
                 Subtype subtype = Subtype.valueOf(fields[0]);
                 Pattern locale = Pattern.compile(fields[1]);
                 Pattern xpathRegex = Pattern.compile(fields[2].replaceAll("\\[@", "\\\\[@"));

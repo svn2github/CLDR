@@ -92,7 +92,8 @@ public class VerifyZones {
 
             gmtFormat = cldrFile.getWinningValue("//ldml/dates/timeZoneNames/gmtFormat");
             hourFormat = cldrFile.getWinningValue("//ldml/dates/timeZoneNames/hourFormat");
-            hourFormatPlusMinus = hourFormat.split(";");
+            hourFormatPlusMinus = Patterns.SEMICOLON.split(hourFormat);
+//            hourFormatPlusMinus = hourFormat.split(";");
             icuServiceBuilder.setCldrFile(cldrFile);
             return this;
         }

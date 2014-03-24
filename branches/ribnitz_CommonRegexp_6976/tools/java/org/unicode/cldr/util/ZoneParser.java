@@ -172,7 +172,8 @@ public class ZoneParser {
                 negative = true;
                 in = in.substring(1);
             }
-            String[] pieces = in.split(":");
+            String[] pieces= Patterns.COLON.split(in);
+//            String[] pieces = in.split(":");
             int multiplier = 3600;
             int result = 0;
             for (int i = 0; i < pieces.length; ++i) {

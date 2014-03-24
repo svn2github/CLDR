@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.SupplementalDataInfo;
@@ -208,6 +209,8 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
     private static Map<ULocale, SamplePatterns> LOCALE_TO_SAMPLE_PATTERNS = null;
     private static Map<ULocale, PluralRules> OVERRIDES = null;
     private static Relation<ULocale, FixedDecimal> EXTRA_SAMPLES = null;
+    
+    private final static Pattern COMMA_WITH_SPACING=Pattern.compile("\\s*,\\s*");
 
     private static void loadData() {
         LinkedHashMap<ULocale, SamplePatterns> temp = new LinkedHashMap<ULocale, SamplePatterns>();
@@ -255,8 +258,10 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
 //            }
         }
 
+       
         for (String[] pair : overrides) {
-            for (String locale : pair[0].split("\\s*,\\s*")) {
+            for (String locale: COMMA_WITH_SPACING.split(pair[0])) {
+//            for (String locale : pair[0].split("\\s*,\\s*")) {
                 ULocale uLocale = new ULocale(locale);
                 if (tempOverrides.containsKey(uLocale)) {
                     throw new IllegalArgumentException("Duplicate locale: " + uLocale);
@@ -270,12 +275,14 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
             }
         }
         for (String[] pair : EXTRA_SAMPLE_SOURCE) {
-            for (String locale : pair[0].split("\\s*,\\s*")) {
+            for (String locale :COMMA_WITH_SPACING.split(pair[0])) {
+//            for (String locale : pair[0].split("\\s*,\\s*")) {
                 ULocale uLocale = new ULocale(locale);
                 if (tempSamples.containsKey(uLocale)) {
                     throw new IllegalArgumentException("Duplicate locale: " + uLocale);
                 }
-                for (String item : pair[1].split("\\s*,\\s*")) {
+                for (String item: COMMA_WITH_SPACING.split(pair[1])) {
+//                for (String item : pair[1].split("\\s*,\\s*")) {
                     tempSamples.put(uLocale, new PluralRules.FixedDecimal(item));
                 }
             }

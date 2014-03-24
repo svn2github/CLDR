@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.Relation;
@@ -444,8 +445,10 @@ public class MakeTransliterator {
     private static void checkCoreReversibility(PrintWriter skippedOut, String coreRules, String coreBackRules) {
         Transliterator base = Transliterator.createFromRules("foo", coreRules, Transliterator.FORWARD);
         Transliterator back = Transliterator.createFromRules("foo2", coreBackRules, Transliterator.REVERSE);
-        String[] tests = "bat bait bet beet bit bite bot boat but bute bout boot book boy pat bat vat fat mat tat dat thew father nat sat zoo ash asia gate cat late rate hate yet rang chat jet"
-            .split("\\s");
+        String[] tests=Patterns.WHITESPACE_ONCE.split("bat bait bet beet bit bite bot boat but bute bout boot book boy pat bat vat fat mat "
+            + "tat dat thew father nat sat zoo ash asia gate cat late rate hate yet rang chat jet");
+//        String[] tests = "bat bait bet beet bit bite bot boat but bute bout boot book boy pat bat vat fat mat tat dat thew father nat sat zoo ash asia gate cat late rate hate yet rang chat jet"
+//            .split("\\s");
         for (String test : tests) {
             String test2 = base.transliterate(test);
             String test3 = back.transliterate(test2);

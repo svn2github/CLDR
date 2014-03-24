@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.draft.PatternFixer.Target;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.impl.Utility;
 import com.ibm.icu.text.Normalizer;
@@ -22,7 +23,8 @@ public class RegexTransformBuilder {
         List<StringTransform> compound = new ArrayList<StringTransform>();
 
         List<Rule> rules = new ArrayList<Rule>();
-        String[] ruleSet = string.split(";");
+        String[] ruleSet =Patterns.SEMICOLON.split(string);
+//        String[] ruleSet = string.split(";");
         Matcher m = RULE_PATTERN.matcher("");
         List<String> results = new ArrayList<String>();
         Matcher variable = VARIABLE.matcher("");

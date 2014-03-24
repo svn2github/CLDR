@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.impl.Utility;
@@ -81,7 +82,8 @@ public class IdnaFrequency {
                 break;
             }
             try {
-                String[] parts = line.split("\t");
+                String[] parts= Patterns.TABULATOR.split(line);
+//                String[] parts = line.split("\t");
                 int cp = Integer.parseInt(parts[0].substring(2), 16);
                 long count = Long.parseLong(parts[1]);
                 charTotal.add(cp, count);

@@ -21,6 +21,7 @@ import org.unicode.cldr.util.Counter;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralType;
 import org.unicode.cldr.util.XPathParts;
@@ -506,7 +507,8 @@ public class GenerateCoverageLevels {
             }
             String validSubLocales = parts.getAttributeValue(1, "validSubLocales");
             if (validSubLocales != null) {
-                String[] sublocales = validSubLocales.split("\\s+");
+                String[] sublocales = Patterns.WHITESPACE.split(validSubLocales);
+//                String[] sublocales = validSubLocales.split("\\s+");
                 for (String sublocale : sublocales) {
                     if (localeFilter.skipLocale(locale)) continue;
                     localesFound.add(sublocale);

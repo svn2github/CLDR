@@ -40,6 +40,7 @@ import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.Log;
 import org.unicode.cldr.util.PathHeader;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.StringId;
@@ -2055,7 +2056,8 @@ public class CLDRModify {
                     FileUtilities.FileProcessor myReader = new FileUtilities.FileProcessor() {
                         @Override
                         protected boolean handleLine(int lineCount, String line) {
-                            String[] lineParts = line.trim().split("\\s*;\\s*");
+                            String[] lineParts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line.trim());
+//                            String[] lineParts = line.trim().split("\\s*;\\s*");
                             Map<ConfigKeys, ConfigMatch> keyValue = new EnumMap<ConfigKeys, ConfigMatch>(
                                 ConfigKeys.class);
                             for (String linePart : lineParts) {

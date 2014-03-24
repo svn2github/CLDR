@@ -12,6 +12,7 @@ import org.unicode.cldr.ant.CLDRBuild.Paths;
 import org.unicode.cldr.icu.LDMLConstants;
 import org.unicode.cldr.icu.ResourceSplitter.SplitInfo;
 import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XPathParts;
@@ -228,7 +229,8 @@ public abstract class CLDRConverterTool {
                 if (obj instanceof CLDRBuild.CoverageLevel) {
                     CLDRBuild.CoverageLevel level = (CLDRBuild.CoverageLevel) obj;
                     if (level.locales != null) {
-                        List<String> localeList = Arrays.asList(level.locales.split("\\s+"));
+                        List<String> localeList = Arrays.asList(Patterns.WHITESPACE.split(level.locales));
+//                        List<String> localeList = Arrays.asList(level.locales.split("\\s+"));
                         if (CLDRBuild.matchesLocale(localeList, localeName) == false) {
                             continue;
                         }

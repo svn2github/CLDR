@@ -1774,8 +1774,10 @@ class GeneratePickerData {
             if (line.length() == 0 || line.startsWith("#")) {
                 continue;
             }
-            String[] components = line.split(";");
-            String[] codepoints = components[0].split(" ");
+            String[] components = Patterns.SEMICOLON.split(line);
+           // String[] components = line.split(";");
+           // String[] codepoints = components[0].split(" ");
+            String[] codepoints =Patterns.SPACE_CHARACTER.split(components[0]);
             // No support yet for multi-codepoint characters so we skip them
             if (codepoints.length > 1) {
                 continue;

@@ -14,6 +14,7 @@ import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.SupplementalDataInfo;
 
@@ -116,7 +117,8 @@ public class FixDelimiters {
                 Quotes qalt = new Quotes(line.substring(first + 1, second));
                 R2<Quotes, Quotes> both = Row.of(qmain, qalt);
                 String last = line.substring(second);
-                String[] locales = last.split("\\s*;\\s*");
+                String[] locales = Patterns.SEMICOLON_WITH_WHITESPACE.split(last);
+//                String[] locales = last.split("\\s*;\\s*");
                 for (String locale : locales) {
                     if (!localeString.reset(locale).matches()) {
                         throw new IllegalArgumentException("<" + locale + "> in " + line);

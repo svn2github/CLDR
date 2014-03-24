@@ -47,7 +47,8 @@ public class IsoRegionData {
                 String line = codes.readLine();
                 if (line == null)
                     break;
-                line = line.split("#")[0].trim();
+                  line = Patterns.HASH.split(line)[0].trim();
+//                line = line.split("#")[0].trim();
                 if (line.length() == 0)
                     continue;
                 // if (line.startsWith("XN--")) {
@@ -69,12 +70,15 @@ public class IsoRegionData {
             codes = CldrUtility.getUTF8Data("territory_codes.txt");
             while (true) {
                 String line = codes.readLine();
-                if (line == null)
+                if (line == null) {
                     break;
-                line = line.split("#")[0].trim();
+                }
+                line = Patterns.HASH.split(line)[0].trim();
+//                line = line.split("#")[0].trim();
                 if (line.length() == 0)
                     continue;
-                String[] sourceValues = line.split("\\s+");
+                String[] sourceValues= Patterns.WHITESPACE.split(line);
+//                String[] sourceValues = line.split("\\s+");
                 String[] values = new String[5];
                 for (int i = 0; i < values.length; ++i) {
                     if (i >= sourceValues.length || sourceValues[i].equals("-")) {
@@ -90,7 +94,9 @@ public class IsoRegionData {
                 if (internet != null) {
                     internet = internet.toUpperCase();
                     LinkedHashSet<String> internetStrings = new LinkedHashSet<String>(
-                        Arrays.asList(internet.split("/")));
+                        Arrays.asList(
+                            Patterns.SLASH.split(internet)));
+                            //internet.split("/")));
                     if (!other_internet.containsAll(internetStrings)) {
                         errors.addAll(internetStrings);
                         errors.removeAll(other_internet);

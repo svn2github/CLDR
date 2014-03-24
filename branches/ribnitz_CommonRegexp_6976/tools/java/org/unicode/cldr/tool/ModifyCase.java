@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.unicode.cldr.util.LDMLUtilities;
+import org.unicode.cldr.util.Patterns;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -123,9 +124,11 @@ public class ModifyCase
         }
 
         m_destDir = options[DESTDIR].value;
-        m_locales = options[LOCALES].value.split(",");
+        m_locales = Patterns.COMMA.split(options[LOCALES].value);
+//        m_locales = options[LOCALES].value.split(",");
         m_sourceDir = options[SOURCEDIR].value;
-        m_xpaths = options[XPATHS].value.split(",");
+        m_xpaths = Patterns.COMMA.split(options[XPATHS].value);
+//        m_xpaths = options[XPATHS].value.split(",");
         return true;
     }
 
@@ -144,7 +147,8 @@ public class ModifyCase
             n = LDMLUtilities.getNode(doc, "//ldml/identity/generation/@date");
             indent(INDENT * 2);
             m_out.write("<generation date=\"" + LDMLUtilities.getNodeValue(n) + "\"/>\n");
-            String parts[] = locale.split("_");
+            String[] parts = Patterns.UNDERSCORE.split(locale);
+//            String parts[] = locale.split("_");
             indent(INDENT * 2);
             m_out.write("<language type=\"" + parts[0] + "\"/>\n");
             if (parts.length > 1)
@@ -166,7 +170,8 @@ public class ModifyCase
         {
             // remove //ldml prefix and split
             String path = xpath.substring(xpath.indexOf("//ldml") + 7);
-            String parts[] = path.split("/");
+            String[] parts= Patterns.SLASH.split(path);
+//            String parts[] = path.split("/");
             for (int i = 0; i < parts.length - 1; i++)
             {
                 indent(INDENT * (i + 1));

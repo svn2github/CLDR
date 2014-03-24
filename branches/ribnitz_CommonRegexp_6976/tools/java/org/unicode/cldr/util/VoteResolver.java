@@ -1045,7 +1045,9 @@ public class VoteResolver<T> {
                 } else if (mainType.startsWith("locale")) {
                     final String localeIdString = Group.localeId.get(matcher);
                     if (localeIdString != null) {
-                        voterInfo.addLocale(localeIdString.split("_")[0]);
+                        voterInfo.addLocale(
+                            Patterns.UNDERSCORE.split(localeIdString)[0]);
+//                            localeIdString.split("_")[0]);
                     } else if (DEBUG_HANDLER) {
                         System.out.println("\tskipping");
                     }
@@ -1181,7 +1183,8 @@ public class VoteResolver<T> {
     }
 
     public static Map<Organization, Level> getOrganizationToMaxVote(String locale) {
-        locale = locale.split("_")[0]; // take base language
+        locale = Patterns.UNDERSCORE.split(locale)[0];
+//        locale = locale.split("_")[0]; // take base language
         Map<Organization, Level> result = localeToOrganizationToMaxVote.get(locale);
         if (result == null) {
             result = Collections.emptyMap();

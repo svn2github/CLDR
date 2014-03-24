@@ -17,6 +17,7 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XPathParts;
@@ -271,7 +272,10 @@ public class GenerateG2xG2 {
     private static void showExample(RuleBasedCollator col) {
         String samples = "a A b B \u5416 \u93CA \u516b \u7C3F";
         Set<String> s = new TreeSet<String>(col);
-        s.addAll(Arrays.asList(samples.split(" ")));
+        s.addAll(Arrays.asList(
+            Patterns.SPACE_CHARACTER.split(samples)
+            //samples.split(" ")
+            ));
         System.out.println(com.ibm.icu.impl.Utility.escape(s.toString()));
     }
 

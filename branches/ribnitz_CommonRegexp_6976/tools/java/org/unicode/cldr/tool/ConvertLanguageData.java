@@ -67,7 +67,10 @@ import com.ibm.icu.util.ULocale;
 public class ConvertLanguageData {
 
     // change this if you need to override what is generated for the default contents.
-    private static final List<String> defaultOverrides = Arrays.asList("es_ES".split("\\s+")); // und_ZZ
+    private static final List<String> defaultOverrides = Arrays.asList(
+        Patterns.WHITESPACE.split("es_ES")
+//        "es_ES".split("\\s+")
+        ); // und_ZZ
 
     public static final boolean SHOW_DIFF = false;
 
@@ -97,8 +100,13 @@ public class ConvertLanguageData {
 
     static Set<String> skipLocales = new HashSet<String>(
         Arrays
-            .asList("sh sh_BA sh_CS sh_YU characters supplementalData supplementalData-old supplementalData-old2 supplementalData-old3 supplementalMetadata root"
-                .split("\\s")));
+            .asList(
+                Patterns.WHITESPACE_ONCE.split(
+                    "sh sh_BA sh_CS sh_YU characters supplementalData supplementalData-old supplementalData-old2 "
+                    + "supplementalData-old3 supplementalMetadata root")));
+                
+//                "sh sh_BA sh_CS sh_YU characters supplementalData supplementalData-old supplementalData-old2 supplementalData-old3 supplementalMetadata root"
+//                .split("\\s")));
 
     static SupplementalDataInfo supplementalData = SupplementalDataInfo
         .getInstance(CLDRPaths.DEFAULT_SUPPLEMENTAL_DIRECTORY);
@@ -1736,8 +1744,11 @@ public class ConvertLanguageData {
 
     static Set<String> languagesNeeded = new TreeSet<String>(
         Arrays
-            .asList("ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk to tw vo yi za lb dv chr syr kha sco gv"
-                .split("\\s")));
+            .asList(
+                Patterns.WHITESPACE_ONCE.split("ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk "
+                    +"to tw vo yi za lb dv chr syr kha sco gv")));
+//                "ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk to tw vo yi za lb dv chr syr kha sco gv"
+//                .split("\\s")));
 
     static void generateIso639_2Data() {
         for (String languageSubtag : sc.getAvailableCodes("language")) {

@@ -17,6 +17,7 @@ import java.util.TreeSet;
 
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.PrettyPrinter;
@@ -506,7 +507,8 @@ public abstract class Ids implements Comparable<Ids> {
                     // 5,Variant,,#VALUE!,⺄,U+2E84,SECOND_THREE
                     // 6,Main,亅,U+4E85,⼅,U+2F05,HOOK,,,𠄌
 
-                    String[] split = line.split(",");
+                    String[] split = Patterns.COMMA.split(line);
+//                    String[] split = line.split(",");
                     // we depend on the file being set up so that the first integer radical has a Main. Detect bad
                     // cases.
                     double radical = Double.parseDouble(split[0]);

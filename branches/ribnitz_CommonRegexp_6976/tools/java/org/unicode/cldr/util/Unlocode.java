@@ -21,6 +21,8 @@ import org.unicode.cldr.tool.CountryCodeConverter;
 import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.ChainedMap.M3;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.text.Transform;
@@ -165,7 +167,8 @@ public class Unlocode {
                     if (line.equals("EOF")) {
                         break;
                     }
-                    String[] parts = line.split("\\s*;\\s*");
+                    String[] parts= Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+//                    String[] parts = line.split("\\s*;\\s*");
                     //System.out.println(Arrays.asList(parts));
                     String locode = parts[0].replace(" ", "");
                     if (locode.length() != 5) {
@@ -264,7 +267,8 @@ public class Unlocode {
             if (line.trim().isEmpty()) {
                 continue;
             }
-            String[] list = line.split("\t");
+            String[] list= Patterns.TABULATOR.split(line);
+//            String[] list = line.split("\t");
             String locode = list[SubdivisionFields.Code_3166_2.ordinal()].trim();
             if (locode.endsWith("*")) {
                 locode = locode.substring(0, locode.length() - 1);
@@ -333,7 +337,8 @@ public class Unlocode {
                 }
                 nameToAlternate.put(names[1], names[0], Boolean.TRUE);
                 if (!name.equals(name2)) {
-                    names = name2.split("\\s*=\\s*");
+                //    names = name2.split("\\s*=\\s*");
+                   names=Iterables.toArray(Splitter.on("=").omitEmptyStrings().split(name2),String.class);
                     if (names.length != 2) {
                         throw new IllegalArgumentException();
                     }
@@ -574,7 +579,8 @@ public class Unlocode {
             if (line.startsWith("#")) {
                 continue;
             }
-            String[] parts = line.split("\t");
+//            String[] parts = line.split("\t");
+            String[] parts=Patterns.TABULATOR.split(line);
             //System.out.println(Arrays.asList(parts));
             String cityName = parts[2];
             String subdivision = null;

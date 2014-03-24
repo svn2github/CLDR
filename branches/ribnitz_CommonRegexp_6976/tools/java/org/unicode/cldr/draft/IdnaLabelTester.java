@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.PrettyPrinter;
@@ -184,7 +185,8 @@ public class IdnaLabelTester {
 
                 // do rules. This could be much more compact, but is broken out for debugging
 
-                String[] pieces = line.split("\\s*;\\s*");
+                String[] pieces = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+              //  String[] pieces = line.split("\\s*;\\s*");
                 // if (DEBUG) {
                 // System.out.println(Arrays.asList(pieces));
                 // }
@@ -234,7 +236,8 @@ public class IdnaLabelTester {
                 if (pos >= 0) line = line.substring(0, pos);
                 line = line.trim();
                 if (line.length() == 0) continue;
-                String[] parts = line.split("\\s*;\\s*");
+                String[] parts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+              //  String[] parts = line.split("\\s*;\\s*");
                 if (parts[2].equals("MA")) continue;
 
                 String cp = Utility.fromHex(parts[0], 4, SPACES);
@@ -248,8 +251,8 @@ public class IdnaLabelTester {
         }
         return result;
     }
-
-    static Pattern SPACES = Pattern.compile("\\s+");
+    static Pattern SPACES = Patterns.WHITESPACE;
+//    static Pattern SPACES = Pattern.compile("\\s+");
 
     private static UnicodeSet computeNotNfkcCaseFold() {
         // B: toNFKC(toCaseFold(toNFKC(cp))) != cp
@@ -592,7 +595,9 @@ public class IdnaLabelTester {
             if (line == null) break;
             try {
                 line = line.trim().replace('#', ';').replace(':', ';');
-                String[] parts = line.split("\\s*;\\s*");
+                
+                String[] parts = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+                //String[] parts = line.split("\\s*;\\s*");
                 int cp = Integer.parseInt(parts[0], 16);
                 int gc = UCharacter.getType(cp);
                 if (gc == UCharacter.UNASSIGNED) {

@@ -20,6 +20,7 @@ import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.LocaleIDParser;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.PluralSnapshot;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
@@ -60,8 +61,16 @@ public class Misc {
         doNFC();
         showPlurals();
 
-        String[] locales = "zh en es hi fr ar pt ru id bn ur ja de fil sw pa jv ko tr vi it te mr th fa ta pl lah gu my ms uk zh_Hant kn su ml nl az or ro uz bho ps ha ku mad yo ig si mg sd hu am om kk el ne be mai sr cs km as sv mag mwr sn ny ca bg hne tg bgc ii he dcc ug fuv qu rw min af zu mn bjn so ki hr ak tk fi sq da bya sk gn bal nb lua xh bs ht syl ka bjj ban sat hy za luy rn bug bem luo wtm st lo gl ti shn ceb ks mfa ace lt ky bm lg shi tn bcl glk war kok bew kln kam umb bo suk ee kmb ay pam bhk sas bbc swv nso tpi rjb gbm lmn ff kab sl ts ba cv kri gon ndc guz wo tzm mak kfy ln ljp mk efi ibb doi awa mos nyn vmw mer kru lv sid pag gno sck tcy wbq nd lrc ss cgg brh xog nn sg xnr dyu rmt teo kxm mdh hno lu eu khn wbr tsg rej rif brx ilo kbd et ce kg fy hil kj cy ast av ve udm ga tt sah myv tet gaa ady mt dv fj nr is mdf kum kha sm kpv lez pap krc inh oc se tyv zdj dz bi gag to koi lbe mi ab os ty kl gil iu ch fo rm mh chk haw pon lb pau tvl sa kos na ho yap gd uli niu la tkl eo kl"
-            .split(" ");
+        String[] locales = Patterns.WHITESPACE.split("zh en es hi fr ar pt ru id bn ur ja de fil sw pa jv ko tr vi it te mr "
+            + "th fa ta pl lah gu my ms uk zh_Hant kn su ml nl az or ro uz bho ps ha ku mad yo ig si mg sd hu am om kk el ne "
+            + "be mai sr cs km as sv mag mwr sn ny ca bg hne tg bgc ii he dcc ug fuv qu rw min af zu mn bjn so ki hr ak tk fi "
+            + "sq da bya sk gn bal nb lua xh bs ht syl ka bjj ban sat hy za luy rn bug bem luo wtm st lo gl ti shn ceb ks mfa "
+            + "ace lt ky bm lg shi tn bcl glk war kok bew kln kam umb bo suk ee kmb ay pam bhk sas bbc swv nso tpi rjb gbm lmn "
+            + "ff kab sl ts ba cv kri gon ndc guz wo tzm mak kfy ln ljp mk efi ibb doi awa mos nyn vmw mer kru lv sid pag gno "
+            + "sck tcy wbq nd lrc ss cgg brh xog nn sg xnr dyu rmt teo kxm mdh hno lu eu khn wbr tsg rej rif brx ilo kbd et ce "
+            + "kg fy hil kj cy ast av ve udm ga tt sah myv tet gaa ady mt dv fj nr is mdf kum kha sm kpv lez pap krc inh oc se "
+            + "tyv zdj dz bi gag to koi lbe mi ab os ty kl gil iu ch fo rm mh chk haw pon lb pau tvl sa kos na ho yap gd uli niu "
+            + "la tkl eo kl");
         SupplementalDataInfo sdi = SupplementalDataInfo.getInstance();
         Set<String> scripts = new LinkedHashSet<String>();
         for (String locale : locales) {
@@ -142,7 +151,8 @@ public class Misc {
     }
 
     private static void showSortKey() {
-        String[] tests = "a ä A ぁ あ ァ ｧ ア ｱ ㋐".split(" ");
+//        String[] tests = "a ä A ぁ あ ァ ｧ ア ｱ ㋐".split(" ");
+        String[] tests=Patterns.SPACE_CHARACTER.split("a ä A ぁ あ ァ ｧ ア ｱ ㋐");
         RuleBasedCollator c = (RuleBasedCollator) Collator.getInstance(ULocale.ENGLISH);
         c.setStrength(RuleBasedCollator.QUATERNARY);
         c.setCaseLevel(true);
@@ -236,8 +246,9 @@ public class Misc {
         Map<String, R2<List<String>, String>> lang2replacement = type_tag_replacement.get("language");
 
         LanguageTagParser ltp = new LanguageTagParser();
-        String[] locales = "en ru nl en-GB fr de it pl pt-BR es tr th ja zh-CN zh-TW ko ar bg sr uk ca hr cs da fil fi hu id lv lt no pt-PT ro sk sl es-419 sv vi el iw fa hi am af et is ms sw zu bn mr ta eu fr-CA gl zh-HK ur gu kn ml te"
-            .split(" ");
+        String[] locales = Patterns.WHITESPACE.split("en ru nl en-GB fr de it pl pt-BR es tr th ja zh-CN zh-TW ko ar bg sr uk ca "
+            + "hr cs da fil fi hu id lv lt no pt-PT ro sk sl es-419 sv vi el iw fa hi am af et is ms sw zu bn mr ta eu fr-CA gl "
+            + "zh-HK ur gu kn ml te");
         Set<String> nameAndInfo = new TreeSet<String>(info.getCollator());
         for (String localeCode : locales) {
             String baseLanguage = ltp.set(localeCode).getLanguage();

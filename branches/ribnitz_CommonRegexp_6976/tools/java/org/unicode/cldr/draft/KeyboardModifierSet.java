@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SetComparator;
 
 /**
@@ -131,8 +132,8 @@ public class KeyboardModifierSet {
         if (input == null) {
             throw new IllegalArgumentException("Input string cannot be null");
         }
-
-        String modifierSetInputs[] = input.trim().split(" ");
+        String modifierSetInputs[] =  Patterns.SPACE_CHARACTER.split(input);
+//        String modifierSetInputs[] = input.trim().split(" ");
         Set<EnumSet<Modifier>> variants = new HashSet<EnumSet<Modifier>>();
         for (String modifierSetInput : modifierSetInputs) {
             variants.addAll(parseSingleSet(modifierSetInput));

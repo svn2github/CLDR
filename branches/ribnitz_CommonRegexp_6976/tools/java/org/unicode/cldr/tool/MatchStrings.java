@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.unicode.cldr.util.Patterns;
+
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.Relation;
 
@@ -49,7 +51,8 @@ public class MatchStrings {
                 break;
             if (line.length() == 0)
                 continue;
-            String[] parts = line.split("\\s+");
+            String[] parts= Patterns.WHITESPACE.split(line);
+//            String[] parts = line.split("\\s+");
             String ipa = parts.length > 1 ? parts[1] : "";
             add(parts[0], ipa, parts.length > 2 ? parts[2] : ipa);
         }

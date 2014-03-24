@@ -17,6 +17,7 @@ import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.CldrUtility.SimpleLineComparator;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LocaleIDParser;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.XPathParts;
 
@@ -74,7 +75,8 @@ public class PivotData {
         XPathParts parts = new XPathParts();
         parts.set(defaultContentList);
         String list = parts.getAttributeValue(-1, "locales");
-        String[] items = list.split("\\s+");
+        String[] items= Patterns.WHITESPACE.split(list);
+//        String[] items = list.split("\\s+");
         for (String item : items) {
             if (!fileMatcher.reset(item).matches()) {
                 continue;

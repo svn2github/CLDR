@@ -12,6 +12,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.Patterns;
+
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.lang.UCharacter;
@@ -84,8 +86,8 @@ public class Typology {
                 }
                 uset.addAll(startRaw, endRaw);
             }
-
-            String[] labels = fullPath.split("/");
+            String[] labels=Patterns.SLASH.split(fullPath);
+//            String[] labels = fullPath.split("/");
             String path = "";
             Set<String> labelSet = new TreeSet<String>();
             for (String item : labels) {
@@ -144,7 +146,8 @@ public class Typology {
                 }
                 String path2 = prefix + path;
                 temp.put(path2, new UnicodeSet(uset).retainAll(same));
-                String[] labels = path2.split("/");
+                String[] labels=Patterns.SLASH.split(path2);
+//                String[] labels = path2.split("/");
                 String parent = "";
                 for (int j = 0; j < labels.length; ++j) {
                     labelToPaths.put(labels[j], path2);

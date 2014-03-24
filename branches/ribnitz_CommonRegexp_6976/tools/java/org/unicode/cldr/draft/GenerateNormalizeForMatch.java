@@ -529,7 +529,8 @@ public class GenerateNormalizeForMatch {
             }
             return;
         }
-        String[] pieces = line.split("\\s*;\\s*");
+        String[] pieces = Patterns.SEMICOLON_WITH_WHITESPACE.split(line);
+ //        String[] pieces = line.split("\\s*;\\s*");
         final String sourcePiece = pieces[0];
         final String target = pieces.length < 2 ? "" : pieces[1];
         UnicodeSet source = new UnicodeSet();

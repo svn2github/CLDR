@@ -19,6 +19,7 @@ import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 
 import com.ibm.icu.dev.util.BagFormatter;
@@ -54,7 +55,8 @@ public class GeneratePluralList {
     private void loadNouns() throws IOException {
         BufferedReader reader = FileUtilities.openFile(GeneratePluralList.class, "fractionnum.csv");
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            String[] fields = line.split(",");
+            String[] fields= Patterns.COMMA.split(line);
+//            String[] fields = line.split(",");
             String locale = fields[0];
             String count = fields[1];
             String format = fields[5];

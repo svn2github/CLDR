@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.unicode.cldr.unittest.TestAll.TestInfo;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.test.TestFmwk;
 import com.ibm.icu.dev.util.UnicodeMap;
@@ -39,7 +40,8 @@ public class TestBcp47Numbers extends TestFmwk {
             String special = specials.get(cp);
             String shortName, longName;
             if (special != null) {
-                String[] specialParts = special.split(";");
+                String[] specialParts=Patterns.SEMICOLON.split(special);
+//                String[] specialParts = special.split(";");
                 shortName = specialParts[0].trim();
                 longName = specialParts[1].trim();
             } else {

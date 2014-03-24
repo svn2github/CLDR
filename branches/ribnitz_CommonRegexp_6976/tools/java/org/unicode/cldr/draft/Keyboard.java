@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.LanguageTagParser;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.LanguageTagParser.Status;
 import org.unicode.cldr.util.XMLFileReader;
 import org.unicode.cldr.util.XMLFileReader.SimpleHandler;
@@ -600,7 +601,8 @@ public class Keyboard {
                     // ignore, handled above
                 } else {
                     LinkedHashSet<String> list = new LinkedHashSet<String>();
-                    for (String item : attributeValue.trim().split(" ")) {
+                    for (String item: Patterns.SPACE_CHARACTER.split(attributeValue)) {
+//                    for (String item : attributeValue.trim().split(" ")) {
                         final String fixedValue = fixValue(item);
                         if (fixedValue.isEmpty()) {
                             // throw new KeyboardException("Null string in list. " + parts);

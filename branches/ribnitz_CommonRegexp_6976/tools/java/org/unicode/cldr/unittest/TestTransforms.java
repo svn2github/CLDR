@@ -12,6 +12,7 @@ import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRTransforms;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.CollectionUtilities;
@@ -49,8 +50,10 @@ public class TestTransforms extends TestFmwkPlus {
         //        }
         //        System.out.println(englishVowels.toPattern(false));
 
-        String[] cyrillicSplit = cyrillic.split("\\s+");
-        String[] latinSplit = latin.split("\\s+");
+        String[] cyrillicSplit = Patterns.WHITESPACE.split(cyrillic);
+//        String[] cyrillicSplit = cyrillic.split("\\s+");
+        String[] latinSplit =  Patterns.WHITESPACE.split(latin);
+//        String[] latinSplit = latin.split("\\s+");
         for (int i = 0; i < cyrillicSplit.length; ++i) {
             assertTransformsTo("Uzbek to Latin", latinSplit[i], cyrillicToLatin, cyrillicSplit[i]);
             assertTransformsTo("Uzbek to Cyrillic", cyrillicSplit[i], latinToCyrillic, latinSplit[i]);
@@ -222,7 +225,8 @@ public class TestTransforms extends TestFmwkPlus {
                     if (line.startsWith("#")) {
                         continue;
                     }
-                    String[] parts = line.split("\t");
+                    String[] parts= Patterns.TABULATOR.split(line);
+//                    String[] parts = line.split("\t");
                     String source = parts[0];
                     String expected = parts[1];
                     String result = trans.transform(source);

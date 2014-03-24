@@ -25,6 +25,9 @@ public class Patterns {
      * Numbers 0-9
      */
     public static final Pattern NUMBERS=Pattern.compile("[0-9]+");
+    
+    public static final Pattern WHITESPACE_ONCE=Pattern.compile("\\s");
+    public static final Pattern SPACE_CHARACTER=Pattern.compile(" ");
     /**
      * Whitespace, at least once
      */
@@ -43,6 +46,8 @@ public class Patterns {
     
     public static final Pattern SEMICOLON=Pattern.compile(";");
     
+    public static final Pattern SEMICOLON_WITH_WHITESPACE=Pattern.compile("\\s*;\\s*");
+    
     public static final Pattern COLON=Pattern.compile(":");
     
     public static final Pattern NEWLINE=Pattern.compile("\r\n|\n");
@@ -52,6 +57,8 @@ public class Patterns {
     public static final Pattern EQUALS=Pattern.compile("=");
   
     public static final Pattern HASH=Pattern.compile("#");
+    
+    public static final Pattern UNDERSCORE = Pattern.compile("_");
     
     public Patterns() {
         

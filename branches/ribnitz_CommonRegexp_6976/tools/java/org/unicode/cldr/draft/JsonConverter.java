@@ -22,6 +22,7 @@ import org.unicode.cldr.util.CLDRFile.DtdType;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.ElementAttributeInfo;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.XPathParts;
 
 import com.ibm.icu.dev.util.BagFormatter;
@@ -37,10 +38,15 @@ public class JsonConverter {
                                                                           // //CldrUtility.MAIN_DIRECTORY;
     private static final String OUT_DIRECTORY = CLDRPaths.GEN_DIRECTORY + "/jason/"; // CldrUtility.MAIN_DIRECTORY;
     private static boolean COMPACT = false;
+//    static final Set<String> REPLACING_BASE = !COMPACT ? Collections.EMPTY_SET : new HashSet<String>(
+//        Arrays.asList("type id key count".split("\\s")));
     static final Set<String> REPLACING_BASE = !COMPACT ? Collections.EMPTY_SET : new HashSet<String>(
-        Arrays.asList("type id key count".split("\\s")));
+      Arrays.asList(Patterns.WHITESPACE_ONCE.split("type id key count")));
+//    static final Set<String> EXTRA_DISTINGUISHING = new HashSet<String>(
+//        Arrays.asList("locales territory desired supported".split("\\s")));
     static final Set<String> EXTRA_DISTINGUISHING = new HashSet<String>(
-        Arrays.asList("locales territory desired supported".split("\\s")));
+        Arrays.asList(
+            Patterns.WHITESPACE_ONCE.split("locales territory desired supported")));
     static final Relation<String, String> mainInfo = ElementAttributeInfo.getInstance(DtdType.ldml)
         .getElement2Attributes();
     static final Relation<String, String> suppInfo = ElementAttributeInfo.getInstance(DtdType.supplementalData)

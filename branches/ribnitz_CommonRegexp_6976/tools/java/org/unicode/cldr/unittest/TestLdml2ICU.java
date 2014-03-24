@@ -12,6 +12,7 @@ import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility.VariableReplacer;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.RegexFileParser;
 import org.unicode.cldr.util.RegexFileParser.RegexLineParser;
 import org.unicode.cldr.util.RegexFileParser.VariableProcessor;
@@ -50,7 +51,8 @@ public class TestLdml2ICU extends TestFmwk {
             public Pair<ExclusionType, String> transform(String source) {
                 String value = null;
                 if (source.contains(";")) {
-                    String[] split = source.split("\\s*;\\s*");
+                    String[] split=Patterns.SEMICOLON_WITH_WHITESPACE.split(source);
+//                    String[] split = source.split("\\s*;\\s*");
                     source = split[0];
                     value = split[1];
                 }

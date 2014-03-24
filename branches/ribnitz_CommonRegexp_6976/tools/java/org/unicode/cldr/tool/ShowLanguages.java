@@ -46,6 +46,7 @@ import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.Log;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.StandardCodes.CodeType;
 import org.unicode.cldr.util.SupplementalDataInfo;
@@ -739,7 +740,8 @@ public class ShowLanguages {
                     //String territory = attributes.get("territory");
                     String aliasAttributes = attributes.get("aliases");
                     if (aliasAttributes != null) {
-                        String[] aliasesList = aliasAttributes.split("\\s+");
+//                        String[] aliasesList = aliasAttributes.split("\\s+");
+                        String[] aliasesList=Patterns.WHITESPACE.split(aliasAttributes);
 
                         for (int i = 0; i < aliasesList.length; ++i) {
                             String alias = aliasesList[i];
@@ -1507,19 +1509,30 @@ public class ShowLanguages {
             for (String old : localeAliasInfo.get("language").keySet()) {
                 if (locale.startsWith(old)) {
                     temp = localeAliasInfo.get("language").get(old);
-                    lpt2.setLanguage(temp.split("\\s+")[0] + locale.substring(old.length()));
+//                    lpt2.setLanguage(temp.split("\\s+")[0] + locale.substring(old.length()));
+                    lpt2.setLanguage(getFirstWhitespaceSplit(temp) +locale.substring(old.length()));
                     break;
                 }
             }
             temp = localeAliasInfo.get("script").get(script);
             if (temp != null) {
-                lpt2.setScript(temp.split("\\s+")[0]);
+                lpt2.setScript(getFirstWhitespaceSplit(temp));
+//                lpt2.setScript(temp.split("\\s+")[0]);
             }
             temp = localeAliasInfo.get("territory").get(region);
             if (temp != null) {
-                lpt2.setRegion(temp.split("\\s+")[0]);
+                lpt2.setRegion(getFirstWhitespaceSplit(temp));
             }
             return lpt2.toString();
+        }
+
+        /**
+         * Helper method; split string on whitespace and return first occurrence
+         * @param temp
+         * @return
+         */
+        private String getFirstWhitespaceSplit(String temp) {
+            return Patterns.WHITESPACE.split(temp)[0];
         }
 
         private String getVendorStatus(String locale, String vendor, Map<String, Map<String, Level>> vendordata) {
@@ -1797,7 +1810,8 @@ public class ShowLanguages {
 //        }
 
         private void addTerritoryInfo(String territoriesList, String type, String info) {
-            String[] territories = territoriesList.split("\\s+");
+            String[] territories = Patterns.WHITESPACE.split(territoriesList);
+//            String[] territories = territoriesList.split("\\s+");
             territoryTypes.add(type);
             for (int i = 0; i < territories.length; ++i) {
                 String territory = getName(CLDRFile.TERRITORY_NAME, territories[i], false);
@@ -2430,7 +2444,8 @@ public class ShowLanguages {
          */
         private String getName(int type, String oldcode, boolean codeFirst) {
             if (oldcode.contains(" ")) {
-                String[] result = oldcode.split("\\s+");
+                String[] result = Patterns.WHITESPACE.split(oldcode);
+//                String[] result = oldcode.split("\\s+");
                 for (int i = 0; i < result.length; ++i) {
                     result[i] = getName(type, result[i], codeFirst);
                 }

@@ -13,6 +13,7 @@ import org.unicode.cldr.util.CoreCoverageInfo;
 import org.unicode.cldr.util.CoreCoverageInfo.CoreItems;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
 
@@ -52,7 +53,10 @@ public class TestCoverage extends TestFmwkPlus {
         logln("Status\tLocale\tName\tLevel\tCount" + showColumn(all) + "\tError Messages");
         LanguageTagParser ltp = new LanguageTagParser();
         Set<String> errors = new LinkedHashSet<>();
-        Set<String> toTest = new HashSet(Arrays.asList("ky mn ms uz az kk pa sr zh lo".split(" ")));
+        Set<String> toTest = new HashSet<>(
+            Arrays.asList(
+                Patterns.SPACE_CHARACTER.split("ky mn ms uz az kk pa sr zh lo")));
+//                "ky mn ms uz az kk pa sr zh lo".split(" ")));
         Set<String> defaultContents = sdi.getDefaultContentLocales();
 
         for (String locale : testInfo.getCldrFactory().getAvailable()) {

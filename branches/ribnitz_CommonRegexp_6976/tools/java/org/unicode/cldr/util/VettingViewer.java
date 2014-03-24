@@ -1206,7 +1206,11 @@ public class VettingViewer<T> {
     public static String gatherCodes(Set<String> contents) {
         Set<Set<String>> source = new LinkedHashSet<Set<String>>();
         for (String s : contents) {
-            source.add(new LinkedHashSet<String>(Arrays.asList(s.split("_"))));
+            source.add(
+                new LinkedHashSet<String>(
+                    Arrays.asList(
+                        Patterns.UNDERSCORE.split(s))));
+//                        s.split("_"))));
         }
         Set<Set<String>> oldSource = new LinkedHashSet<Set<String>>();
 

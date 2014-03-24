@@ -578,7 +578,9 @@ class RegexManager {
                 }
                 // if line still contains "%", still unprocessed
                 // Process a line in the input file for xpath conversion.
-                String[] content = line.split(SEMI.toString());
+         
+                String[] content = SEMI.split(line);
+//                String[] content = line.split(SEMI.toString());
                 // xpath ; rbPath ; value
                 // Create a reverse lookup for rbPaths to xpaths.
                 if (!line.startsWith(";")) {
@@ -695,7 +697,8 @@ class RegexManager {
         }
         rbPattern.append(rbPath.substring(lastIndex));
         FallbackInfo info = new FallbackInfo(argsUsed, args.size());
-        info.addItem(xpathMatcher, fallbackXpath, fallbackValue.split("\\s"));
+        info.addItem(xpathMatcher, fallbackXpath, Patterns.WHITESPACE_ONCE.split(fallbackValue));
+//        info.addItem(xpathMatcher, fallbackXpath, fallbackValue.split("\\s"));
         fallbackConverter.add(new FullMatcher(rbPattern.toString()), info);
     }
 

@@ -428,7 +428,8 @@ public class Iso639Data {
                 if (languageSubtag.length() == 0) {
                     languageSubtag = alpha3;
                 }
-                String[] english = parts[3].split(";");
+                String[] english=Patterns.SEMICOLON.split( parts[3]);
+//                String[] english = parts[3].split(";");
                 toSource.put(languageSubtag, languageSubtag.length() == 2 ? Source.ISO_639_1 : Source.ISO_639_2);
                 if (!isValid(languageSubtag)) {
                     // we don't have it already,

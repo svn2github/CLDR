@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.text.UnicodeSet;
@@ -57,7 +58,8 @@ public class RadicalStroke {
                     iiCoreSet.add(cp);
                 } else if (radStrokeMatcher.reset(line).matches()) {
                     int cp = Integer.parseInt(radStrokeMatcher.group(1), 16);
-                    String[] items = radStrokeMatcher.group(2).split("\\s");
+                    String[] items= Patterns.WHITESPACE_ONCE.split(radStrokeMatcher.group(2));
+//                    String[] items = radStrokeMatcher.group(2).split("\\s");
                     for (String item : items) {
                         if (!radDataMatcher.reset(item).matches()) {
                             in.close();

@@ -16,6 +16,7 @@ import org.unicode.cldr.icu.CollationMapper;
 import org.unicode.cldr.icu.IcuData;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.Log;
+import org.unicode.cldr.util.Patterns;
 
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.RuleBasedCollator;
@@ -123,7 +124,8 @@ public class GenerateCldrCollationTests {
             }
             String originalRules = stringBuilder.toString();
             String rules = fromHex.transliterate(originalRules);
-            String name = rbPath.split("/")[2];
+            String name=Patterns.SLASH.split(rbPath)[2];
+//            String name = rbPath.split("/")[2];
             RuleBasedCollator fixed = generateCollator(locale, name, rules);
             if (fixed != null) {
                 Log.logln("Rules for: " + locale + ", " + name);

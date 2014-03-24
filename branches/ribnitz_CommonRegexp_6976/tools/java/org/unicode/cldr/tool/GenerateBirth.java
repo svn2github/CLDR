@@ -23,6 +23,7 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.StringId;
 
 import com.ibm.icu.dev.util.BagFormatter;
@@ -220,7 +221,8 @@ public class GenerateBirth {
                 if (xpath.contains("metazone")) {
                     return type.replace("_", " ");
                 } else if (xpath.contains("zone")) {
-                    String[] splits = type.split("/");
+                    String[] splits= Patterns.SLASH.split(type);
+//                    String[] splits = type.split("/");
                     return splits[splits.length - 1].replace("_", " ");
                 }
                 return type;
