@@ -19,6 +19,7 @@ import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LocaleIDParser;
+import org.unicode.cldr.util.Patterns;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
@@ -226,9 +227,15 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
             parts.set(path);
             String lastElement = parts.getElement(-1);
             if (lastElement.equals("elementOrder")) {
-                elementOrder.addAll(Arrays.asList(value.trim().split("\\s+")));
+                elementOrder.addAll(Arrays.asList(
+                    Patterns.splitOnWhitespace(value)
+                    //value.trim().split("\\s+")
+                    ));
             } else if (lastElement.equals("attributeOrder")) {
-                attributeOrder.addAll(Arrays.asList(value.trim().split("\\s+")));
+                attributeOrder.addAll(Arrays.asList(
+                    Patterns.splitOnWhitespace(value)
+                    //value.trim().split("\\s+")
+                    ));
             } else if (lastElement.equals("suppress")) {
                 // skip for now
             } else if (lastElement.equals("serialElements")) {
@@ -255,12 +262,14 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
                         // System.out.println("Failed to make matcher for: " + value + "\t" + path);
                         continue;
                     }
-                    String[] attributeList = (attributes.get("attributes")).trim().split("\\s+");
+                    String[] attributeList= Patterns.WHITESPACE.split(attributes.get("attributes"));
+//                    String[] attributeList = (attributes.get("attributes")).trim().split("\\s+");
                     String elementsString = (String) attributes.get("elements");
                     if (elementsString == null) {
                         addAttributes(attributeList, common_attribute_validity, mp);
                     } else {
-                        String[] elementList = elementsString.trim().split("\\s+");
+                        String[] elementList = Patterns.WHITESPACE.split(elementsString.trim());
+//                        String[] elementList = elementsString.trim().split("\\s+");
                         for (int i = 0; i < elementList.length; ++i) {
                             String element = elementList[i];
                             // System.out.println("\t" + element);
@@ -365,7 +374,10 @@ public class CheckAttributeValues extends FactoryCheckCLDR {
         if ("choice".equals(typeAttribute)
             || "given".equals(attributes.get("order"))) {
             result.matcher = new CollectionMatcher()
-                .set(new HashSet<String>(Arrays.asList(value.trim().split("\\s+"))));
+                .set(new HashSet<String>(Arrays.asList(
+                    Patterns.splitOnWhitespace(value.trim()
+                    //value.trim().split("\\s+"
+                    ))));
         } else if ("bcp47".equals(typeAttribute)) {
             result = getBcp47MatcherPattern(sdi, value);
         } else if ("regex".equals(typeAttribute)) {
