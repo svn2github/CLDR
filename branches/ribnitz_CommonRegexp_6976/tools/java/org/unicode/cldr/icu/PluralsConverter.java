@@ -42,7 +42,8 @@ public class PluralsConverter extends SimpleLDMLConverter {
             Node child = node.getFirstChild();
 
             String locales = LDMLUtilities.getAttributeValue(node, LDMLConstants.LOCALES);
-            String[] localesArray=Patterns.splitOnSingleWhitespace(locales);
+            Iterable<String> localesArray=Patterns.splitOnSingleWhitespaceToIterable(locales);
+        //    String[] localesArray=Patterns.splitOnSingleWhitespace(locales);
 //            String[] localesArray = locales.split("\\s");
 
             if (child == null) {
@@ -82,9 +83,11 @@ public class PluralsConverter extends SimpleLDMLConverter {
 
                             // Now that we've created a rule set table, we can put all of the
                             // locales for this rule set into the locales table.
-                            for (int i = 0; i < localesArray.length; ++i) {
+//                            for (int i = 0; i < localesArray.length; ++i) {
+                            for (String currentLocale: localesArray) {
                                 ResourceString localeString =
-                                    new ResourceString(localesArray[i], currentSetName);
+//                                    new ResourceString(localesArray[i], currentSetName);
+                                    new ResourceString(currentLocale,currentSetName);
                                 localesTable.appendContents(localeString);
                             }
                         }

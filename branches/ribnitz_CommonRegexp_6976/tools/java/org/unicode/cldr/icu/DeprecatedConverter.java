@@ -363,12 +363,15 @@ public class DeprecatedConverter {
                 String list = e.getValue();
 
                 log.setStatus(actualLocale + ".xml");
-                String[] validSubs=Patterns.splitOnSpaceCharacter(list);
+                Iterable<String> validSubs=Patterns.splitOnSpaceCharacterToIterable(list);
+              //  String[] validSubs=Patterns.splitOnSpaceCharacter(list);
 //                String validSubs[] = list.split(" ");
                 for (String aSub : validSubs) {
                     String testSub;
-                    for (testSub = aSub; testSub != null && !testSub.equals("root") && !testSub.equals(actualLocale); testSub = LocaleIDParser
-                        .getSimpleParent(testSub)) {
+                    // TODO: make the following for loop easier to understand 
+                    for (testSub = aSub; 
+                        testSub != null && !testSub.equals("root") && !testSub.equals(actualLocale); 
+                        testSub = LocaleIDParser.getSimpleParent(testSub)) {
 
                         if (fromFiles.contains(testSub)) {
                             log.warning(

@@ -1,9 +1,9 @@
 package org.unicode.cldr.util;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
 /**
  * Helper class, contains a number of commonly-used patterns (which are pre-compiled, for speed), and a number of
@@ -30,44 +30,86 @@ public class Patterns {
      */
     public static final Pattern NUMBERS=Pattern.compile("[0-9]+");
     
+    /**
+     * A single whitespace character (\\s)
+     */
     public static final Pattern WHITESPACE_ONCE=Pattern.compile("\\s");
+    
+    /**
+     * A single space character
+     */
     public static final Pattern SPACE_CHARACTER=Pattern.compile(" ");
     /**
-     * Whitespace, at least once
+     * Whitespace, at least once (\\s+)
      */
     public static final Pattern WHITESPACE=Pattern.compile("\\s+");
     
     /**
-     * Whitespace, at least once, possessive version
+     * Whitespace, at least once, possessive version, (\\s++)
      */
     public static final Pattern POSSESSIVE_WHITESPACE=Pattern.compile("\\s++");
     
+    /**
+     * Vertical bar
+     */
     public static final Pattern BAR=Pattern.compile("\\|");
     
    // public static final Pattern BACKSLASH=Pattern.compile("\\");
     
+    /**
+     * A comma
+     */
     public static final Pattern COMMA=Pattern.compile(",");
     
+    /**
+     * Tabulator (\t)
+     */
     public static final Pattern TABULATOR=Pattern.compile("\t");
     
+    /**
+     * Semicolon (;)
+     */
     public static final Pattern SEMICOLON=Pattern.compile(";");
     
+    /**
+     * Semicolon, optiomnally enclosed in whitespace (\\s*;\\s*)
+     */
     public static final Pattern SEMICOLON_WITH_WHITESPACE=Pattern.compile("\\s*;\\s*");
     
+    /**
+     * Colon (:)
+     */
     public static final Pattern COLON=Pattern.compile(":");
     
+    /**
+     * Newline 
+     */
     public static final Pattern NEWLINE=Pattern.compile("\r\n|\n");
     
+    /**
+     * Forward slash (/)
+     */
     public static final Pattern SLASH=Pattern.compile("/");
     
+    /**
+     * Equals sign (=)
+     */
     public static final Pattern EQUALS=Pattern.compile("=");
   
+    /**
+     * Hash mark (#)
+     */
     public static final Pattern HASH=Pattern.compile("#");
     
+    /**
+     * Underscore (_)
+     */
     public static final Pattern UNDERSCORE = Pattern.compile("_");
     
+   
     public Patterns() {
-        
+        // Class only contains static methods or fields, nothing to
+        // initialize
     }
     private static String[] splitOn(Pattern pat, String s) {
         return pat.split(s);
@@ -118,56 +160,56 @@ public class Patterns {
     public static String[] splitOnNumbers(String s) {
         return splitOn(NUMBERS, s);
     }
+    private static Iterable<String> splitToIterable(Pattern p, String s) {
+        return Splitter.on(p).trimResults().split(s);
+    }
     
+    private static String[] splitToArray(Pattern p, String s) {
+        Iterable<String> tmpList=splitToIterable(p, s);
+        return Iterables.toArray(tmpList, String.class);
+//        String[] result=new String[tmpList.size()];
+//        System.arraycopy(tmpList.toArray(), 0, result, 0, tmpList.size());
+//        return result;
+    }
     public static String[] splitOnPossessiveWhitespace(String s) {
-        List<String> tmpList=Splitter.on(POSSESSIVE_WHITESPACE).omitEmptyStrings().trimResults().splitToList(s);
-        String[] result=new String[tmpList.size()];
-        System.arraycopy(tmpList.toArray(), 0, result, 0, tmpList.size());
-        return result;
-//        return splitOn(POSSESSIVE_WHITESPACE, s);
+        return splitToArray(POSSESSIVE_WHITESPACE, s);
     }
    
     public static String[] splitOnSingleWhitespace(String s) {
-        List<String> tmpList=Splitter.on(WHITESPACE_ONCE).trimResults().splitToList(s);
-        String[] result=new String[tmpList.size()];
-        System.arraycopy(tmpList.toArray(), 0, result, 0, tmpList.size());
-        return result;
-//        return splitOn(WHITESPACE_ONCE, s);
+        return splitToArray(WHITESPACE_ONCE, s);
+    }
+    
+    public static Iterable<String> splitOnSingleWhitespaceToIterable(String s) {
+        return splitToIterable(WHITESPACE_ONCE, s);
     }
     
     public static String[] splitOnSpaceCharacter(String s) {
-        List<String> tmpList=Splitter.on(SPACE_CHARACTER).trimResults().splitToList(s);
-        String[] result=new String[tmpList.size()];
-        System.arraycopy(tmpList.toArray(), 0, result, 0, tmpList.size());
-        return result;
-//        return result; return splitOn(SPACE_CHARACTER, s);
+        return splitToArray(SPACE_CHARACTER, s);
     }
    
+    public static Iterable<String> splitOnSpaceCharacterToIterable(String s) {
+        return splitToIterable(SPACE_CHARACTER, s);
+    }
+    
+ 
     public static String[] splitOnWhitespace(String s) {
-        List<String> tmpList=Splitter.on(WHITESPACE).trimResults().splitToList(s);
-        String[] result=new String[tmpList.size()];
-        System.arraycopy(tmpList.toArray(), 0, result, 0, tmpList.size());
-        return result;
-//        return splitOn(WHITESPACE, s);
+        return splitToArray(WHITESPACE, s);
     }
    
+    public static Iterable<String> splitOnWhitespaceToIterable(String s) {
+        return splitToIterable(WHITESPACE, s);
+        
+    }
+    
     public static String[] splitOnSemicolon(String s) {
-        List<String> tmpList=Splitter.on(SEMICOLON).trimResults().splitToList(s);
-        String[] result=new String[tmpList.size()];
-        System.arraycopy(tmpList.toArray(), 0, result, 0, tmpList.size());
-        return result;
-//        return splitOn(SEMICOLON, s);
+        return splitOn(SEMICOLON, s);
     }
     
     public static String[] splitOnSemicolon(String s,int limit) {
         return splitOn(SEMICOLON, s,limit);
     }
     public static String[] splitOnSemicolonWithWhiteSpace(String s) {
-        List<String> tmpList=Splitter.on(SEMICOLON).trimResults().splitToList(s);
-        String[] result=new String[tmpList.size()];
-        System.arraycopy(tmpList.toArray(), 0, result, 0, tmpList.size());
-        return result;
-//        return splitOn(SEMICOLON_WITH_WHITESPACE, s);
+        return splitOn(SEMICOLON_WITH_WHITESPACE, s);
     }
     
     public static String[] splitOnSlash(String s) {

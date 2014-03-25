@@ -917,19 +917,23 @@ public class SupplementalDataParser {
             if (name.equals(LDMLConstants.MINDAYS) || name.equals(LDMLConstants.FIRSTDAY) ||
                 name.equals(LDMLConstants.WENDSTART) || name.equals(LDMLConstants.WENDEND)) {
                 String territoryString = LDMLUtilities.getAttributeValue(node, LDMLConstants.TERRITORIES);
-                String[] territories=Patterns.splitOnSpaceCharacter(territoryString);
+                Iterable<String> territories=Patterns.splitOnSpaceCharacterToIterable(territoryString);
+//                String[] territories=Patterns.splitOnSpaceCharacter(territoryString);
 //                String[] territories = territoryString.split(" ");
-                for (int i = 0; i < territories.length; i++) {
+//                for (int i = 0; i < territories.length; i++) {
+                  for (String currentTerritory: territories) {
                     if (name.equals(LDMLConstants.MINDAYS)) {
                         String countString = LDMLUtilities.getAttributeValue(node, LDMLConstants.COUNT);
                         Integer countVal = new Integer(countString);
-                        minDaysMap.put(territories[i], countVal);
+//                        minDaysMap.put(territories[i], countVal);
+                         minDaysMap.put(currentTerritory,countVal);
                     }
                     if (name.equals(LDMLConstants.FIRSTDAY)) {
                         String dayString = LDML2ICUConverter.getDayNumberAsString(LDMLUtilities.getAttributeValue(node,
                             LDMLConstants.DAY));
                         Integer dayVal = new Integer(dayString);
-                        firstDayOfWeekMap.put(territories[i], dayVal);
+//                        firstDayOfWeekMap.put(territories[i], dayVal);
+                        firstDayOfWeekMap.put(currentTerritory, dayVal);
                     }
                     if (name.equals(LDMLConstants.WENDSTART)) {
                         Integer[] weekendStart = new Integer[2];
@@ -939,7 +943,8 @@ public class SupplementalDataParser {
                         weekendStart[0] = Integer.valueOf(dayString);
                         weekendStart[1] = Integer.valueOf(LDML2ICUConverter.getMillis(timeString == null ? "00:00"
                             : timeString));
-                        weekendStartMap.put(territories[i], weekendStart);
+//                        weekendStartMap.put(territories[i], weekendStart);
+                        weekendStartMap.put(currentTerritory,weekendStart);
                     }
                     if (name.equals(LDMLConstants.WENDEND)) {
                         Integer[] weekendEnd = new Integer[2];
@@ -949,9 +954,11 @@ public class SupplementalDataParser {
                         weekendEnd[0] = Integer.valueOf(dayString);
                         weekendEnd[1] = Integer.valueOf(LDML2ICUConverter.getMillis(timeString == null ? "24:00"
                             : timeString));
-                        weekendEndMap.put(territories[i], weekendEnd);
+//                        weekendEndMap.put(territories[i], weekendEnd);
+                        weekendEndMap.put(currentTerritory, weekendEnd);
                     }
-                    useTerritories.add(territories[i]);
+//                    useTerritories.add(territories[i]);
+                    useTerritories.add(currentTerritory);
                 }
             }
         }

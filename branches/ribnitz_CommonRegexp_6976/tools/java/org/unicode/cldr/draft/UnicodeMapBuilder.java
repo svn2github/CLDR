@@ -80,10 +80,13 @@ public class UnicodeMapBuilder<T> {
                 } else if (codelist.length() < 4) {
                     sources.add(codelist);
                 } else {
-                    final String[] codes= Patterns.splitOnWhitespace(codelist);
+                      final Iterable<String> codes=Patterns.splitOnWhitespaceToIterable(codelist);
+//                    final String[] codes= Patterns.splitOnWhitespace(codelist);
 //                    final String[] codes = codelist.split("\\s+");
-                    for (int i = 0; i < codes.length; ++i) {
-                        final String[] range = codes[i].split("\\.\\.");
+                    for (String curCode: codes) {
+//                    for (int i = 0; i < codes.length; ++i) {
+//                        final String[] range = codes[i].split("\\.\\.");
+                        final String[] range = curCode.split("\\.\\.");
                         final int start = getCodePoint(range[0]);
                         int end = start;
                         if (range.length > 1) {

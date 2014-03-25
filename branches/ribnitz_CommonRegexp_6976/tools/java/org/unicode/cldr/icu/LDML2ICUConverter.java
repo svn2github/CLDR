@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.transform.TransformerException;
@@ -842,14 +841,17 @@ public class LDML2ICUConverter extends CLDRConverterTool {
 
     public static ResourceArray getResourceArray(String str, String name) {
         if (str != null) {
-            String[] strs=Patterns.splitOnWhitespace(str);
+            Iterable<String> strs=Patterns.splitOnWhitespaceToIterable(str);
+//            String[] strs=Patterns.splitOnWhitespace(str);
 //            String[] strs = str.split("\\s+");
             ResourceArray arr = new ResourceArray();
             arr.name = name;
             Resource curr = null;
-            for (int i = 0; i < strs.length; i++) {
+            for (String curStr: strs) {
+//            for (int i = 0; i < strs.length; i++) {
                 ResourceString string = new ResourceString();
-                string.val = strs[i];
+//                string.val = strs[i];
+                string.val=curStr;
                 if (curr == null) {
                     curr = arr.first = string;
                 } else {
@@ -2118,9 +2120,10 @@ public class LDML2ICUConverter extends CLDRConverterTool {
                 ResourceArray arr = new ResourceArray();
                 arr.name = name;
                 Resource c = null;
-                String[] values = null;
+                Iterable<String> values=null;
+          //      String[] values = null;
                 if (name.equals(LDMLConstants.SINGLE_COUNTRIES)) {
-                    values=Patterns.splitOnSpaceCharacter(loc.getBasicAttributeValue(apath, LDMLConstants.LIST));
+                    values=Patterns.splitOnSpaceCharacterToIterable(loc.getBasicAttributeValue(apath, LDMLConstants.LIST));
 //                    values = loc.getBasicAttributeValue(apath, LDMLConstants.LIST).split(" ");
                 } else {
                     String temp = loc.getBasicAttributeValue(apath, LDMLConstants.CHOICE);
@@ -2131,13 +2134,14 @@ public class LDML2ICUConverter extends CLDRConverterTool {
                                 + " must have either type or choice attribute");
                         }
                     }
-                    values =Patterns.splitOnWhitespace(temp);
+                    values =Patterns.splitOnWhitespaceToIterable(temp);
 //                    values = temp.split("\\s+");
                 }
-
-                for (int i = 0; i < values.length; i++) {
+                for (String curValue: values) {
+//                for (int i = 0; i < values.length; i++) {
                     ResourceString str = new ResourceString();
-                    str.val = values[i];
+//                    str.val = values[i];
+                    str.val=curValue;
                     if (c == null) {
                         arr.first = c = str;
                     } else {

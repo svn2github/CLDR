@@ -18,6 +18,8 @@ import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XPathParts;
 import org.w3c.dom.Node;
 
+import com.google.common.collect.Lists;
+
 /**
  * All tools that would like to make use of CLDR Build process
  * through the ant plug-in should extend this class. For implementing
@@ -229,7 +231,8 @@ public abstract class CLDRConverterTool {
                 if (obj instanceof CLDRBuild.CoverageLevel) {
                     CLDRBuild.CoverageLevel level = (CLDRBuild.CoverageLevel) obj;
                     if (level.locales != null) {
-                        List<String> localeList=Arrays.asList(Patterns.splitOnWhitespace(level.locales));
+                        List<String> localeList= Lists.newArrayList(Patterns.splitOnWhitespaceToIterable(level.locales));
+//                        List<String> localeList=Arrays.asList(Patterns.splitOnWhitespace(level.locales));
 //                        List<String> localeList = Arrays.asList(Patterns.WHITESPACE.split(level.locales));
 //                        List<String> localeList = Arrays.asList(level.locales.split("\\s+"));
                         if (CLDRBuild.matchesLocale(localeList, localeName) == false) {

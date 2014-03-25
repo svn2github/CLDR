@@ -38,6 +38,7 @@ import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData.Type;
 import org.unicode.cldr.util.SupplementalDataInfo.NumberingSystemInfo.NumberingSystemType;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 
+import com.google.common.collect.Lists;
 import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.dev.util.XEquivalenceClass;
@@ -1315,7 +1316,7 @@ public class SupplementalDataInfo {
             if (data == null) {
                 measurementData.put(measurementType, data = new HashMap<String, String>());
             }
-            for (String territory : Patterns.splitOnWhitespace(territories)) {
+            for (String territory : Patterns.splitOnWhitespaceToIterable(territories)) {
 //            for (String territory : territories.trim().split("\\s+")) {
                 data.put(territory, type);
             }
@@ -1330,7 +1331,7 @@ public class SupplementalDataInfo {
             // String[] allowed = parts.getAttributeValue(-1, "allowed").trim().split("\\s+");
             PreferredAndAllowedHour preferredAndAllowedHour = new PreferredAndAllowedHour(preferred,
                 parts.getAttributeValue(-1, "allowed"));
-            for (String region: Patterns.splitOnWhitespace(parts.getAttributeValue(-1, "regions").trim())) {
+            for (String region: Patterns.splitOnWhitespaceToIterable(parts.getAttributeValue(-1, "regions").trim())) {
 //            for (String region : parts.getAttributeValue(-1, "regions").trim().split("\\s+")) {
                 PreferredAndAllowedHour oldValue = timeData.put(region, preferredAndAllowedHour);
                 if (oldValue != null) {
@@ -1361,7 +1362,8 @@ public class SupplementalDataInfo {
             if (keyAlias != null) {
                 bcp47Aliases.putAll((R2<String, String>) Row.of(key, "").freeze(),
 //                    Arrays.asList(keyAlias.trim().split("\\s+")));
-                    Arrays.asList(Patterns.splitOnWhitespace(keyAlias.trim())));
+//                    Arrays.asList(Patterns.splitOnWhitespace(keyAlias.trim())));
+                    Lists.newArrayList(Patterns.splitOnWhitespaceToIterable(keyAlias.trim())));
             }
 
             if (keyDescription != null) {
@@ -1467,7 +1469,8 @@ public class SupplementalDataInfo {
         private void handleParentLocales() {
             String parent = parts.getAttributeValue(-1, "parent");
             String locales = parts.getAttributeValue(-1, "locales");
-            String[] pl=Patterns.splitOnWhitespace(locales);
+            Iterable<String> pl=Patterns.splitOnWhitespaceToIterable(locales);
+//            String[] pl=Patterns.splitOnWhitespace(locales);
 //            String[] pl = locales.split(" ");
 //            for (int i = 0; i < pl.length; i++) {
              for (String currentLocale: pl) {
@@ -1533,9 +1536,11 @@ public class SupplementalDataInfo {
 
         private Collection<String> getSpaceDelimited(int index, String attribute, Collection<String> defaultValue) {
             String temp = parts.getAttributeValue(index, attribute);
-            Collection<String> elements = temp == null ? defaultValue : Arrays.asList(
-                //temp.split("\\s+"));
-                Patterns.splitOnWhitespace(temp));
+            Collection<String> elements= temp == null ? defaultValue: 
+                Lists.newArrayList(Patterns.splitOnWhitespaceToIterable(temp));
+//            Collection<String> elements = temp == null ? defaultValue : Arrays.asList(
+//                //temp.split("\\s+"));
+//                Patterns.splitOnWhitespace(temp));
             return elements;
         }
 
@@ -1567,7 +1572,9 @@ public class SupplementalDataInfo {
                 String defContent = parts.getAttributeValue(-1, "locales").trim();
 //                String[] defLocales = defContent.split("\\s+");
                 String[] defLocales= Patterns.splitOnWhitespace(defContent);
-                defaultContentLocales = Collections.unmodifiableSet(new TreeSet<String>(Arrays.asList(defLocales)));
+                defaultContentLocales = Collections.unmodifiableSet(
+                    new TreeSet<String>(
+                        Arrays.asList(defLocales)));
                 for (String defaultContentLocale : defaultContentLocales) {
                     int pos = LocaleIDParser.getScriptPosition(defaultContentLocale);
                     if (pos >= 0) {
@@ -2928,7 +2935,8 @@ public class SupplementalDataInfo {
 
     private void addPluralRanges(String localesString) {
 //        final String[] locales = localesString.split("\\s+");
-        final String[] locales=Patterns.splitOnWhitespace(localesString);
+//        final String[] locales=Patterns.splitOnWhitespace(localesString);
+        final Iterable<String> locales=Patterns.splitOnWhitespaceToIterable(localesString);
         lastPluralRanges = new PluralRanges();
         for (String locale : locales) {
             if (localeToPluralRanges.containsKey(locale)) {
@@ -2941,7 +2949,8 @@ public class SupplementalDataInfo {
 
     private void addPluralInfo(PluralType pluralType) {
 //        final String[] locales = lastPluralLocales.split("\\s+");
-        final String[] locales=Patterns.splitOnWhitespace(lastPluralLocales);
+//        final String[] locales=Patterns.splitOnWhitespace(lastPluralLocales);
+        final Iterable<String> locales=Patterns.splitOnWhitespaceToIterable(lastPluralLocales);
         PluralInfo info = new PluralInfo(lastPluralMap, pluralType);
         Map<String, PluralInfo> localeToInfo = localeToPluralInfo2.get(pluralType);
         for (String locale : locales) {

@@ -152,7 +152,8 @@ public class Misc {
 
     private static void showSortKey() {
 //        String[] tests = "a ä A ぁ あ ァ ｧ ア ｱ ㋐".split(" ");
-        String[] tests=Patterns.splitOnSpaceCharacter("a ä A ぁ あ ァ ｧ ア ｱ ㋐");
+//        String[] tests=Patterns.splitOnSpaceCharacter("a ä A ぁ あ ァ ｧ ア ｱ ㋐");
+        Iterable<String> tests=Patterns.splitOnSpaceCharacterToIterable("a ä A ぁ あ ァ ｧ ア ｱ ㋐");
         RuleBasedCollator c = (RuleBasedCollator) Collator.getInstance(ULocale.ENGLISH);
         c.setStrength(RuleBasedCollator.QUATERNARY);
         c.setCaseLevel(true);

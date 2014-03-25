@@ -703,7 +703,8 @@ public class GenerateNormalizeForMatch {
         StringBuilder result = new StringBuilder();
 //        String[] pieces = spaceDelimitedHex.split("\\s+");
 //        String[] pieces=Patterns.WHITESPACE.split(spaceDelimitedHex);
-        String[] pieces=Patterns.splitOnWhitespace(spaceDelimitedHex);
+//        String[] pieces=Patterns.splitOnWhitespace(spaceDelimitedHex);
+        Iterable<String> pieces=Patterns.splitOnWhitespaceToIterable(spaceDelimitedHex);
         for (String piece : pieces) {
             result.append(UTF16.valueOf(Integer.parseInt(piece, 16)));
         }
