@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,7 +20,10 @@ import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
+import org.unicode.cldr.util.VoteResolver.Organization;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.text.DecimalFormat;
@@ -27,7 +31,8 @@ import com.ibm.icu.text.PluralRules;
 import com.ibm.icu.util.ULocale;
 
 public class GeneratePluralList {
-    static final String stock = "km|lo|ne|br|dz|nl|si|en|ar|de|es|fr|it|ja|ko|nl|pl|ru|th|tr|pt|zh|zh_Hant|bg|ca|cs|da|el|fa|fi|fil|hi|hr|hu|id|lt|lv|ro|sk|sl|sr|sv|uk|vi|he|nb|et|ms|am|bn|gu|is|kn|ml|mr|sw|ta|te|ur|eu|gl|af|zu|en_GB|es_419|pt_PT|fr_CA|zh_Hant_HK";
+    static final String STOCK_LOCALES=StandardCodes.make().getLocaleCoverageLocalesRegex(Organization.cldr.name(), EnumSet.of(Level.MODERN));
+  //  static final String stock = "km|lo|ne|br|dz|nl|si|en|ar|de|es|fr|it|ja|ko|nl|pl|ru|th|tr|pt|zh|zh_Hant|bg|ca|cs|da|el|fa|fi|fil|hi|hr|hu|id|lt|lv|ro|sk|sl|sr|sv|uk|vi|he|nb|et|ms|am|bn|gu|is|kn|ml|mr|sw|ta|te|ur|eu|gl|af|zu|en_GB|es_419|pt_PT|fr_CA|zh_Hant_HK";
     private static final Map<String, Integer> keywordIndex =
         Builder.with(new HashMap<String, Integer>())
             .put("zero", 0)
@@ -251,15 +256,15 @@ public class GeneratePluralList {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        PrintWriter out = BagFormatter.openUTF8Writer("/Users/jchye/Desktop", "plurals.tsv");
-        GeneratePluralList generator = new GeneratePluralList(out);
-        generator.loadNouns();
-
-        Factory factory = Factory.make(CLDRPaths.MAIN_DIRECTORY, stock);
-        for (String locale : factory.getAvailable()) {
-            generator.getExamples(locale);
-            //generator.getForms(factory.make(locale, true));
+        try(PrintWriter out = BagFormatter.openUTF8Writer("/Users/jchye/Desktop", "plurals.tsv");){
+            GeneratePluralList generator = new GeneratePluralList(out);
+            generator.loadNouns();
+            Factory factory = Factory.make(CLDRPaths.MAIN_DIRECTORY, STOCK_LOCALES);
+            for (String locale : factory.getAvailable()) {
+                generator.getExamples(locale);
+                //generator.getForms(factory.make(locale, true));
+            }
         }
-        out.close();
+//        out.close();
     }
 }

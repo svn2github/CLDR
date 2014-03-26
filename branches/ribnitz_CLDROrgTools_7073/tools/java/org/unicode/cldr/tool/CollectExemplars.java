@@ -1,7 +1,11 @@
 package org.unicode.cldr.tool;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
+import java.util.Set;
+
+import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.StandardCodes;
+import org.unicode.cldr.util.VoteResolver.Organization;
 
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.LocaleData;
@@ -9,8 +13,9 @@ import com.ibm.icu.util.ULocale;
 
 public class CollectExemplars {
     public static void main(String[] args) {
-        final String stock = "en|ar|de|es|fr|it|ja|ko|nl|pl|ru|th|tr|pt|zh|zh_Hant|bg|ca|cs|da|el|fa|fi|fil|hi|hr|hu|id|lt|lv|ro|sk|sl|sr|sv|uk|vi|he|nb|et|ms|am|bn|gu|is|kn|ml|mr|sw|ta|te|ur|eu|gl|af|zu|en_GB|es_419|pt_PT|fr_CA|zh_HK";
-        final HashSet<String> REGION_LOCALES = new HashSet<String>(Arrays.asList(stock.split("\\|")));
+//        final String stock = "en|ar|de|es|fr|it|ja|ko|nl|pl|ru|th|tr|pt|zh|zh_Hant|bg|ca|cs|da|el|fa|fi|fil|hi|hr|hu|id|lt|lv|ro|sk|sl|sr|sv|uk|vi|he|nb|et|ms|am|bn|gu|is|kn|ml|mr|sw|ta|te|ur|eu|gl|af|zu|en_GB|es_419|pt_PT|fr_CA|zh_HK";
+//        final HashSet<String> REGION_LOCALES = new HashSet<String>(Arrays.asList(stock.split("\\|")));
+        final Set<String> REGION_LOCALES=StandardCodes.make().getLocaleCoverageLocales(Organization.cldr.name(), EnumSet.of(Level.MODERN));
         UnicodeSet target = new UnicodeSet();
         add("special", null, new UnicodeSet("[㐀-䶵一-鿌﨎﨏﨑﨓﨔﨟﨡﨣﨤﨧-﨩𠀀-𪛖 𪜀-𫜴𫝀-𫠝]"), target);
         for (ULocale locale : ULocale.getAvailableLocales()) {
