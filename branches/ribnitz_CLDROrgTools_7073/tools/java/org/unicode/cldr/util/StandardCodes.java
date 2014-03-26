@@ -35,6 +35,7 @@ import org.unicode.cldr.draft.ScriptMetadata.IdUsage;
 import org.unicode.cldr.util.Iso639Data.Type;
 import org.unicode.cldr.util.ZoneParser.ZoneLine;
 
+import com.google.common.base.Joiner;
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.UnicodeSet;
@@ -464,6 +465,45 @@ public class StandardCodes {
         return result;
     }
 
+    
+    /**
+     * Get a string with the respective organizations, separated by the "|" character
+     * @param organization
+     * @param choice
+     * @return
+     */
+    public String getLocaleCoverageLocalesRegex(String organization,Set<Level> choice) {
+       return getLocaleCoverageLocalesRegex(organization,choice,"|");
+    }
+    
+    /**
+     * Join the collection given on the String given
+     * @param coll
+     * @param sep
+     * @return
+     */
+    private String getLocaleCoverageLocaleCoverageInternal(Iterable<String> coll,String sep) {
+        return Joiner.on(sep).join(coll);
+    }
+    
+    /**
+     * Get the locales as a string, separated by separator
+     * @param organization
+     * @param choice
+     * @param separator
+     * @return
+     */
+    public String getLocaleCoverageLocalesRegex(String organization,Set<Level> choice,String separator) {
+        Set<String> result=getLocaleCoverageLocales(organization,choice);
+        if (result.size()==0) {
+            return "";
+        }
+        if (result.size()==1) {
+            return result.toArray()[0].toString();
+        }
+       return getLocaleCoverageLocaleCoverageInternal(result,separator);
+    }
+    
     private void loadPlatformLocaleStatus() {
         LocaleIDParser parser = new LocaleIDParser();
         platform_locale_level = new TreeMap<String, Map<String, Level>>(caseless);
