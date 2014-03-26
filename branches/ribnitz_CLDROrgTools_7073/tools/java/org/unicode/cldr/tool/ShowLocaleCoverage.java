@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import org.unicode.cldr.util.Counter;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
-import org.unicode.cldr.util.PluralSnapshot;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.PathHeader.Factory;
 import org.unicode.cldr.util.RegexLookup;
@@ -98,6 +96,14 @@ public class ShowLocaleCoverage {
     static org.unicode.cldr.util.Factory factory = testInfo.getCldrFactory();
     static DraftStatus minimumDraftStatus = DraftStatus.unconfirmed;
     static final Factory pathHeaderFactory = PathHeader.getFactory(ENGLISH);
+    
+    /**
+     * Use Organization.cldr for determining locale Level:
+     * false - use Apple and Google Organizations for getting locales and 
+     *         pick the one with the better support level, up to Modern level
+     * true  - use CLDR Organization for getting support level
+     */
+    private static final boolean USE_CLDR_ORGANIZATION= true;
     
     public static void main(String[] args) throws IOException {
         myOptions.parse(MyOptions.filter, args, true);
@@ -279,12 +285,17 @@ public class ShowLocaleCoverage {
                 String script = ltp.set(max).getScript();
 
                 String language = likelySubtags.minimize(locale);
-                // use these as a proxy for 'cldr'
-                Level currentLevel = STANDARD_CODES.getLocaleCoverageLevel("google", locale);
-                Level otherLevel = STANDARD_CODES.getLocaleCoverageLevel("apple", locale);
-                if (otherLevel.compareTo(currentLevel) > 0 
-                    && otherLevel.compareTo(Level.MODERN) <= 0) {
-                    currentLevel = otherLevel;
+                Level currentLevel=null;
+                if (!USE_CLDR_ORGANIZATION) {
+                    // use these as a proxy for 'cldr'
+                    currentLevel = STANDARD_CODES.getLocaleCoverageLevel("google", locale);
+                    Level otherLevel = STANDARD_CODES.getLocaleCoverageLevel("apple", locale);
+                    if (otherLevel.compareTo(currentLevel) > 0 
+                        && otherLevel.compareTo(Level.MODERN) <= 0) {
+                        currentLevel = otherLevel;
+                    }
+                } else {
+                    currentLevel=STANDARD_CODES.getLocaleCoverageLevel(Organization.cldr.name(), locale);
                 }
 
                 final CLDRFile file = factory.make(locale, true, minimumDraftStatus);
