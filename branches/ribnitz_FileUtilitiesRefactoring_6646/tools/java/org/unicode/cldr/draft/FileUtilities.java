@@ -145,7 +145,7 @@ public final class FileUtilities {
                 }
                 in.close();
                 handleEnd();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 throw (RuntimeException) new IllegalArgumentException(lineCount + ":\t" + line).initCause(e);
             }
             return this;
@@ -270,10 +270,9 @@ public final class FileUtilities {
     }
 
     public static void copyFile(Class<?> class1, String sourceFile, String targetDirectory, String newName, String[] replacementList) {
-        try {
-            PrintWriter out = BagFormatter.openUTF8Writer(targetDirectory, newName);
-            FileUtilities.appendFile(class1, sourceFile, FileUtilities.UTF8, replacementList, out);
-            out.close();
+        try ( PrintWriter out = BagFormatter.openUTF8Writer(targetDirectory, newName);){
+             FileUtilities.appendFile(class1, sourceFile, FileUtilities.UTF8, replacementList, out);
+//            out.close();
         } catch (IOException e) {
             throw new IllegalArgumentException(e); // dang'd checked exceptions
         }
@@ -408,21 +407,22 @@ public final class FileUtilities {
     }
 
     public static void handleFile(String filename, LineHandler handler) throws IOException {
-        BufferedReader in = CldrUtility.getUTF8Data(filename);
-        while (true) {
-            String line = in.readLine();
-            if (line == null) {
-                break;
-            }
-            try {
-                if (!handler.handle(line)) {
-                    if (SHOW_SKIP) System.out.println("Skipping line: " + line);
+        try (BufferedReader in = CldrUtility.getUTF8Data(filename);) {
+            while (true) {
+                String line = in.readLine();
+                if (line == null) {
+                    break;
                 }
-            } catch (Exception e) {
-                throw (RuntimeException) new IllegalArgumentException("Problem with line: " + line)
+                try {
+                    if (!handler.handle(line)) {
+                        if (SHOW_SKIP) System.out.println("Skipping line: " + line);
+                    }
+                } catch (Exception e) {
+                    throw (RuntimeException) new IllegalArgumentException("Problem with line: " + line)
                     .initCause(e);
+                }
             }
         }
-        in.close();
+//        in.close();
     }
 }
