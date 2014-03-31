@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.draft.ScriptMetadata;
 import org.unicode.cldr.draft.ScriptMetadata.IdUsage;
 import org.unicode.cldr.util.Iso639Data.Type;
+import org.unicode.cldr.util.VoteResolver.Organization;
 import org.unicode.cldr.util.ZoneParser.ZoneLine;
 
 import com.google.common.base.Joiner;
@@ -455,6 +456,10 @@ public class StandardCodes {
         return platform_level_locale.get(organization);
     }
 
+    public Set<String> getLocaleCoverageLocales(Organization organization, Set<Level> choice) {
+        return getLocaleCoverageLocales(organization.name(), choice);
+    }
+    
     public Set<String> getLocaleCoverageLocales(String organization, Set<Level> choice) {
         Set<String> result = new LinkedHashSet<String>();
         for (String locale : getLocaleCoverageLocales(organization)) {
@@ -483,9 +488,13 @@ public class StandardCodes {
      * @return
      */
     private String getLocaleCoverageLocaleCoverageInternal(Iterable<String> coll,String sep) {
-        return Joiner.on(sep).join(coll);
+      // TODO: Cache joiner objects?
+      return Joiner.on(sep).join(coll);
     }
     
+    public String getLocaleCoverageLocalesRegex(Organization organization, Set<Level> choice) {
+        return getLocaleCoverageLocalesRegex(organization.name(), choice);
+    }
     /**
      * Get the locales as a string, separated by separator
      * @param organization
