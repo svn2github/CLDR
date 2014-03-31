@@ -49,7 +49,7 @@ public class GeneratePluralRanges {
         Set<String> sorted = new TreeSet<String>(SUPPLEMENTAL.getPluralRangesLocales());
         // add the core locales
 //        sorted.addAll(StandardCodes.make().getLocaleCoverageLocales("google", EnumSet.of(Level.MODERN)));
-        sorted.addAll(StandardCodes.make().getLocaleCoverageLocales(Organization.cldr.name(),EnumSet.of(Level.MODERN)));
+        sorted.addAll(StandardCodes.make().getLocaleCoverageLocales(Organization.cldr,EnumSet.of(Level.MODERN)));
         // add any variant plural forms
         LanguageTagParser ltp = new LanguageTagParser();
         for (String locale : SUPPLEMENTAL.getPluralLocales()) {

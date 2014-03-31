@@ -380,7 +380,7 @@ public class ConsoleCheckCLDR {
         PathShower pathShower = new PathShower();
 
         // call on the files
-        Set locales = new TreeSet(baseFirstCollator);
+        Set<String> locales = new TreeSet<>(baseFirstCollator);
         locales.addAll(cldrFactory.getAvailable());
 
         List<CheckStatus> result = new ArrayList<CheckStatus>();
@@ -400,9 +400,8 @@ public class ConsoleCheckCLDR {
         LocaleIDParser localeIDParser = new LocaleIDParser();
         String lastBaseLanguage = "";
         PathHeader.Factory pathHeaderFactory = PathHeader.getFactory(english);
-
-        for (Iterator it = locales.iterator(); it.hasNext();) {
-            String localeID = (String) it.next();
+        for (String localeID: locales) {
+//        for (Iterator<String> it = locales.iterator(); it.hasNext();) {
             if (CLDRFile.isSupplementalName(localeID)) continue;
             if (supplementalDataInfo.getDefaultContentLocales().contains(localeID)) {
                 System.out.println("# Skipping default content locale: " + localeID);
@@ -486,8 +485,9 @@ public class ConsoleCheckCLDR {
 
             subtotalCount.clear();
 
-            for (Iterator<CheckStatus> it3 = result.iterator(); it3.hasNext();) {
-                CheckStatus status = it3.next();
+            for (CheckStatus status: result) {
+//            for (Iterator<CheckStatus> it3 = result.iterator(); it3.hasNext();) {
+//                CheckStatus status = it3.next();
                 String statusString = status.toString(); // com.ibm.icu.impl.Utility.escape(
                 CheckStatus.Type statusType = status.getType();
 
@@ -606,8 +606,9 @@ public class ConsoleCheckCLDR {
                     }
 
                     boolean showedOne = false;
-                    for (Iterator<CheckStatus> it3 = result.iterator(); it3.hasNext();) {
-                        CheckStatus status = it3.next();
+                    for (CheckStatus status: result) {
+//                    for (Iterator<CheckStatus> it3 = result.iterator(); it3.hasNext();) {
+//                        CheckStatus status = it3.next();
                         String statusString = status.toString(); // com.ibm.icu.impl.Utility.escape(
                         CheckStatus.Type statusType = status.getType();
                         if (errorsOnly && !statusType.equals(CheckStatus.errorType)) continue;

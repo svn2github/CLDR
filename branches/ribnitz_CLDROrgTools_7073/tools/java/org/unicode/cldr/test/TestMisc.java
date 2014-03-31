@@ -36,6 +36,7 @@ import org.unicode.cldr.util.Pair;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.VariantFolder;
+import org.unicode.cldr.util.VoteResolver.Organization;
 import org.unicode.cldr.util.XPathParts;
 
 import com.ibm.icu.dev.util.BagFormatter;
@@ -228,7 +229,8 @@ public class TestMisc {
         CLDRFile english = cldrFactory.make("en", true);
         Set<Pair<Integer, String>> rel = new TreeSet<Pair<Integer, String>>();
         for (String desiredLocale : cldrFactory.getAvailable()) {
-            int vote = Level.getDefaultWeight("google", desiredLocale);
+//            int vote = Level.getDefaultWeight("google", desiredLocale);
+            int vote=Level.getDefaultWeight(Organization.cldr, desiredLocale);
             rel.add(new Pair<Integer, String>(vote, desiredLocale));
         }
         for (Pair<Integer, String> p : rel) {

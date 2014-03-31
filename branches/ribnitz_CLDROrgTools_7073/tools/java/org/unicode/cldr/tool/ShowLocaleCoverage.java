@@ -163,7 +163,7 @@ public class ShowLocaleCoverage {
 
     static void printData(PrintWriter pw, Set<String> locales, Matcher matcher, boolean useOrgLevel) {
 //        Set<String> checkModernLocales = STANDARD_CODES.getLocaleCoverageLocales("google", EnumSet.of(Level.MODERN));
-        Set<String> checkModernLocales=STANDARD_CODES.getLocaleCoverageLocales(Organization.cldr.name(),EnumSet.of(Level.MODERN));
+        Set<String> checkModernLocales=STANDARD_CODES.getLocaleCoverageLocales(Organization.cldr,EnumSet.of(Level.MODERN));
         Set<String> availableLanguages = new TreeSet<>(factory.getAvailableLanguages());
         availableLanguages.addAll(checkModernLocales);
 

@@ -54,7 +54,7 @@ public class StandardCodesTest extends TestFmwk {
         for (Organization org : Organization.values()) {
             Set<String> locs;
             try {
-                locs = sc.getLocaleCoverageLocales(org.toString(), EnumSet.of(Level.MODERATE, Level.MODERN));
+                locs = sc.getLocaleCoverageLocales(org, EnumSet.of(Level.MODERATE, Level.MODERN));
                 for (String loc : locs) {
                     if (loc.equals("*")) continue;
                     if (!availableLocales.contains(loc)) {

@@ -2,6 +2,8 @@ package org.unicode.cldr.util;
 
 import java.util.Locale;
 
+import org.unicode.cldr.util.VoteResolver.Organization;
+
 /**
  * A simple class representing an enumeration of possible CLDR coverage levels. Levels may change in the future.
  * 
@@ -62,12 +64,30 @@ public enum Level {
 
     static final StandardCodes sc = StandardCodes.make();
 
-    public static int getDefaultWeight(String organization, String desiredLocale) {
-        Level level = sc.getLocaleCoverageLevel(organization, desiredLocale);
+    /**
+     * Get the default weight for the organization and the level given
+     * @param organization
+     * @param desiredLocale
+     * @return
+     */
+    public static int getDefaultWeight(Organization organization, String desiredLocale) {
+        Level level = sc.getLocaleCoverageLevel(organization.name(), desiredLocale);
         if (level.compareTo(Level.MODERATE) >= 0) {
             return 4;
         }
         return 1;
+    }
+   
+    public static int getDefaultWeight(String organization,String desiredLocale) {
+        if (organization==null||organization.isEmpty()) {
+            throw new IllegalArgumentException("Organization must not be null or empty");
+        }
+        try {
+            Organization org=Organization.valueOf(organization);
+            return Level.getDefaultWeight(org, desiredLocale);
+        } catch (IllegalArgumentException iae) {
+            throw iae;
+        }
     }
 
     /**
