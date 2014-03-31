@@ -32,7 +32,7 @@ public class TestCLDRLocaleCoverage extends TestFmwkPlus {
         Set<String> cldrLocales=sc.getLocaleCoverageLocales(Organization.cldr, EnumSet.of(Level.MODERN));
         assertNotNull("Expected CLDR modern locales not to be null", cldrLocales);
         if (!cldrLocales.containsAll(googleLocales)) {
-            printDifferences(googleLocales, cldrLocales,"Google","CLDR",true);
+            printDifferences(googleLocales, cldrLocales,"Google","CLDR");
         }
         assertTrue("Expected CLDR locales to be a superset of Google ones, but they were not.", 
             cldrLocales.containsAll(googleLocales));
@@ -43,13 +43,13 @@ public class TestCLDRLocaleCoverage extends TestFmwkPlus {
         Set<String> cldrLocales=sc.getLocaleCoverageLocales(Organization.cldr, EnumSet.of(Level.MODERN));
         assertNotNull("Expected CLDR modern locales not to be null", cldrLocales);
         if (!cldrLocales.containsAll(appleLocales)) {
-            printDifferences(appleLocales,cldrLocales,"Apple", "CLDR",true);
+            printDifferences(appleLocales,cldrLocales,"Apple", "CLDR");
         }
         assertTrue("Expected CLDR modern locales to be a superset of Apple ones, but they were not.", cldrLocales.containsAll(appleLocales));
     }
     
     private void printDifferences(Set<String> firstLoccaleSet, Set<String> secondLocaleSet,String firstSetName,
-        String secondSetName,boolean supersetOnly) {
+        String secondSetName) {
         Set<String> diff2=Sets.difference(firstLoccaleSet, secondLocaleSet);
         if (!diff2.isEmpty()) {
             warnln("The following "+firstSetName+" modern locales were absent from the "+secondSetName+" set:"+diff2.toString());
