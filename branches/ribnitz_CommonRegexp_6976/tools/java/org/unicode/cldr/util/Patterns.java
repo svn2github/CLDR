@@ -106,7 +106,14 @@ public class Patterns {
      */
     public static final Pattern UNDERSCORE = Pattern.compile("_");
     
-   
+    private final static Splitter WHITESPACE_ONCE_SPLITTER=Splitter.on(WHITESPACE_ONCE);
+    private final static Splitter SPACE_CHAR_SPLITTER=Splitter.on(SPACE_CHARACTER);
+    private final static Splitter WHITESPACE_SPLITTER=Splitter.on(WHITESPACE);
+    private final static Splitter SEMICOLON_WITH_WHITESPACE_SPLITTER=Splitter.on(SEMICOLON_WITH_WHITESPACE);
+    private final static Splitter POSSESSIVE_WHITESPACE_SPLITTER=Splitter.on(POSSESSIVE_WHITESPACE);
+    
+    
+    
     public Patterns() {
         // Class only contains static methods or fields, nothing to
         // initialize
@@ -160,44 +167,82 @@ public class Patterns {
     public static String[] splitOnNumbers(String s) {
         return splitOn(NUMBERS, s);
     }
+
+    
+    /***
+     * Split to iterable, using the pattern given
+     * @param p
+     * @param s
+     * @return
+     */
     private static Iterable<String> splitToIterable(Pattern p, String s) {
-        return Splitter.on(p).trimResults().split(s);
+        return Splitter.on(p).split(s);
+    }
+    /**
+     * Split to Iterable using the splitter given.
+     * @param sp
+     * @param s
+     * @param doTrim
+     * @return
+     */
+    private static Iterable<String> splitToIterable(Splitter sp,String s) {
+        return sp.split(s);
     }
     
+    /**
+     * Split to Array, using the pattern given
+     * @param p
+     * @param s
+     * @return
+     */
     private static String[] splitToArray(Pattern p, String s) {
         Iterable<String> tmpList=splitToIterable(p, s);
         return Iterables.toArray(tmpList, String.class);
-//        String[] result=new String[tmpList.size()];
-//        System.arraycopy(tmpList.toArray(), 0, result, 0, tmpList.size());
-//        return result;
+        }
+    
+    /**
+     * Split to array, using the splitter given
+     * @param sp
+     * @param s
+     * @param doTrim
+     * @return
+     */
+    public static String[] splitToArray(Splitter sp,String s) {
+        Iterable<String> tmpList=splitToIterable(sp, s);
+        return Iterables.toArray(tmpList, String.class);
     }
+    
+    
     public static String[] splitOnPossessiveWhitespace(String s) {
-        return splitToArray(POSSESSIVE_WHITESPACE, s);
+        return splitToArray(POSSESSIVE_WHITESPACE_SPLITTER, s);
     }
    
     public static String[] splitOnSingleWhitespace(String s) {
-        return splitToArray(WHITESPACE_ONCE, s);
+        return splitToArray(WHITESPACE_ONCE_SPLITTER, s);
     }
     
     public static Iterable<String> splitOnSingleWhitespaceToIterable(String s) {
-        return splitToIterable(WHITESPACE_ONCE, s);
+        return splitToIterable(WHITESPACE_ONCE_SPLITTER, s);
     }
     
+
     public static String[] splitOnSpaceCharacter(String s) {
-        return splitToArray(SPACE_CHARACTER, s);
+        return splitToArray(SPACE_CHAR_SPLITTER, s);
+//        return splitToArray(SPACE_CHARACTER, s);
     }
    
     public static Iterable<String> splitOnSpaceCharacterToIterable(String s) {
-        return splitToIterable(SPACE_CHARACTER, s);
+        return splitToIterable(SPACE_CHAR_SPLITTER, s);
+//        return splitToIterable(SPACE_CHARACTER, s);
     }
     
  
     public static String[] splitOnWhitespace(String s) {
-        return splitToArray(WHITESPACE, s);
+        return splitToArray(WHITESPACE_SPLITTER, s);
     }
    
     public static Iterable<String> splitOnWhitespaceToIterable(String s) {
-        return splitToIterable(WHITESPACE, s);
+        return splitToIterable(WHITESPACE_SPLITTER, s);
         
     }
     
@@ -209,7 +254,7 @@ public class Patterns {
         return splitOn(SEMICOLON, s,limit);
     }
     public static String[] splitOnSemicolonWithWhiteSpace(String s) {
-        return splitOn(SEMICOLON_WITH_WHITESPACE, s);
+        return splitToArray(SEMICOLON_WITH_WHITESPACE_SPLITTER, s);
     }
     
     public static String[] splitOnSlash(String s) {
