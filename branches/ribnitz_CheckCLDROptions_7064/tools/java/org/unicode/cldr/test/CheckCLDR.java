@@ -347,6 +347,8 @@ abstract public class CheckCLDR {
              * @return the corresponding option value; null if there is no option corresponding
              */
             public static Option reverseLookup(String key) {
+                // Note: iteration is an option if there are few values, when number of values
+                // grows refactor, eg. using a HashMap/HashSet
                 for (Option opt: Option.values()) {
                     if (opt.key.equals(key) || opt.name().equals(key)) {
                         return opt;
@@ -403,7 +405,7 @@ abstract public class CheckCLDR {
          * @param options2
          */
         public Options(Options options2) {
-            options.putAll(options2.options.clone());
+            options.putAll(options2.options);
         }
 
         public Options(CLDRLocale locale, CheckCLDR.Phase testPhase, String requiredLevel, String localeType) {
@@ -442,32 +444,27 @@ abstract public class CheckCLDR {
                 return false;
             }
             // Lengthy compare 
-            // clone to be safe against modifications
-            Iterator<Option> iter=options.clone().keySet().iterator();
-            Options otherOptions=(Options)other;
-            while (iter.hasNext()) {
-                Option cur=iter.next();
-                String myValue=get(cur);
-                String otherValue=otherOptions.get(cur);
-                if (otherValue==null) {
-                    return false;
-                }
-                if (!myValue.equals(otherValue)) {
-                    return false;
-                }
+            Options otherOpts=(Options)other;
+            // no null check for options, as they are final (and initialized to a Map)
+            if (!options.equals(otherOpts.options)) {
+                return false;
             }
             return true;
         }
         
         private Options set(Option o, String v) {
             options.put(o, v);
-            if (DEBUG_OPTS) System.err.println("Setting " + o + " = " + v);
+            if (DEBUG_OPTS) {
+                System.err.println("Setting " + o + " = " + v);
+            }
             return this;
         }
 
         public String get(Option o) {
             String v=options.get(o);
-            if (DEBUG_OPTS) System.err.println("Getting " + o + " = " + v);
+            if (DEBUG_OPTS) {
+                System.err.println("Getting " + o + " = " + v);
+            }
             return v;
         }
 
