@@ -79,15 +79,7 @@ public enum Level {
     }
    
     public static int getDefaultWeight(String organization,String desiredLocale) {
-        if (organization==null||organization.isEmpty()) {
-            throw new IllegalArgumentException("Organization must not be null or empty");
-        }
-        try {
-            Organization org=Organization.valueOf(organization);
-            return Level.getDefaultWeight(org, desiredLocale);
-        } catch (IllegalArgumentException iae) {
-            throw iae;
-        }
+        return Level.getDefaultWeight(Organization.valueOf(organization), desiredLocale);
     }
 
     /**
