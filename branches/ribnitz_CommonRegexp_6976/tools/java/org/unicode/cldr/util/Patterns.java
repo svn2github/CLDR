@@ -106,11 +106,12 @@ public class Patterns {
      */
     public static final Pattern UNDERSCORE = Pattern.compile("_");
     
-    private final static Splitter WHITESPACE_ONCE_SPLITTER=Splitter.on(WHITESPACE_ONCE);
+    private final static Splitter WHITESPACE_ONCE_SPLITTER=Splitter.on(WHITESPACE_ONCE).omitEmptyStrings();
+    // Not ommitting empties because a test check splitting on space char
     private final static Splitter SPACE_CHAR_SPLITTER=Splitter.on(SPACE_CHARACTER);
-    private final static Splitter WHITESPACE_SPLITTER=Splitter.on(WHITESPACE);
-    private final static Splitter SEMICOLON_WITH_WHITESPACE_SPLITTER=Splitter.on(SEMICOLON_WITH_WHITESPACE);
-    private final static Splitter POSSESSIVE_WHITESPACE_SPLITTER=Splitter.on(POSSESSIVE_WHITESPACE);
+    private final static Splitter WHITESPACE_SPLITTER=Splitter.on(WHITESPACE).omitEmptyStrings();
+    private final static Splitter SEMICOLON_WITH_WHITESPACE_SPLITTER=Splitter.on(SEMICOLON_WITH_WHITESPACE).omitEmptyStrings();
+    private final static Splitter POSSESSIVE_WHITESPACE_SPLITTER=Splitter.on(POSSESSIVE_WHITESPACE).omitEmptyStrings();
     
     
     
