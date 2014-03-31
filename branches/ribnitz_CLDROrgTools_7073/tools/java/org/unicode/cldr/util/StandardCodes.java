@@ -91,6 +91,12 @@ public class StandardCodes {
     private static final boolean DEBUG = false;
 
     /**
+     * We only join on PIPE, so the resp. Joiner obj. can be 
+     * static final
+     */
+    private static final Joiner JOINER_ON_PIPE=Joiner.on("|");
+ 
+    /**
      * Get the singleton copy of the standard codes.
      */
     static public synchronized StandardCodes make() {
@@ -470,6 +476,7 @@ public class StandardCodes {
         return result;
     }
 
+  
     
     /**
      * Get a string with the respective organizations, separated by the "|" character
@@ -478,7 +485,14 @@ public class StandardCodes {
      * @return
      */
     public String getLocaleCoverageLocalesRegex(String organization,Set<Level> choice) {
-       return getLocaleCoverageLocalesRegex(organization,choice,"|");
+        Set<String> result=getLocaleCoverageLocales(organization,choice);
+        if (result.size()==0) {
+            return "";
+        }
+        if (result.size()==1) {
+            return result.toArray()[0].toString();
+        }
+       return getLocaleCoverageLocaleCoverageInternal(result);
     }
     
     /**
@@ -487,32 +501,14 @@ public class StandardCodes {
      * @param sep
      * @return
      */
-    private String getLocaleCoverageLocaleCoverageInternal(Iterable<String> coll,String sep) {
+    private String getLocaleCoverageLocaleCoverageInternal(Iterable<String> coll) {
       // TODO: Cache joiner objects?
-      return Joiner.on(sep).join(coll);
+      return JOINER_ON_PIPE.join(coll);
     }
     
     public String getLocaleCoverageLocalesRegex(Organization organization, Set<Level> choice) {
         return getLocaleCoverageLocalesRegex(organization.name(), choice);
     }
-    /**
-     * Get the locales as a string, separated by separator
-     * @param organization
-     * @param choice
-     * @param separator
-     * @return
-     */
-    public String getLocaleCoverageLocalesRegex(String organization,Set<Level> choice,String separator) {
-        Set<String> result=getLocaleCoverageLocales(organization,choice);
-        if (result.size()==0) {
-            return "";
-        }
-        if (result.size()==1) {
-            return result.toArray()[0].toString();
-        }
-       return getLocaleCoverageLocaleCoverageInternal(result,separator);
-    }
-    
     private void loadPlatformLocaleStatus() {
         LocaleIDParser parser = new LocaleIDParser();
         platform_locale_level = new TreeMap<String, Map<String, Level>>(caseless);
