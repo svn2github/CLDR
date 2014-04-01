@@ -132,6 +132,7 @@ public class KeyboardModifierSet {
         if (input == null) {
             throw new IllegalArgumentException("Input string cannot be null");
         }
+        // Patterns.splitOnSpace removes empty strings
         Iterable<String> modifierSetInputs=Patterns.splitOnSpaceCharacterToIterable(input);
         //String modifierSetInputs[] =  Patterns.splitOnSpaceCharacter(input);
 //        String modifierSetInputs[] = input.trim().split(" ");
