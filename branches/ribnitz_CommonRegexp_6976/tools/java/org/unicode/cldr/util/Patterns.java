@@ -72,7 +72,7 @@ public class Patterns {
     public static final Pattern SEMICOLON=Pattern.compile(";");
     
     /**
-     * Semicolon, optiomnally enclosed in whitespace (\\s*;\\s*)
+     * Semicolon, optionally enclosed in whitespace (\\s*;\\s*)
      */
     public static final Pattern SEMICOLON_WITH_WHITESPACE=Pattern.compile("\\s*;\\s*");
     
@@ -107,11 +107,24 @@ public class Patterns {
     public static final Pattern UNDERSCORE = Pattern.compile("_");
     
     private final static Splitter WHITESPACE_ONCE_SPLITTER=Splitter.on(WHITESPACE_ONCE).omitEmptyStrings();
-    // Not omitting empties because a test check splitting on space char
     private final static Splitter SPACE_CHAR_SPLITTER=Splitter.on(SPACE_CHARACTER).omitEmptyStrings();
     private final static Splitter WHITESPACE_SPLITTER=Splitter.on(WHITESPACE).omitEmptyStrings();
     private final static Splitter SEMICOLON_WITH_WHITESPACE_SPLITTER=Splitter.on(SEMICOLON_WITH_WHITESPACE).omitEmptyStrings();
     private final static Splitter POSSESSIVE_WHITESPACE_SPLITTER=Splitter.on(POSSESSIVE_WHITESPACE).omitEmptyStrings();
+    private final static Splitter SEMICOLON_SPLITTER=Splitter.on(SEMICOLON);
+    private final static Splitter SLASH_SPLITTER=Splitter.on(SLASH);
+    private final static Splitter COMMA_SPLITTER=Splitter.on(COMMA);
+    private final static Splitter COLON_SPLITTER=Splitter.on(COLON);
+    private final static Splitter BAR_SPLITTER=Splitter.on(BAR);
+    private final static Splitter EQUALS_SPLITTER=Splitter.on(EQUALS);
+    private final static Splitter HASH_SPLITTER=Splitter.on(HASH);
+    private final static Splitter NEWLINE_SPLITTER=Splitter.on(NEWLINE);
+    private final static Splitter NUMBERS_SPLITTER=Splitter.on(NUMBERS);
+    private final static Splitter LOWERCASE_AND_UPPERCASE_SPLITTER=Splitter.on(LOWERCASE_AND_UPPERCASE_LETTERS);
+    private final static Splitter LOWERCASE_SPLITTER=Splitter.on(LOWERCASE_LETTERS);
+    private final static Splitter TABULATOR_SPLITTER=Splitter.on(TABULATOR);
+    private final static Splitter UPPERCASE_SPLITTER=Splitter.on(UPPERCASE_LETTERS);
+    private final static Splitter UNDERSCORE_SPLITTER=Splitter.on(UNDERSCORE);
     
     
     
@@ -119,96 +132,88 @@ public class Patterns {
         // Class only contains static methods or fields, nothing to
         // initialize
     }
-    private static String[] splitOn(Pattern pat, String s) {
-        return pat.split(s);
+    
+    /**
+     * Given a resulting array, return a new array containing only limit number of elements
+     * @param result
+     * @param limit
+     * @return
+     */
+    private static String[] trimResultArray(String[] result, int limit) {
+        if (result.length<limit+1) {
+            return result;
+        }
+        String[] tmp=new String[limit];
+        System.arraycopy(result, 0, tmp, 0, limit);
+        return tmp;
     }
     
-    private static String[] splitOn(Pattern pat, String s,int limit) {
-        return pat.split(s, limit);
-    }
-    
+   
     public static String[] splitOnBar(String s) {
-        return splitOn(BAR,s);
+        return splitToArray(BAR_SPLITTER,s);
     }
     
     
     public static String[] splitOnColon(String s) {
-       return splitOn(COLON, s);
+       return splitToArray(COLON_SPLITTER, s);
     }
     
     public static String[] splitOnColon(String s,int limit) {
-        return splitOn(COLON, s,limit);
+        String[] result=splitOnColon(s);
+        return trimResultArray(result, limit);
     }
+
+   
     
     public static String[] splitOnComma(String s) {
-        return splitOn(COMMA, s);
+        return splitToArray(COMMA_SPLITTER, s);
     }
     
+   
+    
     public static String[] splitOnEquals(String s) {
-        return splitOn(EQUALS, s);
+        return splitToArray(EQUALS_SPLITTER,s);
     }
     
     public static String[] splitOnHash(String s) {
-        return splitOn(HASH, s);
+        return splitToArray(HASH_SPLITTER, s);
     }
     
     
     public static String[] splitOnLowercaseAndUppercase(String s) {
-        return splitOn(LOWERCASE_AND_UPPERCASE_LETTERS, s);
+        return  splitToArray(LOWERCASE_AND_UPPERCASE_SPLITTER, s);
     }
     
     public static String[] splitOnLowercase(String s) {
-        return splitOn(LOWERCASE_LETTERS, s);
+        return splitToArray(LOWERCASE_SPLITTER, s);
     }
     
     public static String[] splitOnNewline(String s) {
-        return splitOn(NEWLINE, s);
+        return splitToArray(NEWLINE_SPLITTER, s);
     }
     
     public static String[] splitOnNumbers(String s) {
-        return splitOn(NUMBERS, s);
+        return splitToArray(NUMBERS_SPLITTER, s);
     }
 
-    
-    /***
-     * Split to iterable, using the pattern given
-     * @param p
-     * @param s
-     * @return
-     */
-    private static Iterable<String> splitToIterable(Pattern p, String s) {
-        return Splitter.on(p).split(s);
-    }
     /**
      * Split to Iterable using the splitter given.
      * @param sp
      * @param s
-     * @param doTrim
      * @return
      */
     private static Iterable<String> splitToIterable(Splitter sp,String s) {
         return sp.split(s);
     }
     
-    /**
-     * Split to Array, using the pattern given
-     * @param p
-     * @param s
-     * @return
-     */
-    private static String[] splitToArray(Pattern p, String s) {
-        Iterable<String> tmpList=splitToIterable(p, s);
-        return Iterables.toArray(tmpList, String.class);
-        }
     
     /**
      * Split to array, using the splitter given
      * @param sp
      * @param s
-     * @param doTrim
      * @return
      */
-    public static String[] splitToArray(Splitter sp,String s) {
+    private static String[] splitToArray(Splitter sp,String s) {
         Iterable<String> tmpList=splitToIterable(sp, s);
         return Iterables.toArray(tmpList, String.class);
     }
@@ -248,29 +253,33 @@ public class Patterns {
     }
     
     public static String[] splitOnSemicolon(String s) {
-        return splitOn(SEMICOLON, s);
+        return splitToArray(SEMICOLON_SPLITTER, s);
     }
     
     public static String[] splitOnSemicolon(String s,int limit) {
-        return splitOn(SEMICOLON, s,limit);
+        String[] results=splitOnSemicolon(s);
+        return trimResultArray(results, limit);
     }
+    
     public static String[] splitOnSemicolonWithWhiteSpace(String s) {
         return splitToArray(SEMICOLON_WITH_WHITESPACE_SPLITTER, s);
     }
     
+  
     public static String[] splitOnSlash(String s) {
-        return splitOn(SLASH, s);
+        return splitToArray(SLASH_SPLITTER, s);
     }
     
+
     public static String[] splitOnTabulator(String s) {
-        return splitOn(TABULATOR, s);
+        return splitToArray(TABULATOR_SPLITTER, s);
     }
     
     public static String[] splitOnUppercase(String s) {
-        return splitOn(UPPERCASE_LETTERS, s);
+        return splitToArray(UPPERCASE_SPLITTER, s);
     }
     
     public static String[] splitOnUnderscore(String s) {
-        return splitOn(UNDERSCORE, s);
+        return splitToArray(UNDERSCORE_SPLITTER, s);
     }
 }
