@@ -15,9 +15,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +48,6 @@ import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.dev.util.TransliteratorUtilities;
 import com.ibm.icu.impl.Row;
 import com.ibm.icu.impl.Row.R2;
-import com.ibm.icu.lang.CharSequences;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.Transform;
@@ -346,13 +347,12 @@ public class VettingViewer<T> {
     }
 
     public static class DefaultErrorStatus implements ErrorChecker {
-
         private CheckCLDR checkCldr;
-        private HashMap<String, String> options = new HashMap<String, String>();
-        private ArrayList<CheckStatus> result = new ArrayList<CheckStatus>();
+        private Map<String, String> options = new ConcurrentHashMap<String, String>();
+        private  List<CheckStatus> result = new ArrayList<CheckStatus>();
         private CLDRFile cldrFile;
-        private Factory factory;
-
+        private final Factory factory;
+        
         public DefaultErrorStatus(Factory cldrFactory) {
             this.factory = cldrFactory;
         }
@@ -421,6 +421,7 @@ public class VettingViewer<T> {
             return result0;
         }
     }
+
 
     private final Factory cldrFactory;
     private final Factory cldrFactoryOld;
@@ -771,7 +772,7 @@ public class VettingViewer<T> {
             warningSubtypeCounter.addAll(other.warningSubtypeCounter);
         }
 
-        private FileInfo getFileInfo(CLDRFile sourceFile, CLDRFile lastSourceFile,
+        public FileInfo getFileInfo(CLDRFile sourceFile, CLDRFile lastSourceFile,
             Relation<R2<SectionId, PageId>, WritingInfo> sorted,
             EnumSet<Choice> choices, String localeID, boolean nonVettingPhase,
             T user, Level usersLevel, boolean quick) {
@@ -855,7 +856,8 @@ public class VettingViewer<T> {
                     // data submission,
                     // so see if the value changed.
                     // String lastValue = lastSourceFile == null ? null : lastSourceFile.getWinningValue(path);
-                    if (CharSequences.equals(value, oldValue) && choices.contains(Choice.englishChanged)) {
+                    if (Objects.equals(value, oldValue) && choices.contains(Choice.englishChanged)) {
+                //    if (CharSequences.equals(value, oldValue) && choices.contains(Choice.englishChanged)) {
                         // check to see if we voted
                         problems.add(Choice.englishChanged);
                         problemCounter.increment(Choice.englishChanged);
@@ -1647,7 +1649,8 @@ public class VettingViewer<T> {
                         : "tv-last", HTMLType.plain);
                     // value for last version
                     String newWinningValue = sourceFile.getWinningValue(path);
-                    if (CharSequences.equals(newWinningValue, oldStringValue)) {
+                    if (Objects.equals(newWinningValue, oldStringValue)) {
+//                    if (CharSequences.equals(newWinningValue, oldStringValue)) {
                         newWinningValue = "=";
                     }
                     addCell(output, newWinningValue, null, choicesForPath.contains(Choice.missingCoverage) ? "tv-miss"
@@ -1868,7 +1871,8 @@ public class VettingViewer<T> {
                 public VoteStatus getStatusForUsersOrganization(CLDRFile cldrFile, String path, Organization user) {
                     String usersValue = getWinningValueForUsersOrganization(cldrFile, path, user);
                     String winningValue = cldrFile.getWinningValue(path);
-                    if (usersValue != null && !CharSequences.equals(usersValue, winningValue)) {
+                    if (usersValue != null && !Objects.equals(usersValue, winningValue)) {
+                        //!CharSequences.equals(usersValue, winningValue)) {
                         return VoteStatus.losing;
                     }
                     String fullPath = cldrFile.getFullXPath(path);
@@ -1943,7 +1947,7 @@ public class VettingViewer<T> {
         summary
     }
 
-    private static void writeFile(String myOutputDir, VettingViewer<Organization> tableView, final EnumSet<Choice> choiceSet,
+    public static void writeFile(String myOutputDir, VettingViewer<Organization> tableView, final EnumSet<Choice> choiceSet,
         String name, String localeStringID, int userNumericID,
         Level usersLevel,
         CodeChoice newCode, Organization organization)
