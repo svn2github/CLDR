@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 
@@ -511,6 +512,8 @@ public class DateTimeFormats {
 
         public RelativePattern(CLDRFile file, String skeleton) {
             Matcher m = RELATIVE_DATE.matcher(skeleton);
+            boolean result=m.matches();
+            RegexLogger.getInstance().log(m.pattern(), skeleton, result, LogType.MATCH, getClass());
             if (m.matches()) {
                 type = m.group(1);
                 String length = m.group(2);

@@ -9,13 +9,18 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.DebugGraphics;
+
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
 import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.text.UnicodeSet;
 
 public class RadicalStroke {
+    private static final boolean DEBUG_REGEX = true;
     // U+3433 kRSUnicode 9.3
     private static Pattern RAD_STROKE = Pattern.compile("U\\+([A-Z0-9]+)\\s+kRSUnicode\\s+(.*)");
     private static Pattern RAD_DATA = Pattern.compile("([0-9]{1,3}\\'?)\\.([0-9]{1,2})\\s*");
@@ -52,14 +57,25 @@ public class RadicalStroke {
             while (true) {
                 String line = in.readLine();
                 if (line == null) break;
+                boolean iiCoreMatches=iiCore.reset(line).matches();
+                if (DEBUG_REGEX) {
+                    RegexLogger.getInstance().log(iiCore, line, iiCoreMatches, LogType.MATCH, getClass());
+                }
                 if (iiCore.reset(line).matches()) {
                     int cp = Integer.parseInt(iiCore.group(1), 16);
                     iiCoreSet.add(cp);
                 } else if (radStrokeMatcher.reset(line).matches()) {
+                    if (DEBUG_REGEX) {
+                        RegexLogger.getInstance().log(radStrokeMatcher,line,true,LogType.MATCH,getClass());
+                    }
                     int cp = Integer.parseInt(radStrokeMatcher.group(1), 16);
                     String[] items = radStrokeMatcher.group(2).split("\\s");
                     for (String item : items) {
-                        if (!radDataMatcher.reset(item).matches()) {
+                        boolean radMatched=radDataMatcher.reset(item).matches();
+                        if (DEBUG_REGEX) {
+                            RegexLogger.getInstance().log(radDataMatcher,item,radMatched,LogType.MATCH,getClass());
+                        }
+                        if (!radMatched) {
                             in.close();
                             throw new IllegalArgumentException("Bad line: " + line);
                         }

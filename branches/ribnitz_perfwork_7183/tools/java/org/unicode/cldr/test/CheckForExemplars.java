@@ -23,8 +23,11 @@ import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.InternalCldrException;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.PatternPlaceholders;
+import org.unicode.cldr.util.RegexLogger;
 import org.unicode.cldr.util.PatternPlaceholders.PlaceholderStatus;
 import org.unicode.cldr.util.SupplementalDataInfo;
+import org.unicode.cldr.util.RegexLogger.LogType;
+import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData.Type;
 import org.unicode.cldr.util.SupplementalDataInfo.CurrencyDateInfo;
@@ -245,14 +248,17 @@ public class CheckForExemplars extends FactoryCheckCLDR {
 
         // add checks for patterns. Make sure that all and only the message format patterns have {n}
         Matcher matcher = patternMatcher.reset(value);
+        RegexLoggerInterface rxLogger=RegexLogger.getInstance();
         Set<String> matchList = new HashSet<String>();
         StringBuffer placeholderBuffer = new StringBuffer();
         while (matcher.find()) {
+            rxLogger.log(matcher.pattern(), value, true, LogType.FIND, getClass());
             // Look for duplicate values.
             if (!matchList.add(matcher.group())) {
                 placeholderBuffer.append(", ").append(matcher.group());
             }
         }
+        rxLogger.log(matcher.pattern(), value, false, LogType.FIND, getClass());
         Set<String> placeholders = null;
         PlaceholderStatus placeholderStatus = patternPlaceholders.getStatus(path);
         if (placeholderStatus != PlaceholderStatus.DISALLOWED) {
@@ -396,7 +402,9 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         // check for spaces
 
         if (!value.equals(value.trim())) {
-            if (!leadOrTrailWhitespaceOk.reset(path).find()) {
+            boolean found=leadOrTrailWhitespaceOk.reset(path).find();
+            RegexLogger.getInstance().log(leadOrTrailWhitespaceOk.pattern(), path, found, LogType.FIND, getClass());
+            if (!found) {
                 result.add(new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
                     .setSubtype(Subtype.mustNotStartOrEndWithSpace)
                     .setMessage("This item must not start or end with whitespace, or be empty."));

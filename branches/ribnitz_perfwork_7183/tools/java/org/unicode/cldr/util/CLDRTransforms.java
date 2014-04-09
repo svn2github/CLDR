@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.test.TestTransforms;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.Relation;
@@ -209,6 +210,8 @@ public class CLDRTransforms {
             String item = hasXmlSuffix && cldrFileName.endsWith(".xml") ? cldrFileName.substring(0,
                 cldrFileName.length() - 4) : cldrFileName;
             for (Matcher m : dependsOn.keySet()) {
+                boolean matches=m.reset(item).matches();
+                RegexLogger.getInstance().log(m.pattern(), item, matches, LogType.MATCH, getClass());
                 if (m.reset(item).matches()) {
                     for (String other : dependsOn.getAll(m)) {
                         final String toAdd = hasXmlSuffix ? other + ".xml" : other;
@@ -236,6 +239,8 @@ public class CLDRTransforms {
 
     public Transliterator getReverseInstance(String id) {
         Matcher matcher = TRANSFORM_ID_PATTERN.matcher(id);
+        boolean matched=matcher.matches();
+        RegexLogger.getInstance().log(matcher.pattern(), "", matched, LogType.MATCH, getClass());
         if (!matcher.matches()) {
             throw new IllegalArgumentException("**No transform for " + id);
         }
@@ -405,12 +410,16 @@ public class CLDRTransforms {
             // appendln("Skipping Ethiopic");
             // continue;
             // }
-            if (getId.reset(line).matches()) {
+            boolean matched=getId.reset(line).matches();
+            RegexLogger.getInstance().log(getId.pattern(), line, matched, LogType.MATCH, getClass());
+            if (matched) {
                 String temp = getId.group(1);
                 if (!temp.equals("file") && !temp.equals("internal")) id = temp;
                 continue;
             }
-            if (getSource.reset(line).matches()) {
+            boolean getSourceMatched=getSource.reset(line).matches();
+            RegexLogger.getInstance().log(getSource.pattern(), line, matched, LogType.MATCH, getClass());
+            if (getSourceMatched) {
                 String operation = getSource.group(1);
                 String source = getSource.group(2);
                 if (operation.equals("alias")) {
@@ -515,6 +524,8 @@ public class CLDRTransforms {
 
     public void checkIdFix(String id, Map<String, String> fixedIDs, Set<String> oddIDs, Matcher translitID) {
         if (fixedIDs.containsKey(id)) return;
+        boolean translitIDMatched=translitID.reset(id).matches();
+        RegexLogger.getInstance().log(translitID.pattern(), id, translitIDMatched, LogType.MATCH, getClass());
         if (!translitID.reset(id).matches()) {
             appendln("Can't fix: " + id);
             fixedIDs.put(id, "?" + id);
@@ -546,7 +557,9 @@ public class CLDRTransforms {
         List<String> rawAvailable = new ArrayList<String>();
         for (Enumeration<String> en = Transliterator.getAvailableIDs(); en.hasMoreElements();) {
             final String id = en.nextElement();
-            if (filter != null && !filter.reset(id).matches()) {
+            boolean filterMatched=filter.reset(id).matches();
+            RegexLogger.getInstance().log(filter.pattern(), id, filterMatched, LogType.MATCH, getClass());
+            if (filter != null && !filterMatched) {
                 continue;
             }
             rawAvailable.add(id);

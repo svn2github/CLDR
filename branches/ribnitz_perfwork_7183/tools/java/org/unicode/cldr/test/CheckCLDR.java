@@ -33,9 +33,11 @@ import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.InternalCldrException;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
+import org.unicode.cldr.util.RegexLogger;
 import org.unicode.cldr.util.PathHeader.SurveyToolStatus;
 import org.unicode.cldr.util.RegexFileParser;
 import org.unicode.cldr.util.RegexFileParser.RegexLineParser;
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.VoteResolver;
 
@@ -1188,6 +1190,8 @@ abstract public class CheckCLDR {
                 filteredCheckList.add(item);
             } else {
                 final String className = item.getClass().getName();
+                boolean filerFound=filter.reset(className).find();
+                RegexLogger.getInstance().log(filter.pattern(), className, filerFound, LogType.FIND, getClass());
                 if (filter.reset(className).find()) {
                     filteredCheckList.add(item);
                 }

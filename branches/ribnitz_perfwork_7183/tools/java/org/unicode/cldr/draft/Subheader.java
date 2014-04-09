@@ -19,6 +19,11 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.DebugGraphics;
+
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
+
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.lang.UProperty;
 import com.ibm.icu.text.UTF16;
@@ -27,6 +32,7 @@ import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
 
 class Subheader {
+    private static final boolean DEBUG_REGEX=true;
     Matcher isArchaic = GeneratePickerData.IS_ARCHAIC.matcher("");
     Matcher subheadMatcher = Pattern.compile("(@+)\\s+(.*)").matcher("");
     Matcher hexMatcher = Pattern.compile("([A-Z0-9]+).*").matcher("");
@@ -160,7 +166,6 @@ class Subheader {
             "<body><table>"
             );
     }
-
     private String getDataFromFile(String dir, String filenameRegex) throws FileNotFoundException, IOException {
         String subblock = "?";
         File actualName = getFileNameFromPattern(dir, filenameRegex);
@@ -168,6 +173,10 @@ class Subheader {
         while (true) {
             String line = in.readLine();
             if (line == null) break;
+            boolean subheadMatches=subheadMatcher.reset(line).matches();
+            if (DEBUG_REGEX) {
+                RegexLogger.getInstance().log(subheadMatcher, line, subheadMatches, LogType.MATCH, getClass());
+            }
             if (subheadMatcher.reset(line).matches()) {
                 subblock = subheadMatcher.group(1).equals("@") ? subheadMatcher.group(2) : "?";
                 continue;

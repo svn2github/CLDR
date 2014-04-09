@@ -16,12 +16,15 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.ICUServiceBuilder;
 import org.unicode.cldr.util.PathHeader;
+import org.unicode.cldr.util.RegexLogger;
 import org.unicode.cldr.util.SupplementalDataInfo;
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralType;
 import org.unicode.cldr.util.XPathParts;
 
+import com.ibm.icu.dev.util.UnicodeProperty.RegexMatcher;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.UnicodeSet;
@@ -201,7 +204,9 @@ public class CheckNumbers extends FactoryCheckCLDR {
             }
 
             // Check for sane usage of grouping separators.
-            if (COMMA_ABUSE.matcher(value).find()) {
+            boolean commaAbuseFound=COMMA_ABUSE.matcher(value).find();
+            RegexLogger.getInstance().log(COMMA_ABUSE, value, commaAbuseFound, LogType.FIND, getClass());
+            if (commaAbuseFound) {
                 result
                     .add(new CheckStatus()
                         .setCause(this)

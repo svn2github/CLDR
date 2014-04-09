@@ -5,6 +5,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
 public class CheckNames extends CheckCLDR {
     private static final Pattern YEAR_PATTERN = Pattern.compile("\\d{3,4}");
@@ -20,6 +22,8 @@ public class CheckNames extends CheckCLDR {
             return this;
         }
         Matcher matcher = YEAR_PATTERN.matcher(value);
+        boolean yearFound=matcher.find();
+        RegexLogger.getInstance().log(matcher.pattern(), value, yearFound, LogType.FIND, getClass());
         if (matcher.find()) {
             // Allow years in currencies if enclosed by brackets.
             if (path.startsWith("//ldml/localeDisplayNames/currencies") &&

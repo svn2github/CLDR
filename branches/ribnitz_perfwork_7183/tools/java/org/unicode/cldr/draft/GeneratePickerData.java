@@ -33,6 +33,8 @@ import org.unicode.cldr.draft.GeneratePickerData.CategoryTable.Separation;
 import org.unicode.cldr.tool.Option;
 import org.unicode.cldr.tool.Option.Options;
 import org.unicode.cldr.util.CLDRPaths;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.lang.UProperty;
@@ -1549,6 +1551,8 @@ class GeneratePickerData {
             }
         }
 
+        private static final boolean DEBUG_REGEX = true;
+
         Map<Matcher, MatchData> renameTable = new LinkedHashMap<Matcher, MatchData>();
 
         public Renamer(String filename) throws IOException {
@@ -1658,7 +1662,11 @@ class GeneratePickerData {
             for (int count = 0;; ++count) {
                 boolean didMatch = false;
                 for (Matcher m : renameTable.keySet()) {
-                    if (m.reset(lookup).matches()) {
+                    boolean matched=m.reset(lookup).matches();
+                    if (DEBUG_REGEX) {
+                        RegexLogger.getInstance().log(m.pattern().pattern(), lookup, matched, LogType.MATCH, getClass());
+                    }
+                    if (matched) {
                         MatchData newNames = renameTable.get(m);
                         String newName = newNames.target;
                         for (int i = 0; i <= m.groupCount(); ++i) {

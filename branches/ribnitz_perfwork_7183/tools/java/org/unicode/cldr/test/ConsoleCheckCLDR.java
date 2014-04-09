@@ -45,6 +45,9 @@ import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.Pair;
 import org.unicode.cldr.util.PathDescription;
 import org.unicode.cldr.util.PathHeader;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
+import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
 import org.unicode.cldr.util.SimpleFactory;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.StringId;
@@ -207,8 +210,14 @@ public class ConsoleCheckCLDR {
         if (subtypeFilterString != null) {
             subtypeFilter = EnumSet.noneOf(Subtype.class);
             Matcher m = Pattern.compile(subtypeFilterString).matcher("");
+            RegexLoggerInterface rxLogger=RegexLogger.getInstance();
             for (Subtype value : Subtype.values()) {
-                if (m.reset(value.toString()).find() || m.reset(value.name()).find()) {
+                boolean valueFound=m.reset(value.toString()).find();
+                rxLogger.log(m.pattern(), value.toString(), valueFound, LogType.FIND, ConsoleCheckCLDR.class);
+                boolean valueNameFound= m.reset(value.name()).find();
+                rxLogger.log(m.pattern(), value.name(), valueNameFound, LogType.FIND, ConsoleCheckCLDR.class);
+                if (valueFound || valueNameFound) {
+//                if (m.reset(value.toString()).find() || m.reset(value.name()).find()) {
                     subtypeFilter.add(value);
                 }
             }
@@ -507,9 +516,16 @@ public class ConsoleCheckCLDR {
             }
             paths.clear();
             // CollectionUtilities.addAll(file.iterator(pathFilter), paths);
+            RegexLoggerInterface rxLogger=RegexLogger.getInstance();
             for (String path : file.fullIterable()) {
-                if (pathFilter != null && !pathFilter.reset(path).find()) {
-                    continue;
+                if (pathFilter!=null) {
+                    boolean pathFilterMatched=pathFilter.reset(path).find();
+                    rxLogger.log(pathFilter.pattern(), path, pathFilterMatched, LogType.FIND, ConsoleCheckCLDR.class);
+
+                    if (/*pathFilter!=null && */!pathFilterMatched) {
+//                if (pathFilter != null && !pathFilter.reset(path).find()) {
+                        continue;
+                    }
                 }
                 if (coverageLevel != null) {
                     Level currentLevel = supplementalDataInfo.getCoverageLevel(path, localeID);
@@ -920,6 +936,8 @@ public class ConsoleCheckCLDR {
             if (shortStatus == ErrorType.unknown) {
                 throw new IllegalArgumentException("Unknown error type: " + statusString);
             } else if (shortStatus == ErrorType.warning) {
+                boolean coverageMatcherMatched=coverageMatcher.reset(statusString).find();
+                RegexLogger.getInstance().log(coverageMatcher.pattern(), statusString, coverageMatcherMatched, LogType.FIND, ErrorType.class);
                 if (coverageMatcher.reset(statusString).find()) {
                     shortStatus = ErrorType.valueOf(coverageMatcher.group(1));
                 }

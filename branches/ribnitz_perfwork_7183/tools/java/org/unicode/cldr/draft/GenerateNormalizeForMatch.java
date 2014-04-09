@@ -22,6 +22,9 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.tool.GetChanges;
+import org.unicode.cldr.util.RegexLogger;
+
 import com.ibm.icu.dev.util.UnicodeMap;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.DateFormat;
@@ -58,6 +61,8 @@ public class GenerateNormalizeForMatch {
     private static final Matcher HEXFORM = Pattern.compile("[0-9A-Fa-f]{4,6}(\\s+[0-9A-Fa-f]{4,6})*").matcher("");
 
     private static final int DIFF_LIMIT = 10;
+
+    private static final boolean DEBUG_PATTERNS = true;
 
     // Fixes to match Jim's names
     private static UnicodeMap<String> JIM_NAMES = new UnicodeMap<String>();
@@ -572,7 +577,12 @@ public class GenerateNormalizeForMatch {
                 RuleMappings x = RuleMappings.valueOf("__" + target.toLowerCase());
                 target = x.toString();
             } catch (IllegalArgumentException e) {
-                if (HEXFORM.reset(target).matches()) {
+                boolean matchResult=HEXFORM.reset(target).matches();
+                if (DEBUG_PATTERNS) {
+                    RegexLogger.getInstance().log(HEXFORM.pattern().pattern(), 
+                        target, matchResult, RegexLogger.LogType.MATCH, (Class<?>)GenerateNormalizeForMatch.class);
+                }
+                if (matchResult) {
                     target = fromHex(target);
                 }
             }

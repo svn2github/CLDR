@@ -25,7 +25,9 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.tool.LikelySubtags;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
+import com.ibm.icu.dev.util.UnicodeProperty.RegexMatcher;
 import com.ibm.icu.impl.Row.R2;
 import com.ibm.icu.text.UnicodeSet;
 
@@ -467,7 +469,9 @@ public class LanguageTagParser {
             if (!ALPHA.contains(entry.getKey())) {
                 throw new IllegalArgumentException("Illegal exception key: " + entry.getKey());
             }
-            if (EXTENSION_PATTERN.matcher(entry.getValue()).matches()) {
+            boolean patternMatched=EXTENSION_PATTERN.matcher(entry.getValue()).matches();
+            RegexLogger.getInstance().log(EXTENSION_PATTERN, entry.getValue(), patternMatched, LogType.MATCH, getClass());
+            if (patternMatched) {
                 throw new IllegalArgumentException("Illegal exception value: " + entry.getValue());
             }
         }

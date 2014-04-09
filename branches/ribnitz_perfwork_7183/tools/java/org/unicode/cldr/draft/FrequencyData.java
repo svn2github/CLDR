@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.ICUPropertyFactory;
@@ -321,7 +323,7 @@ public class FrequencyData {
 
     static Pattern IICORE = Pattern.compile("U\\+([A-Z0-9]+)\\s+kIICore\\s+(.*)");
     static UnicodeSet iiCoreSet;
-
+private static boolean DEBUG_PATTERNS=true;
     public static UnicodeSet getIICore() {
         if (iiCoreSet == null) {
             try {
@@ -335,6 +337,9 @@ public class FrequencyData {
                     if (iiCore.reset(line).matches()) {
                         int cp = Integer.parseInt(iiCore.group(1), 16);
                         iiCoreSet.add(cp);
+                        if (DEBUG_PATTERNS) {
+                            RegexLogger.getInstance().log(iiCore, line, true, LogType.MATCH, FrequencyData.class);
+                        }
                     }
                 }
                 in.close();

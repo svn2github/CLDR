@@ -15,6 +15,7 @@ import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.RegexLogger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -25,6 +26,7 @@ import com.ibm.icu.text.MessageFormat;
  * @author jchye
  */
 public class CollationMapper extends Mapper {
+    private static final boolean DEBUG_PATTERNS = false;
     private static Pattern SPECIALS_PATH = Pattern.compile("//ldml/special/icu:([\\w_]++)\\[@icu:([\\w_]++)=\"([^\"]++)\"]");
     private String sourceDir;
     private Factory specialFactory;
@@ -75,6 +77,10 @@ public class CollationMapper extends Mapper {
             for (String path : specialFile) {
                 String fullPath = specialFile.getFullXPath(path);
                 Matcher matcher = SPECIALS_PATH.matcher(fullPath);
+                boolean doesMatch=matcher.matches();
+                if (DEBUG_PATTERNS) {
+                    RegexLogger.getInstance().log(SPECIALS_PATH.pattern(), fullPath, doesMatch, RegexLogger.LogType.MATCH, getClass());
+                }
                 if (matcher.matches()) {
                     mainLocale.add(
                         MessageFormat.format("/{0}:process({1})", matcher.group(1), matcher.group(2)),

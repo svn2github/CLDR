@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.util.CldrUtility.VariableReplacer;
 import org.unicode.cldr.util.RegexFileParser.RegexLineParser;
 import org.unicode.cldr.util.RegexFileParser.VariableProcessor;
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.RegexLookup.Finder;
 
 import com.ibm.icu.text.Transform;
@@ -98,13 +99,23 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
 
     public static class RegexFinder extends Finder {
         protected final Matcher matcher;
-
+        private final boolean DEBUG_PATTERNS=true;
         public RegexFinder(String pattern) {
             matcher = Pattern.compile(pattern, Pattern.COMMENTS).matcher("");
+//            if (DEBUG_PATTERNS) {
+//                System.out.println("Initialized matcher for pattern: "+pattern);
+//            }
         }
 
         public boolean find(String item, Object context) {
             try {
+                if (DEBUG_PATTERNS) {
+                    Timer timer=new Timer();
+                    boolean result=matcher.reset(item).find();
+                    double duration=timer.getDuration()/1000000.0;
+                    logRegex(item,result,duration,LogType.FIND);
+                   return result;
+                }
                 return matcher.reset(item).find();
             } catch (StringIndexOutOfBoundsException e) {
                 // We don't know what causes this error (cldrbug 5051) so
@@ -114,6 +125,13 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             }
         }
 
+        protected void logRegex(String item, boolean result,Double duration,LogType type) {
+            if (DEBUG_PATTERNS) {
+                String pattern=matcher.pattern().pattern();
+                RegexLogger.getInstance().log(pattern, item,result, duration==null?0:duration, type,this.getClass());
+            }
+        }
+        
         @Override
         public String[] getInfo() {
             int limit = matcher.groupCount() + 1;

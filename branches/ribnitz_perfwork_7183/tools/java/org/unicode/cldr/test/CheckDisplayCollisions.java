@@ -16,10 +16,13 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.PathHeader;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
 import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.StringId;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
 public class CheckDisplayCollisions extends FactoryCheckCLDR {
     /**
@@ -107,7 +110,10 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         if (value.equals(CldrUtility.NO_INHERITANCE_MARKER)) {
             return this;
         }
-        if (exclusions.reset(path).find()) {
+        boolean exclusionsFound=exclusions.reset(path).find();
+        RegexLogger.getInstance().log(exclusions.pattern(), path, exclusionsFound, LogType.FIND, getClass());
+        if (exclusionsFound) {
+//        if (exclusions.reset(path).find()) {
             return this;
         }
 
@@ -228,16 +234,21 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
                 }
             }
         } else {
+            RegexLoggerInterface rxLogger=RegexLogger.getInstance();
             for (String dpath : paths) {
+                boolean typePatternFound=typePattern.reset(dpath).find();
+                rxLogger.log(typePattern.pattern(), dpath, typePatternFound, LogType.FIND, getClass());
                 if (!typePattern.reset(dpath).find()) {
                     throw new IllegalArgumentException("Internal error: " + dpath + " doesn't match "
                         + typePattern.pattern());
                 }
                 collidingTypes.add(typePattern.group(1));
             }
-
+            boolean typePatternFound2=typePattern.reset(path).find();
+            rxLogger.log(typePattern.pattern(),path,typePatternFound2,LogType.FIND,getClass());
             // remove my type, and check again
-            if (!typePattern.reset(path).find()) {
+//            if (!typePattern.reset(path).find()) {
+            if (!typePatternFound2) {
                 throw new IllegalArgumentException("Internal error: " + path + " doesn't match "
                     + typePattern.pattern());
             } else {
@@ -340,7 +351,10 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         // Do first cleanup
         // remove paths with "alt/count"; they can be duplicates
         Set<String> paths = new HashSet<String>();
+        RegexLoggerInterface rxLogger=RegexLogger.getInstance();
         for (String pathName : retrievedPaths) {
+            boolean exclusionsFound=exclusions.reset(pathName).find();
+            rxLogger.log(exclusions.pattern(), pathName, exclusionsFound, LogType.FIND, getClass());
             if (exclusions.reset(pathName).find()) {
                 continue;
             }

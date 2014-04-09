@@ -20,6 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.PrettyPrinter;
@@ -59,6 +61,7 @@ public class IdnaLabelTester {
     };
 
     static class Rule {
+        private static final boolean DEBUG_REGEX = true;
         final Matcher before;
         final String beforeString;
         final Matcher at;
@@ -99,7 +102,11 @@ public class IdnaLabelTester {
             if (before != null) {
                 before.region(0, position);
                 // before.reset(label.substring(0,position));
-                if (!before.matches()) {
+                boolean matched=before.matches();
+                if (DEBUG_REGEX) {
+                    RegexLogger.getInstance().log(before.pattern().pattern(), "", matched, LogType.MATCH, getClass());
+                }
+                if (!matched) {
                     return Result.none;
                 }
             }

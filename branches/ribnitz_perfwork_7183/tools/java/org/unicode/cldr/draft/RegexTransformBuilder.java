@@ -5,7 +5,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.plaf.basic.BasicScrollPaneUI.VSBChangeListener;
+
 import org.unicode.cldr.draft.PatternFixer.Target;
+import org.unicode.cldr.tool.GetChanges;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
 
 import com.ibm.icu.impl.Utility;
 import com.ibm.icu.text.Normalizer;
@@ -80,7 +85,9 @@ public class RegexTransformBuilder {
             variable.reset(result);
             int last = 0;
             while (true) {
-                if (!variable.find()) {
+                boolean varResult=variable.find();
+                RegexLogger.getInstance().log(variable, result, varResult, LogType.FIND,RegexTransformBuilder.class);
+                if (!varResult) {
                     results.add(result.substring(last));
                     break;
                 } else {

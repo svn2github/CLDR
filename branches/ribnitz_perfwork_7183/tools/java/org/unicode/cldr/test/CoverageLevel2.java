@@ -12,6 +12,7 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup.RegexFinder;
@@ -85,6 +86,7 @@ public class CoverageLevel2 {
             }
 
             boolean result = super.find(item, context); // also sets matcher in RegexFinder
+            logRegex(item, result, null,LogType.FIND);
             if (!result) {
                 return false;
             }

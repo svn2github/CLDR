@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
+
 /**
  * Immutable class that performs transformations
  * 
@@ -12,6 +15,7 @@ import java.util.regex.Matcher;
  */
 public class RegexTransform implements com.ibm.icu.text.StringTransform {
     private static final char BUCKETSIZE = 257;
+    private static final boolean DEBUG_REGEX = true;
     private final List<Rule> rules;
     private final List<Rule>[] buckets = new List[BUCKETSIZE];
 
@@ -31,7 +35,11 @@ public class RegexTransform implements com.ibm.icu.text.StringTransform {
             int masked = i % BUCKETSIZE;
             for (int j = 0; j < matchers.size(); ++j) {
                 Matcher matcher = matchers.get(j);
-                if (matcher.reset(s).matches() || matcher.hitEnd()) {
+                boolean matches=matcher.reset(s).matches();
+                if (DEBUG_REGEX) {
+                    RegexLogger.getInstance().log(matcher, s, matches, LogType.MATCH, getClass());
+                }
+                if (matches || matcher.hitEnd()) {
                     buckets[masked].add(rules.get(j));
                 }
             }

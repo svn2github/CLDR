@@ -29,7 +29,11 @@ import org.unicode.cldr.util.ICUServiceBuilder;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.PathStarrer;
+import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
+import org.unicode.cldr.util.RegexLogger.LogType;
+import org.unicode.cldr.util.RegexLogger;
 import org.unicode.cldr.util.RegexUtilities;
+
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.XPathParts;
 
@@ -476,7 +480,9 @@ public class CheckDates extends FactoryCheckCLDR {
         } catch (Exception e) {
             // e.printStackTrace();
             // HACK
-            if (!HACK_CONFLICTING.matcher(e.getMessage()).find()) {
+            boolean hackConflictingFound=HACK_CONFLICTING.matcher(e.getMessage()).find();
+            RegexLogger.getInstance().log(HACK_CONFLICTING, e.getMessage(), hackConflictingFound, LogType.FIND, getClass());
+            if (!hackConflictingFound) {
                 CheckStatus item = new CheckStatus().setCause(this).setMainType(CheckStatus.errorType)
                     .setSubtype(Subtype.illegalDatePattern)
                     .setMessage("Error in creating date format {0}", new Object[] { e });
@@ -495,8 +501,11 @@ public class CheckDates extends FactoryCheckCLDR {
      *            the list to add any errors to.
      */
     private void checkHasHourMinuteSymbols(String value, List<CheckStatus> result) {
+        RegexLoggerInterface rxLogger=RegexLogger.getInstance();
         boolean hasHourSymbol = HOUR_SYMBOL.matcher(value).find();
+        rxLogger.log(HOUR_SYMBOL, value, hasHourSymbol, LogType.FIND, getClass());
         boolean hasMinuteSymbol = MINUTE_SYMBOL.matcher(value).find();
+        rxLogger.log(MINUTE_SYMBOL, value, hasMinuteSymbol, LogType.FIND, getClass());
         if (!hasHourSymbol && !hasMinuteSymbol) {
             result.add(createErrorCheckStatus().setMessage("The hour and minute symbols are missing from {0}.", value));
         } else if (!hasHourSymbol) {

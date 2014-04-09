@@ -11,6 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.draft.FileUtilities;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
+import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
 
 import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.impl.Utility;
@@ -289,7 +292,10 @@ public class IcuTextWriter {
         Pattern pattern = item.startsWith("[") && item.endsWith("]") ? UNICODESET_ESCAPE : STRING_ESCAPE;
         Matcher matcher = pattern.matcher(item);
 
-        if (!matcher.find()) {
+        boolean found=matcher.find();
+        RegexLoggerInterface rxLogger= RegexLogger.getInstance();
+        rxLogger.log(pattern, item, found, LogType.FIND, PATH_COMPARATOR.getClass());
+        if (!found) {
             return item;
         }
         StringBuffer buffer = new StringBuffer();

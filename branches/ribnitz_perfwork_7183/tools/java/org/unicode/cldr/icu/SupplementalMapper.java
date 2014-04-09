@@ -19,7 +19,10 @@ import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DtdType;
 import org.unicode.cldr.util.Pair;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
 import org.unicode.cldr.util.RegexLookup;
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.XMLFileReader;
 import org.unicode.cldr.util.XPathParts;
@@ -79,8 +82,11 @@ public class SupplementalMapper {
             String metazone = "//supplementalData/metaZones/metazoneInfo/timezone";
             if (arg0.startsWith(metazone) && arg1.startsWith(metazone)) {
                 int startPos = metazone.length();
+                RegexLoggerInterface rxLogger=RegexLogger.getInstance();
                 boolean from0 = FROM_ATTRIBUTE.matcher(arg0).find(startPos);
+               rxLogger.log(FROM_ATTRIBUTE, arg0, from0, LogType.FIND, getClass());
                 boolean from1 = FROM_ATTRIBUTE.matcher(arg1).find(startPos);
+                rxLogger.log(FROM_ATTRIBUTE, arg1, from1, LogType.FIND, getClass());
                 if (from0 != from1) {
                     return from0 ? 1 : -1;
                 } else {

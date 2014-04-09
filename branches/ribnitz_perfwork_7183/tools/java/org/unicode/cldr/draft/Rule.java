@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
+
 public class Rule {
     private final Pattern prematch;
     private final boolean prematchFindAtEnd;
@@ -139,8 +142,16 @@ public class Rule {
     }
 
     public boolean prematch(Matcher prematcher, CharSequence processedAlready) {
-        return prematchFindAtEnd
-            ? prematcher.find(processedAlready.length())
-            : prematcher.find();
+        boolean result;
+        if (prematchFindAtEnd) {
+           result= prematcher.find(processedAlready.length());
+        } else {
+            result=prematcher.find();
+        }
+        RegexLogger.getInstance().log(prematcher, "",result, LogType.FIND, getClass());
+//        return prematchFindAtEnd
+//            ? prematcher.find(processedAlready.length())
+//            : prematcher.find();
+        return result;
     }
 }

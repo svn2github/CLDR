@@ -24,6 +24,7 @@ import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.XPathParts.Comments;
 
 import com.ibm.icu.impl.Utility;
@@ -235,7 +236,10 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
             // } else {
             // do the same as the above with a regex
             Matcher matcher = aliasPattern.matcher(aliasParts);
-            if (!matcher.matches()) {
+            boolean matched=matcher.matches();
+            RegexLogger.getInstance().log(aliasPattern, aliasParts, matched, LogType.MATCH, getClass());
+            if (!matched) {
+//            if (!matcher.matches()) {
                 throw new IllegalArgumentException("bad alias pattern for " + aliasParts);
             }
             String newLocaleID = matcher.group(1);

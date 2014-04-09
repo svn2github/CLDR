@@ -36,6 +36,8 @@ import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
 import org.unicode.cldr.util.DtdData.AttributeValueComparator;
+import org.unicode.cldr.util.RegexLogger.LogType;
+import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralType;
@@ -3166,8 +3168,11 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         if (pathMatcher == null) {
             return result;
         }
+        RegexLoggerInterface rxLogger=RegexLogger.getInstance();
         for (Iterator<String> it = result.iterator(); it.hasNext();) {
             String path = it.next();
+            boolean matched=pathMatcher.reset(path).matches();
+            rxLogger.log(pathMatcher.pattern(), path, matched, LogType.MATCH, getClass());
             if (!pathMatcher.reset(path).matches()) {
                 it.remove();
             }
@@ -3187,10 +3192,16 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         if (result == null) {
             result = new HashSet<String>();
         }
+        RegexLoggerInterface rxLogger=RegexLogger.getInstance();
         for (Iterator<String> it = dataSource.iterator(pathPrefix); it.hasNext();) {
             String path = it.next();
-            if (pathMatcher != null && !pathMatcher.reset(path).matches()) {
-                continue;
+            if (pathMatcher!=null) {
+                boolean matched=pathMatcher.reset(path).matches();
+                rxLogger.log(pathMatcher.pattern(), path, matched, LogType.MATCH, getClass());
+                if (!matched) {
+//            if (pathMatcher != null && !pathMatcher.reset(path).matches()) {
+                    continue;
+                }
             }
             result.add(path);
         }
@@ -3522,12 +3533,21 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     // }
 
     private Matcher typeValueMatcher = Pattern.compile("\\[@type=\"([^\"]*)\"\\]").matcher("");
-
+    private final static boolean LOG_PATTERN_MATCHING=true;
     public boolean isPathExcludedForSurvey(String distinguishedPath) {
         // for now, just zones
         if (distinguishedPath.contains("/exemplarCity")) {
             excludedZones = getExcludedZones();
-            typeValueMatcher.reset(distinguishedPath).find();
+            Timer timer=null;
+            if (LOG_PATTERN_MATCHING) {
+                timer=new Timer();
+            }
+            boolean result= typeValueMatcher.reset(distinguishedPath).find();
+            if (LOG_PATTERN_MATCHING) {
+                double duration=timer.getDuration();
+                String patternStr=typeValueMatcher.pattern().pattern();
+                RegexLogger.getInstance().log(patternStr, distinguishedPath,result, duration, LogType.FIND,(Class<?>)getClass());
+            }
             if (excludedZones.contains(typeValueMatcher.group(1))) {
                 return true;
             }

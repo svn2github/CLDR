@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.InputStreamFactory;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.RegexUtilities;
 import org.unicode.cldr.util.XMLFileReader;
 import org.xml.sax.ContentHandler;
@@ -57,7 +59,9 @@ public class MapperUtils {
     public static String formatVersion(String value) {
         Matcher versionMatcher = VERSION_PATTERN.matcher(value);
         int versionNum;
-        if (!versionMatcher.find()) {
+        boolean versionFound=versionMatcher.find();
+        RegexLogger.getInstance().log(versionMatcher, value, versionFound, LogType.FIND, MapperUtils.class);
+        if (!versionFound) {
             int failPoint = RegexUtilities.findMismatch(versionMatcher, value);
             String show = value.substring(0, failPoint) + "☹" + value.substring(failPoint);
             System.err.println("Warning: no version match with: " + show);

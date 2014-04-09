@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility.VariableReplacer;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup.Merger;
@@ -56,7 +58,9 @@ class RegexManager {
         }
 
         public boolean find(String item, Object context) {
-            return matcher.reset(item).matches();
+            boolean doesMatch=matcher.reset(item).matches();
+            logRegex(item, doesMatch, null,LogType.MATCH);
+            return doesMatch;
         }
     }
 
@@ -136,7 +140,9 @@ class RegexManager {
             // Replace slashes in metazone names,
             // e.g. "America/Argentina/La_Rioja"
             Matcher matcher = QUOTES.matcher(path);
-            if (matcher.find()) {
+            boolean quotesMatched=matcher.find();
+            RegexLogger.getInstance().log(QUOTES , path, quotesMatched, LogType.FIND, getClass());
+            if (quotesMatched) {
                 path = path.substring(0, matcher.start(1))
                     + matcher.group(1).replace('/', ':')
                     + path.substring(matcher.end(1));
