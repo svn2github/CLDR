@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
@@ -31,7 +32,7 @@ public class RegexLogger {
     /**
      * Should debugging be done? - if not, a null implementation will be used
      */
-    private static final boolean DEBUG=true;
+    private static final boolean DEBUG=false;
     /**
      * Instance
      */
@@ -242,23 +243,15 @@ public class RegexLogger {
         public Set<String> getCallLocations();
         
     }
+   
     /**
-     * Class which processes all the items of getEntries, one at a time
+     * GetAll uses this class to add all the entries of a multiSet to the result set, constructing 
+     * the object to return for each pattern. Objects will only be added once.
+     * 
+     * This is the implementatioon that adds all items.
      * @author ribnitz
      *
      */
-    private static class EntryProcessor extends AddAllEntryProcessor {
-        public EntryProcessor(int minCount, CountSets c) {
-          super(minCount,c);
-        }
-        
-        public void process(PatternStringWithBoolean item, Multiset<PatternStringWithBoolean> countSet) {
-            if (countSet.count(item)>=minCount) {
-               super.process(item, countSet);
-            }
-        }
-    }
-    
     private static class AddAllEntryProcessor {
         protected final int minCount;
         protected final CountSets c;
@@ -278,12 +271,37 @@ public class RegexLogger {
             }
         }
     }
+    
+    /**
+     * Sometimes getEntries is called with a minCount; this Class filters and only adds the
+     * items that occur at least minCount times.
+     * @author ribnitz
+     *
+     */
+    private static class EntryProcessor extends AddAllEntryProcessor {
+        public EntryProcessor(int minCount, CountSets c) {
+          super(minCount,c);
+        }
+        
+        public void process(PatternStringWithBoolean item, Multiset<PatternStringWithBoolean> countSet) {
+            if (countSet.count(item)>=minCount) {
+               super.process(item, countSet);
+            }
+        }
+    }
+    /**
+     * Since all the inner classes are static, this object is used to pass around the refernces to the 
+     * different sets/the state
+     * 
+     * @author ribnitz
+     *
+     */
     private static class CountSets {
-         Multiset<PatternStringWithBoolean> matchedFindSet;
-         Multiset<PatternStringWithBoolean> failedFindSet;
-         Multiset<PatternStringWithBoolean> matchedMatchSet;
-         Multiset<PatternStringWithBoolean> failedMatchSet;
-         Multimap<PatternStringWithBoolean,String> stacktraces;
+         final Multiset<PatternStringWithBoolean> matchedFindSet;
+         final Multiset<PatternStringWithBoolean> failedFindSet;
+         final Multiset<PatternStringWithBoolean> matchedMatchSet;
+         final Multiset<PatternStringWithBoolean> failedMatchSet;
+         final Multimap<PatternStringWithBoolean,String> stacktraces;
         
         public CountSets(Multiset<PatternStringWithBoolean> matchedFindSet,Multiset<PatternStringWithBoolean> failedFindSet,
             Multiset<PatternStringWithBoolean> matchedMatchSet, Multiset<PatternStringWithBoolean> failedMatchSet,
@@ -295,6 +313,7 @@ public class RegexLogger {
             this.stacktraces=occurrences;
         }
     }
+  
     private static class RegexKeyWithCount implements PatternCountInterface, Comparable<PatternCountInterface> {
         private final String pattern;
         private final int findMatchCount;
@@ -377,18 +396,15 @@ public class RegexLogger {
             if (findMatchCount != other.findMatchCount) {
                 return false;
             }
-                if (other.pattern != null) {
-                    return false;
-                }
-           if (!pattern.equals(other.pattern)) {
+            if (!pattern.equals(other.pattern)) {
                 return false;
             }
-           if (calledFromRegexFinder!=other.calledFromRegexFinder) {
-               return false;
-           }
-           if (callLocations!=other.callLocations) {
-               return false;
-           }
+            if (calledFromRegexFinder!=other.calledFromRegexFinder) {
+                return false;
+            }
+            if (callLocations!=other.callLocations) {
+                return false;
+            }
             return true;
         }
         @Override
@@ -417,6 +433,81 @@ public class RegexLogger {
         MATCH
     }
     
+    private static interface IterableTransformer<E,F> {
+        Iterable<F> transform(Iterable<E> input);
+    }
+    
+    private static class StringIterableTransformer implements IterableTransformer<String, String> {
+
+        @Override
+        public Iterable<String> transform(Iterable<String> input) {
+            List<String> returned=new ArrayList<>(Iterables.size(input));
+            String lastClass=null;
+            for (String current: input) {
+                String transformed=current;
+                if (lastClass!=null) {
+                    if (lastClass.startsWith("RegexLookup") && !current.startsWith("org.unicode.cldr.util.RegexLookup")) {        
+                        returned.add(lastClass);
+                    }
+                    if (lastClass.startsWith("VettingViewer")) {
+                        break;
+                    }
+                    if (current.startsWith("org.unicode.cldr.test.CheckCLDR") &&!lastClass.startsWith("org.unicode.cldr.test.CheckCLDR")) {
+                        lastClass=current;
+                        // leave out
+                        continue;
+                    }
+                }
+                // remove org.unicode.cldr
+                if (current.startsWith("org.unicode.cldr.util.")) {
+                    transformed=current.substring("org.unicode.cldr.util.".length());
+                }
+                // only the last RegexLookup will be added
+                if (!transformed.startsWith("RegexLookup")) {
+                    returned.add(transformed);
+                }
+                lastClass=transformed;
+            }
+            return returned;
+        }      
+    }
+    private static class ClassnameOnlyStringTransformer implements IterableTransformer<String, String> {
+
+        @Override
+        public Iterable<String> transform(Iterable<String> input) {
+            List<String> returned=new ArrayList<>(Iterables.size(input));
+            String lastClass=null;
+            for (String current: input) {
+                if (current.lastIndexOf(".")>0) {
+                    current=current.substring(current.lastIndexOf("."));
+                }
+                if (lastClass!=null) {
+                    if (lastClass.startsWith("RegexLookup") && !current.startsWith("RegexLookup")) {        
+                        returned.add(lastClass);
+                    }
+                    if (lastClass.startsWith("VettingViewer")) {
+                        break;
+                    }
+                    if (current.startsWith("CheckCLDR") &&!lastClass.startsWith("CheckCLDR")) {
+                        lastClass=current;
+                        // leave out
+                        continue;
+                    }
+                }
+                // only the last RegexLookup will be added
+                if (!current.startsWith("RegexLookup")) {
+                    returned.add(current);
+                }
+                lastClass=current;
+            }
+            return returned;
+        }      
+    }
+    /**
+     * This is the class doing the bulk of the work. 
+     * @author ribnitz
+     *
+     */
     private static class RegexLoggerImpl extends AbstractRegexLogger  {
   
         /*
@@ -442,6 +533,7 @@ public class RegexLogger {
         private final Multiset<PatternStringWithBoolean> failedMatchSet=TreeMultiset.create();
 
         private final Multimap<PatternStringWithBoolean,String> occurrences=TreeMultimap.create();
+        private final IterableTransformer<String,String> transformer=new StringIterableTransformer();
        
         public void log(String pattern, String matchStr, boolean matched, double time,LogType type, Class<?> cls) {
             boolean isRegexFinder=findClassName("org.unicode.cldr.util.RegexLookup", 10);
@@ -510,43 +602,13 @@ public class RegexLogger {
 
     private final static Joiner JOINER=Joiner.on(";");
   
+  
     private void addElementToList(PatternStringWithBoolean key) {
         List<String> stList=processStackTrace("org.unicode.cldr.util.RegexLookup",0);
         
         if (!stList.isEmpty()) {
-            occurrences.put(key, JOINER.join(filter(stList)));
+            occurrences.put(key, JOINER.join(transformer.transform(stList)));
         }
-    }
-    
-    private Iterable<String> filter(List<String> toFilter) {
-        List<String> returned=new ArrayList<>(toFilter.size());
-        String lastClass=null;
-        for (String current: toFilter) {
-            String transformed=current;
-            if (lastClass!=null) {
-                if (lastClass.startsWith("RegexLookup") && !current.startsWith("org.unicode.cldr.util.RegexLookup")) {        
-                    returned.add(lastClass);
-                }
-                if (lastClass.startsWith("VettingViewer")) {
-                    break;
-                }
-                if (current.startsWith("org.unicode.cldr.test.CheckCLDR") &&!lastClass.startsWith("org.unicode.cldr.test.CheckCLDR")) {
-                    lastClass=current;
-                    // leave out
-                    continue;
-                }
-            }
-            // remove org.unicode.cldr
-            if (current.startsWith("org.unicode.cldr.util.")) {
-                transformed=current.substring("org.unicode.cldr.util.".length());
-            }
-            // only the last RegexLookup will be added
-            if (!transformed.startsWith("RegexLookup")) {
-                returned.add(transformed);
-            }
-            lastClass=transformed;
-        }
-        return returned;
     }
     
     private List<String> processStackTrace(String classNameToStartAt,int depth) {
