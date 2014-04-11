@@ -1,4 +1,4 @@
-package org.unicode.cldr.util;
+package org.unicode.cldr.tool;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +11,15 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.unicode.cldr.test.CheckCLDR;
-import org.unicode.cldr.tool.Option;
 import org.unicode.cldr.tool.Option.Options;
+import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRPaths;
+import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.SupplementalDataInfo;
+import org.unicode.cldr.util.Timer;
+import org.unicode.cldr.util.VettingViewer;
 import org.unicode.cldr.util.RegexLogger.PatternCountInterface;
 import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
 import org.unicode.cldr.util.VettingViewer.Choice;
@@ -24,9 +31,8 @@ import org.unicode.cldr.util.VoteResolver.Organization;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.ibm.icu.text.ListFormatter;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
+import java.io.StringWriter;
 
 public class TestVettingViewer {
 
@@ -189,9 +195,9 @@ public class TestVettingViewer {
                 ListFormatter lf=ListFormatter.getInstance();
                 System.out.println("Short tests: "+lf.format(shortTestDuration));
                 System.out.println("Long tests: "+lf.format(longTestDurations));
-                File f=new File("/users/ribnitz/regexes.txt");
-                f.createNewFile();
-                try (PrintWriter pw=new PrintWriter(f)) {
+//                File f=new File("/users/ribnitz/regexes.txt");
+//                f.createNewFile();
+                try (PrintWriter pw=new PrintWriter(new StringWriter())) {
                     RegexLoggerInterface logger=RegexLogger.getInstance();
                     NavigableSet<PatternCountInterface> logSet=logger.getEntries();
                     System.out.println("Writing a total of "+logSet.size()+" entries");

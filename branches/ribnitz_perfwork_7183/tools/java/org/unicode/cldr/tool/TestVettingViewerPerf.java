@@ -4,17 +4,27 @@
  * and open the template in the editor.
  */
 
-package org.unicode.cldr.util;
+package org.unicode.cldr.tool;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.logging.Logger;
+
 import org.unicode.cldr.test.CheckCLDR;
-import org.unicode.cldr.tool.Option;
+import org.unicode.cldr.tool.Option.Options;
+import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRPaths;
+import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.SupplementalDataInfo;
+import org.unicode.cldr.util.Timer;
+import org.unicode.cldr.util.VettingViewer;
+import org.unicode.cldr.util.VoteResolver;
 
 /**
  *
@@ -28,7 +38,7 @@ public class TestVettingViewerPerf {
      * @param args
      * @throws IOException
      */
-    private  static final Option.Options myOptions = new Option.Options();
+    private  static final Options myOptions = new Options();
      private static final double NANOSECS = 1000000000.0;
 
      private enum MyOptions {
@@ -134,7 +144,7 @@ public class TestVettingViewerPerf {
 //            final String finalLocaleStringId=localeStringID;
 //            final int finalUserNumericID=userNumericID;
 //            final Level finalUserLevel=usersLevel;
-            for (int i=0;i<5;i++) {
+            for (int i=0;i<7;i++) {
             new Thread(new Runnable() {
 
                     @Override

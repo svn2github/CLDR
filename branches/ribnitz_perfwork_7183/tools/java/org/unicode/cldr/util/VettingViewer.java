@@ -1938,7 +1938,7 @@ public class VettingViewer<T> {
         } while (repeat);
     }
 
-    enum CodeChoice {
+    public enum CodeChoice {
         /** For the normal (locale) view of data **/
         newCode,
         // /** @deprecated **/
