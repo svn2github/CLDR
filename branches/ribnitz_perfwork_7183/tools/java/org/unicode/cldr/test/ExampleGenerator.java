@@ -1640,8 +1640,7 @@ public class ExampleGenerator {
 
         // now get the description
 
-//        Level level = supplementalDataInfo.getCoverageLevel(xpath, cldrFile.getLocaleID());
-        Level level= CLDRConfig.getInstance().getCoverageInfo().getCoverageLevel(xpath, cldrFile.getLocaleID());
+        Level level = supplementalDataInfo.getCoverageLevel(xpath, cldrFile.getLocaleID());
         String description = pathDescription.getDescription(xpath, value, level, null);
         if (description == null || description.equals("SKIP")) {
             return null;
