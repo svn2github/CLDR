@@ -23,7 +23,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import org.unicode.cldr.icu.LDMLConstants;
 import org.unicode.cldr.test.CheckCLDR;
@@ -36,6 +38,7 @@ import org.unicode.cldr.util.CLDRConfig.Environment;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRLocale;
+import org.unicode.cldr.util.CoverageInfo;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.LruMap;
@@ -51,6 +54,8 @@ import org.unicode.cldr.util.XPathParts.Comments;
 import org.unicode.cldr.web.UserRegistry.ModifyDenial;
 import org.unicode.cldr.web.UserRegistry.User;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.ibm.icu.dev.util.ElapsedTimer;
 import com.ibm.icu.util.VersionInfo;
 
@@ -285,6 +290,11 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     private static final int MAX_VAL_LEN = 4096;
 
     /**
+     * If set to true, use a guava cache, if set to false, use LRUMap implementation
+     */
+    private static final boolean USE_GUAVA_CACHE = true;
+
+    /**
      * the STFactory maintains exactly one instance of this class per locale it
      * is working with. It contains the XMLSource, Example Generator, etc..
      * 
@@ -384,8 +394,9 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
                 if (user == null || !UserRegistry.userIsTC(user))
                     return false;
             }
-
-            if (sm.getSupplementalDataInfo().getCoverageValue(xpath, locale.getBaseName()) > org.unicode.cldr.util.Level.COMPREHENSIVE.getLevel()) {
+            CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
+            if (covInfo.getCoverageValue(xpath, locale.getBaseName()) > org.unicode.cldr.util.Level.COMPREHENSIVE.getLevel()) {
+//            if (sm.getSupplementalDataInfo().getCoverageValue(xpath, locale.getBaseName()) > org.unicode.cldr.util.Level.COMPREHENSIVE.getLevel()) {
                 return false;
             }
             return true;
@@ -1361,7 +1372,8 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
      */
     private Map<CLDRLocale, Reference<PerLocaleData>> locales = new HashMap<CLDRLocale, Reference<PerLocaleData>>();
 
-    private LruMap<CLDRLocale, PerLocaleData> rLocales = new LruMap<CLDRLocale, PerLocaleData>(5);
+ private LruMap<CLDRLocale, PerLocaleData> rLocales = new LruMap<CLDRLocale, PerLocaleData>(5);
+    private Cache<CLDRLocale, PerLocaleData> rLocaleCache =CacheBuilder.newBuilder().initialCapacity(5).build();
 
     private Map<CLDRLocale, MutableStamp> localeStamps = new ConcurrentHashMap<CLDRLocale, MutableStamp>(SurveyMain.getLocales().length);
 
@@ -1405,29 +1417,60 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
      * @param locale
      * @return
      */
-    private synchronized final PerLocaleData get(CLDRLocale locale) {
-        PerLocaleData pld = rLocales.get(locale);
-        if (pld == null) {
-            Reference<PerLocaleData> ref = locales.get(locale);
-            if (ref != null) {
-                SurveyLog.debug("STFactory: " + locale + " was not in LRUMap.");
-                pld = ref.get();
+    private synchronized final PerLocaleData get(final CLDRLocale locale) {
+        if (!USE_GUAVA_CACHE) {
+            PerLocaleData pld = rLocales.get(locale);
+            if (pld == null) {
+                Reference<PerLocaleData> ref = locales.get(locale);
+                if (ref != null) {
+                    SurveyLog.debug("STFactory: " + locale + " was not in LRUMap.");
+                    pld = ref.get();
+                    if (pld == null) {
+                        SurveyLog.debug("STFactory: " + locale + " was GC'ed." + SurveyMain.freeMem());
+                        ref.clear();
+                    }
+                }
                 if (pld == null) {
-                    SurveyLog.debug("STFactory: " + locale + " was GC'ed." + SurveyMain.freeMem());
-                    ref.clear();
+                    pld = new PerLocaleData(locale);
+                    rLocales.put(locale, pld);
+                    locales.put(locale, (new SoftReference<PerLocaleData>(pld)));
+                    // update the locale display name cache.
+                    OutputFileManager.updateLocaleDisplayName(pld.getFile(true), locale);
+                } else {
+                    rLocales.put(locale, pld); // keep it in the lru
                 }
             }
-            if (pld == null) {
-                pld = new PerLocaleData(locale);
-                rLocales.put(locale, pld);
-                locales.put(locale, (new SoftReference<PerLocaleData>(pld)));
-                // update the locale display name cache.
-                OutputFileManager.updateLocaleDisplayName(pld.getFile(true), locale);
-            } else {
-                rLocales.put(locale, pld); // keep it in the lru
-            }
+            return pld;
         }
-        return pld;
+        PerLocaleData pld=null;
+        try {
+            pld=rLocaleCache.get(locale, new Callable<PerLocaleData>(){
+
+                @Override
+                public PerLocaleData call() throws Exception {
+                    Reference<PerLocaleData> ref=locales.get(locale);
+                    if (ref != null) {
+                        SurveyLog.debug("STFactory: " + locale + " was not in Cache.");
+                        PerLocaleData result = ref.get();
+                        if (result == null) {
+                            SurveyLog.debug("STFactory: " + locale + " was GC'ed." + SurveyMain.freeMem());
+                            ref.clear();
+                        }
+                        return result;
+                    } 
+                    PerLocaleData  ret = new PerLocaleData(locale);
+                    // no need to add it to cache here, as the cache will do that for us
+//                       rLocales.put(locale, pld);
+                    locales.put(locale, (new SoftReference<PerLocaleData>(ret)));
+                    // update the locale display name cache.
+                    OutputFileManager.updateLocaleDisplayName(ret.getFile(true), locale);
+                    return ret;
+                }});
+            return pld;
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private final PerLocaleData get(String locale) {

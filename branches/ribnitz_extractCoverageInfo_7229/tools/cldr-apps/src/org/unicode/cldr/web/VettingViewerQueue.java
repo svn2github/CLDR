@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
@@ -30,6 +29,8 @@ import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.VoteResolver.Organization;
 import org.unicode.cldr.web.UserRegistry.User;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.ibm.icu.dev.util.ElapsedTimer;
 import com.ibm.icu.text.DurationFormat;
 import com.ibm.icu.util.ULocale;
@@ -633,12 +634,23 @@ public class VettingViewerQueue {
     }
 
     LruMap<CLDRLocale, BallotBox<UserRegistry.User>> ballotBoxes = new LruMap<CLDRLocale, BallotBox<User>>(8);
+    
+    Cache<CLDRLocale, BallotBox<UserRegistry.User>> ballotCache=CacheBuilder.newBuilder().initialCapacity(8).build();
 
+    private static final boolean USE_GUAVA_CACHE=true;
     BallotBox<UserRegistry.User> getBox(SurveyMain sm, CLDRLocale loc) {
-        BallotBox<User> box = ballotBoxes.get(loc);
-        if (box == null) {
+        if (!USE_GUAVA_CACHE) {
+            BallotBox<User> box = ballotBoxes.get(loc);
+            if (box == null) {
+                box = sm.getSTFactory().ballotBoxForLocale(loc);
+                ballotBoxes.put(loc, box);
+            }
+            return box;
+        }
+        BallotBox<User> box =null; 
+        if ( (box =ballotCache.getIfPresent(loc))==null) {
             box = sm.getSTFactory().ballotBoxForLocale(loc);
-            ballotBoxes.put(loc, box);
+            ballotCache.put(loc, box);
         }
         return box;
     }

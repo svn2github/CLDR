@@ -44,8 +44,10 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRInfo.CandidateInfo;
 import org.unicode.cldr.util.CLDRInfo.PathValueInfo;
 import org.unicode.cldr.util.CLDRInfo.UserInfo;
+import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.CoverageInfo;
 import org.unicode.cldr.util.LDMLUtilities;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
@@ -1813,7 +1815,8 @@ public class DataSection implements JSONString {
 
         @Override
         public Level getCoverageLevel() {
-            return sm.getSupplementalDataInfo().getCoverageLevel(getXpath(), locale.getBaseName());
+//            return sm.getSupplementalDataInfo().getCoverageLevel(getXpath(), locale.getBaseName());
+            return CLDRConfig.getInstance().getCoverageInfo().getCoverageLevel(getXpath(), locale.getBaseName());
         }
 
         /**
@@ -2738,7 +2741,9 @@ public class DataSection implements JSONString {
                     }
                     // Filter out data that is higher than the desired coverage
                     // level
-                    int coverageValue = sm.getSupplementalDataInfo().getCoverageValue(base_xpath_string, locale.getBaseName());
+                    CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
+                    int coverageValue=covInfo.getCoverageValue(base_xpath_string, locale.getBaseName());
+//                    int coverageValue = sm.getSupplementalDataInfo().getCoverageValue(base_xpath_string, locale.getBaseName());
                     if (coverageValue > workingCoverageValue) {
                         if (coverageValue <= 100) {
                             // KEEP COUNT OF FILTERED ITEMS
@@ -2997,7 +3002,9 @@ public class DataSection implements JSONString {
 
             // Filter out data that is higher than the desired coverage
             // level
-            int coverageValue = sm.getSupplementalDataInfo().getCoverageValue(baseXpath, locale.getBaseName());
+            CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
+            int coverageValue = covInfo.getCoverageValue(baseXpath, locale.getBaseName());
+//            int coverageValue = sm.getSupplementalDataInfo().getCoverageValue(baseXpath, locale.getBaseName());
             if (coverageValue > workingCoverageValue) {
                 if (coverageValue <= Level.COMPREHENSIVE.getLevel()) {
                     skippedDueToCoverage++;

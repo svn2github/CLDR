@@ -6,6 +6,9 @@ package org.unicode.cldr.web;
 
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.RegexLogger;
+import org.unicode.cldr.util.RegexLogger.LogType;
+
 /**
  * @author srl
  * 
@@ -148,12 +151,20 @@ public abstract class XPathMatcher implements Comparable<XPathMatcher> {
                 return (x == null) ? null : x.getPrefix();
             }
 
+            private static final boolean DEBUG_PATTERNS=true;
             @Override
             public boolean matches(String xpath, int xpid) {
                 if ((x != null) && !x.matches(xpath, xpid)) {
+                    if (DEBUG_PATTERNS) {
+                        RegexLogger.getInstance().log(pattern.pattern(), xpath, false, LogType.MATCH, this.getClass());
+                    }
                     return false;
                 } else {
-                    return pattern.matcher(xpath).matches();
+                    boolean result=pattern.matcher(xpath).matches();
+                    if (DEBUG_PATTERNS) {
+                        RegexLogger.getInstance().log(pattern.pattern(), xpath, result, LogType.MATCH, this.getClass());
+                    }
+                    return result;
                 }
             }
 
