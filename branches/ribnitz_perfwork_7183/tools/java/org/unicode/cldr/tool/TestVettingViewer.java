@@ -1,6 +1,7 @@
 package org.unicode.cldr.tool;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -64,6 +65,10 @@ public class TestVettingViewer {
      private static Splitter SEMICOLON_SPLITTER=Splitter.on(";").omitEmptyStrings().trimResults();
      private static Splitter COLON_SPLITTER=Splitter.on(":").omitEmptyStrings().trimResults();
      private static Joiner ARROW_JOINER=Joiner.on("->").skipNulls();
+     /** File to write to */
+     private static String OUTPUTFILE="/users/ribnitz/regexes.txt";
+     /** Set to true to write to the file specified above */
+     private static boolean WRITE_TO_FILE=true;
      
     public static void main(String[] args) {
         myOptions.parse(MyOptions.source, args, true);
@@ -178,7 +183,8 @@ public class TestVettingViewer {
 //                for (int i=0;i<3;i++) {
                     timer.start();
                     
-                    VettingViewer.writeFile(myOutputDir, tableView, choiceSet, "", localeStringID, userNumericID, usersLevel, CodeChoice.newCode, null);
+                    VettingViewer.writeFile(myOutputDir, tableView, choiceSet, "", localeStringID, userNumericID, usersLevel, 
+                        CodeChoice.newCode, null);
                     double duration=timer.getDuration() / NANOSECS;
                     shortTestDuration.add(duration);
                     System.out.println("Code: " + duration+ " secs");
@@ -195,9 +201,14 @@ public class TestVettingViewer {
                 ListFormatter lf=ListFormatter.getInstance();
                 System.out.println("Short tests: "+lf.format(shortTestDuration));
                 System.out.println("Long tests: "+lf.format(longTestDurations));
-//                File f=new File("/users/ribnitz/regexes.txt");
-//                f.createNewFile();
-                try (PrintWriter pw=new PrintWriter(new StringWriter())) {
+                if (WRITE_TO_FILE) {
+                    File f=new File(OUTPUTFILE);
+                    f.createNewFile();
+                }
+                try (PrintWriter pw=WRITE_TO_FILE?
+                        new PrintWriter(new FileWriter(new File(OUTPUTFILE))):
+                        new PrintWriter(new StringWriter())
+                     ) {
                     RegexLoggerInterface logger=RegexLogger.getInstance();
                     NavigableSet<PatternCountInterface> logSet=logger.getEntries();
                     System.out.println("Writing a total of "+logSet.size()+" entries");
