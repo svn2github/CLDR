@@ -78,7 +78,7 @@ import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
  * @author markdavis
  */
 
-public class SupplementalDataInfo {
+public class SupplementalDataInfo implements CoverageInformationGettable {
     private static final boolean DEBUG = false;
 
     // TODO add structure for items shown by TestSupplementalData to be missing
