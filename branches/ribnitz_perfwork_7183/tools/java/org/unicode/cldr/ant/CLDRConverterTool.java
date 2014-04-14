@@ -11,6 +11,7 @@ import org.apache.tools.ant.Task;
 import org.unicode.cldr.ant.CLDRBuild.Paths;
 import org.unicode.cldr.icu.LDMLConstants;
 import org.unicode.cldr.icu.ResourceSplitter.SplitInfo;
+import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.SupplementalDataInfo;
@@ -243,7 +244,7 @@ public abstract class CLDRConverterTool {
                     Level cv = Level.get(level.level);
                     // only include the xpaths that have the coverage level at least the coverage
                     // level specified by the locale
-                    if (sdi.getCoverageLevel(xpath, localeName).compareTo(cv) <= 0) {
+                    if (CLDRConfig.getInstance().getCoverageInfo().getCoverageLevel(xpath, localeName).compareTo(cv) <= 0) {
                         String draftVal = attr.get(LDMLConstants.DRAFT);
                         if (level.draft != null) {
                             if (draftVal == null

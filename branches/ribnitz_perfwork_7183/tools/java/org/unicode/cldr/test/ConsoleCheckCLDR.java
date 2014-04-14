@@ -528,7 +528,7 @@ public class ConsoleCheckCLDR {
                     }
                 }
                 if (coverageLevel != null) {
-                    Level currentLevel = supplementalDataInfo.getCoverageLevel(path, localeID);
+                    Level currentLevel = CLDRConfig.getInstance().getCoverageInfo().getCoverageLevel(path, localeID);
                     if (currentLevel.compareTo(coverageLevel) > 0) {
                         continue;
                     }

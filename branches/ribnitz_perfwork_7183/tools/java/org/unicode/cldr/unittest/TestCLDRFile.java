@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.unittest.TestAll.TestInfo;
+import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRFile.DtdType;
@@ -22,6 +23,7 @@ import org.unicode.cldr.util.CLDRFile.Status;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.CoverageInfo;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
@@ -100,8 +102,10 @@ public class TestCLDRFile extends TestFmwk {
         LocaleInfo(String locale) {
             this.locale = locale;
             cldrFile = cldrFactory.make(locale, true);
+            CoverageInfo coverageInfo=CLDRConfig.getInstance().getCoverageInfo();
             for (String path : cldrFile.fullIterable()) {
-                Level level = sdi.getCoverageLevel(path, locale);
+//                Level level = sdi.getCoverageLevel(path, locale);
+                Level level= coverageInfo.getCoverageLevel(path, locale);
                 if (level.compareTo(Level.MODERN) > 0) {
                     continue;
                 }
@@ -393,7 +397,8 @@ public class TestCLDRFile extends TestFmwk {
                 if (topValue != null) {
                     if (CldrUtility.equals(topValue, baileyValue)) {
                         countSuperfluous.add(topValue);
-                    } else if (sdi.getCoverageLevel(path, locale).compareTo(Level.MODERN) > 0) {
+//                    } else if (sdi.getCoverageLevel(path, locale).compareTo(Level.MODERN) > 0) {
+                    } else if (CLDRConfig.getInstance().getCoverageInfo().getCoverageLevel(path, locale).compareTo(Level.MODERN) > 0) {
                         countExtraLevel.add(topValue);
                     }
                     countOrdinary.add(topValue);

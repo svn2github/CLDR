@@ -35,6 +35,7 @@ import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CharacterFallbacks;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.CoverageInfo;
 import org.unicode.cldr.util.DiscreteComparator;
 import org.unicode.cldr.util.DiscreteComparator.Ordering;
 import org.unicode.cldr.util.DtdData;
@@ -417,6 +418,7 @@ public class TestBasic extends TestFmwkPlus {
                 continue;
             logln(locale + "\t-\t" + english.getName(locale));
 
+            CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
             for (Iterator<String> it = file.iterator(); it.hasNext();) {
                 String path = it.next();
                 if (path.endsWith("/alias")) {
@@ -424,7 +426,8 @@ public class TestBasic extends TestFmwkPlus {
                 }
                 // collect abstracted paths
                 String abstractPath = abstractPathTransform.transform(path);
-                Level level = SUPPLEMENTAL_DATA_INFO.getCoverageLevel(path, locale);
+                Level level= covInfo.getCoverageLevel(path, locale);
+//                Level level = SUPPLEMENTAL_DATA_INFO.getCoverageLevel(path, locale);
                 if (level == Level.OPTIONAL) {
                     level = Level.COMPREHENSIVE;
                 }

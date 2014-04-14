@@ -21,11 +21,13 @@ import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.test.CoverageLevel2;
 import org.unicode.cldr.test.ExampleGenerator;
 import org.unicode.cldr.unittest.TestAll.TestInfo;
+import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.Status;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Containment;
 import org.unicode.cldr.util.Counter;
+import org.unicode.cldr.util.CoverageInfo;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
@@ -283,13 +285,15 @@ public class TestPathHeader extends TestFmwkPlus {
         Map<Row.R2<SectionId, PageId>, Counter<Level>> data = new TreeMap<Row.R2<SectionId, PageId>, Counter<Level>>();
         CLDRFile cldrFile = english;
         XPathParts parts = new XPathParts();
+        CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
         for (String path : cldrFile.fullIterable()) {
             boolean deprecated = supplemental.hasDeprecatedItem("ldml", parts.set(path));
             if (deprecated) {
                 errln("Deprecated path in English: " + path);
                 continue;
             }
-            Level level = supplemental.getCoverageLevel(path, cldrFile.getLocaleID());
+            Level level= covInfo.getCoverageLevel(path, cldrFile.getLocaleID());
+//            Level level = supplemental.getCoverageLevel(path, cldrFile.getLocaleID());
             PathHeader p = pathHeaderFactory.fromPath(path);
             SurveyToolStatus status = p.getSurveyToolStatus();
 
@@ -356,8 +360,10 @@ public class TestPathHeader extends TestFmwkPlus {
                         errln("Missing pages for: " + section + "\t" + page);
                     } else {
                         counter.clear();
+                        CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
                         for (String s : cachedPaths) {
-                            Level coverage = supplemental.getCoverageLevel(s, localeId);
+//                            Level coverage = supplemental.getCoverageLevel(s, localeId);
+                            Level coverage= covInfo.getCoverageLevel(s, localeId);
                             counter.add(coverage, 1);
                         }
                         String countString = "";

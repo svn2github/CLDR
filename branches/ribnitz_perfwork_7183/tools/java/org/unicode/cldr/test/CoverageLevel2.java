@@ -10,6 +10,7 @@ import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
+import org.unicode.cldr.util.CoverageInformationGettable;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.RegexLogger.LogType;
@@ -63,7 +64,7 @@ public class CoverageLevel2 {
         }
 
         @Override
-        public boolean find(String item, Object context) {
+        public boolean find(String item, Object context, Info info) {
             LocaleSpecificInfo localeSpecificInfo = (LocaleSpecificInfo) context;
             // Modified the logic to handle the case where we want specific languages and specific territories.
             // Any match in language script or territory will succeed when multiple items are present.
@@ -85,7 +86,7 @@ public class CoverageLevel2 {
                 return false;
             }
 
-            boolean result = super.find(item, context); // also sets matcher in RegexFinder
+            boolean result = super.find(item, context, info); // also sets matcher in RegexFinder
             logRegex(item, result, null,LogType.FIND);
             if (!result) {
                 return false;
@@ -123,7 +124,7 @@ public class CoverageLevel2 {
         }
     }
 
-    private CoverageLevel2(SupplementalDataInfo sdi, String locale) {
+    private CoverageLevel2(CoverageInformationGettable sdi, String locale) {
         myInfo.targetLanguage = new LanguageTagParser().set(locale).getLanguage();
         myInfo.cvi = sdi.getCoverageVariableInfo(myInfo.targetLanguage);
         lookup = sdi.getCoverageLookup();
@@ -142,7 +143,7 @@ public class CoverageLevel2 {
         return new CoverageLevel2(SupplementalDataInfo.getInstance(), locale);
     }
 
-    public static CoverageLevel2 getInstance(SupplementalDataInfo sdi, String locale) {
+    public static CoverageLevel2 getInstance(CoverageInformationGettable sdi, String locale) {
         return new CoverageLevel2(sdi, locale);
     }
 

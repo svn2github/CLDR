@@ -13,11 +13,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.unicode.cldr.unittest.TestAll.TestInfo;
+import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.ChainedMap;
 import org.unicode.cldr.util.ChainedMap.M4;
 import org.unicode.cldr.util.Counter2;
+import org.unicode.cldr.util.CoverageInfo;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
@@ -66,13 +68,15 @@ public class TestCoverageLevel extends TestFmwk {
             new TreeMap<Level, Object>(),
             Boolean.class);
 
+        CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
         for (String locale : factory.getAvailableLanguages()) {
             logln(locale);
             CLDRFile cldrFileToCheck = factory.make(locale, true);
             for (String path : cldrFileToCheck.fullIterable()) {
                 allPaths.add(path);
                 String starred = pathStarrer.set(path);
-                Level level = sdi.getCoverageLevel(path, locale);
+                Level level= covInfo.getCoverageLevel(path, locale);
+//                Level level = sdi.getCoverageLevel(path, locale);
                 starredToLocalesToLevels.put(starred, locale, level, true);
             }
         }
@@ -141,7 +145,8 @@ public class TestCoverageLevel extends TestFmwk {
                 // if (path.contains("ethiopic")) {
                 // System.out.println("?");
                 // }
-                Level level = sdi.getCoverageLevel(path, locale);
+                Level level= CLDRConfig.getInstance().getCoverageInfo().getCoverageLevel(path, locale);
+//                Level level = sdi.getCoverageLevel(path, locale);
 
                 // R2<Level, Level> key = Row.of(level, newLevel);
                 String starredPath = pathStarrer.set(path);
@@ -330,7 +335,8 @@ public class TestCoverageLevel extends TestFmwk {
         String value = testInfo.getEnglish().getStringValue(path);
         assertEquals("Narrow $", "$", value);
         SupplementalDataInfo sdi = SupplementalDataInfo.getInstance(CLDRPaths.DEFAULT_SUPPLEMENTAL_DIRECTORY);
-        Level level = sdi.getCoverageLevel(path, "en");
+        Level level= CLDRConfig.getInstance().getCoverageInfo().getCoverageLevel(path, "en");
+//        Level level = sdi.getCoverageLevel(path, "en");
         assertEquals("Narrow $", Level.BASIC, level);
     }
 
@@ -365,8 +371,9 @@ public class TestCoverageLevel extends TestFmwk {
         Relation<Row.R3, String> bad = Relation.of(new TreeMap<Row.R3, Set<String>>(), TreeSet.class);
         Relation<Row.R3, String> all = Relation.of(new TreeMap<Row.R3, Set<String>>(), TreeSet.class);
         XPathParts parts = new XPathParts();
-
-        main: for (String path : testInfo.getEnglish().fullIterable()) {
+        CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
+        main:   
+            for (String path : testInfo.getEnglish().fullIterable()) {
             PathHeader ph = phf.fromPath(path);
             SectionId section = ph.getSectionId();
             PageId page = ph.getPageId();
@@ -374,7 +381,8 @@ public class TestCoverageLevel extends TestFmwk {
             String code = ph.getCode();
             R3<SectionId, PageId, String> row = Row.of(section, page, header);
             all.put(row, code);
-            Level coverageLevel = sdi.getCoverageLevel(path, "en");
+            Level coverageLevel = covInfo.getCoverageLevel(path, "en");
+//            Level coverageLevel = sdi.getCoverageLevel(path, "en");
 
             if (coverageLevel.compareTo(Level.COMPREHENSIVE) <= 0) {
                 continue;

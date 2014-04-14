@@ -115,6 +115,8 @@ public class CLDRConfig extends Properties {
         return initStack;
     }
 
+    private static Object COVERAGE_INFO_SYNC=new Object();
+    private CoverageInfo coverageInfo=null;
     private SupplementalDataInfo supplementalDataInfo;
     private StandardCodes sc;
     private Factory cldrFactory;
@@ -165,6 +167,15 @@ public class CLDRConfig extends Properties {
         return sc;
     }
 
+    
+    public CoverageInfo getCoverageInfo() {
+        synchronized(COVERAGE_INFO_SYNC) {
+            if (coverageInfo==null) {
+                coverageInfo=new CoverageInfo(getSupplementalDataInfo());
+            }
+            return coverageInfo;
+        }
+    }
     public Factory getCldrFactory() {
         synchronized (CLDR_FACTORY_SYNC) {
             if (cldrFactory == null) {
