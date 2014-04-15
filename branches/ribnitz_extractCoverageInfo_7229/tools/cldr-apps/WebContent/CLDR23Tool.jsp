@@ -1,6 +1,7 @@
 <%@page import="com.ibm.icu.util.ULocale"%>
 <%@page import="com.ibm.icu.text.AlphabeticIndex"%>
 <%@page import="org.unicode.cldr.util.Level" %>
+<%@page import="org.unicode.cldr.util.CoverageInfo" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
         import="org.unicode.cldr.web.*,org.unicode.cldr.util.*, java.util.TreeSet,  com.ibm.icu.text.AlphabeticIndex"
     pageEncoding="UTF-8"%>

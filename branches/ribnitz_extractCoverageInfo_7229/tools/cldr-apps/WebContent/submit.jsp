@@ -13,6 +13,7 @@
 <%@page import="org.unicode.cldr.util.CLDRFile"%>
 <%@page import="org.unicode.cldr.util.SimpleXMLSource"%>
 <%@page import="org.unicode.cldr.util.XMLSource"%>
+<%@page import="org.unicode.cldr.util.CoverageInfo" %>
 <%@page import="java.io.*"%><%@page
 	import="java.util.*,org.apache.commons.fileupload.*,org.apache.commons.fileupload.servlet.*,org.apache.commons.io.FileCleaningTracker,org.apache.commons.fileupload.util.*,org.apache.commons.fileupload.disk.*,java.io.File"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
@@ -247,7 +248,8 @@
 			int coverageValue = 0;
 			
 			try { 
-				coverageValue = sdi.getCoverageValue(base, loc.getBaseName());
+				coverageValue = CLDRConfig.getInstance().getCoverageInfo().getCoverageValue(base, loc.getBaseName());
+				//coverageValue = sdi.getCoverageValue(base, loc.getBaseName());
 			} catch(Throwable t) {
 				SurveyLog.warnOnce("getCoverageValue failed for " + loc.getBaseName() +": " + t.getMessage());
 			}
