@@ -192,7 +192,7 @@ public class AddPopulationData {
     }
 
     private static void loadFactbookInfo(String filename, final Counter2<String> factbookGdp) throws IOException {
-        CldrUtility.handleFile(filename, new CldrUtility.LineHandler() {
+        CldrUtility.handleFile(filename, new LineHandler() {
             public boolean handle(String line) {
                 if (line.length() == 0 || line.startsWith("This tab") || line.startsWith("Rank")
                     || line.startsWith(" This file")) {
@@ -288,7 +288,7 @@ public class AddPopulationData {
 
     private static void loadFactbookLiteracy() throws IOException {
         final String filename = "external/factbook_literacy.html";
-        CldrUtility.handleFile(filename, new CldrUtility.LineHandler() {
+        CldrUtility.handleFile(filename, new LineHandler() {
             Matcher m = Pattern.compile(
                 "<strong>total population:</strong>\\s*(?:above\\s*)?(?:[0-9]+-)?([0-9]*\\.?[0-9]*)%.*").matcher("");
             // Matcher m =
@@ -366,7 +366,7 @@ public class AddPopulationData {
 
         // List<List<String>> data = SpreadSheet.convert(CldrUtility.getUTF8Data(filename));
 
-        CldrUtility.handleFile(filename, new CldrUtility.LineHandler() {
+        CldrUtility.handleFile(filename, new LineHandler() {
             public boolean handle(String line) {
                 if (line.contains("Series Code")) {
                     return false;
