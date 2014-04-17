@@ -55,7 +55,10 @@ public class CldrUtility {
 
     public static final boolean BETA = false;
 
+    public static final Charset UTF8 = Charset.forName("utf-8");
+    
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+  
     // Constant for "∅∅∅". Indicates that a child locale has no value for a
     // path even though a parent does.
     public static final String NO_INHERITANCE_MARKER = new String(new char[] { 0x2205, 0x2205, 0x2205 });
@@ -1321,6 +1324,6 @@ public class CldrUtility {
     //        in.close();
         }
 
-    public static final Charset UTF8 = Charset.forName("utf-8");
+
 }
   
