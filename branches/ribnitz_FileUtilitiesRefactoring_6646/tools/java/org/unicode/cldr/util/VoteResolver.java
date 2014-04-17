@@ -98,6 +98,7 @@ public class VoteResolver<T> {
         kotoistus("Kotoistus (Finnish IT Ctr)"),
         lakota_lc("Lakota LC"),
         lao_dpt("Lao Posts/Telecom??"),
+        microsoft("Microsoft"),
         openinstitute("Open Inst (Cambodia)"),
         openoffice_org("Open Office"),
         oracle("Oracle"),
@@ -541,7 +542,6 @@ public class VoteResolver<T> {
         Collator col = Collator.getInstance(ULocale.ENGLISH);
 
         public int compare(T o1, T o2) {
-            // TODO Auto-generated method stub
             return col.compare(String.valueOf(o1), String.valueOf(o2));
         }
     };

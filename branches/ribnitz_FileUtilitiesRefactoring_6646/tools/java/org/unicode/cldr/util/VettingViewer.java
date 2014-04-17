@@ -15,13 +15,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
@@ -46,7 +46,6 @@ import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.dev.util.TransliteratorUtilities;
 import com.ibm.icu.impl.Row;
 import com.ibm.icu.impl.Row.R2;
-import com.ibm.icu.lang.CharSequences;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.NumberFormat;
 import com.ibm.icu.text.Transform;
@@ -855,7 +854,7 @@ public class VettingViewer<T> {
                     // data submission,
                     // so see if the value changed.
                     // String lastValue = lastSourceFile == null ? null : lastSourceFile.getWinningValue(path);
-                    if (CharSequences.equals(value, oldValue) && choices.contains(Choice.englishChanged)) {
+                    if (Objects.equals(value, oldValue) && choices.contains(Choice.englishChanged)) {
                         // check to see if we voted
                         problems.add(Choice.englishChanged);
                         problemCounter.increment(Choice.englishChanged);
@@ -1647,7 +1646,7 @@ public class VettingViewer<T> {
                         : "tv-last", HTMLType.plain);
                     // value for last version
                     String newWinningValue = sourceFile.getWinningValue(path);
-                    if (CharSequences.equals(newWinningValue, oldStringValue)) {
+                    if (Objects.equals(newWinningValue, oldStringValue)) {
                         newWinningValue = "=";
                     }
                     addCell(output, newWinningValue, null, choicesForPath.contains(Choice.missingCoverage) ? "tv-miss"
@@ -1868,7 +1867,7 @@ public class VettingViewer<T> {
                 public VoteStatus getStatusForUsersOrganization(CLDRFile cldrFile, String path, Organization user) {
                     String usersValue = getWinningValueForUsersOrganization(cldrFile, path, user);
                     String winningValue = cldrFile.getWinningValue(path);
-                    if (usersValue != null && !CharSequences.equals(usersValue, winningValue)) {
+                    if (usersValue != null && !Objects.equals(usersValue, winningValue)) {
                         return VoteStatus.losing;
                     }
                     String fullPath = cldrFile.getFullXPath(path);
@@ -1901,8 +1900,8 @@ public class VettingViewer<T> {
             // http: // unicode.org/cldr-apps/survey?_=ur
 
             if (!repeat) {
-                FileUtilities.copyFile(VettingViewer.class, "vettingView.css", myOutputDir);
-                FileUtilities.copyFile(VettingViewer.class, "vettingView.js", myOutputDir);
+               FileCopier.copy(VettingViewer.class, "vettingView.css", myOutputDir);
+               FileCopier.copy(VettingViewer.class, "vettingView.js", myOutputDir);
             }
             System.out.println("Creation: " + timer.getDuration() / NANOSECS + " secs");
 
@@ -1934,7 +1933,7 @@ public class VettingViewer<T> {
         } while (repeat);
     }
 
-    enum CodeChoice {
+   public enum CodeChoice {
         /** For the normal (locale) view of data **/
         newCode,
         // /** @deprecated **/
@@ -1943,7 +1942,7 @@ public class VettingViewer<T> {
         summary
     }
 
-    private static void writeFile(String myOutputDir, VettingViewer<Organization> tableView, final EnumSet<Choice> choiceSet,
+    public static void writeFile(String myOutputDir, VettingViewer<Organization> tableView, final EnumSet<Choice> choiceSet,
         String name, String localeStringID, int userNumericID,
         Level usersLevel,
         CodeChoice newCode, Organization organization)
@@ -1956,7 +1955,8 @@ public class VettingViewer<T> {
                 + (newCode == CodeChoice.newCode ? "" : newCode == CodeChoice.summary ? "-summary" : "")
                 + (organization == null ? "" : "-" + organization.toString())
                 + ".html");
-        FileUtilities.appendFile(VettingViewer.class, "vettingViewerHead.txt", out);
+//        FileUtilities.appendFile(VettingViewer.class, "vettingViewerHead.txt", out);
+        FileCopier.copy(VettingViewer.class, "vettingViewerHead.txt", out);
         out.append(getHeaderStyles());
         out.append("</head><body>\n");
 
