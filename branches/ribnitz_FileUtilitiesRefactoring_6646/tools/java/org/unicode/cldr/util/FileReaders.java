@@ -1,4 +1,4 @@
-package org.unicode.cldr.draft;
+package org.unicode.cldr.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,8 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-
-import org.unicode.cldr.util.CldrUtility;
 
 public class FileReaders {
     //

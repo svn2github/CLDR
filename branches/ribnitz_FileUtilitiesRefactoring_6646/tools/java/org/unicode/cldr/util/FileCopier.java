@@ -1,4 +1,4 @@
-package org.unicode.cldr.draft;
+package org.unicode.cldr.util;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;

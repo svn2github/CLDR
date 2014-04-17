@@ -1,11 +1,9 @@
-package org.unicode.cldr.draft;
+package org.unicode.cldr.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import org.unicode.cldr.util.CldrUtility;
-import org.unicode.cldr.util.With;
 import org.unicode.cldr.util.With.SimpleIterator;
 
 /**

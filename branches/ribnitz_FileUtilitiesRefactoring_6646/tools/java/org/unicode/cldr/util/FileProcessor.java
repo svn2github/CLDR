@@ -1,12 +1,10 @@
-package org.unicode.cldr.draft;
+package org.unicode.cldr.util;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import org.unicode.cldr.util.CldrUtility;
 
 public class FileProcessor {
     private int lineCount;
