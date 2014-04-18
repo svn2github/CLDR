@@ -1,43 +1,5 @@
 package org.unicode.cldr.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.unicode.cldr.test.CoverageLevel2;
-import org.unicode.cldr.tool.LikelySubtags;
-import org.unicode.cldr.util.Builder.CBuilder;
-import org.unicode.cldr.util.CLDRFile.DtdType;
-import org.unicode.cldr.util.CldrUtility.VariableReplacer;
-import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
-import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData.Type;
-import org.unicode.cldr.util.SupplementalDataInfo.NumberingSystemInfo.NumberingSystemType;
-import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
-
 import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.dev.util.XEquivalenceClass;
@@ -61,6 +23,47 @@ import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 import com.ibm.icu.util.VersionInfo;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Deque;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.unicode.cldr.test.CoverageLevel2;
+import org.unicode.cldr.tool.LikelySubtags;
+import org.unicode.cldr.util.Level;
+import org.unicode.cldr.util.Builder.CBuilder;
+import org.unicode.cldr.util.CLDRFile.DtdType;
+import org.unicode.cldr.util.CldrUtility.VariableReplacer;
+import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
+import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData.Type;
+import org.unicode.cldr.util.SupplementalDataInfo.NumberingSystemInfo.NumberingSystemType;
+import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
+import org.unicode.cldr.util.VoteResolver.Organization;
+
 /**
  * Singleton class to provide API access to supplemental data -- in all the supplemental data files.
  * <p>
@@ -79,7 +82,7 @@ import com.ibm.icu.util.VersionInfo;
 
 public class SupplementalDataInfo {
     private static final boolean DEBUG = false;
-
+    private static final StandardCodes sc = StandardCodes.make();
     // TODO add structure for items shown by TestSupplementalData to be missing
     /*
      * [calendarData/calendar,
@@ -2212,16 +2215,21 @@ public class SupplementalDataInfo {
      * List that can hold up to MAX_LOCALES caches of locales, when one locale hasn't been used for a while it will removed and GC'd
      */
     private class CoverageCache {
-        private LinkedList<Node> localeList;
+        private final Deque<Node> localeList=new LinkedList<>();
         private final int MAX_LOCALES = 10;
 
+        /**
+         * Object to sync on for modifying the locale list
+         */
+        private final Object LOCALE_LIST_ITER_SYNC=new Object();
         /*
          * constructor
          */
         public CoverageCache() {
-            localeList = new LinkedList<Node>();
+//            localeList = new LinkedList<Node>();
         }
 
+       
         /*
          * retrieves coverage level associated with two keys if it exists in the cache, otherwise returns null
          * @param xpath
@@ -2229,16 +2237,25 @@ public class SupplementalDataInfo {
          * @return the coverage level of the above two keys
          */
         public Level get(String xpath, String loc) {
-            for (Iterator<Node> it = localeList.iterator(); it.hasNext();) {
-                Node node = it.next();
-                if (node.loc.equals(loc)) {
-                    //move node to front of list
-                    localeList.remove(node);
-                    localeList.addFirst(node);
-                    return node.map.get(xpath);
+            synchronized(LOCALE_LIST_ITER_SYNC) {
+                Iterator<Node> it=localeList.iterator();
+                Node reAddNode=null;
+                while (it.hasNext())  {
+//            for (Iterator<Node> it = localeList.iterator(); it.hasNext();) {
+                    Node node = it.next();
+                    if (node.loc.equals(loc)) {
+                        reAddNode=node;
+                        it.remove();
+                        break;
+
+                    }
                 }
+                if (reAddNode!=null) {
+                    localeList.addFirst(reAddNode);
+                    return reAddNode.map.get(xpath);
+                }
+                return null;
             }
-            return null;
         }
 
         /*
@@ -2248,22 +2265,25 @@ public class SupplementalDataInfo {
          * @param covLevel    the coverage level of the above two keys
          */
         public void put(String xpath, String loc, Level covLevel) {
-            //if locale's map is already in the cache add to it
-            for (Iterator<Node> it = localeList.iterator(); it.hasNext();) {
-                Node node = it.next();
-                if (node.loc.equals(loc)) {
-                    node.map.put(xpath, covLevel);
-                    return;
+            synchronized(LOCALE_LIST_ITER_SYNC) {
+                //if locale's map is already in the cache add to it
+//            for (Iterator<Node> it = localeList.iterator(); it.hasNext();) {
+                for (Node node: localeList) {
+//                Node node = it.next();
+                    if (node.loc.equals(loc)) {
+                        node.map.put(xpath, covLevel);
+                        return;
+                    }
                 }
-            }
 
-            //if it is not, add a new map with the coverage level, and remove the last map in the list (used most seldom) if the list is too large
-            Map<String, Level> newMap = new ConcurrentHashMap<String, Level>();
-            newMap.put(xpath, covLevel);
-            localeList.addFirst(new Node(loc, newMap));
+                //if it is not, add a new map with the coverage level, and remove the last map in the list (used most seldom) if the list is too large
+                Map<String, Level> newMap = new ConcurrentHashMap<String, Level>();
+                newMap.put(xpath, covLevel);
+                localeList.addFirst(new Node(loc, newMap));
 
-            if (localeList.size() > MAX_LOCALES) {
-                localeList.removeLast();
+                if (localeList.size() > MAX_LOCALES) {
+                    localeList.removeLast();
+                }
             }
         }
 
@@ -2557,7 +2577,17 @@ public class SupplementalDataInfo {
                     Set<CLDRLocale> localeList = new HashSet<CLDRLocale>();
                     String[] el = localeAttrib.split(" ");
                     for (int i = 0; i < el.length; i++) {
-                        localeList.add(CLDRLocale.getInstance(el[i]));
+                        if (el[i].indexOf(":") == -1) { // Just a simple locale designation
+                            localeList.add(CLDRLocale.getInstance(el[i]));
+                        } else { // Org:CoverageLevel
+                            String [] coverageLocaleParts = el[i].split(":",2);
+                            String org = coverageLocaleParts[0];
+                            String level = coverageLocaleParts[1].toUpperCase();
+                            Set<String> coverageLocales =sc.getLocaleCoverageLocales(org, EnumSet.of(Level.valueOf(level)));
+                            for (String cl : coverageLocales) {
+                                localeList.add(CLDRLocale.getInstance(cl));
+                            }
+                        }
                     }
                     locales = Collections.unmodifiableSet(localeList);
                 }
@@ -2587,7 +2617,7 @@ public class SupplementalDataInfo {
         }
 
         public boolean matches(CLDRLocale loc, PathHeader ph) {
-            if (false) System.err.println(">> testing " + loc + " / " + ph + " vs " + toString());
+            if (DEBUG) System.err.println(">> testing " + loc + " / " + ph + " vs " + toString());
             if (locales != null) {
                 if (!locales.contains(loc)) {
                     return false;

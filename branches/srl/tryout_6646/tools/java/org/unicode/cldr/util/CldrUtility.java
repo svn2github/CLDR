@@ -56,9 +56,9 @@ public class CldrUtility {
     public static final boolean BETA = false;
 
     public static final Charset UTF8 = Charset.forName("utf-8");
-    
+
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-  
+
     // Constant for "∅∅∅". Indicates that a child locale has no value for a
     // path even though a parent does.
     public static final String NO_INHERITANCE_MARKER = new String(new char[] { 0x2205, 0x2205, 0x2205 });
@@ -66,7 +66,7 @@ public class CldrUtility {
     /**
      * Very simple class, used to replace variables in a string. For example
      * <p>
-     * 
+     *
      * <pre>
      * static VariableReplacer langTag = new VariableReplacer()
      * 			.add("$alpha", "[a-zA-Z]")
@@ -111,7 +111,7 @@ public class CldrUtility {
     public interface LineHandler {
         /**
          * Return false if line was skipped
-         * 
+         *
          * @param line
          * @return
          */
@@ -154,7 +154,7 @@ public class CldrUtility {
 
         /**
          * Returns LINES_DIFFERENT, LINES_SAME, or if one of the lines is ignorable, SKIP_FIRST or SKIP_SECOND
-         * 
+         *
          * @param line1
          * @param line2
          * @return
@@ -244,7 +244,7 @@ public class CldrUtility {
     }
 
     /**
-     * 
+     *
      * @param file1
      * @param file2
      * @param failureLines
@@ -452,7 +452,7 @@ public class CldrUtility {
 
     /**
      * Clones T if we can; otherwise returns null.
-     * 
+     *
      * @param <T>
      * @param source
      * @return
@@ -558,7 +558,7 @@ public class CldrUtility {
     /**
      * Convert a UnicodeSet into a string that can be embedded into a Regex. Handles strings that are in the UnicodeSet,
      * Supplementary ranges, and escaping
-     * 
+     *
      * @param source
      *            The source set
      * @param escaper
@@ -580,7 +580,7 @@ public class CldrUtility {
      * Convert a UnicodeSet into a string that can be embedded into a Regex.
      * Handles strings that are in the UnicodeSet, Supplementary ranges, and
      * escaping
-     * 
+     *
      * @param source
      *            The source set
      * @param escaper
@@ -595,28 +595,28 @@ public class CldrUtility {
      *            case, ranges of supplementary characters are converted to lists of
      *            ranges. For example, [\uFFF0-\U0010000F \U0010100F-\U0010300F]
      *            converts into:
-     * 
+     *
      *            <pre>
      *          [\uD800][\uDC00-\uDFFF]
      *          [\uD801-\uDBBF][\uDC00-\uDFFF]
      *          [\uDBC0][\uDC00-\uDC0F]
      * </pre>
-     * 
+     *
      *            and
-     * 
+     *
      *            <pre>
      *          [\uDBC4][\uDC0F-\uDFFF]
      *          [\uDBC5-\uDBCB][\uDC00-\uDFFF]
      *          [\uDBCC][\uDC00-\uDC0F]
      * </pre>
-     * 
+     *
      *            These are then coalesced into a list of alternatives by sharing
      *            parts where feasible. For example, the above turns into 3 pairs of ranges:
-     * 
+     *
      *            <pre>
      *          [\uDBC0\uDBCC][\uDC00-\uDC0F]|\uDBC4[\uDC0F-\uDFFF]|[\uD800-\uDBBF\uDBC5-\uDBCB][\uDC00-\uDFFF]
      * </pre>
-     * 
+     *
      * @return escaped string. Something like [a-z] or (?:[a-m]|{zh}) if there is
      *         a string zh in the set, or a more complicated case for
      *         supplementaries. <br>
@@ -859,7 +859,7 @@ public class CldrUtility {
 
     /**
      * Fetch data from jar
-     * 
+     *
      * @param name
      *            a name residing in the org/unicode/cldr/util/data/ directory, or loading from a jar will break.
      */
@@ -875,7 +875,7 @@ public class CldrUtility {
 
     /**
      * Fetch data from jar
-     * 
+     *
      * @param name
      *            a name residing in the org/unicode/cldr/util/data/ directory, or loading from a jar will break.
      */
@@ -896,7 +896,7 @@ public class CldrUtility {
 
     /**
      * Takes a Map that goes from Object to Set, and fills in the transpose
-     * 
+     *
      * @param source_key_valueSet
      * @param output_value_key
      */
@@ -1027,7 +1027,7 @@ public class CldrUtility {
 
     /**
      * Breaks lines if they are too long, or if matcher.group(1) != last. Only breaks just before matcher.
-     * 
+     *
      * @param input
      * @param separator
      * @param matcher
@@ -1077,7 +1077,7 @@ public class CldrUtility {
     /**
      * Get a property value, returning the value if there is one (eg -Dkey=value),
      * otherwise the default value (for either empty or null).
-     * 
+     *
      * @param key
      * @param valueIfNull
      * @param valueIfEmpty
@@ -1098,7 +1098,7 @@ public class CldrUtility {
      * Get a property value, returning the value if there is one (eg -Dkey=value),
      * the valueIfEmpty if there is one with no value (eg -Dkey) and the valueIfNull
      * if there is no property.
-     * 
+     *
      * @param key
      * @param valueIfNull
      * @param valueIfEmpty
@@ -1155,7 +1155,7 @@ public class CldrUtility {
 
     /**
      * Copy up to matching line (not included). If output is null, then just skip until.
-     * 
+     *
      * @param oldFile
      *            file to copy
      * @param readUntilPattern
@@ -1285,7 +1285,7 @@ public class CldrUtility {
         line = cleanLine(line);
         return line.isEmpty() ? null : SEMI_SPLIT.split(line);
     }
-    
+
     private static String cleanLine(String line) {
         int comment = line.indexOf("#");
         if (comment >= 0) {
@@ -1326,4 +1326,3 @@ public class CldrUtility {
 
 
 }
-  

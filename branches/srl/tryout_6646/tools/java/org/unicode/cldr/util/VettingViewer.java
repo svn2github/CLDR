@@ -820,7 +820,8 @@ public class VettingViewer<T> {
                 if (path.contains("/references")) {
                     continue;
                 }
-
+                
+            
                 Level level = supplementalDataInfo.getCoverageLevel(path, sourceFile.getLocaleID());
 
                 // skip anything above the requested level
