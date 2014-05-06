@@ -1,0 +1,70 @@
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="length-fathom"]/unitPattern[@count="one"]	; new_value=	{0}fm
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="length-furlong"]/unitPattern[@count="one"]	; new_value=	{0}fur
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="mass-stone"]/unitPattern[@count="one"]	; new_value=	{0}st
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="volume-bushel"]/unitPattern[@count="one"]	; new_value=	{0}bu
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="volume-cup"]/unitPattern[@count="one"]	; new_value=	{0}c
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="volume-tablespoon"]/unitPattern[@count="one"]	; new_value=	{0}tbsp
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="volume-teaspoon"]/unitPattern[@count="one"]	; new_value=	{0}tsp
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="area-square-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0}smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="consumption-liter-per-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0}L/smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="length-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0}smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="length-fathom"]/unitPattern[@count="other"]	; new_value=	{0}fm
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="length-furlong"]/unitPattern[@count="other"]	; new_value=	{0}fur
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="mass-stone"]/unitPattern[@count="other"]	; new_value=	{0}st
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="volume-bushel"]/unitPattern[@count="other"]	; new_value=	{0}bu
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="volume-cup"]/unitPattern[@count="other"]	; new_value=	{0}c
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="volume-tablespoon"]/unitPattern[@count="other"]	; new_value=	{0}tbsp
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="volume-teaspoon"]/unitPattern[@count="other"]	; new_value=	{0}tsp
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="area-square-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0}smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="consumption-liter-per-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0}L/smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="narrow"]/unit[@type="length-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0}smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-fathom"]/unitPattern[@count="one"]	; new_value=	{0} fm
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-furlong"]/unitPattern[@count="one"]	; new_value=	{0} fur
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="mass-stone"]/unitPattern[@count="one"]	; new_value=	{0} st
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-bushel"]/unitPattern[@count="one"]	; new_value=	{0} bu
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-cup"]/unitPattern[@count="one"]	; new_value=	{0} c
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-tablespoon"]/unitPattern[@count="one"]	; new_value=	{0} tbsp
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-teaspoon"]/unitPattern[@count="one"]	; new_value=	{0} tsp
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="area-square-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0} smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="consumption-liter-per-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0} L/smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0} smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-fathom"]/unitPattern[@count="other"]	; new_value=	{0} fm
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-furlong"]/unitPattern[@count="other"]	; new_value=	{0} fur
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="mass-stone"]/unitPattern[@count="other"]	; new_value=	{0} st
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-bushel"]/unitPattern[@count="other"]	; new_value=	{0} bu
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-cup"]/unitPattern[@count="other"]	; new_value=	{0} c
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-tablespoon"]/unitPattern[@count="other"]	; new_value=	{0} tbsp
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-teaspoon"]/unitPattern[@count="other"]	; new_value=	{0} tsp
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="area-square-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="consumption-liter-per-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} L/smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} smil
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="length-fathom"]/unitPattern[@count="one"]	; new_value=	{0} fathom
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="length-furlong"]/unitPattern[@count="one"]	; new_value=	{0} furlong
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="mass-stone"]/unitPattern[@count="one"]	; new_value=	{0} stone
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="volume-bushel"]/unitPattern[@count="one"]	; new_value=	{0} bushel
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="volume-cup"]/unitPattern[@count="one"]	; new_value=	{0} cup
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="volume-tablespoon"]/unitPattern[@count="one"]	; new_value=	{0} tablespoon
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="volume-teaspoon"]/unitPattern[@count="one"]	; new_value=	{0} teaspoon
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="area-square-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0} square scandinavian mile
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="consumption-liter-per-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0} liter per scandinavian mile
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="length-scandinavian-mile"]/unitPattern[@count="one"]	; new_value=	{0} scandinavian mile
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="length-fathom"]/unitPattern[@count="other"]	; new_value=	{0} fathoms
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="length-furlong"]/unitPattern[@count="other"]	; new_value=	{0} furlongs
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="mass-stone"]/unitPattern[@count="other"]	; new_value=	{0} stones
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="volume-bushel"]/unitPattern[@count="other"]	; new_value=	{0} bushels
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="volume-cup"]/unitPattern[@count="other"]	; new_value=	{0} cups
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="volume-tablespoon"]/unitPattern[@count="other"]	; new_value=	{0} tablespoons
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="volume-teaspoon"]/unitPattern[@count="other"]	; new_value=	{0} teaspoons
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="area-square-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} square scandinavian miles
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="consumption-liter-per-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} liter per scandinavian miles
+locale=en; action=add; new_path=	//ldml/units/unitLength[@type="long"]/unit[@type="length-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} scandinavian mile
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-fathom"]/unitPattern[@count="other"]	; new_value=	{0} fm
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-furlong"]/unitPattern[@count="other"]	; new_value=	{0} fur
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="mass-stone"]/unitPattern[@count="other"]	; new_value=	{0} st
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-bushel"]/unitPattern[@count="other"]	; new_value=	{0} bu
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-cup"]/unitPattern[@count="other"]	; new_value=	{0} c
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-tablespoon"]/unitPattern[@count="other"]	; new_value=	{0} tbsp
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="volume-teaspoon"]/unitPattern[@count="other"]	; new_value=	{0} tsp
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="area-square-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} smil
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="consumption-liter-per-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} L/smil
+locale=root; action=add; new_path=	//ldml/units/unitLength[@type="short"]/unit[@type="length-scandinavian-mile"]/unitPattern[@count="other"]	; new_value=	{0} smil
