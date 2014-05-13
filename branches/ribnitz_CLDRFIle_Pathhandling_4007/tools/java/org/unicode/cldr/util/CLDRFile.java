@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -56,6 +55,9 @@ import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.impl.Utility;
@@ -456,8 +458,9 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         XPathParts currentFiltered = new XPathParts(attributeOrdering2, defaultSuppressionMap);
         boolean isResolved = dataSource.isResolving();
 
-        for (Iterator<String> it2 = identitySet.iterator(); it2.hasNext();) {
-            String xpath = (String) it2.next();
+        for (String xpath: identitySet) {
+       // for (Iterator<String> it2 = identitySet.iterator(); it2.hasNext();) {
+//            String xpath = (String) it2.next();
             if (isResolved && xpath.contains("/alias")) {
                 continue;
             }
@@ -1143,6 +1146,13 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         return s;
     }
 
+    /** 
+     * Internal method to get the iterator only over the keys in this file
+     * @return
+     */
+    private Iterator<String> ownValueIterator() {
+        return dataSource.iterator();
+    }
     /**
      * Returns a collection containing the keys for this file.
      */
@@ -1150,12 +1160,20 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     // return (Set) CollectionUtilities.addAll(dataSource.iterator(), new HashSet());
     // }
 
+    /**
+     * Method to determine whether a given path is contained in the paths of this CLDRFile
+     * @param path
+     * @return
+     */
+    public boolean containsPath(String path) {
+        return dataSource.iterator(path).hasNext();
+    }
     public Iterator<String> iterator() {
-        return dataSource.iterator();
+        return  Iterables.concat(dataSource,getRawExtraPaths()).iterator();
     }
 
     public synchronized Iterator<String> iterator(String prefix) {
-        return dataSource.iterator(prefix);
+       return dataSource.iterator(prefix);
     }
 
     public Iterator<String> iterator(Matcher pathFilter) {
@@ -1237,12 +1255,15 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
                 Map<String, String> attributes = parts.getAttributes(i);
                 toRemove.clear();
                 restore = null;
-                for (Iterator<String> it = attributes.keySet().iterator(); it.hasNext();) {
-                    String attribute = it.next();
+                for (Entry<String,String> attr: attributes.entrySet()) {
+//                for (Iterator<String> it = attributes.keySet().iterator(); it.hasNext();) {
+//                    String attribute = it.next();
+                    String attribute=attr.getKey();
                     if (attribute.equals("draft")) {
                         toRemove.add(attribute);
                     } else if (attribute.equals("alt")) {
-                        String value = (String) attributes.get(attribute);
+//                        String value = (String) attributes.get(attribute);
+                        String value= attr.getValue();
                         int proposedPos = value.indexOf("proposed");
                         if (proposedPos >= 0) {
                             toRemove.add(attribute);
@@ -1611,9 +1632,12 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
                         putAndFixDeprecatedAttribute(qName, attribute, value);
                     }
                 }
-                for (Iterator<String> it = attributeOrder.keySet().iterator(); it.hasNext();) {
-                    String attribute = it.next();
-                    String value = attributeOrder.get(attribute);
+                for (Entry<String,String> attrOrderEntry: attributeOrder.entrySet()) {
+                    String attribute=attrOrderEntry.getKey();
+                    String value= attrOrderEntry.getValue();
+//                for (Iterator<String> it = attributeOrder.keySet().iterator(); it.hasNext();) {
+//                    String attribute = it.next();
+//                    String value = attributeOrder.get(attribute);
                     String both = "[@" + attribute + "=\"" + value + "\"]"; // TODO quote the value??
                     currentFullXPath += both;
                     // distinguishing = key, registry, alt, and type (except for the type attribute on the elements
@@ -2945,14 +2969,19 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
                         }
                         toRemove.clear();
                         Map<String, String> attributes = distinguishingParts.getAttributes(i);
-                        for (String attribute: attributes.keySet()) {
+                        for (Entry<String,String> attrEntry: attributes.entrySet()) {
+                           String attribute= attrEntry.getKey();
+                           String attrValue=attrEntry.getValue();
+//                        for (String attribute: attributes.keySet()) {
                      //   for (Iterator<String> it = attributes.keySet().iterator(); it.hasNext();) {
                       //      String attribute = (String) it.next();
                             if (attribute.equals("draft")) {
-                                draft = (String) attributes.get(attribute);
+                                draft= attrValue;
+//                                draft = (String) attributes.get(attribute);
                                 toRemove.add(attribute);
                             } else if (attribute.equals("alt")) {
-                                alt = (String) attributes.get(attribute);
+                                alt=attrValue;
+//                                alt = (String) attributes.get(attribute);
                                 toRemove.add(attribute);
                             } else if (attribute.equals("references")) {
                                 if (references.length() != 0) references += " ";
@@ -3193,7 +3222,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         if (pathMatcher == null) {
             return result;
         }
-        for (Iterator<String> it = result.iterator(); it.hasNext();) {
+        Iterator<String> it = result.iterator();
+        while (it.hasNext()) {
             String path = it.next();
             if (!pathMatcher.reset(path).matches()) {
                 it.remove();
@@ -3303,42 +3333,59 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         }
     }
 
+    private static interface Predicate<E> {
+        boolean matches(E item);
+    }
+    
+    private static class GuavaPredicateAdapter<E> implements com.google.common.base.Predicate<E> {
+        private final Predicate<E> pred;
+
+        public GuavaPredicateAdapter(Predicate<E> aPredicate) {
+            this.pred=aPredicate;
+        }
+        @Override
+        public boolean apply(E input) {
+            return pred.matches(input);
+        }
+    }
     /**
      * Returns the extra paths, skipping those that are already represented in the locale.
-     * 
+     * Will always return an empty set, as this functionality is phased out.
      * @return
      */
     public Collection<String> getExtraPaths() {
-        Set<String> toAddTo = new HashSet<String>();
-
-        // reverse the order because we're hitting some strange behavior
-
-        toAddTo.addAll(getRawExtraPaths());
-        for (String path : this) {
-            toAddTo.remove(path);
-        }
-
-        //        showStars(getLocaleID() + " getExtraPaths", toAddTo);
-        //        for (String path : getRawExtraPaths()) {
-        //            // don't use getStringValue, since it recurses.
-        //            if (!dataSource.hasValueAtDPath(path)) { 
-        //                toAddTo.add(path);
-        //            } else {
-        //                if (path.contains("compoundUnit")) {
-        //                    for (String path2 : this) {
-        //                        if (path2.equals(path)) {
-        //                            System.out.println("\t\t" + path);
-        //                        }
-        //                    }
-        //                    System.out.println();
-        //                }
-        //            }
-        //
-        //        }
-        //        showStars(getLocaleID() + " getExtraPaths", toAddTo);
-        return toAddTo;
+        return Collections.emptySet();
+//        Set<String> toAddTo = new HashSet<String>();
+//
+//        
+//        // reverse the order because we're hitting some strange behavior
+//        toAddTo.addAll(getRawExtraPaths());
+//        for (String path : this) {
+//            toAddTo.remove(path);
+//        }
+//
+//        //        showStars(getLocaleID() + " getExtraPaths", toAddTo);
+//        //        for (String path : getRawExtraPaths()) {
+//        //            // don't use getStringValue, since it recurses.
+//        //            if (!dataSource.hasValueAtDPath(path)) { 
+//        //                toAddTo.add(path);
+//        //            } else {
+//        //                if (path.contains("compoundUnit")) {
+//        //                    for (String path2 : this) {
+//        //                        if (path2.equals(path)) {
+//        //                            System.out.println("\t\t" + path);
+//        //                        }
+//        //                    }
+//        //                    System.out.println();
+//        //                }
+//        //            }
+//        //
+//        //        }
+//        //        showStars(getLocaleID() + " getExtraPaths", toAddTo);
+//        return toAddTo;
     }
 
+    
     /**
      * Returns the extra paths, skipping those that are already represented in the locale.
      * 
@@ -3361,7 +3408,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
      * 
      * @return
      */
-    public Collection<String> getRawExtraPaths() {
+    private Collection<String> getRawExtraPaths() {
         if (extraPaths == null) {
             extraPaths = Collections.unmodifiableCollection(getRawExtraPathsPrivate(new HashSet<String>()));
             if (DEBUG) {
@@ -3370,7 +3417,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         }
         return extraPaths;
     }
-
+    
     private Collection<String> getRawExtraPathsPrivate(Collection<String> toAddTo) {
         SupplementalDataInfo supplementalData = SupplementalDataInfo.getInstance(getSupplementalDirectory());
         // units
@@ -3382,9 +3429,18 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         if (plurals != null) {
             pluralCounts = plurals.getCounts();
             if (pluralCounts.size() != 1) {
-                // we get all the root paths with count
-                addPluralCounts(toAddTo, pluralCounts, this);
-                //            addPluralCounts(toAddTo, pluralCounts, getRootCountOther());
+                // Generate the plural information, filtering out the values that are not in pluralCounts
+                toAddTo.addAll(new PluralPathGenerator(ownValueIterator()).get(
+                    new KeyInCollectionPredicate<Count>("[@count=\"",pluralCounts) {
+
+                    @Override
+                    public Count transform(String item) {
+                       return Count.valueOf(item);
+                    }
+                }));
+//                // we get all the root paths with count
+    //       addPluralCounts(toAddTo, pluralCounts, this);
+//                //            addPluralCounts(toAddTo, pluralCounts, getRootCountOther());
                 if (false) {
                     showStars(getLocaleID() + " toAddTo", toAddTo);
                 }
@@ -3392,15 +3448,191 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         }
         // dayPeriods
         String locale = getLocaleID();
-        DayPeriodInfo dayPeriods = supplementalData.getDayPeriods(locale);
+        final DayPeriodInfo dayPeriods = supplementalData.getDayPeriods(locale);
+        toAddTo.addAll(new DayPeriodsPathGenerator().get(
+            new KeyInCollectionPredicate<DayPeriod>("/dayPeriod[@type=\"",dayPeriods.getPeriods()) {
 
-        for (String context : new String[] { "format", "stand-alone" }) {
-            for (String width : new String[] { "narrow", "abbreviated", "wide" }) {
-                if (dayPeriods != null) {
-                    LinkedHashSet<DayPeriod> items = new LinkedHashSet<DayPeriod>(dayPeriods.getPeriods());
-                    for (DayPeriod dayPeriod : items) {
+                @Override
+                public DayPeriod transform(String item) {
+                  return DayPeriod.valueOf(item);
+                }
+        }));
+
+
+        // metazones
+        toAddTo.addAll(new MetaZonePathGenerator(supplementalData).get());
+
+        // Currencies
+        toAddTo.addAll(new CurrencyPathGenerator(supplementalData).get(
+            new KeyInCollectionPredicate<Count>("displayName[@count=\"",pluralCounts) {
+
+                @Override
+                public Count transform(String item) {
+                  return Count.valueOf(item);
+                }
+            }));
+            
+
+        return toAddTo;
+    }
+   
+    /**
+     * Sipmle predicate that looks for a string in the form 'value="foo"', comparing the value of 
+     * foo to a Collection, first transforming it as appropriate. Implementing classes only need to
+     * provide the transformation.
+     * 
+     * It will return true for all values that are conrained in the collection.
+     * @author ribnitz
+     *
+     * @param <E>
+     */
+    private static abstract class KeyInCollectionPredicate<E> implements Predicate<String> {
+        private final String searchStr;
+        private final Collection<E> coll;
+        
+        public KeyInCollectionPredicate(String searchStr,Collection<E> aColl) {
+            this.searchStr=searchStr;
+            this.coll=Collections.unmodifiableCollection(aColl);
+        }
+        
+        @Override
+        public boolean matches(String item) {
+            int countPos=item.indexOf(searchStr);
+            if (countPos==-1) {
+                return false;
+            }
+            int startPos=countPos+searchStr.length();
+            int pos2=item.indexOf("\"",startPos+1);
+            String countStr=item.substring(startPos,pos2);
+            return coll.contains(transform(countStr));
+        }
+        
+        public abstract E transform(String item);
+    }
+    
+    /**
+     * Base class for all path generators; child classes only need to override the default
+     * constructor, in which they fill the result into resultSet. 
+     * @author ribnitz
+     *
+     */
+    private static abstract class PathGeneratorBase  implements Iterable<String> {
+        protected  final Set<String> resultSet;
+     
+        public PathGeneratorBase() {
+            this(new HashSet<String>());
+        }
+        
+        public PathGeneratorBase(Set<String> aSet) {
+            resultSet=aSet;
+        }
+        
+        /**
+         * Return an unmodifiable view of the resulting Set
+         * @return
+         */
+        public Set<String> get() {
+            if (resultSet==null||resultSet.isEmpty()) {
+                return Collections.emptySet();
+            }
+            return Collections.unmodifiableSet(resultSet);
+        }
+        
+        private FluentIterable<String> iterable(Predicate<String> predicate) {
+            return FluentIterable.from(resultSet).filter(new GuavaPredicateAdapter<String>(predicate));
+        }
+        
+        /**
+         * Provide an unmodifiable set of all resulting elements that match the predicate
+         * @param predicate
+         * @return
+         */
+        public Set<String> get(Predicate<String> predicate) {
+            if (resultSet==null||resultSet.isEmpty()) {
+                return Collections.emptySet();
+            }
+            return iterable(predicate).toSet();
+        }
+
+        /**
+         * Provide an unmodifiable iterator over the resulting elements
+         */
+        public Iterator<String> iterator() {
+            return Collections.unmodifiableSet(resultSet).iterator();
+        }
+        
+        /**
+         * Provide an unmodifiable iteraotr over all elments that match the predicate
+         * @param predicate
+         * @return
+         */
+        public Iterator<String> iterator(Predicate<String> predicate) {
+            return iterable(predicate).iterator();
+        }
+    }
+    
+    
+    private static class PluralPathGenerator extends PathGeneratorBase {
+        public PluralPathGenerator(Iterable<String> keys) {
+            this((keys instanceof CLDRFile)?((CLDRFile)keys).ownValueIterator():keys.iterator());
+        }
+        private PluralPathGenerator(Iterator<String> keys) {
+            super(new TreeSet<String>());
+            final String countAttr="[@count=\"other\"]";
+            Iterable<String> iter=Iterables.filter(Sets.newHashSet(keys), new GuavaPredicateAdapter<String>(new Predicate<String>() {
+
+                @Override
+                public boolean matches(String item) {
+                    if (item==null||item.isEmpty()) {
+                        return false;
+                    }
+                    return item.contains(countAttr);
+                }
+
+            }));
+           
+            Set<String> workSet=new TreeSet<>();
+            Iterables.addAll(workSet, iter);
+            for (String item: workSet) {
+                int countPos = item.indexOf(countAttr);
+                if (countPos < 0) {
+                    continue;
+                }
+                String start = item.substring(0, countPos) + "[@count=\"";
+                String end = item.substring(countPos + countAttr.length()) + "\"]";
+                for (Count count : Count.values()) {
+                    if (count == Count.other) {
+                        continue;
+                    }
+                    resultSet.add(start + count + end);
+                }
+            }
+        }
+    }
+    
+    private static class CurrencyPathGenerator extends PathGeneratorBase {
+        public CurrencyPathGenerator(SupplementalDataInfo sdi) {
+           super(new TreeSet<String>());
+            Set<String> codes = sdi.getBcp47Keys().getAll("cu");
+            for (String code : codes) {
+                String currencyCode = code.toUpperCase();
+                resultSet.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/symbol");
+                resultSet.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/displayName");
+                for (Count count : PluralInfo.Count.values()) {
+                    resultSet.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/displayName[@count=\"" + count.toString() + "\"]");
+                }
+            }
+        }
+    }
+    
+    private static class DayPeriodsPathGenerator extends PathGeneratorBase {
+        public DayPeriodsPathGenerator(/*SupplementalDataInfo sdi*/) {
+            super();
+            for (String context : new String[] { "format", "stand-alone" }) {
+                for (String width : new String[] { "narrow", "abbreviated", "wide" }) {
+                    for (DayPeriod dayPeriod : DayPeriod.values()) {
                         // ldml/dates/calendars/calendar[@type="gregorian"]/dayPeriods/dayPeriodContext[@type="format"]/dayPeriodWidth[@type="wide"]/dayPeriod[@type="am"]
-                        toAddTo.add("//ldml/dates/calendars/calendar[@type=\"gregorian\"]/dayPeriods/" +
+                        resultSet.add("//ldml/dates/calendars/calendar[@type=\"gregorian\"]/dayPeriods/" +
                             "dayPeriodContext[@type=\"" + context
                             + "\"]/dayPeriodWidth[@type=\"" + width
                             + "\"]/dayPeriod[@type=\"" + dayPeriod + "\"]");
@@ -3408,46 +3640,37 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
                 }
             }
         }
-
-        // metazones
-        Set<String> zones = supplementalData.getAllMetazones();
-
-        for (String zone : zones) {
-            for (String width : new String[] { "long", "short" }) {
-                for (String type : new String[] { "generic", "standard", "daylight" }) {
-                    toAddTo.add("//ldml/dates/timeZoneNames/metazone[@type=\"" + zone + "\"]/" + width + "/" + type);
-                }
-            }
-        }
-
-        // Individual zone overrides
-        final String[] overrides = {
-            "Pacific/Honolulu\"]/short/generic",
-            "Pacific/Honolulu\"]/short/standard",
-            "Pacific/Honolulu\"]/short/daylight",
-            "Europe/Dublin\"]/long/daylight",
-            "Europe/London\"]/long/daylight"
-        };
-        for (String override : overrides) {
-            toAddTo.add("//ldml/dates/timeZoneNames/zone[@type=\"" + override);
-        }
-
-        // Currencies
-        Set<String> codes = supplementalData.getBcp47Keys().getAll("cu");
-        for (String code : codes) {
-            String currencyCode = code.toUpperCase();
-            toAddTo.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/symbol");
-            toAddTo.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/displayName");
-            if (pluralCounts != null) {
-                for (Count count : pluralCounts) {
-                    toAddTo.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/displayName[@count=\"" + count.toString() + "\"]");
-                }
-            }
-        }
-
-        return toAddTo;
     }
+    
+    private static class MetaZonePathGenerator extends PathGeneratorBase {
+        
+        public MetaZonePathGenerator(SupplementalDataInfo sdi) {
+            this(sdi, new String[] {
+                "Pacific/Honolulu\"]/short/generic",
+                "Pacific/Honolulu\"]/short/standard",
+                "Pacific/Honolulu\"]/short/daylight",
+                "Europe/Dublin\"]/long/daylight",
+                "Europe/London\"]/long/daylight"
+            });
+        }
+        private MetaZonePathGenerator(SupplementalDataInfo sdi,String[] overrides) {
+            super(new TreeSet<String>());
+            Set<String> zones = sdi.getAllMetazones();
 
+            for (String zone : zones) {
+                for (String width : new String[] { "long", "short" }) {
+                    for (String type : new String[] { "generic", "standard", "daylight" }) {
+                        resultSet.add("//ldml/dates/timeZoneNames/metazone[@type=\"" + zone + "\"]/" + width + "/" + type);
+                    }
+                }
+            }
+
+            for (String override : overrides) {
+                resultSet.add("//ldml/dates/timeZoneNames/zone[@type=\"" + override);
+            }
+        }
+    }
+    
     private void showStars(String title, Iterable<String> source) {
         PathStarrer ps = new PathStarrer();
         Relation<String, String> stars = Relation.of(new TreeMap<String, Set<String>>(), TreeSet.class);

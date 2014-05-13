@@ -122,14 +122,20 @@ public class SimpleXMLSource extends XMLSource {
         synchronized (VALUE_TO_PATH_MUTEX) {
             if (VALUE_TO_PATH == null) {
                 VALUE_TO_PATH = Relation.of(new HashMap<String, Set<String>>(), HashSet.class);
-                for (Iterator<String> it = iterator(); it.hasNext();) {
-                    String path = it.next();
+               for (String path: this) {
+                //for (Iterator<String> it = iterator(); it.hasNext();) {
+//                    String path = it.next();
                     String value = normalize(getValueAtDPath(path));
                     VALUE_TO_PATH.put(value, path);
                 }
             }
-            Set<String> paths = VALUE_TO_PATH.getAll(normalize(valueToMatch));
-            if (paths == null) {
+            String normalizedVal=normalize(valueToMatch);
+            Set<String> paths = Collections.emptySet();
+            // Check if key of next lookup is null, to prevent NPE
+            if (normalizedVal!=null) {
+                paths = VALUE_TO_PATH.getAll(normalizedVal);
+            }
+            if (paths == null||paths.isEmpty()) {
                 return;
             }
             if (pathPrefix == null || pathPrefix.length() == 0) {
