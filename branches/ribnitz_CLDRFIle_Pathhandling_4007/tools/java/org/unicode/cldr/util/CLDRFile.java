@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,7 +56,6 @@ import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.ibm.icu.dev.util.CollectionUtilities;
@@ -105,6 +105,16 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
 
     private static final boolean DEBUG = false;
 
+    /**
+     * Use generators and filtering rather than building the specific set.
+     */
+    private boolean USE_GENERATORS=true;
+    
+    /**
+     * Enable to get timings for each invocation of getRawExtraPathPrivate
+     */
+    private static final boolean DEBUG_EXTRAPATHS = false;
+    
     public static final Pattern ALT_PROPOSED_PATTERN = Pattern.compile(".*\\[@alt=\"[^\"]*proposed[^\"]*\"].*");
 
     static Pattern FIRST_ELEMENT = Pattern.compile("//([^/\\[]*)");
@@ -2918,6 +2928,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     // WARNING: this must go AFTER attributeOrdering is set; otherwise it uses a null comparator!!
     private static final DistinguishedXPath distinguishedXPath = new DistinguishedXPath();
 
+   
+
     // private static Set atomicElements = Collections.unmodifiableSet(new HashSet(Arrays.asList(new
     // String[]{"collation", "segmentation"})));
 
@@ -3332,22 +3344,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
             return path;
         }
     }
-
-    private static interface Predicate<E> {
-        boolean matches(E item);
-    }
     
-    private static class GuavaPredicateAdapter<E> implements com.google.common.base.Predicate<E> {
-        private final Predicate<E> pred;
-
-        public GuavaPredicateAdapter(Predicate<E> aPredicate) {
-            this.pred=aPredicate;
-        }
-        @Override
-        public boolean apply(E input) {
-            return pred.matches(input);
-        }
-    }
     /**
      * Returns the extra paths, skipping those that are already represented in the locale.
      * Will always return an empty set, as this functionality is phased out.
@@ -3418,8 +3415,11 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         return extraPaths;
     }
     
+  
+    
     private Collection<String> getRawExtraPathsPrivate(Collection<String> toAddTo) {
         SupplementalDataInfo supplementalData = SupplementalDataInfo.getInstance(getSupplementalDirectory());
+        Timer timer=new Timer();
         // units
         PluralInfo plurals = supplementalData.getPlurals(PluralType.cardinal, getLocaleID());
         if (plurals == null && DEBUG) {
@@ -3429,18 +3429,21 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         if (plurals != null) {
             pluralCounts = plurals.getCounts();
             if (pluralCounts.size() != 1) {
-                // Generate the plural information, filtering out the values that are not in pluralCounts
-                toAddTo.addAll(new PluralPathGenerator(ownValueIterator()).get(
-                    new KeyInCollectionPredicate<Count>("[@count=\"",pluralCounts) {
+                if (USE_GENERATORS) {
+                    // Generate the plural information, filtering out the values that are not in pluralCounts
+                    toAddTo.addAll(PathGenerators.getPluralPaths(ownValueIterator()).get(
+                        new PathGenerators.KeyInCollectionPredicate<Count>("[@count=\"",pluralCounts) {
 
-                    @Override
-                    public Count transform(String item) {
-                       return Count.valueOf(item);
-                    }
-                }));
+                            @Override
+                            public Count transform(String item) {
+                                return Count.valueOf(item);
+                            }
+                        }));
+                } else {
 //                // we get all the root paths with count
-    //       addPluralCounts(toAddTo, pluralCounts, this);
+                    addPluralCounts(toAddTo, pluralCounts, this);
 //                //            addPluralCounts(toAddTo, pluralCounts, getRootCountOther());
+                }
                 if (false) {
                     showStars(getLocaleID() + " toAddTo", toAddTo);
                 }
@@ -3449,228 +3452,87 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         // dayPeriods
         String locale = getLocaleID();
         final DayPeriodInfo dayPeriods = supplementalData.getDayPeriods(locale);
-        toAddTo.addAll(new DayPeriodsPathGenerator().get(
-            new KeyInCollectionPredicate<DayPeriod>("/dayPeriod[@type=\"",dayPeriods.getPeriods()) {
+        if (USE_GENERATORS) {
+            toAddTo.addAll(PathGenerators.getDayPeriodPaths().get(
+                new PathGenerators.KeyInCollectionPredicate<DayPeriod>("/dayPeriod[@type=\"",dayPeriods.getPeriods()){
 
-                @Override
+              
                 public DayPeriod transform(String item) {
-                  return DayPeriod.valueOf(item);
-                }
-        }));
+                   return DayPeriod.valueOf(item);
+                }}));
+            // metazones
+            toAddTo.addAll(PathGenerators.getMetaZonePaths(supplementalData).get());
+//                new MetaZonePathGenerator(supplementalData).get());
 
+            // Currencies
+            toAddTo.addAll(PathGenerators.getCurrencyPaths(supplementalData).get(                
+                new PathGenerators.KeyInCollectionPredicate<Count>("displayName[@count=\"",pluralCounts) {
 
-        // metazones
-        toAddTo.addAll(new MetaZonePathGenerator(supplementalData).get());
-
-        // Currencies
-        toAddTo.addAll(new CurrencyPathGenerator(supplementalData).get(
-            new KeyInCollectionPredicate<Count>("displayName[@count=\"",pluralCounts) {
-
-                @Override
-                public Count transform(String item) {
-                  return Count.valueOf(item);
-                }
-            }));
-            
-
-        return toAddTo;
-    }
-   
-    /**
-     * Sipmle predicate that looks for a string in the form 'value="foo"', comparing the value of 
-     * foo to a Collection, first transforming it as appropriate. Implementing classes only need to
-     * provide the transformation.
-     * 
-     * It will return true for all values that are conrained in the collection.
-     * @author ribnitz
-     *
-     * @param <E>
-     */
-    private static abstract class KeyInCollectionPredicate<E> implements Predicate<String> {
-        private final String searchStr;
-        private final Collection<E> coll;
-        
-        public KeyInCollectionPredicate(String searchStr,Collection<E> aColl) {
-            this.searchStr=searchStr;
-            this.coll=Collections.unmodifiableCollection(aColl);
-        }
-        
-        @Override
-        public boolean matches(String item) {
-            int countPos=item.indexOf(searchStr);
-            if (countPos==-1) {
-                return false;
-            }
-            int startPos=countPos+searchStr.length();
-            int pos2=item.indexOf("\"",startPos+1);
-            String countStr=item.substring(startPos,pos2);
-            return coll.contains(transform(countStr));
-        }
-        
-        public abstract E transform(String item);
-    }
-    
-    /**
-     * Base class for all path generators; child classes only need to override the default
-     * constructor, in which they fill the result into resultSet. 
-     * @author ribnitz
-     *
-     */
-    private static abstract class PathGeneratorBase  implements Iterable<String> {
-        protected  final Set<String> resultSet;
-     
-        public PathGeneratorBase() {
-            this(new HashSet<String>());
-        }
-        
-        public PathGeneratorBase(Set<String> aSet) {
-            resultSet=aSet;
-        }
-        
-        /**
-         * Return an unmodifiable view of the resulting Set
-         * @return
-         */
-        public Set<String> get() {
-            if (resultSet==null||resultSet.isEmpty()) {
-                return Collections.emptySet();
-            }
-            return Collections.unmodifiableSet(resultSet);
-        }
-        
-        private FluentIterable<String> iterable(Predicate<String> predicate) {
-            return FluentIterable.from(resultSet).filter(new GuavaPredicateAdapter<String>(predicate));
-        }
-        
-        /**
-         * Provide an unmodifiable set of all resulting elements that match the predicate
-         * @param predicate
-         * @return
-         */
-        public Set<String> get(Predicate<String> predicate) {
-            if (resultSet==null||resultSet.isEmpty()) {
-                return Collections.emptySet();
-            }
-            return iterable(predicate).toSet();
-        }
-
-        /**
-         * Provide an unmodifiable iterator over the resulting elements
-         */
-        public Iterator<String> iterator() {
-            return Collections.unmodifiableSet(resultSet).iterator();
-        }
-        
-        /**
-         * Provide an unmodifiable iteraotr over all elments that match the predicate
-         * @param predicate
-         * @return
-         */
-        public Iterator<String> iterator(Predicate<String> predicate) {
-            return iterable(predicate).iterator();
-        }
-    }
-    
-    
-    private static class PluralPathGenerator extends PathGeneratorBase {
-        public PluralPathGenerator(Iterable<String> keys) {
-            this((keys instanceof CLDRFile)?((CLDRFile)keys).ownValueIterator():keys.iterator());
-        }
-        private PluralPathGenerator(Iterator<String> keys) {
-            super(new TreeSet<String>());
-            final String countAttr="[@count=\"other\"]";
-            Iterable<String> iter=Iterables.filter(Sets.newHashSet(keys), new GuavaPredicateAdapter<String>(new Predicate<String>() {
-
-                @Override
-                public boolean matches(String item) {
-                    if (item==null||item.isEmpty()) {
-                        return false;
+                    @Override
+                    public Count transform(String item) {
+                      return Count.valueOf(item);
                     }
-                    return item.contains(countAttr);
-                }
+                }));
+        } else {
 
-            }));
-           
-            Set<String> workSet=new TreeSet<>();
-            Iterables.addAll(workSet, iter);
-            for (String item: workSet) {
-                int countPos = item.indexOf(countAttr);
-                if (countPos < 0) {
-                    continue;
-                }
-                String start = item.substring(0, countPos) + "[@count=\"";
-                String end = item.substring(countPos + countAttr.length()) + "\"]";
-                for (Count count : Count.values()) {
-                    if (count == Count.other) {
-                        continue;
-                    }
-                    resultSet.add(start + count + end);
-                }
-            }
-        }
-    }
-    
-    private static class CurrencyPathGenerator extends PathGeneratorBase {
-        public CurrencyPathGenerator(SupplementalDataInfo sdi) {
-           super(new TreeSet<String>());
-            Set<String> codes = sdi.getBcp47Keys().getAll("cu");
-            for (String code : codes) {
-                String currencyCode = code.toUpperCase();
-                resultSet.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/symbol");
-                resultSet.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/displayName");
-                for (Count count : PluralInfo.Count.values()) {
-                    resultSet.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/displayName[@count=\"" + count.toString() + "\"]");
-                }
-            }
-        }
-    }
-    
-    private static class DayPeriodsPathGenerator extends PathGeneratorBase {
-        public DayPeriodsPathGenerator(/*SupplementalDataInfo sdi*/) {
-            super();
             for (String context : new String[] { "format", "stand-alone" }) {
                 for (String width : new String[] { "narrow", "abbreviated", "wide" }) {
-                    for (DayPeriod dayPeriod : DayPeriod.values()) {
-                        // ldml/dates/calendars/calendar[@type="gregorian"]/dayPeriods/dayPeriodContext[@type="format"]/dayPeriodWidth[@type="wide"]/dayPeriod[@type="am"]
-                        resultSet.add("//ldml/dates/calendars/calendar[@type=\"gregorian\"]/dayPeriods/" +
-                            "dayPeriodContext[@type=\"" + context
-                            + "\"]/dayPeriodWidth[@type=\"" + width
-                            + "\"]/dayPeriod[@type=\"" + dayPeriod + "\"]");
+                    if (dayPeriods != null) {
+                        Set<DayPeriod> items = new LinkedHashSet<DayPeriod>(dayPeriods.getPeriods());
+                        for (DayPeriod dayPeriod : items) {
+                            // ldml/dates/calendars/calendar[@type="gregorian"]/dayPeriods/dayPeriodContext[@type="format"]/dayPeriodWidth[@type="wide"]/dayPeriod[@type="am"]
+                            toAddTo.add("//ldml/dates/calendars/calendar[@type=\"gregorian\"]/dayPeriods/" +
+                                "dayPeriodContext[@type=\"" + context
+                                + "\"]/dayPeriodWidth[@type=\"" + width
+                                + "\"]/dayPeriod[@type=\"" + dayPeriod + "\"]");
+                        }
                     }
                 }
             }
-        }
-    }
-    
-    private static class MetaZonePathGenerator extends PathGeneratorBase {
-        
-        public MetaZonePathGenerator(SupplementalDataInfo sdi) {
-            this(sdi, new String[] {
+
+            // metazones
+            Set<String> zones = supplementalData.getAllMetazones();
+
+            for (String zone : zones) {
+                for (String width : new String[] { "long", "short" }) {
+                    for (String type : new String[] { "generic", "standard", "daylight" }) {
+                        toAddTo.add("//ldml/dates/timeZoneNames/metazone[@type=\"" + zone + "\"]/" + width + "/" + type);
+                    }
+                }
+            }
+
+            // Individual zone overrides
+            final String[] overrides = {
                 "Pacific/Honolulu\"]/short/generic",
                 "Pacific/Honolulu\"]/short/standard",
                 "Pacific/Honolulu\"]/short/daylight",
                 "Europe/Dublin\"]/long/daylight",
                 "Europe/London\"]/long/daylight"
-            });
-        }
-        private MetaZonePathGenerator(SupplementalDataInfo sdi,String[] overrides) {
-            super(new TreeSet<String>());
-            Set<String> zones = sdi.getAllMetazones();
+            };
+            for (String override : overrides) {
+                toAddTo.add("//ldml/dates/timeZoneNames/zone[@type=\"" + override);
+            }
 
-            for (String zone : zones) {
-                for (String width : new String[] { "long", "short" }) {
-                    for (String type : new String[] { "generic", "standard", "daylight" }) {
-                        resultSet.add("//ldml/dates/timeZoneNames/metazone[@type=\"" + zone + "\"]/" + width + "/" + type);
+            // Currencies
+            Set<String> codes = supplementalData.getBcp47Keys().getAll("cu");
+            for (String code : codes) {
+                String currencyCode = code.toUpperCase();
+                toAddTo.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/symbol");
+                toAddTo.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/displayName");
+                if (pluralCounts != null) {
+                    for (Count count : pluralCounts) {
+                        toAddTo.add("//ldml/numbers/currencies/currency[@type=\"" + currencyCode + "\"]/displayName[@count=\"" + count.toString() + "\"]");
                     }
                 }
-            }
-
-            for (String override : overrides) {
-                resultSet.add("//ldml/dates/timeZoneNames/zone[@type=\"" + override);
-            }
+            }            
         }
+        if (DEBUG_EXTRAPATHS) {
+        System.out.println("GetExtraPathPrivate: "+timer.getSeconds()+" s");
+        }
+        return toAddTo;
     }
-    
+   
+     
     private void showStars(String title, Iterable<String> source) {
         PathStarrer ps = new PathStarrer();
         Relation<String, String> stars = Relation.of(new TreeMap<String, Set<String>>(), TreeSet.class);
@@ -3688,7 +3550,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     private void addPluralCounts(Collection<String> toAddTo,
         final Set<Count> pluralCounts,
         Iterable<String> file) {
-        for (String path : file) {
+        for (String path : Sets.newHashSet(ownValueIterator())) {
             String countAttr = "[@count=\"other\"]";
             int countPos = path.indexOf(countAttr);
             if (countPos < 0) {
