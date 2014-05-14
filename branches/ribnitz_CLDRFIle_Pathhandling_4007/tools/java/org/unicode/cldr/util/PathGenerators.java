@@ -6,18 +6,24 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+
 import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
+/***
+ * Helper class allowing to obtain different unfiltered Paths.
+ * @author ribnitz
+ *
+ */
 class PathGenerators {
     public static interface Predicate<E> {
         boolean matches(E item);
@@ -39,12 +45,7 @@ class PathGenerators {
         Set<String> get(Predicate<String> predicate);
 
         /**
-         * Provide an unmodifiable iterator over the resulting elements
-         */
-        Iterator<String> iterator();
-
-        /**
-         * Provide an unmodifiable iteraotr over all elments that match the predicate
+         * Provide an unmodifiable iterator over all elments that match the predicate
          * @param predicate
          * @return
          */
@@ -67,7 +68,7 @@ class PathGenerators {
      * foo to a Collection, first transforming it as appropriate. Implementing classes only need to
      * provide the method responsible for the transformation.
      * 
-     * It will return true for all values that are conrained in the collection.
+     * It will return true for all values that are contained in the collection.
      * @author ribnitz
      *
      * @param <E>
@@ -99,9 +100,11 @@ class PathGenerators {
         }
         public abstract E transform(String item);
     }
+    
     /**
      * Base class for all path generators; child classes only need to override the default
      * constructor, in which they fill the result into resultSet. 
+     * 
      * @author ribnitz
      *
      */
@@ -278,11 +281,48 @@ class PathGenerators {
             }
         }
     }
-    public static GeneratablePath getMetaZonePaths(SupplementalDataInfo sdi) {
-        return new MetaZonePathGenerator(sdi);
-    }
+    
     private static GeneratablePath DAY_PERIODS=null;
-    private static Object DAY_PERIODS_SYNC=new Object();
+    /**
+     * Object to sync on when checking/assigning DAY_PERIODS
+     */
+    private static final Object DAY_PERIODS_SYNC=new Object();
+    
+    private static final LoadingCache<SupplementalDataInfo,GeneratablePath> CURRENCY_PATHS=
+        CacheBuilder.newBuilder().initialCapacity(10).maximumSize(50).build(new CacheLoader<SupplementalDataInfo, GeneratablePath>(){
+
+            @Override
+            public GeneratablePath load(SupplementalDataInfo key) throws Exception {
+                return new CurrencyPathGenerator(key);
+            }});
+    
+    private static final LoadingCache<Iterator<String>,GeneratablePath> PLURAL_PATHS=
+        CacheBuilder.newBuilder().initialCapacity(10).maximumSize(50).build(new CacheLoader<Iterator<String>, GeneratablePath>(){
+
+            @Override
+            public GeneratablePath load(Iterator<String> key) throws Exception {
+                return new PluralPathGenerator(key);
+            }});
+    
+    private static  LoadingCache<SupplementalDataInfo,GeneratablePath> METAZONE_PATHS= 
+        CacheBuilder.newBuilder().initialCapacity(10).maximumSize(50).build(
+            new CacheLoader<SupplementalDataInfo, GeneratablePath>(){
+
+                @Override
+                public GeneratablePath load(SupplementalDataInfo key) throws Exception {
+                    return new MetaZonePathGenerator(key);
+                }});
+ 
+    public static GeneratablePath getMetaZonePaths(SupplementalDataInfo sdi) {
+        try {
+            return METAZONE_PATHS.get(sdi);
+        } catch (ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+  
     public static GeneratablePath getDayPeriodPaths() {
         synchronized (DAY_PERIODS_SYNC) {
             if (DAY_PERIODS==null) {
@@ -292,43 +332,22 @@ class PathGenerators {
         }
        
     }
-    private static Cache<SupplementalDataInfo,GeneratablePath> CURRENCY_PATHS=
-        CacheBuilder.newBuilder().initialCapacity(10).maximumSize(50).build();
-     public static GeneratablePath getCurrencyPaths(final SupplementalDataInfo sdi) {
-         GeneratablePath returned=null;
-         synchronized(CURRENCY_PATHS) {
-             try {
-                returned=CURRENCY_PATHS.get(sdi, new Callable<GeneratablePath>(){
-
-                    @Override
-                    public GeneratablePath call() throws Exception {
-                      return new CurrencyPathGenerator(sdi);
-                    }});
-            } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-         }
-         return returned;
-    }
-     private static Cache<Set<String>,GeneratablePath> PLURAL_PATHS=
-         CacheBuilder.newBuilder().initialCapacity(10).maximumSize(50).build();
-    public static GeneratablePath getPluralPaths(final Iterator<String> paths) {
-        GeneratablePath returned=null;
-        Set<String> p=Sets.newHashSet(paths);
-        synchronized(PLURAL_PATHS) {
-            try {
-               returned=PLURAL_PATHS.get(p, new Callable<GeneratablePath>(){
-
-                   @Override
-                   public GeneratablePath call() throws Exception {
-                     return new PluralPathGenerator(paths);
-                   }});
-           } catch (ExecutionException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-           }
+ 
+    public static GeneratablePath getCurrencyPaths(SupplementalDataInfo sdi) {
+        try {
+            return CURRENCY_PATHS.get(sdi);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
-        return returned;
+        return null;
     }
+    
+     public static GeneratablePath getPluralPaths(Iterator<String> paths) {
+         try {
+             return PLURAL_PATHS.get(paths);
+         } catch (ExecutionException e) {
+             e.printStackTrace();
+         }
+         return null;
+     }
 }
