@@ -365,8 +365,8 @@ public class DisplayAndInputProcessor {
 
     private PrettyPrinter pp = null;
 
-    final private CLDRLocale locale;
-    private boolean isPosix;
+    private final CLDRLocale locale;
+    private final boolean isPosix;
 
     /**
      * Constructor, taking cldrFile.
@@ -374,44 +374,52 @@ public class DisplayAndInputProcessor {
      * @param cldrFileToCheck
      */
     public DisplayAndInputProcessor(CLDRFile cldrFileToCheck, boolean needsCollator) {
-        init(this.locale = CLDRLocale.getInstance(cldrFileToCheck.getLocaleID()), needsCollator);
+        this.locale = CLDRLocale.getInstance(cldrFileToCheck.getLocaleID());
+        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
+        init(this.locale, needsCollator);
     }
 
     public DisplayAndInputProcessor(CLDRFile cldrFileToCheck) {
-        init(this.locale = CLDRLocale.getInstance(cldrFileToCheck.getLocaleID()), true);
+        this.locale = CLDRLocale.getInstance(cldrFileToCheck.getLocaleID());
+        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
+        init(this.locale, true);
     }
 
-    void init(CLDRLocale locale, boolean needsCollator) {
-        isPosix = locale.toString().indexOf("POSIX") >= 0;
-        if (needsCollator) {
-            ICUServiceBuilder isb = null;
-            try {
-                isb = ICUServiceBuilder.forLocale(locale);
-            } catch (Exception e) {
-            }
-
-            if (isb != null) {
-                try {
-                    col = isb.getRuleBasedCollator();
-                } catch (Exception e) {
-                    col = Collator.getInstance(ULocale.ROOT);
-                }
-            } else {
-                col = Collator.getInstance(ULocale.ROOT);
-            }
-
-            spaceCol = Collator.getInstance(locale.toULocale());
-            if (spaceCol instanceof RuleBasedCollator) {
-                ((RuleBasedCollator) spaceCol).setAlternateHandlingShifted(false);
-            }
-            pp = new PrettyPrinter().setOrdering(Collator.getInstance(ULocale.ROOT))
-                .setSpaceComparator(Collator.getInstance(ULocale.ROOT).setStrength2(Collator.PRIMARY))
-                .setCompressRanges(true)
-                .setToQuote(new UnicodeSet(TO_QUOTE))
-                .setOrdering(col)
-                .setSpaceComparator(spaceCol);
-
+    private  void init(CLDRLocale locale, boolean needsCollator) {
+//        isPosix = locale.toString().indexOf("POSIX") >= 0;
+        if (!needsCollator) {
+            return;
         }
+        ICUServiceBuilder isb = null;
+        try {
+            isb = ICUServiceBuilder.forLocale(locale);
+        } catch (Exception e) {
+        }
+
+        Collator colTmp=Collator.getInstance(ULocale.ROOT);
+        if (isb != null) {
+            try {
+                colTmp = isb.getRuleBasedCollator();
+            } catch (Exception e) {
+                //  colTmp = Collator.getInstance(ULocale.ROOT).freeze();
+            }
+        }
+//            else {
+//                colTmp = Collator.getInstance(ULocale.ROOT).freeze();
+//            }
+        col=colTmp.freeze();
+        spaceCol = Collator.getInstance(locale.toULocale());
+        if (spaceCol instanceof RuleBasedCollator) {
+            ((RuleBasedCollator) spaceCol).setAlternateHandlingShifted(false);
+        }
+        // freeze space collator
+        spaceCol=spaceCol.freeze();
+        pp = new PrettyPrinter().setOrdering(Collator.getInstance(ULocale.ROOT))
+            .setSpaceComparator(Collator.getInstance(ULocale.ROOT).setStrength2(Collator.PRIMARY))
+            .setCompressRanges(true)
+            .setToQuote(new UnicodeSet(TO_QUOTE))
+            .setOrdering(col)
+            .setSpaceComparator(spaceCol);
     }
 
     /**
@@ -420,7 +428,9 @@ public class DisplayAndInputProcessor {
      * @param locale
      */
     public DisplayAndInputProcessor(ULocale locale, boolean needsCollator) {
-        init(this.locale = CLDRLocale.getInstance(locale), needsCollator);
+        this.locale = CLDRLocale.getInstance(locale);
+        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
+        init(this.locale, needsCollator);
     }
 
     /**
@@ -428,8 +438,10 @@ public class DisplayAndInputProcessor {
      * 
      * @param locale
      */
-    public DisplayAndInputProcessor(ULocale locale) {
-        init(this.locale = CLDRLocale.getInstance(locale), true);
+    public DisplayAndInputProcessor(ULocale locale)  {
+        this.locale = CLDRLocale.getInstance(locale);
+        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
+        init(this.locale, true);
     }
 
     /**
@@ -438,7 +450,9 @@ public class DisplayAndInputProcessor {
      * @param locale
      */
     public DisplayAndInputProcessor(CLDRLocale locale, boolean needsCollator) {
-        init(this.locale = locale, needsCollator);
+        this.locale = locale;
+        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
+        init(this.locale, needsCollator);
     }
 
     /**
@@ -447,7 +461,9 @@ public class DisplayAndInputProcessor {
      * @param locale
      */
     public DisplayAndInputProcessor(CLDRLocale locale) {
-        init(this.locale = locale, true);
+        this.locale = locale;
+        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
+        init(this.locale, true);
     }
 
     /**
@@ -459,7 +475,7 @@ public class DisplayAndInputProcessor {
      * @param fullPath
      * @return
      */
-    public synchronized String processForDisplay(String path, String value) {
+    public String processForDisplay(String path, String value) {
         if (path.contains("exemplarCharacters")) {
             if (value.startsWith("[") && value.endsWith("]")) {
                 value = value.substring(1, value.length() - 1);
@@ -739,7 +755,8 @@ public class DisplayAndInputProcessor {
         }
         return builder.toString();
     }
-
+    
+    
     private String standardizeHebrew(String value) {
         StringBuilder builder = new StringBuilder();
         for (char c : value.toCharArray()) {
@@ -854,11 +871,11 @@ public class DisplayAndInputProcessor {
         return value;
     }
 
-    static Pattern REMOVE_QUOTE1 = Pattern.compile("(\\s)(\\\\[-\\}\\]\\&])()");
-    static Pattern REMOVE_QUOTE2 = Pattern.compile("(\\\\[\\-\\{\\[\\&])(\\s)"); // ([^\\])([\\-\\{\\[])(\\s)
+    final static Pattern REMOVE_QUOTE1 = Pattern.compile("(\\s)(\\\\[-\\}\\]\\&])()");
+    final static Pattern REMOVE_QUOTE2 = Pattern.compile("(\\\\[\\-\\{\\[\\&])(\\s)"); // ([^\\])([\\-\\{\\[])(\\s)
 
-    static Pattern NEEDS_QUOTE1 = Pattern.compile("(\\s|$)([-\\}\\]\\&])()");
-    static Pattern NEEDS_QUOTE2 = Pattern.compile("([^\\\\])([\\-\\{\\[\\&])(\\s)"); // ([^\\])([\\-\\{\\[])(\\s)
+    final static Pattern NEEDS_QUOTE1 = Pattern.compile("(\\s|$)([-\\}\\]\\&])()");
+    final static Pattern NEEDS_QUOTE2 = Pattern.compile("([^\\\\])([\\-\\{\\[\\&])(\\s)"); // ([^\\])([\\-\\{\\[])(\\s)
 
     public static String getCleanedUnicodeSet(UnicodeSet exemplar, PrettyPrinter prettyPrinter,
         ExemplarType exemplarType) {
