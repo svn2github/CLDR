@@ -400,13 +400,14 @@ public class DisplayAndInputProcessor {
         if (isb != null) {
             try {
                 colTmp = isb.getRuleBasedCollator();
-            } catch (Exception e) {
-                //  colTmp = Collator.getInstance(ULocale.ROOT).freeze();
+            } catch (Exception ignored) {
+               // do nothing: if this line is reached (and the assignment failed), colTmp will still have the old value.
             }
         }
 //            else {
 //                colTmp = Collator.getInstance(ULocale.ROOT).freeze();
 //            }
+        // freeze the collator on assignment
         col=colTmp.freeze();
         spaceCol = Collator.getInstance(locale.toULocale());
         if (spaceCol instanceof RuleBasedCollator) {
