@@ -137,19 +137,23 @@ public class SimpleFactory extends Factory {
     private static class SimpleFactoryLookupKey {
         private final String directory;
         private final String matchString;
+        private final int hashCode;
 
         public SimpleFactoryLookupKey(String directory, String matchString) {
+            if (directory==null) {
+                throw new IllegalArgumentException("Directory must not be null");
+            }
             this.directory = directory;
+            if (matchString==null) {
+                throw new IllegalArgumentException("MatchString must not be null");
+            }
             this.matchString = matchString;
+            this.hashCode=Objects.hash(this.directory,this.matchString);
         }
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((directory == null) ? 0 : directory.hashCode());
-            result = prime * result + ((matchString == null) ? 0 : matchString.hashCode());
-            return result;
+          return hashCode;
         }
 
         @Override
@@ -164,18 +168,10 @@ public class SimpleFactory extends Factory {
                 return false;
             }
             SimpleFactoryLookupKey other = (SimpleFactoryLookupKey) obj;
-            if (directory == null) {
-                if (other.directory != null) {
-                    return false;
-                }
-            } else if (!directory.equals(other.directory)) {
+            if (!directory.equals(other.directory)) {
                 return false;
             }
-            if (matchString == null) {
-                if (other.matchString != null) {
-                    return false;
-                }
-            } else if (!matchString.equals(other.matchString)) {
+            if (!matchString.equals(other.matchString)) {
                 return false;
             }
             return true;
@@ -202,24 +198,28 @@ public class SimpleFactory extends Factory {
      *
      */
     private static class SimpleFactoryCacheKey {
-        private List<String> sourceDirectories;
-        private String matchString;
-        private DraftStatus mimimalDraftStatus;
+        private final List<String> sourceDirectories;
+        private final String matchString;
+        private final DraftStatus mimimalDraftStatus;
+        private final int hashCode;
 
         public SimpleFactoryCacheKey(List<String> sourceDirectories, String matchString, DraftStatus mimimalDraftStatus) {
+          if (sourceDirectories==null) {
+              throw new IllegalArgumentException("SourceDirectories must not be null");
+          }
             this.sourceDirectories = sourceDirectories;
+            if (matchString==null) {
+                throw new IllegalArgumentException("MatchString must not be null");
+            }
             this.matchString = matchString;
+            
             this.mimimalDraftStatus = mimimalDraftStatus;
+            this.hashCode=Objects.hash(this.sourceDirectories,this.matchString,this.mimimalDraftStatus);
         }
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((matchString == null) ? 0 : matchString.hashCode());
-            result = prime * result + ((mimimalDraftStatus == null) ? 0 : mimimalDraftStatus.hashCode());
-            result = prime * result + ((sourceDirectories == null) ? 0 : sourceDirectories.hashCode());
-            return result;
+           return hashCode;
         }
 
         @Override
@@ -234,21 +234,13 @@ public class SimpleFactory extends Factory {
                 return false;
             }
             SimpleFactoryCacheKey other = (SimpleFactoryCacheKey) obj;
-            if (matchString == null) {
-                if (other.matchString != null) {
-                    return false;
-                }
-            } else if (!matchString.equals(other.matchString)) {
+            if (!matchString.equals(other.matchString)) {
                 return false;
             }
             if (mimimalDraftStatus != other.mimimalDraftStatus) {
                 return false;
             }
-            if (sourceDirectories == null) {
-                if (other.sourceDirectories != null) {
-                    return false;
-                }
-            } else if (!sourceDirectories.equals(other.sourceDirectories)) {
+           if (!sourceDirectories.equals(other.sourceDirectories)) {
                 return false;
             }
             return true;
