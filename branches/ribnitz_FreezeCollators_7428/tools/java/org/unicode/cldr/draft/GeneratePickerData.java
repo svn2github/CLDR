@@ -100,6 +100,7 @@ class GeneratePickerData {
 
     static {
         UCA_BASE.setNumericCollation(true);
+        UCA_BASE=(RuleBasedCollator) UCA_BASE.freeze();
     }
 
     public static final Comparator<String> CODE_POINT_ORDER = new UTF16.StringComparator(true, false, 0);

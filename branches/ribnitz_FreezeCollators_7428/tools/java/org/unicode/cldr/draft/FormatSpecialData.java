@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -83,8 +84,11 @@ public class FormatSpecialData {
     }
 
     private static void addDataToPivot(Map<String, UnicodeSet> string2uset, final UnicodeMap<Set<String>> pivot) {
-        for (String value : string2uset.keySet()) {
-            UnicodeSet set = string2uset.get(value);
+        for (Entry<String, UnicodeSet> entry: string2uset.entrySet()) {
+        //for (String value : string2uset.keySet()) {
+//            UnicodeSet set = string2uset.get(value);
+            String value=entry.getKey();
+            UnicodeSet set=entry.getValue();
             // if (value.equals("Han")) {
             // add("Hant", set, pivot);
             // value = "Hans";

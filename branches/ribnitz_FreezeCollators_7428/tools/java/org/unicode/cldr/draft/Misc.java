@@ -238,7 +238,7 @@ public class Misc {
         LanguageTagParser ltp = new LanguageTagParser();
         String[] locales = "en ru nl en-GB fr de it pl pt-BR es tr th ja zh-CN zh-TW ko ar bg sr uk ca hr cs da fil fi hu id lv lt no pt-PT ro sk sl es-419 sv vi el iw fa hi am af et is ms sw zu bn mr ta eu fr-CA gl zh-HK ur gu kn ml te"
             .split(" ");
-        Set<String> nameAndInfo = new TreeSet<String>(info.getCollator());
+        Set<String> nameAndInfo = new TreeSet<String>(info.getCollator().freeze());
         for (String localeCode : locales) {
             String baseLanguage = ltp.set(localeCode).getLanguage();
             R2<List<String>, String> temp = lang2replacement.get(baseLanguage);

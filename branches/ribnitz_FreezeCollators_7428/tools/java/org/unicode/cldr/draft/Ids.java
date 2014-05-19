@@ -581,7 +581,7 @@ public abstract class Ids implements Comparable<Ids> {
                 out.println(hacks.badChars.getCount(cp) + "\t" + charAndHex(cp) + "\t" + UCharacter.getName(cp));
             }
         }
-        TreeSet<String> sortedUCA = new TreeSet<String>(Collator.getInstance(ULocale.ROOT));
+        TreeSet<String> sortedUCA = new TreeSet<String>(Collator.getInstance(ULocale.ROOT).freeze());
         for (String s : hacks.hackStrings) {
             if (!s.startsWith("X-")) {
                 sortedUCA.add(s);

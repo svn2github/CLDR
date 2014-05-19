@@ -391,6 +391,8 @@ public class ExtractICUData {
         };
         Collator col = Collator.getInstance(ULocale.ROOT);
         ((RuleBasedCollator) col).setNumericCollation(true);
+        //freeze the collator
+        col=col.freeze();
         Map<String, Set<String>> alpha = new TreeMap<String, Set<String>>(col);
 
         for (int range = 0; range < ranges.length; ++range) {

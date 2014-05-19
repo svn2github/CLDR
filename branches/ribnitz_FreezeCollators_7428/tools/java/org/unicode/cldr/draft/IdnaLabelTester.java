@@ -325,8 +325,8 @@ public class IdnaLabelTester {
     }
 
     private static final PrettyPrinter PRETTY_PRINTER = new PrettyPrinter()
-        .setOrdering(Collator.getInstance(ULocale.ROOT))
-        .setSpaceComparator(Collator.getInstance(ULocale.ROOT).setStrength2(Collator.PRIMARY))
+        .setOrdering(Collator.getInstance(ULocale.ROOT).freeze())
+        .setSpaceComparator(Collator.getInstance(ULocale.ROOT).setStrength2(Collator.PRIMARY).freeze())
         .setToQuote(TO_QUOTE)
         .setOrdering(null)
         .setSpaceComparator(null);

@@ -340,7 +340,7 @@ public class TestCldr extends TestFmwk {
     {
         addHandler("collation", new Handler() {
             public void handleResult(ULocale currentLocale, String value) {
-                Collator col = Collator.getInstance(currentLocale);
+                Collator col = Collator.getInstance(currentLocale).freeze();
                 String lastLine = "";
                 int count = 0;
                 for (int pos = 0; pos < value.length();) {
