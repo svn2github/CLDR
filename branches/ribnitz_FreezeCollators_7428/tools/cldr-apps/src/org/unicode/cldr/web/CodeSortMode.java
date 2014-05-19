@@ -56,7 +56,7 @@ public class CodeSortMode extends SortMode {
     public static Collator createCollator() {
         RuleBasedCollator rbc = ((RuleBasedCollator) Collator.getInstance());
         rbc.setNumericCollation(true);
-        return rbc;
+        return rbc.freeze();
     }
 
     @Override
