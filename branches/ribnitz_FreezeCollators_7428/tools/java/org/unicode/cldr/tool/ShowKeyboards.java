@@ -553,12 +553,21 @@ public class ShowKeyboards {
         out.println(t.toTable());
     }
 
-    static PrettyPrinter prettyPrinter = new PrettyPrinter()
+    static PrettyPrinter prettyPrinter = null;
+        /*new PrettyPrinter()
         .setOrdering(Collator.getInstance(ULocale.ROOT))
         .setSpaceComparator(Collator.getInstance(ULocale.ROOT).setStrength2(Collator.PRIMARY)
-        );
+        ); */
 
     public static String safeUnicodeSet(UnicodeSet unicodeSet) {
+        synchronized(ShowKeyboards.class) {
+    	if (prettyPrinter==null) {
+            prettyPrinter =new PrettyPrinter()
+            .setOrdering(Collator.getInstance(ULocale.ROOT))
+            .setSpaceComparator(Collator.getInstance(ULocale.ROOT).setStrength2(Collator.PRIMARY)
+            );
+        }
+        }
         return TransliteratorUtilities.toHTML.transform(prettyPrinter.format(unicodeSet));
     }
 
