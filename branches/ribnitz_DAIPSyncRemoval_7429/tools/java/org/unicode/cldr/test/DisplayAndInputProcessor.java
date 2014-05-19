@@ -374,15 +374,12 @@ public class DisplayAndInputProcessor {
      * @param cldrFileToCheck
      */
     public DisplayAndInputProcessor(CLDRFile cldrFileToCheck, boolean needsCollator) {
-        this.locale = CLDRLocale.getInstance(cldrFileToCheck.getLocaleID());
-        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
-        init(this.locale, needsCollator);
+       this(CLDRLocale.getInstance(cldrFileToCheck.getLocaleID()),needsCollator);
+  
     }
 
     public DisplayAndInputProcessor(CLDRFile cldrFileToCheck) {
-        this.locale = CLDRLocale.getInstance(cldrFileToCheck.getLocaleID());
-        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
-        init(this.locale, true);
+      this(cldrFileToCheck,true);
     }
 
     private  void init(CLDRLocale locale, boolean needsCollator) {
@@ -429,9 +426,7 @@ public class DisplayAndInputProcessor {
      * @param locale
      */
     public DisplayAndInputProcessor(ULocale locale, boolean needsCollator) {
-        this.locale = CLDRLocale.getInstance(locale);
-        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
-        init(this.locale, needsCollator);
+       this(CLDRLocale.getInstance(locale),needsCollator);
     }
 
     /**
@@ -440,9 +435,7 @@ public class DisplayAndInputProcessor {
      * @param locale
      */
     public DisplayAndInputProcessor(ULocale locale)  {
-        this.locale = CLDRLocale.getInstance(locale);
-        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
-        init(this.locale, true);
+        this(CLDRLocale.getInstance(locale));
     }
 
     /**
@@ -462,9 +455,7 @@ public class DisplayAndInputProcessor {
      * @param locale
      */
     public DisplayAndInputProcessor(CLDRLocale locale) {
-        this.locale = locale;
-        this.isPosix = locale.toString().indexOf("POSIX") >= 0;
-        init(this.locale, true);
+       this(locale,true);
     }
 
     /**
