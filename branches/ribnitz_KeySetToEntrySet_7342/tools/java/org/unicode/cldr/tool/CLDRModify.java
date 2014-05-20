@@ -2324,8 +2324,10 @@ public class CLDRModify {
             }
         }
         // at this point, haveSameValues is all kosher, so add items
-        for (String xpath : haveSameValues.keySet()) {
-            ValuePair v = (ValuePair) haveSameValues.get(xpath);
+      for (Map.Entry<String, ValuePair> entry:haveSameValues.entrySet()) {
+//        for (String xpath : haveSameValues.keySet()) {
+//            ValuePair v = (ValuePair) haveSameValues.get(xpath);
+          ValuePair v=entry.getValue();
             // if (v.value.equals(resolvedFile.getStringValue(xpath))
             // && v.fullxpath.equals(resolvedFile.getFullXPath(xpath))) continue;
             replacements.add(v.fullxpath, v.value);

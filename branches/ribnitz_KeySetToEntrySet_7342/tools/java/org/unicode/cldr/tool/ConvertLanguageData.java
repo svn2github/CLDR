@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -434,11 +435,14 @@ public class ConvertLanguageData {
         Set<String> populationOver20 = new TreeSet<String>();
         Set<String> population = new TreeSet<String>();
         LanguageTagParser ltp = new LanguageTagParser();
-        for (String rawLocale : localeToRowData.keySet()) {
+        for (Entry<String, RowData> localeEntry: localeToRowData.entrySet()) {
+      //  for (String rawLocale : localeToRowData.keySet()) {
+            String rawLocale=localeEntry.getKey();
+            RowData rowData= localeEntry.getValue();
             ltp.set(rawLocale);
             String locale = ltp.getLanguage() + (ltp.getRegion().length() == 0 ? "" : "_" + ltp.getRegion());
             population.add(locale);
-            RowData rowData = localeToRowData.get(rawLocale);
+//            RowData rowData = localeToRowData.get(rawLocale);
             if (rowData.getLanguagePopulation() / rowData.countryPopulation >= 0.2) {
                 populationOver20.add(locale);
             } else {
