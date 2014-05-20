@@ -207,6 +207,7 @@ public class CLDRConfig extends Properties {
             if (col == null) {
                 col = (RuleBasedCollator) Collator.getInstance();
                 col.setNumericCollation(true);
+               col.freeze();
             }
         }
         return col;
