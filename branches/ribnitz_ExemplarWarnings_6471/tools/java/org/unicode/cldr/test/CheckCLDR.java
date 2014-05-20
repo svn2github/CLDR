@@ -39,6 +39,7 @@ import org.unicode.cldr.util.RegexFileParser.RegexLineParser;
 import org.unicode.cldr.util.StandardCodes;
 import org.unicode.cldr.util.VoteResolver;
 
+import com.google.common.collect.ImmutableList;
 import com.ibm.icu.dev.util.ElapsedTimer;
 import com.ibm.icu.dev.util.TransliteratorUtilities;
 import com.ibm.icu.impl.Row.R3;
@@ -695,7 +696,7 @@ abstract public class CheckCLDR {
         this.cldrFileToCheck = cldrFileToCheck;
 
         // Shortlist error filters for this locale.
-        loadFilters();
+//        List<R3<Pattern, Subtype, Pattern>> errorFilters=loadFilters();
         String locale = cldrFileToCheck.getLocaleID();
         filtersForLocale.clear();
         for (R3<Pattern, Subtype, Pattern> filter : allFilters) {
@@ -703,7 +704,8 @@ abstract public class CheckCLDR {
             Subtype subtype = filter.get1();
             List<Pattern> xpaths = filtersForLocale.get(subtype);
             if (xpaths == null) {
-                filtersForLocale.put(subtype, xpaths = new ArrayList<Pattern>());
+                xpaths = new ArrayList<Pattern>();
+                filtersForLocale.put(subtype, xpaths);
             }
             xpaths.add(filter.get2());
         }
@@ -1198,8 +1200,10 @@ abstract public class CheckCLDR {
         public CheckCLDR handleCheck(String path, String fullPath, String value,
             Options options, List<CheckStatus> result) {
             result.clear();
-            for (Iterator<CheckCLDR> it = filteredCheckList.iterator(); it.hasNext();) {
-                CheckCLDR item = it.next();
+         
+            for (CheckCLDR item: filteredCheckList) {
+//            for (Iterator<CheckCLDR> it = filteredCheckList.iterator(); it.hasNext();) {
+//                CheckCLDR item = it.next();
                 // skip proposed items in final testing.
                 if (Phase.FINAL_TESTING == item.getPhase()) {
                     if (path.contains("proposed") && path.contains("[@alt=")) {
@@ -1334,14 +1338,15 @@ abstract public class CheckCLDR {
     /**
      * A map of error/warning types to their filters.
      */
-    private static List<R3<Pattern, Subtype, Pattern>> allFilters;
+    private static List<R3<Pattern, Subtype, Pattern>> allFilters=loadFilters();
 
     /**
      * Loads the set of filters used for CheckCLDR results.
      */
-    private void loadFilters() {
-        if (allFilters != null) return;
-        allFilters = new ArrayList<R3<Pattern, Subtype, Pattern>>();
+    private static  List<R3<Pattern, Subtype, Pattern>> loadFilters() {
+     //   if (allFilters != null) return;
+        final List<R3<Pattern, Subtype, Pattern>> localList= new ArrayList<R3<Pattern, Subtype, Pattern>>();
+//        allFilters = new ArrayList<R3<Pattern, Subtype, Pattern>>();
         RegexFileParser fileParser = new RegexFileParser();
         fileParser.setLineParser(new RegexLineParser() {
             @Override
@@ -1350,10 +1355,12 @@ abstract public class CheckCLDR {
                 Subtype subtype = Subtype.valueOf(fields[0]);
                 Pattern locale = Pattern.compile(fields[1]);
                 Pattern xpathRegex = Pattern.compile(fields[2].replaceAll("\\[@", "\\\\[@"));
-                allFilters.add(new R3<Pattern, Subtype, Pattern>(locale, subtype, xpathRegex));
+//                allFilters.add(new R3<Pattern, Subtype, Pattern>(locale, subtype, xpathRegex));
+                localList.add(new R3<Pattern, Subtype, Pattern>(locale, subtype, xpathRegex));
             }
         });
         fileParser.parse(CheckCLDR.class, "/org/unicode/cldr/util/data/CheckCLDR-exceptions.txt");
+        return ImmutableList.copyOf(localList);
     }
 
     /**
