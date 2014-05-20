@@ -91,6 +91,7 @@ public class POSIX_LCCollate {
         }
 
         col.setStrength(RuleBasedCollator.IDENTICAL);
+        col.freeze();
         allItems = new SortedBag(col);
         contractions = new SortedBag(col);
 

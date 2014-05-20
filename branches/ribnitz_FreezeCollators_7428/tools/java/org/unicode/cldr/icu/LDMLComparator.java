@@ -119,7 +119,7 @@ public class LDMLComparator {
         temp.setStrength(Collator.IDENTICAL);
         temp.setNumericCollation(true);
         // DEFAULT_COLLATION = temp;
-        return temp;
+        return ((RuleBasedCollator)temp).freeze();
     }
 
     Hashtable<String, String> optionTable = new Hashtable<String, String>();

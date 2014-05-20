@@ -30,7 +30,7 @@ import com.ibm.icu.util.ULocale;
 public class ReferenceStringSearch {
     private static final int PADDING = 3;
 
-    private RuleBasedCollator collator = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
+    private RuleBasedCollator collator = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT).freeze();
 
     private BreakIterator breaker;
 

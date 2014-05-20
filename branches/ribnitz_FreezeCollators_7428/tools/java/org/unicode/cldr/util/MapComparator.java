@@ -27,6 +27,7 @@ public class MapComparator<K> implements Comparator<K>, Freezable<MapComparator<
     private RuleBasedCollator uca = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
     {
         uca.setNumericCollation(true);
+        uca.freeze();
     }
     private Map<K, Integer> ordering = new TreeMap<K, Integer>(); // maps from name to rank
     private List<K> rankToName = new ArrayList<K>();

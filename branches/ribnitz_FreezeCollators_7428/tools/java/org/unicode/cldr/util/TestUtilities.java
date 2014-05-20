@@ -206,7 +206,7 @@ public class TestUtilities {
         // get the differences (and sort them)
         RuleBasedCollator eng = (RuleBasedCollator) Collator.getInstance();
         eng.setNumericCollation(true);
-
+        eng.freeze();
         Set<String> extra = new TreeSet<String>(eng);
         extra.addAll(map_timezone_integer.keySet());
         extra.removeAll(timezones);

@@ -35,6 +35,7 @@ import com.ibm.icu.text.Transliterator;
 import com.ibm.icu.text.UTF16;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
+import com.ibm.icu.util.Freezable;
 import com.ibm.icu.util.ULocale;
 
 public class CollationMapMaker {
@@ -207,7 +208,7 @@ public class CollationMapMaker {
     }
 
     static final boolean showDetails = false;
-    static final RuleBasedCollator uca = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
+    static final RuleBasedCollator uca = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT).freeze();
     static final UnicodeSet filteredChars = (UnicodeSet) new UnicodeSet(
         "[{ss}[^[:Co:][:Cf:][:Cc:][:Cn:][:Cs:][:script=Han:][:script=Hangul:]-[:nfkcquickcheck=no:]]]").freeze(); // skip
                                                                                                                   // a
@@ -225,14 +226,36 @@ public class CollationMapMaker {
 
     RuleBasedCollator equivalenceClassCollator;
     Comparator exemplarComparator;
-    Map<String, String> reasonMap = new TreeMap();
+    Map<String, String> reasonMap = new TreeMap<>();
     XEquivalenceMap equivMap = new XEquivalenceMap();
 
+    /**
+     * Wrapper class that wraps cloning a Collator in such a way that the result of the clone is a thawed Collator.
+     * @author ribnitz
+     *
+     * @param <E>
+     */
+    private static class ThawingCollatorWrapper<E extends Collator> implements Cloneable {
+        public  Freezable<E> source;
+        public ThawingCollatorWrapper(Collator c) {
+            if ((c instanceof Freezable)==false) {
+                throw new IllegalArgumentException("Please provide a Freezable Collator");
+            }
+            source=(Freezable<E>)c;
+        }
+        public  Object clone() throws CloneNotSupportedException {
+            if (source.isFrozen()) {
+                return source.cloneAsThawed();
+            }
+            return ((Collator)source).clone();
+        }
+    }
+    
     public Map<CharSequence, String> generateCollatorFolding(RuleBasedCollator equivalenceClassCollator,
         Map<CharSequence, String> mapping) {
         this.equivalenceClassCollator = equivalenceClassCollator;
         try {
-            RuleBasedCollator exemplarCollator = (RuleBasedCollator) equivalenceClassCollator.clone();
+            RuleBasedCollator exemplarCollator = (RuleBasedCollator) new ThawingCollatorWrapper<>(equivalenceClassCollator).clone();
             exemplarCollator.setStrength(exemplarCollator.IDENTICAL);
             exemplarCollator.setDecomposition(Collator.CANONICAL_DECOMPOSITION);
             exemplarCollator.setUpperCaseFirst(false);
@@ -241,7 +264,7 @@ public class CollationMapMaker {
             exemplarCollator.setCaseLevel(false);
             exemplarCollator.setFrenchCollation(false);
             exemplarCollator.setHiraganaQuaternary(false);
-            exemplarComparator = new ExemplarComparator(exemplarCollator);
+            exemplarComparator = new ExemplarComparator(exemplarCollator.freeze());
         } catch (CloneNotSupportedException e) {
         } // will never happen
 

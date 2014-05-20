@@ -140,7 +140,7 @@ public class ICUServiceBuilder {
         else
             col = (RuleBasedCollator) RuleBasedCollator.getInstance();
 
-        return col;
+        return (RuleBasedCollator) col.freeze();
     }
 
     public RuleBasedCollator getRuleBasedCollator() throws Exception {
