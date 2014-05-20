@@ -7,6 +7,7 @@
 package org.unicode.cldr.tool;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -41,8 +42,6 @@ import com.ibm.icu.dev.util.BagFormatter;
 import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.dev.util.TransliteratorUtilities;
-import com.ibm.icu.impl.Row;
-import com.ibm.icu.impl.Row.R2;
 import com.ibm.icu.lang.UScript;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.RuleBasedCollator;
@@ -81,6 +80,7 @@ public class ShowData {
 
     {
         uca.setNumericCollation(true);
+        uca.freeze();
     }
 
     static PathHeader.Factory prettyPathMaker = PathHeader.getFactory(CLDRConfig.getInstance().getEnglish());
@@ -93,6 +93,17 @@ public class ShowData {
 
     static Factory cldrFactory;
 
+    private static void assertDirWritable(String directory) {
+        File cFile=new File(directory);
+        
+        if (!cFile.canWrite()) {
+            if (!cFile.mkdirs()) {
+                throw new IllegalArgumentException("Unable to create the directory '"+directory+"' to write to");
+            } else {
+                System.out.println("Created directory '"+directory+"'");
+            }
+        }
+    }
     public static void main(String[] args) throws Exception {
         // String p =
         // prettyPathMaker.getPrettyPath("//ldml/characters/exemplarCharacters[@alt=\"proposed-u151-4\"]");
@@ -117,8 +128,10 @@ public class ShowData {
                 return;
             }
 
-            FileCopier.copy(ShowData.class, "summary-index.css", options[DESTDIR].value, "index.css");
-            FileCopier.copy(ShowData.class, "summary-index.html", options[DESTDIR].value, "index.html");
+            String destDir=options[DESTDIR].value;
+            assertDirWritable(destDir);
+            FileCopier.copy(ShowData.class, "summary-index.css", destDir, "index.css");
+            FileCopier.copy(ShowData.class, "summary-index.html", destDir, "index.html");
 
             ToolUtilities.registerExtraTransliterators();
 

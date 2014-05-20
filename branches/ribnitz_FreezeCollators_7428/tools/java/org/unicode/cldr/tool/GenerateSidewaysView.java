@@ -136,6 +136,7 @@ public class GenerateSidewaysView {
         RuleBasedCollator UCA2 = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
         UCA2.setNumericCollation(true);
         UCA2.setStrength(Collator.IDENTICAL);
+        UCA2.freeze();
         UCA = new com.ibm.icu.impl.MultiComparator(UCA2, new UTF16.StringComparator(true, false, 0));
     }
 
@@ -147,12 +148,25 @@ public class GenerateSidewaysView {
     static {
         standardCollation.setStrength(Collator.IDENTICAL);
         standardCollation.setNumericCollation(true);
+        standardCollation=(RuleBasedCollator) standardCollation.freeze();
     }
 
     private static CLDRFile english;
     // private static DataShower dataShower = new DataShower();
     private static Matcher pathMatcher;
 
+    
+    private static void assertDirWritable(String directory) throws IOException {
+        File f=new File(directory);
+        if (!f.canWrite()) {
+                if (!f.mkdirs()) {
+                    throw new IllegalArgumentException("Unable to create the directory '"+directory+"' to write to");
+                } else {
+                    System.out.println("Created directory: '"+directory);
+                }
+        }
+    }
+    
     public static void main(String[] args) throws SAXException, IOException {
         startTime = System.currentTimeMillis();
         ToolUtilities.registerExtraTransliterators();
@@ -164,6 +178,8 @@ public class GenerateSidewaysView {
         english = cldrFactory.make("en", true);
         pathHeaderFactory = PathHeader.getFactory(english);
 
+        String destDir=options[DESTDIR].value;
+        assertDirWritable(destDir);
         FileCopier.copy(GenerateSidewaysView.class, "bytype-index.css", options[DESTDIR].value, "index.css");
 
         // now get the info

@@ -173,6 +173,6 @@ public class GenerateCldrCollationTests {
             Log.logln("Old ICU4J: " + oldrules);
             Log.logln("Equal?: " + oldrules.equals(rules));
         }
-        return fixed;
+        return (RuleBasedCollator) fixed.freeze();
     }
 }

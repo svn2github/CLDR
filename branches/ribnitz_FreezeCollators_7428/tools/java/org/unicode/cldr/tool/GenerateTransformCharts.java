@@ -76,10 +76,21 @@ public class GenerateTransformCharts {
         scriptExtras.put("Hang", TestTransformsSimple.getRepresentativeHangul());
     }
 
+    private static void assertDirWritable(String directory) throws IOException {
+        File f=new File(directory);
+        if (!f.canWrite()) {
+                if (!f.mkdirs()) {
+                    throw new IllegalArgumentException("Unable to create the directory '"+directory+"' to write to");
+                } else {
+                    System.out.println("Created directory: '"+directory);
+                }
+        }
+    }
     public static void main(String[] args) throws IOException {
         String filter = CldrUtility.getProperty("filter", null);
         System.out.println("Start");
 
+        assertDirWritable(TRANSFORM_DIRECTORY);
         FileCopier.copy(ShowData.class, "transforms-index.css", TRANSFORM_DIRECTORY, "index.css");
 
         // PrintWriter out = new PrintWriter(System.out);
@@ -444,6 +455,7 @@ public class GenerateTransformCharts {
         RuleBasedCollator UCA2 = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
         UCA2.setNumericCollation(true);
         UCA2.setStrength(Collator.IDENTICAL);
+        UCA2.freeze();
         UCA = new com.ibm.icu.impl.MultiComparator(UCA2, new UTF16.StringComparator(true, false, 0));
     }
 

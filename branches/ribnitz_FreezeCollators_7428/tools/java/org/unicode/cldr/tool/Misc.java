@@ -1319,9 +1319,11 @@ public class Misc {
                 count++;
                 outFile.add("//supplementalData/transforms/transform/line[@_q=\"" + count + "\"]", line);
             }
-            PrintWriter pw = BagFormatter.openUTF8Writer(CLDRPaths.GEN_DIRECTORY + "/translit/", fixedName + ".xml");
-            outFile.write(pw);
-            pw.close();
+            try(PrintWriter pw = BagFormatter.openUTF8Writer(
+                CLDRPaths.GEN_DIRECTORY + "/translit/", fixedName + ".xml");) {
+                outFile.write(pw);
+            }
+//            pw.close();
         }
     }
 }

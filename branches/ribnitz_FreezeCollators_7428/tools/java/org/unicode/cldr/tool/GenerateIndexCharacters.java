@@ -29,9 +29,11 @@ public class GenerateIndexCharacters {
             String cleanedSet = getConstructedIndexSet(locale, cldrFactory.make(locale, true));
             CLDRFile temp = SimpleFactory.makeFile(locale);
             temp.add("//ldml/characters/exemplarCharacters[@type=\"index\"][@draft=\"unconfirmed\"]", cleanedSet);
-            PrintWriter out = BagFormatter.openUTF8Writer(CLDRPaths.GEN_DIRECTORY + "indexchars/", locale + ".xml");
-            temp.write(out);
-            out.close();
+            try (PrintWriter out = BagFormatter.openUTF8Writer(CLDRPaths.GEN_DIRECTORY + 
+                "indexchars/", locale + ".xml");) {
+                temp.write(out); 
+            }
+//            out.close();
         }
     }
 
@@ -39,8 +41,7 @@ public class GenerateIndexCharacters {
         ULocale uLocale = new ULocale(locale);
         Collator collator = Collator.getInstance(uLocale);
         collator.setStrength(Collator.PRIMARY); // TODO: ought to build the collator from CLDR instead of from ICU.
-        collator=collator.freeze();
-        
+        collator.freeze();
         AlphabeticIndex<String> index = new AlphabeticIndex<String>(uLocale);
         index.clearRecords();
         UnicodeSet indexLabels = cFile.getExemplarSet("index", WinningChoice.WINNING);
