@@ -203,6 +203,7 @@ public class TestAll extends TestGroup {
                 if (col == null) {
                     col = (RuleBasedCollator) Collator.getInstance();
                     col.setNumericCollation(true);
+                    col=(RuleBasedCollator) col.freeze();
                 }
             }
             return col;
