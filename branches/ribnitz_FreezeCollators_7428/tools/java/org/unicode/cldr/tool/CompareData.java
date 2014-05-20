@@ -11,7 +11,6 @@ import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.LocaleIDParser;
-import org.unicode.cldr.util.PrettyPath;
 
 import com.ibm.icu.dev.tool.UOption;
 import com.ibm.icu.text.Collator;
@@ -41,9 +40,10 @@ public class CompareData {
     static RuleBasedCollator uca = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
     {
         uca.setNumericCollation(true);
+        uca.freeze();
     }
 
-    static PrettyPath prettyPathMaker = new PrettyPath();
+ //  static PrettyPath prettyPathMaker = new PrettyPath();
     static CLDRFile english;
     static Set<String> locales;
     static Factory cldrFactory;
@@ -55,6 +55,15 @@ public class CompareData {
             String sourceDir = options[SOURCEDIR].value + "common/main/";
             System.out.println(new File(sourceDir).getCanonicalPath());
             String compareDir = options[DESTDIR].value + "common/main/";
+            // create DestDir if it does not exist
+            File destDirFile=new File(compareDir);
+            if (!destDirFile.canWrite()) {
+                if (!destDirFile.mkdirs()) {
+                    throw new IllegalArgumentException("Unable to create the path '"+compareDir+"' for writing data");
+                } else {
+                    System.out.println("Created directory '"+compareDir+"', as it did not exist");
+                }
+            }
             System.out.println(new File(compareDir).getCanonicalPath());
 
             cldrFactory = Factory.make(sourceDir, options[MATCH].value);
@@ -68,12 +77,13 @@ public class CompareData {
             int deletedItemsTotal = 0;
             int sameItemsTotal = 0;
 
-            for (Iterator<String> it = locales.iterator(); it.hasNext();) {
+            for (String locale: locales) {
+        //    for (Iterator<String> it = locales.iterator(); it.hasNext();) {
                 int newItems = 0;
                 int replacementItems = 0;
                 int deletedItems = 0;
                 int sameItems = 0;
-                String locale = it.next();
+              //  String locale = it.next();
                 if (locale.startsWith("supplem") || locale.startsWith("character")) continue;
                 CLDRFile file = (CLDRFile) cldrFactory.make(locale, false);
                 try {
@@ -92,8 +102,9 @@ public class CompareData {
                         }
                         pathsSeen.add(path);
                     }
-                    for (Iterator<String> it2 = oldFile.iterator(); it2.hasNext();) {
-                        String path = it2.next();
+                    for (String path: oldFile) {
+//                    for (Iterator<String> it2 = oldFile.iterator(); it2.hasNext();) {
+//                        String path = it2.next();
                         if (!pathsSeen.contains(path)) {
                             deletedItems++;
                         }
