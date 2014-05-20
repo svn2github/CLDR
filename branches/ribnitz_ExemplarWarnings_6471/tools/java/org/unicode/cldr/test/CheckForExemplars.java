@@ -23,6 +23,7 @@ import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.InternalCldrException;
 import org.unicode.cldr.util.LocaleIDParser;
 import org.unicode.cldr.util.PatternPlaceholders;
+import org.unicode.cldr.util.StringId;
 import org.unicode.cldr.util.PatternPlaceholders.PlaceholderStatus;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData;
@@ -167,10 +168,10 @@ public class CheckForExemplars extends FactoryCheckCLDR {
             return this;
         }
         String locale = cldrFile.getLocaleID();
-        col = Collator.getInstance(new ULocale(locale));
+        col = Collator.getInstance(new ULocale(locale)).freeze();
         spaceCol = Collator.getInstance(new ULocale(locale));
         spaceCol.setStrength(Collator.PRIMARY);
-
+        spaceCol=spaceCol.freeze();
         CLDRFile resolvedFile = getResolvedCldrFileToCheck();
         boolean[] ok = new boolean[1];
         exemplars = safeGetExemplars("", possibleErrors, resolvedFile, ok);
@@ -192,11 +193,12 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         exemplarsPlusAscii = new UnicodeSet(exemplars).addAll(ASCII).freeze();
 
         skip = false;
-        prettyPrint = new PrettyPrinter()
-            .setOrdering(col != null ? col : Collator.getInstance(ULocale.ROOT))
-            .setSpaceComparator(col != null ? col : Collator.getInstance(ULocale.ROOT)
-                .setStrength2(Collator.PRIMARY))
-            .setCompressRanges(true);
+        prettyPrint=createPrettyPrinter(col);
+//        prettyPrint = new PrettyPrinter()
+//            .setOrdering(col != null ? col : rootCol)
+//            .setSpaceComparator(col != null ? col : rootCol
+//                .setStrength2(Collator.PRIMARY))
+//            .setCompressRanges(true);
         return this;
     }
 
@@ -355,26 +357,15 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         if (path.contains("/currency") && path.contains("/symbol")) {
             if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
                 disallowed.removeAll(ALL_CURRENCY_SYMBOLS);
-                disallowed.removeAll(LETTER); // Allow ASCII A-Z in currency symbols
-                // String currency = new XPathParts().set(path).getAttributeValue(-2, "type");
-                if (disallowed.size() > 0 ) {
-                    // && asciiNotAllowed(getCldrFileToCheck().getLocaleID(), currency)) {
+                String currency = new XPathParts().set(path).getAttributeValue(-2, "type");
+                if (disallowed.size() > 0 &&
+                    asciiNotAllowed(getCldrFileToCheck().getLocaleID(), currency)) {
                     addMissingMessage(disallowed, CheckStatus.warningType,
                         Subtype.charactersNotInMainOrAuxiliaryExemplars,
                         Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the exemplar characters",
                         result);
                 }
             }
-        } else if (path.contains("/gmtFormat") || path.contains("/gmtZeroFormat")) {
-                if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
-                    disallowed.removeAll(LETTER); // Allow ASCII A-Z in gmtFormat and gmtZeroFormat
-                    if (disallowed.size() > 0 ) {
-                        addMissingMessage(disallowed, CheckStatus.warningType,
-                            Subtype.charactersNotInMainOrAuxiliaryExemplars,
-                            Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the exemplar characters",
-                            result);
-                    }
-                }
         } else if (path.contains("/localeDisplayNames") && !path.contains("/localeDisplayPattern")) {
             // test first for outside of the set.
             if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
@@ -390,7 +381,8 @@ public class CheckForExemplars extends FactoryCheckCLDR {
                         "cannot occur in locale fields", result);
                 }
             }
-        } else if (path.contains("/units")) {
+        }
+        if (path.contains("/units")) {
             String noValidParentheses = IGNORE_PLACEHOLDER_PARENTHESES.matcher(value).replaceAll("");
             disallowed = new UnicodeSet().addAll(START_PAREN).addAll(END_PAREN)
                 .retainAll(noValidParentheses);
@@ -400,11 +392,12 @@ public class CheckForExemplars extends FactoryCheckCLDR {
                     Subtype.parenthesesNotAllowed,
                     "cannot occur in units", result);
             }
-        } else {
-            if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
-                addMissingMessage(disallowed, CheckStatus.warningType, Subtype.charactersNotInMainOrAuxiliaryExemplars,
-                    Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the exemplar characters", result);
-            }
+        } else if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
+            // get the locale
+            String localeID=getDisplayInformation().getLocaleID();
+            String url="<a href=\"v#/" + localeID+ "/Alphabetic_Information/"+StringId.getHexId( prettyPrint.format(disallowed))+"\">";
+            addMissingMessage(disallowed, CheckStatus.warningType, Subtype.charactersNotInMainOrAuxiliaryExemplars,
+                Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the "+url+"exemplar</a> characters", result);
         }
 
         // check for spaces

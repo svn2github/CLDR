@@ -378,12 +378,12 @@ public class ConsoleCheckCLDR {
         PathShower pathShower = new PathShower();
 
         // call on the files
-        Set locales = new TreeSet(baseFirstCollator);
+        Set<String> locales = new TreeSet<>(baseFirstCollator);
         locales.addAll(cldrFactory.getAvailable());
 
         List<CheckStatus> result = new ArrayList<CheckStatus>();
         Set<PathHeader> paths = new TreeSet<PathHeader>(); // CLDRFile.ldmlComparator);
-        Map m = new TreeMap();
+        Map<String,String> m = new TreeMap<>();
         // double testNumber = 0;
         Map<String, String> options = new HashMap<String, String>();
         FlexibleDateFromCLDR fset = new FlexibleDateFromCLDR();
@@ -399,8 +399,9 @@ public class ConsoleCheckCLDR {
         String lastBaseLanguage = "";
         PathHeader.Factory pathHeaderFactory = PathHeader.getFactory(english);
 
-        for (Iterator it = locales.iterator(); it.hasNext();) {
-            String localeID = (String) it.next();
+        for (String localeID: locales) {
+//        for (Iterator<String> it = locales.iterator(); it.hasNext();) {
+//            String localeID = (String) it.next();
             if (CLDRFile.isSupplementalName(localeID)) continue;
             if (supplementalDataInfo.getDefaultContentLocales().contains(localeID)) {
                 System.out.println("# Skipping default content locale: " + localeID);
@@ -484,8 +485,9 @@ public class ConsoleCheckCLDR {
 
             subtotalCount.clear();
 
-            for (Iterator<CheckStatus> it3 = result.iterator(); it3.hasNext();) {
-                CheckStatus status = it3.next();
+            for (CheckStatus status: result) {
+         //   for (Iterator<CheckStatus> it3 = result.iterator(); it3.hasNext();) {
+//                CheckStatus status = it3.next();
                 String statusString = status.toString(); // com.ibm.icu.impl.Utility.escape(
                 CheckStatus.Type statusType = status.getType();
 
@@ -690,6 +692,7 @@ public class ConsoleCheckCLDR {
                 missingExemplars.removeAll(new UnicodeSet("[[:Uppercase:]-[İ]]")); // remove uppercase #4670
                 if (missingExemplars.size() != 0) {
                     Collator col = Collator.getInstance(new ULocale(localeID));
+                    Collator rootCol=Collator.getInstance(ULocale.ROOT).freeze();
                     showSummary(checkCldr, localeID, level, "Total missing from general exemplars:\t" + new PrettyPrinter()
                         .setOrdering(col != null ? col : Collator.getInstance(ULocale.ROOT))
                         .setSpaceComparator(col != null ? col : Collator.getInstance(ULocale.ROOT)

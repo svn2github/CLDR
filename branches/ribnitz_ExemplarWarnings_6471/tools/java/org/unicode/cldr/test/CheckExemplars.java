@@ -6,6 +6,8 @@ import java.util.List;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.PathHeader;
+import org.unicode.cldr.util.StringId;
 import org.unicode.cldr.util.XPathParts;
 
 import com.ibm.icu.dev.util.PrettyPrinter;
@@ -104,15 +106,12 @@ public class CheckExemplars extends FactoryCheckCLDR {
         if (cldrFileToCheck == null) return this;
         super.setCldrFileToCheck(cldrFileToCheck, options, possibleErrors);
         String locale = cldrFileToCheck.getLocaleID();
-        col = Collator.getInstance(new ULocale(locale));
+        col = Collator.getInstance(new ULocale(locale)).freeze();
         spaceCol = Collator.getInstance(new ULocale(locale));
         spaceCol.setStrength(Collator.PRIMARY);
+        spaceCol=spaceCol.freeze();
         isRoot = cldrFileToCheck.getLocaleID().equals("root");
-        prettyPrinter = new PrettyPrinter()
-            .setOrdering(col != null ? col : Collator.getInstance(ULocale.ROOT))
-            .setSpaceComparator(col != null ? col : Collator.getInstance(ULocale.ROOT)
-                .setStrength2(Collator.PRIMARY))
-            .setCompressRanges(true);
+        prettyPrinter = createPrettyPrinter(col);
 
         // check for auxiliary anyway
         if (!SUPPRESS_AUX_EMPTY_CHECK) {
@@ -152,11 +151,7 @@ public class CheckExemplars extends FactoryCheckCLDR {
                 if (auxiliarySet.containsSome(mainSet)) {
                     UnicodeSet overlap = new UnicodeSet(mainSet).retainAll(auxiliarySet).removeAll(HangulSyllables);
                     if (overlap.size() != 0) {
-                        String fixedExemplar1 = new PrettyPrinter()
-                            .setOrdering(col != null ? col : Collator.getInstance(ULocale.ROOT))
-                            .setSpaceComparator(col != null ? col : Collator.getInstance(ULocale.ROOT)
-                                .setStrength2(Collator.PRIMARY))
-                            .setCompressRanges(true)
+                        String fixedExemplar1 = createPrettyPrinter(col)
                             .format(overlap);
                         result
                             .add(new CheckStatus()
@@ -200,12 +195,17 @@ public class CheckExemplars extends FactoryCheckCLDR {
                 }
                 UnicodeSet mainAndAuxAllCase = new UnicodeSet(mainSet).addAll(auxiliarySet).closeOver(UnicodeSet.ADD_CASE_MAPPINGS);
                 UnicodeSet indexBadChars = new UnicodeSet(value).removeAll(mainAndAuxAllCase);
-
+//                if (true) {
                 if (!indexBadChars.isEmpty()) {
+                    PathHeader.Factory pathHeaderFactory = PathHeader.getFactory(getFactory().make("en", true));    
+                    String setName=indexBadChars.toPattern(false);
+                    PathHeader pathHeader = pathHeaderFactory.fromPath(setName);
+                    String linkStr="<a href=\"v#/" + getCldrFileToCheck().getLocaleID() + "/" + pathHeader==null?"Foo":pathHeader.getPageId() + "/" + StringId.getHexId(setName)
+                        + "\">exemplars</a>";
                     CheckStatus message = new CheckStatus().setCause(this)
                         .setMainType(CheckStatus.warningType)
                         .setSubtype(Subtype.charactersNotInMainOrAuxiliaryExemplars)
-                        .setMessage("Index exemplars include characters not in main or auxiliary exemplars: {0}",
+                        .setMessage("Index exemplars include characters not in main or auxiliary "+linkStr+": {0}",
                             indexBadChars.toPattern(false));
                     result.add(message);
                 }
@@ -234,9 +234,10 @@ public class CheckExemplars extends FactoryCheckCLDR {
                             "Main exemplar set contains RTL characters, but orientation of this locale is not RTL."));
                     break;
                 }
-            }
+                }
 
         } catch (Exception e) {
+            int i=1;
         } // if these didn't parse, checkExemplar will be called anyway at some point
         return this;
     }

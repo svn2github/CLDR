@@ -5,6 +5,10 @@ import java.util.List;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.Factory;
 
+import com.ibm.icu.dev.util.PrettyPrinter;
+import com.ibm.icu.text.Collator;
+import com.ibm.icu.util.ULocale;
+
 /**
  * Subclass of CheckCLDR that requires a factory during checking.
  * 
@@ -36,5 +40,14 @@ abstract class FactoryCheckCLDR extends CheckCLDR {
 
     public Factory getFactory() {
         return factory;
+    }
+
+    protected PrettyPrinter createPrettyPrinter(Collator theCollator) {
+        final Collator rootCol=Collator.getInstance(ULocale.ROOT);
+        return new PrettyPrinter()
+            .setOrdering(theCollator != null ? theCollator : rootCol.freeze())
+            .setSpaceComparator(theCollator != null ? theCollator : rootCol
+                .setStrength2(Collator.PRIMARY))
+            .setCompressRanges(true);
     }
 }
