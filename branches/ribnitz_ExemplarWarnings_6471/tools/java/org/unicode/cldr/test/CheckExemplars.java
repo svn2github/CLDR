@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRFile.Status;
 import org.unicode.cldr.util.Factory;
-import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.StringId;
 import org.unicode.cldr.util.XPathParts;
 
@@ -197,10 +197,9 @@ public class CheckExemplars extends FactoryCheckCLDR {
                 UnicodeSet indexBadChars = new UnicodeSet(value).removeAll(mainAndAuxAllCase);
 //                if (true) {
                 if (!indexBadChars.isEmpty()) {
-                    PathHeader.Factory pathHeaderFactory = PathHeader.getFactory(getFactory().make("en", true));    
                     String setName=indexBadChars.toPattern(false);
-                    PathHeader pathHeader = pathHeaderFactory.fromPath(setName);
-                    String linkStr="<a href=\"v#/" + getCldrFileToCheck().getLocaleID() + "/" + pathHeader==null?"Foo":pathHeader.getPageId() + "/" + StringId.getHexId(setName)
+                    String sourceLocale = getResolvedCldrFileToCheck().getSourceLocaleID(path,new Status());
+                    String linkStr="<a href=\"v#/" + sourceLocale+ "/Alphabetic_Information/" + StringId.getHexId(setName)
                         + "\">exemplars</a>";
                     CheckStatus message = new CheckStatus().setCause(this)
                         .setMainType(CheckStatus.warningType)

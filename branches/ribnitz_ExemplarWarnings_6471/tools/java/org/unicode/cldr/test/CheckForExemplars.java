@@ -353,24 +353,26 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         if (path.startsWith("//ldml/posix/messages")) return this;
 
         UnicodeSet disallowed;
-
+        String urlStart="<a href=\"v#/" + sourceLocale+ "/Alphabetic_Information/";
         if (path.contains("/currency") && path.contains("/symbol")) {
             if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
                 disallowed.removeAll(ALL_CURRENCY_SYMBOLS);
                 String currency = new XPathParts().set(path).getAttributeValue(-2, "type");
                 if (disallowed.size() > 0 &&
                     asciiNotAllowed(getCldrFileToCheck().getLocaleID(), currency)) {
+                    String url=urlStart+StringId.getHexId( prettyPrint.format(disallowed))+"\">";
                     addMissingMessage(disallowed, CheckStatus.warningType,
                         Subtype.charactersNotInMainOrAuxiliaryExemplars,
-                        Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the exemplar characters",
+                        Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the "+url+"exemplar</a> characters",        
                         result);
                 }
             }
         } else if (path.contains("/localeDisplayNames") && !path.contains("/localeDisplayPattern")) {
             // test first for outside of the set.
             if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
+                String url=urlStart+StringId.getHexId( prettyPrint.format(disallowed))+"\">";
                 addMissingMessage(disallowed, CheckStatus.warningType, Subtype.charactersNotInMainOrAuxiliaryExemplars,
-                    Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the exemplar characters", result);
+                    Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the "+ url+"exemplar</a> characters", result);
             }
             if (path.contains("/codePatterns")) {
                 disallowed = new UnicodeSet().addAll(value).retainAll(NUMBERS);
@@ -381,8 +383,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
                         "cannot occur in locale fields", result);
                 }
             }
-        }
-        if (path.contains("/units")) {
+        } else if (path.contains("/units")) {
             String noValidParentheses = IGNORE_PLACEHOLDER_PARENTHESES.matcher(value).replaceAll("");
             disallowed = new UnicodeSet().addAll(START_PAREN).addAll(END_PAREN)
                 .retainAll(noValidParentheses);
@@ -393,11 +394,9 @@ public class CheckForExemplars extends FactoryCheckCLDR {
                     "cannot occur in units", result);
             }
         } else if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
-            // get the locale
-            String localeID=getDisplayInformation().getLocaleID();
-            String url="<a href=\"v#/" + localeID+ "/Alphabetic_Information/"+StringId.getHexId( prettyPrint.format(disallowed))+"\">";
+            String url=urlStart+StringId.getHexId( prettyPrint.format(disallowed))+"\">";
             addMissingMessage(disallowed, CheckStatus.warningType, Subtype.charactersNotInMainOrAuxiliaryExemplars,
-                Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the "+url+"exemplar</a> characters", result);
+                Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the "+url+"zzz</a> characters", result);
         }
 
         // check for spaces
