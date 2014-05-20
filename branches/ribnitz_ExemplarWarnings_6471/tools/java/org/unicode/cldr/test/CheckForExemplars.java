@@ -396,7 +396,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
         } else if (null != (disallowed = containsAllCountingParens(exemplars, exemplarsPlusAscii, value))) {
             String url=urlStart+StringId.getHexId( prettyPrint.format(disallowed))+"\">";
             addMissingMessage(disallowed, CheckStatus.warningType, Subtype.charactersNotInMainOrAuxiliaryExemplars,
-                Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the "+url+"zzz</a> characters", result);
+                Subtype.asciiCharactersNotInMainOrAuxiliaryExemplars, "are not in the "+url+"exemplar</a> characters", result);
         }
 
         // check for spaces
