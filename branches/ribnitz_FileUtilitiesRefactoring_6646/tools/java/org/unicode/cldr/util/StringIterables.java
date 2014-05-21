@@ -14,7 +14,7 @@ import org.unicode.cldr.util.With.SimpleIterator;
 public class StringIterables {
     /**
      * Simple API to iterate over file lines. Example:
-     * for (String s : FileUtilities.in(directory,name)) {
+     * for (String s : StringIterables.in(directory,name)) {
      * ...
      * }
      * 
@@ -27,7 +27,7 @@ public class StringIterables {
 
     /**
      * Simple API to iterate over file lines. Example:
-     * for (String s : FileUtilities.in(directory,name)) {
+     * for (String s : StringIterables.in(directory,name)) {
      * ...
      * }
      * 
@@ -40,7 +40,7 @@ public class StringIterables {
 
     /**
      * Simple API to iterate over file lines. Example:
-     * for (String s : FileUtilities.in(directory,name)) {
+     * for (String s : StringIterables.in(directory,name)) {
      * ...
      * }
      * 
@@ -53,7 +53,7 @@ public class StringIterables {
 
     /**
      * Simple API to iterate over file lines. Example:
-     * for (String s : FileUtilities.in(directory,name)) {
+     * for (String s : StringIterables.in(directory,name)) {
      * ...
      * }
      * 
@@ -66,7 +66,7 @@ public class StringIterables {
 
     /**
      * Simple API to iterate over file lines. Example:
-     * for (String s : FileUtilities.in(directory,name)) {
+     * for (String s : StringIterables.in(directory,name)) {
      * ...
      * }
      * 
