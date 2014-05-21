@@ -21,13 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.unicode.cldr.util.XPathParts.Comments;
 
+import com.google.common.collect.MapMaker;
 import com.ibm.icu.impl.Utility;
 import com.ibm.icu.util.Freezable;
 import com.ibm.icu.util.Output;
@@ -84,10 +85,13 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
      * @param conflict_resolution
      */
     public void putAll(Map<String, String> tempMap, int conflict_resolution) {
-        for (Iterator<String> it = tempMap.keySet().iterator(); it.hasNext();) {
-            String path = it.next();
+        for (Map.Entry<String,String> entry: tempMap.entrySet()) {
+            String path=entry.getKey();
+            String val=entry.getValue();
+//        for (Iterator<String> it = tempMap.keySet().iterator(); it.hasNext();) {
+//            String path = it.next();
             if (conflict_resolution == CLDRFile.MERGE_KEEP_MINE && getValueAtPath(path) != null) continue;
-            putValueAtPath(path, tempMap.get(path));
+            putValueAtPath(path,val);
         }
     }
 
@@ -98,8 +102,9 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
      * @param conflict_resolution
      */
     public void putAll(XMLSource otherSource, int conflict_resolution) {
-        for (Iterator<String> it = otherSource.iterator(); it.hasNext();) {
-            String path = it.next();
+        for (String path: otherSource) {
+//        for (Iterator<String> it = otherSource.iterator(); it.hasNext();) {
+//            String path = it.next();
             final String oldValue = getValueAtDPath(path);
             if (conflict_resolution == CLDRFile.MERGE_KEEP_MINE && oldValue != null) {
                 continue;
@@ -119,9 +124,12 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
      * @param xpaths
      */
     public void removeAll(Collection<String> xpaths) {
-        for (Iterator<String> it = xpaths.iterator(); it.hasNext();) {
-            removeValueAtDPath(it.next());
+        for (String elem: xpaths) {
+            removeValueAtDPath(elem);
         }
+//        for (Iterator<String> it = xpaths.iterator(); it.hasNext();) {
+//            removeValueAtDPath(it.next());
+//        }
     }
 
     /**
@@ -849,14 +857,18 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
         }
 
         private AliasLocation getCachedFullStatus(String xpath) {
-            synchronized (getSourceLocaleIDCache) {
-                AliasLocation fullStatus = getSourceLocaleIDCache.get(xpath);
-                if (fullStatus == null) {
-                    fullStatus = getPathLocation(xpath, false);
-                    getSourceLocaleIDCache.put(xpath, fullStatus); // cache copy
-                }
-                return fullStatus;
-            }
+            AliasLocation insertedLocation = null;
+            AliasLocation fullStatus = getSourceLocaleIDCache.putIfAbsent(xpath, 
+                insertedLocation = getPathLocation(xpath, false));
+            return fullStatus == null ? insertedLocation : fullStatus;
+//            synchronized (getSourceLocaleIDCache) {
+//                AliasLocation fullStatus = getSourceLocaleIDCache.get(xpath);
+//                if (fullStatus == null) {
+//                    fullStatus = getPathLocation(xpath, false);
+//                    getSourceLocaleIDCache.put(xpath, fullStatus); // cache copy
+//                }
+//                return fullStatus;
+//            }
         }
 
         // private String _getFullPathAtDPath(String xpath) {
@@ -919,8 +931,10 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
         // }
         // }
 
-        private transient Map<String, AliasLocation> getSourceLocaleIDCache = new WeakHashMap<String, AliasLocation>();
-
+      //  private transient Map<String, AliasLocation> getSourceLocaleIDCache = new WeakHashMap<String, AliasLocation>();
+        private transient ConcurrentMap<String, AliasLocation> getSourceLocaleIDCache =
+            new MapMaker().weakKeys().makeMap();
+   
         public String getSourceLocaleID(String distinguishedXPath, CLDRFile.Status status) {
             AliasLocation fullStatus = getCachedFullStatus(distinguishedXPath);
             if (status != null) {
@@ -1145,9 +1159,12 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
 
         @Override
         public void valueChanged(String xpath, XMLSource nonResolvingSource) {
-            synchronized (getSourceLocaleIDCache) {
-                AliasLocation location = getSourceLocaleIDCache.remove(xpath);
-                if (location == null) return;
+     //       synchronized (getSourceLocaleIDCache) {
+                if (getSourceLocaleIDCache.remove(xpath)==null){
+                    return;
+                }
+//                AliasLocation location = getSourceLocaleIDCache.remove(xpath);
+//                if (location == null) return;
                 // Paths aliasing to this path (directly or indirectly) may be affected,
                 // so clear them as well.
                 // There's probably a more elegant way to fix the paths than simply
@@ -1158,7 +1175,7 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
                         getSourceLocaleIDCache.remove(path);
                     }
                 }
-            }
+           // }
         }
 
         /**
