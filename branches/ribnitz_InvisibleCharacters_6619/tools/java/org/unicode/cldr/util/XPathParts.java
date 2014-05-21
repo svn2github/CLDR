@@ -19,11 +19,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.unicode.cldr.util.CLDRFile.DtdType;
+import org.unicode.cldr.util.XPathParts.Comments.CommentType;
 
 import com.ibm.icu.dev.util.TransliteratorUtilities;
 import com.ibm.icu.impl.Utility;
+import com.ibm.icu.lang.UCharacter;
+import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.util.Freezable;
 
 /**
@@ -83,6 +85,37 @@ public final class XPathParts implements Freezable<XPathParts> {
         return this;
     }
 
+    private static class NamedCodePoint {
+        final String hexString;
+        final String name;
+        public NamedCodePoint(int cp) {
+            this(Utility.hex(cp), UCharacter.getName(cp));
+        }
+        public NamedCodePoint(String hexString,String name) {
+            this.hexString=hexString;
+            this.name=name;
+        }
+        
+        public String toString() {
+            return "NamedCodePoint: "+hexString+" "+name;
+        }
+    }
+    
+    
+    private static class UnprintableCodePointHelper {
+        private final static UnicodeSet UNPRINTABLES =  new UnicodeSet("[:di:]").freeze();
+
+        private static Iterable<NamedCodePoint> getUnprintables(String source) {
+            List<NamedCodePoint> returned=new ArrayList<>();
+            UnicodeSet x = new UnicodeSet().addAll(source).retainAll(UNPRINTABLES);
+            StringBuilder b = new StringBuilder();
+            for (String s: x) {
+                returned.add(new NamedCodePoint(s.codePointAt(0)));
+            }
+            return returned;
+        }
+    }
+    
     /**
      * Write out the difference form this xpath and the last, putting the value in the right place. Closes up the
      * elements
@@ -122,7 +155,30 @@ public final class XPathParts implements Freezable<XPathParts> {
             pw.print(e.toString(XML_OPEN));
             pw.print(untrim(eValue, size()));
             pw.print(e.toString(XML_CLOSE));
+            StringBuilder sb=new StringBuilder();
+            boolean isFirst=true;
+            for (NamedCodePoint ncp: UnprintableCodePointHelper.getUnprintables(eValue)) {
+                if (isFirst) {
+                    sb.append("Contains: ");
+                    isFirst=false;
+                } else {
+                    sb.append(", ");
+                }
+                sb.append("U+"+ncp.hexString+" "+ncp.name);
+            }
+            String nonPrintables=null;
+            if (sb.length()!=0) {
+                 nonPrintables=sb.toString();
+//                nonPrintables=nonPrintables.substring(0,nonPrintables.lastIndexOf(","));
+                String finalComment=xpath_comments.getFinalComment();
+                if (finalComment!=null && finalComment.startsWith("Contains:")) {
+                    xpath_comments.removeComment(finalComment);
+                }
+                filteredXPath.writeComment(pw, new Comments().addComment(CommentType.LINE, e.getElement(), nonPrintables), size(), Comments.CommentType.LINE);
+//                xpath_comments.addComment(CommentType.LINE, e.getElement(), nonPrintables);
+            }
         }
+        
         filteredXPath.writeComment(pw, xpath_comments, size(), Comments.CommentType.LINE);
         pw.println();
         filteredXPath.writeComment(pw, xpath_comments, size(), Comments.CommentType.POSTBLOCK);
@@ -600,15 +656,26 @@ public final class XPathParts implements Freezable<XPathParts> {
         if (limit < 0) {
             limit += size();
         }
+        List<Element> sl=null;
+        if (limit==elements.size()) {
+            sl=Collections.unmodifiableList(elements);
+        } else {
+            sl=Collections.unmodifiableList(elements.subList(0, limit));
+        }
         String result = "/";
+        StringBuilder sb=new StringBuilder(result);
         try {
-            for (int i = 0; i < limit; ++i) {
-                result += elements.get(i).toString(XPATH_STYLE);
-            }
+            for (Element el: sl) {
+//            for (int i = 0; i < limit; ++i) {
+               // result += elements.get(i).toString(XPATH_STYLE);
+//                sb.append(elements.get(i).toString(XPATH_STYLE));
+                sb.append(el.toString(XPATH_STYLE));
+            } 
         } catch (RuntimeException e) {
             throw e;
         }
-        return result;
+       // return result;
+        return sb.toString();
     }
 
     public String toString(int start, int limit) {
@@ -618,11 +685,16 @@ public final class XPathParts implements Freezable<XPathParts> {
         if (limit < 0) {
             limit += size();
         }
-        String result = "";
-        for (int i = start; i < limit; ++i) {
-            result += elements.get(i).toString(XPATH_STYLE);
+        List<Element> sl=Collections.unmodifiableList(elements.subList(start, limit));
+      //  String result = "";
+        StringBuilder sb=new StringBuilder();
+        for (Element el: sl) {
+            sb.append(el.toString(XPATH_STYLE));
         }
-        return result;
+//        for (int i = start; i < limit; ++i) {
+//            result += elements.get(i).toString(XPATH_STYLE);
+//        }
+        return sb.toString();
     }
 
     /**
