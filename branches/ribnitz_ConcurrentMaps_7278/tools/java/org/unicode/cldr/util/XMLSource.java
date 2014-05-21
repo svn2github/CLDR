@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -757,7 +758,7 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
         // }
         // }
 
-        Map<String, String> getFullPathAtDPathCache = new HashMap<String, String>();
+        Map<String, String> getFullPathAtDPathCache = new ConcurrentHashMap<String, String>();
 
         public String getFullPathAtDPath(String xpath) {
             String result = currentSource.getFullPathAtDPath(xpath);
