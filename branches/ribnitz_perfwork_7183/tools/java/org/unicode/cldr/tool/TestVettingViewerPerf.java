@@ -8,11 +8,18 @@ package org.unicode.cldr.tool;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.unicode.cldr.test.CheckCLDR;
@@ -39,16 +46,113 @@ public class TestVettingViewerPerf {
      * @throws IOException
      */
     private  static final Options myOptions = new Options();
-     private static final double NANOSECS = 1000000000.0;
+    private static final double NANOSECS = 1000000000.0;
 
-     private enum MyOptions {
+    private static interface ThreadFinishedCallback {
+        void onThreadFinished(long startTime);
+    }
+
+    private static class TimeAddingRespawner implements ThreadFinishedCallback {
+        private final List<Integer> respawnList;
+        private final int curTstNum;
+        private final ExecutorService es;
+        private final long timeStarted;
+        private final List<Double> executionTimes;
+
+        private TimeAddingRespawner(List<Integer> respawnList, int curTstNum, ExecutorService es, 
+            long timeStarted, List<Double> executionTimes) {
+            this.respawnList = respawnList;
+            this.curTstNum = curTstNum;
+            this.es = es;
+            this.timeStarted = timeStarted;
+            this.executionTimes = executionTimes;
+        }
+
+        @Override
+        public void onThreadFinished(long startTime) {
+            long curTime=System.currentTimeMillis();
+            synchronized(executionTimes) {
+                executionTimes.add(new Double(curTime-startTime));
+            }
+            if (curTime-timeStarted<10*60*1000) {
+                System.out.println("Re-spawning thread "+curTstNum);
+                synchronized(respawnList) {
+                    respawnList.set(curTstNum, respawnList.get(curTstNum)+1);
+                }
+                es.submit(new VettingViewerTestThread(curTstNum,this));
+            }
+        }
+    }
+  
+     private  static class VettingViewerTestThread implements Runnable {
+        private final int curTstNum;
+        private final ThreadFinishedCallback cb;
+       // private final long startNewUntil;
+
+        public VettingViewerTestThread(int curTstNum, ThreadFinishedCallback callback) {
+            this.curTstNum = curTstNum;
+            this.cb=callback;
+        }
+
+        @Override
+        public void run() {
+            long curTime=System.currentTimeMillis();
+            try {
+          //      while (System.currentTimeMillis()<startNewUntil) {
+                    String[] args=new String[]{};
+                    VettingViewer.main(args);
+//                            VettingViewer.writeFile(outDirStr, tableView, choiceSet, "", finalLocaleStringId, finalUserNumericID, finalUserLevel, VettingViewer.CodeChoice.summary,
+//                                    VoteResolver.Organization.google);
+                    progressMap.putIfAbsent(new String("Thread-"+curTstNum), true);
+           //     }
+            } catch (IOException ex) {
+                Logger.getLogger(TestVettingViewer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
+            if (cb!=null) {
+                cb.onThreadFinished(curTime);
+            }
+        }
+    }
+//    private static class CacheStatRunable implements Runnable {
+//        private final int numTests;
+//        private final long sleepTime;
+//        public boolean keepRunning=true;
+//        private CacheStatRunable(int numTests, long sleepTime) {
+//            this.numTests = numTests;
+//            this.sleepTime=sleepTime;
+//        }
+//
+//        @Override
+//        public void run() {
+//           while (keepRunning) {
+//               if (progressMap.keySet().size()<numTests) {
+//                   try {
+//                    Thread.sleep(5*1000);
+//                } catch (InterruptedException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
+//               } else {
+//                   break;
+//               }
+//           }
+//          if (PatternCache.isCachingEnabled() && PatternCache.isRecordStatistics()) {
+//              CacheStats stats=PatternCache.getStatistics();
+//              System.out.println("Cache requests:"+stats.requestCount()+" hit count: "+stats.hitCount()+" hit rate: "+stats.hitRate());
+//          }
+//        }
+//    }
+    private enum MyOptions {
          repeat(null, null, "Repeat indefinitely"),
          filter(".*", ".*", "Filter files"),
          locale(".*", "af", "Single locale for testing"),
          source(".*", CLDRPaths.MAIN_DIRECTORY, // CldrUtility.TMP2_DIRECTORY + "/vxml/common/main"
              "if summary, creates filtered version (eg -d main): does a find in the name, which is of the form dir/file"),
          verbose(null, null, "verbose debugging messages"),
-         output(".*", CLDRPaths.TMP_DIRECTORY + "dropbox/mark/vetting/", "filter the raw files (non-summary, mostly for debugging)"), ;
+         output(".*", CLDRPaths.TMP_DIRECTORY + "dropbox/mark/vetting/", "filter the raw files (non-summary, mostly for debugging)"), 
+         threads(".*","5","Number of threads to use"),
+         minutes(".*","10", "Amount of time to run."),
+         ;
          // boilerplate
          final Option option;
 
@@ -61,6 +165,43 @@ public class TestVettingViewerPerf {
      private static Splitter COLON_SPLITTER=Splitter.on(":").omitEmptyStrings().trimResults();
      private static Joiner ARROW_JOINER=Joiner.on("->").skipNulls();
      
+     private static class MathHelper {
+     
+         public static double min(List<Double> numbers) {
+             if (numbers.isEmpty()) {
+                 return Double.MIN_VALUE;
+             }
+             Double[] d = getSortedArray(numbers);
+             return d[0];
+         }
+
+        private static Double[] getSortedArray(List<Double> numbers) {
+            Double[] d=new Double[0];
+             d=numbers.toArray(d);
+             Arrays.sort(d);
+            return d;
+        }
+         
+         public static double max(List<Double> numbers) {
+             if (numbers.isEmpty()) {
+                 return Double.MAX_VALUE;
+             }
+             Double[] d = getSortedArray(numbers);
+             return d[d.length-1];
+         }
+         
+         public static double avg(List<Double> numbers) {
+             if (numbers.isEmpty()) {
+                 return Double.MAX_VALUE;
+             }
+             Double[] d = getSortedArray(numbers);
+             if (d.length%2==0) {
+                 return d[d.length/2];
+             }
+             return (d[d.length/2]+d[d.length/2+1])/2.0d;
+         }
+     }
+     private static final ConcurrentMap<String,Boolean> progressMap=new ConcurrentHashMap<>();
     public static void main(String[] args) {
         myOptions.parse(MyOptions.source, args, true);
         boolean repeat = MyOptions.repeat.option.doesOccur();
@@ -68,7 +209,16 @@ public class TestVettingViewerPerf {
         String myOutputDir = repeat ? null : MyOptions.output.option.getValue();
         String LOCALE = MyOptions.locale.option.getValue();
         String CURRENT_MAIN = "/Users/ribnitz/Documents/workspace/cldr/common/main/";
+        String numThreads="5";
+        String runtime="10";
+        if (MyOptions.threads.option.doesOccur()) {
+           numThreads=MyOptions.threads.option.getValue();
+        }
+//        if (MyOptions.runtime.option.doesOccur()) {
+//            runtime=MyOptions.runtime.option.getValue();
+//        }
         final String version = "24.0";
+        
         //final String lastMain = CLDRPaths.ARCHIVE_DIRECTORY + "/cldr-" + version + "/common/main";
         final String lastMain = CLDRPaths.ARCHIVE_DIRECTORY + "/common/main";
 //        do {
@@ -144,21 +294,36 @@ public class TestVettingViewerPerf {
 //            final String finalLocaleStringId=localeStringID;
 //            final int finalUserNumericID=userNumericID;
 //            final Level finalUserLevel=usersLevel;
-            for (int i=0;i<7;i++) {
-            new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            String[] args=new String[]{};
-                            VettingViewer.main(args);
-//                            VettingViewer.writeFile(outDirStr, tableView, choiceSet, "", finalLocaleStringId, finalUserNumericID, finalUserLevel, VettingViewer.CodeChoice.summary,
-//                                    VoteResolver.Organization.google);
-                        } catch (IOException ex) {
-                            Logger.getLogger(TestVettingViewer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-                        }
-                    }
-                }).start();
+             int numTests=Integer.parseInt(numThreads);
+             int endTimeInt=Integer.parseInt(runtime);
+             long endTime=System.currentTimeMillis()+endTimeInt*60*60*1000;
+            //parse the command line
+            System.out.println("Running performance tests using "+numTests+" threads for load");
+//            System.out.println("Will spawn new threads for "+runtime+" minutes");
+            final long timeStarted=System.currentTimeMillis();
+            final List<Double> executionTimes=new ArrayList<>();
+            final List<Integer> respawnList=new ArrayList<>(numTests);
+            for (int i=0;i<numTests;i++) {
+                respawnList.add(0);
             }
+            final ExecutorService es=Executors.newFixedThreadPool(5);
+            for (int i=0;i<numTests;i++) {
+                final int curTstNum=i;
+               es.submit(new VettingViewerTestThread(curTstNum, new TimeAddingRespawner(respawnList, curTstNum, es, timeStarted, executionTimes)));
+            }
+            try {
+                Thread.sleep(10*60*1000);
+                es.shutdown();
+                if (!es.awaitTermination(5, TimeUnit.MINUTES)) {
+                    es.shutdownNow();
+                }
+                if (!executionTimes.isEmpty()) {
+                    System.out.println("min: "+MathHelper.min(executionTimes)/1000d+" s;avg:"+
+                 MathHelper.avg(executionTimes)/1000d+" max: "+MathHelper.max(executionTimes)/1000d+"s");
+                 }
+            } catch (InterruptedException e) {}
+//            CacheStatRunable r=new CacheStatRunable(numTests, 10*1000);
+//            // add another thread for the stats
+//            new Thread(r).start();
     }
 }

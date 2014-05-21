@@ -4,12 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.Objects;
-import java.util.Set;
 
 import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.tool.Option.Options;
@@ -17,12 +16,9 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Level;
-import org.unicode.cldr.util.RegexLogger;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.Timer;
 import org.unicode.cldr.util.VettingViewer;
-import org.unicode.cldr.util.RegexLogger.PatternCountInterface;
-import org.unicode.cldr.util.RegexLogger.RegexLoggerInterface;
 import org.unicode.cldr.util.VettingViewer.Choice;
 import org.unicode.cldr.util.VettingViewer.CodeChoice;
 import org.unicode.cldr.util.VettingViewer.UsersChoice;
@@ -32,8 +28,6 @@ import org.unicode.cldr.util.VoteResolver.Organization;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.ibm.icu.text.ListFormatter;
-
-import java.io.StringWriter;
 
 public class TestVettingViewer {
 
@@ -209,58 +203,58 @@ public class TestVettingViewer {
                         new PrintWriter(new FileWriter(new File(OUTPUTFILE))):
                         new PrintWriter(new StringWriter())
                      ) {
-                    RegexLoggerInterface logger=RegexLogger.getInstance();
-                    NavigableSet<PatternCountInterface> logSet=logger.getEntries();
-                    System.out.println("Writing a total of "+logSet.size()+" entries");
-                    pw.println("Found\tNot found\tFound+Not found\tMatched\tNot matched\tMatched+Not Matched\tFrom RegexLookup\tPattern\tPossible matches");
-                    StringBuilder sb=new StringBuilder();
-                    for (PatternCountInterface key:logSet.descendingSet()) {
-                        String pattern=key.getPattern();
-                        int numFound=key.getNumberOfFindMatches();
-                        int numFoundFailed=key.getNumberOfFindFailures();
-                        int matched=key.getNumberOfMatchMatches();
-                        int matchFails=key.getNumberOfMatchFailures();
-                        boolean fromRegexFinder=key.isCalledFromRegexFinder();
-                        String pat=pattern.startsWith("=")?"'"+pattern:pattern;
-                        sb.append(numFound+"\t"+numFoundFailed+"\t"+(numFound+numFoundFailed)+"\t"+matched+"\t"+
-                            matchFails+"\t"+(matched+matchFails)+"\t"+fromRegexFinder+"\t"+pat);
-                        sb.append("\t");
-                        Set<String> callLocations=key.getCallLocations();
-                        if (!callLocations.isEmpty()) {
-                            for (String cur:callLocations) {
-                                  sb.append(ARROW_JOINER.join(SEMICOLON_SPLITTER.split(cur)));
-//                                String previous=null;
-//                                boolean isFirst=true;
-//                                // different classes are separated by semicolons
-//                                for (String curCell: SEMICOLON_SPLITTER.split(cur)) {
-//                                    // classname and linenumber are split by colons
-//                                    List<String> curLocation=COLON_SPLITTER.splitToList(curCell);
-//                                    String className=curLocation.get(0);
-//                                    String lineNo=curLocation.get(1);
-//                                    
-//                                    if (previous==null||!className.equals(previous)) {
-//                                        if (!isFirst) {
-//                                            sb.append(")->");
-//                                        } 
-//                                        sb.append(className);
-//                                        sb.append("(");
-//                                    } else {
-//                                        sb.append(";");
-//                                    }
-//                                    sb.append(lineNo);
-//                                    previous=className;
-//                                }
-//                                sb.append(")");
-//                                sb.append(cur);
-                                sb.append(", ");
-                            }
-                            String s=sb.substring(0, sb.lastIndexOf(", "));
-                            sb.setLength(0);
-                            sb.append(s);
-                        }
-                        pw.println(sb.toString());
-                        sb.setLength(0);
-                    }
+//                    RegexLoggerInterface logger=RegexLogger.getInstance();
+//                    NavigableSet<PatternCountInterface> logSet=logger.getEntries();
+//                    System.out.println("Writing a total of "+logSet.size()+" entries");
+//                    pw.println("Found\tNot found\tFound+Not found\tMatched\tNot matched\tMatched+Not Matched\tFrom RegexLookup\tPattern\tPossible matches");
+////                    StringBuilder sb=new StringBuilder();
+//                    for (PatternCountInterface key:logSet.descendingSet()) {
+//                        String pattern=key.getPattern();
+//                        int numFound=key.getNumberOfFindMatches();
+//                        int numFoundFailed=key.getNumberOfFindFailures();
+//                        int matched=key.getNumberOfMatchMatches();
+//                        int matchFails=key.getNumberOfMatchFailures();
+//                        boolean fromRegexFinder=key.isCalledFromRegexFinder();
+//                        String pat=pattern.startsWith("=")?"'"+pattern:pattern;
+//                        sb.append(numFound+"\t"+numFoundFailed+"\t"+(numFound+numFoundFailed)+"\t"+matched+"\t"+
+//                            matchFails+"\t"+(matched+matchFails)+"\t"+fromRegexFinder+"\t"+pat);
+//                        sb.append("\t");
+//                        Set<String> callLocations=key.getCallLocations();
+//                        if (!callLocations.isEmpty()) {
+//                            for (String cur:callLocations) {
+//                                  sb.append(ARROW_JOINER.join(SEMICOLON_SPLITTER.split(cur)));
+////                                String previous=null;
+////                                boolean isFirst=true;
+////                                // different classes are separated by semicolons
+////                                for (String curCell: SEMICOLON_SPLITTER.split(cur)) {
+////                                    // classname and linenumber are split by colons
+////                                    List<String> curLocation=COLON_SPLITTER.splitToList(curCell);
+////                                    String className=curLocation.get(0);
+////                                    String lineNo=curLocation.get(1);
+////                                    
+////                                    if (previous==null||!className.equals(previous)) {
+////                                        if (!isFirst) {
+////                                            sb.append(")->");
+////                                        } 
+////                                        sb.append(className);
+////                                        sb.append("(");
+////                                    } else {
+////                                        sb.append(";");
+////                                    }
+////                                    sb.append(lineNo);
+////                                    previous=className;
+////                                }
+////                                sb.append(")");
+////                                sb.append(cur);
+//                                sb.append(", ");
+//                            }
+//                            String s=sb.substring(0, sb.lastIndexOf(", "));
+//                            sb.setLength(0);
+//                            sb.append(s);
+//                        }
+//                        pw.println(sb.toString());
+//                        sb.setLength(0);
+//                    }
                 }
 
             } catch (IOException e) {
