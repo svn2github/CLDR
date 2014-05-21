@@ -517,12 +517,13 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
         }
     }
 
+
     private static class StarPatternMap<T>implements StorageInterfaceBase<T> {
-        private Map<String, List<SPNode>> _spmap;
+        private Map<String, List<NodeBase<T>>> _spmap;
         private int _size=0;
 
         public StarPatternMap() {
-            _spmap = new HashMap<String, List<SPNode>>();
+            _spmap = new HashMap<String, List<NodeBase<T>>>();
 //            _size = 0;
         }
 
@@ -534,11 +535,11 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             //System.out.println("pattern.toString() is => "+pattern.toString());
             String starPattern = pathStarrer.transform2(pattern.toString().replaceAll("\\(\\[\\^\"\\]\\*\\)", "*"));
             //System.out.println("Putting => "+starPattern);
-            List<SPNode> candidates = _spmap.get(starPattern);
+            List<NodeBase<T>> candidates = _spmap.get(starPattern);
             if (candidates == null) {
-                candidates = new ArrayList<SPNode>();
+                candidates = new ArrayList<NodeBase<T>>();
             }
-            SPNode newNode = new SPNode(pattern, value);
+            NodeBase<T> newNode = new NodeBase<>(pattern, value);
             candidates.add(newNode);
             _spmap.put(starPattern, candidates);
             _size++;
@@ -546,11 +547,11 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
 
         public T get(Finder finder) {
             String starPattern = pathStarrer.transform2(finder.toString());
-            List<SPNode> candidates = _spmap.get(starPattern);
+            List<NodeBase<T>> candidates = _spmap.get(starPattern);
             if (candidates == null) {
                 return null;
             }
-            for (SPNode cand : candidates) {
+            for (NodeBase<T> cand : candidates) {
                 if (cand._finder.equals(finder)) {
                     return cand._val;
                 }
@@ -559,15 +560,15 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
         }
 
         public List<T> getAll(String pattern, Object context, List<Finder> matcherList,Output<String[]> firstInfo) {
-            List<SPNode> list = new ArrayList<SPNode>();
+            List<NodeBase<T>> list = new ArrayList<>();
             List<T> retList = new ArrayList<T>();
 
             String starPattern = pathStarrer.transform2(pattern);
-            List<SPNode> candidates = _spmap.get(starPattern);
+            List<NodeBase<T>> candidates = _spmap.get(starPattern);
             if (candidates == null) {
                 return retList;
             }
-            for (SPNode cand : candidates) {
+            for (NodeBase<T> cand : candidates) {
                 Info info=new Info();
                 if (cand._finder.find(pattern, context,info)) {
                     list.add(cand);
@@ -577,7 +578,7 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
                 }
             }
 
-            for (SPNode n : list) {
+            for (NodeBase<T> n : list) {
                 retList.add(n._val);
                 if (matcherList != null) {
                     matcherList.add(n._finder);
@@ -604,34 +605,35 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
         public Set<Entry<Finder, T>> entrySet() {
             LinkedHashMap<Finder, T> ret = new LinkedHashMap<Finder, T>();
 
-            for (Entry<String, List<SPNode>> entry : _spmap.entrySet()) {
-                List<SPNode> candidates = entry.getValue();
-                for (SPNode node : candidates) {
+            for (Entry<String, List<NodeBase<T>>> entry : _spmap.entrySet()) {
+                List<NodeBase<T>> candidates = entry.getValue();
+                for (NodeBase<T> node : candidates) {
                     ret.put(node._finder, node._val);
                 }
             }
             return ret.entrySet();
         }
 
-        /**
-         * A Node of a StarPatternMap
-         * @author ribnitz
-         *
-         */
-        public class SPNode extends NodeBase<T> {
-//            Finder _finder;
-//            T _val;
-
-            public SPNode(Finder finder, T val) {
-//                _finder = finder;
-//                _val = val;
-                super(finder,val);
-            }
-
-            public String toString() {
-                return this._finder.toString();
-            }
-        }
+//
+//        /**
+//         * A Node of a StarPatternMap
+//         * @author ribnitz
+//         *
+//         */
+//        public class SPNode extends NodeBase<T> {
+////            Finder _finder;
+////            T _val;
+//
+//            public SPNode(Finder finder, T val) {
+////                _finder = finder;
+////                _val = val;
+//                super(finder,val);
+//            }
+//
+//            public String toString() {
+//                return this._finder.toString();
+//            }
+//        }
     }
     
     /**
