@@ -416,7 +416,7 @@ public class CheckForExemplars extends FactoryCheckCLDR {
     }
 
     private String constructExemplarWarningURL(String sourceLocale, UnicodeSet disallowed) {
-        return "<a href=\"v#/" + sourceLocale+ "/Alphabetic_Information/"+
+        return "<a target='CLDR-ST-DOCS' href=\"v#/" + sourceLocale+ "/Alphabetic_Information/"+
             StringId.getHexId( prettyPrint.format(disallowed))+"\">";
     }
 
