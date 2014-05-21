@@ -475,10 +475,13 @@ function createUser(user) {
 		gravatar.align='laft';		
 		div.appendChild(gravatar);
 	}
-	div.appendChild(createChunk(stui_str("userlevel_"+user.userlevelName.toLowerCase(0)),"i","userlevel_"+user.userlevelName.toLowerCase()));
-	div.appendChild(createChunk(user.name,"span","adminUserName"));
-	div.appendChild(createChunk(user.orgName + ' #'+user.id,"span","adminOrgName"));
-	div.appendChild(createChunk(user.email,"address","adminUserAddress"));
+	div.appendChild(div.userLevel = createChunk(stui_str("userlevel_"+user.userlevelName.toLowerCase(0)),"i","userlevel_"+user.userlevelName.toLowerCase()));
+	div.appendChild(div.userName = createChunk(user.name,"span","adminUserName"));
+	if(!user.orgName) {
+		user.orgName = user.org;
+	}
+	div.appendChild(div.userOrg = createChunk(user.orgName + ' #'+user.id,"span","adminOrgName"));
+	div.appendChild(div.userEmail = createChunk(user.email,"address","adminUserAddress"));
 	return div;
 }
 
@@ -3804,6 +3807,9 @@ function showV() {
 					} else if(surveyCurrentSpecial=='search') {
 						surveyCurrentPage='';
 						surveyCurrentId=''; // for now
+					} else if(surveyCurrentSpecial.substr(0,2)=='u_') {
+						surveyCurrentPage = '';
+						surveyCurrentId = '';
 					} else {
 						surveyCurrentPage = '';
 						surveyCurrentId = '';
@@ -5354,7 +5360,167 @@ function showV() {
 					theInput.focus();
 					surveyCurrentLocale=null;
 					surveyCurrentSpecial='search';
-					showInPop2(stui.str("searchGuidance"), null, null, null, true); /* show the box the first time */					
+					showInPop2(stui.str("searchGuidance"), null, null, null, true); /* show the box the first time */
+				} else if(surveyCurrentSpecial.substr(0,2)=='u_') { // user management
+					showLoader(theDiv.loader);
+					
+					showInPop2(stui.str("userGuidance"), null, null, null, true, true); /* show the box the first time */					
+					require([
+					         "dojo/ready",
+					         "dojo/dom",
+					         "dojo/dom-construct",
+					         "dojo/request",
+					         "dojo/number",
+					         "dojo/store/Memory",
+					         "dojo/domReady!"
+					         ],
+					         // HANDLES
+					         function(
+					        		 ready,
+					        		 dom,
+					        		 dcons,
+					        		 request,
+					        		 dojoNumber,
+					        		 Memory
+					        ) { ready(function(){
+					        	
+								var div = flipper.flipToEmpty(pages.other);
+								hideLoader(null,stui.loading2);
+								isLoading=false;
+								var store;
+								var limitSelect = createChunk("","select");
+								var limit = null;
+								div.appendChild(limitSelect);
+											
+								var lockedLabel = createChunk("","label","lockedLabel");
+								var showLocked = createChunk("","input");
+								showLocked.type="checkbox";
+								showLocked.checked=false;								
+								lockedLabel.appendChild(showLocked);
+								lockedLabel.appendChild(document.createTextNode("Show locked?"));
+								div.appendChild(lockedLabel);
+								
+								var userPerms = {};
+								
+								var userList = createChunk("","div","listUsers");
+								div.appendChild(userList);
+								
+							
+								function showUserDataFromStore(store) {
+									removeAllChildNodes(limitSelect);
+									removeAllChildNodes(userList);
+									var lastOrg = null;
+//									var limitStruct = {};
+//									if(limit != null) {
+//										limitStruct.org = limit;
+//									}
+//									if(showLocked.value == false) {
+//										limitStruct.userlevel = "":
+//									}
+									var limitStruct = function() {
+										return function(object) {
+											if(limit!=null && limit != object.org) return false;
+											if(!showLocked.checked && (object.userlevel == 999)) return false;
+											return true;
+										};
+									};
+									var allSelect = createChunk("All Organizations","option");
+									allSelect.value="";
+									allSelect.selected = (limit==null);
+									limitSelect.appendChild(allSelect);
+									var noSelect = createChunk("","option");
+									noSelect.disabled = true;
+									limitSelect.appendChild(noSelect);
+									store.query(limitStruct(), {
+										sort:[{attribute:"org"},{attribute:"name"}]
+//									}).map(function(u){
+//										return u.name;
+									}).forEach(function(u){
+										
+										if(lastOrg != u.org) {
+											userList.appendChild(createChunk(u.org,"h2","subOrg"));
+											var option = createChunk(u.org, "option");
+											if(u.org == limit) {
+												option.selected = true;
+											}
+											option.value = u.org;
+											limitSelect.appendChild(option);
+											lastOrg = u.org;
+										}
+										
+										var uDiv = createUser(u);
+										
+										uDiv.userLevel.onclick =
+											uDiv.userEmail.onclick =
+												uDiv.userName.onclick = 
+													function(e) {
+											alert("Hey!");
+											stStopPropagation(e);
+										};
+										var userBox = createChunk("","div","userBox");
+										userBox.appendChild(uDiv);
+										
+										if(userPerms.forLevel[u.userlevelName].isManagerFor) {
+											userBox.appendChild(document.createTextNode("You can manage the above user!"));
+										}
+										
+										userList.appendChild(userBox);
+										
+									});
+								};
+								
+								function showUserData(json) {
+									if(json.org) {
+										limit = json.org;
+										limitSelect.style.display = "none";
+									}
+									store =  new Memory({data: json.users});
+									userPerms = json.userPerms;
+									// TODO: DEBUG
+									window.json = json;
+									window.store = store;
+									
+									showUserDataFromStore(store);
+								};
+								
+								function reloadUserData(onSuccess, onFailure) {
+									var url = contextPath + "/SurveyAjax?what=user_list&s="+surveySessionId+cacheKill();
+									var errFunction = function errFunction(err) {
+										console.log("Error: loading " + url + " -> " + err);
+										hideLoader(null,stui.loading2);
+										isLoading=false;
+										flipper.flipTo(pages.other, domConstruct.toDom("<div style='padding-top: 4em; font-size: x-large !important;' class='ferrorbox warning'><span class='icon i-stop'> &nbsp; &nbsp;</span>Error: User List: could not load: " + err + "</div>"));
+									};
+									request
+					    			.get(url, {handleAs: 'json'})
+					    			.then(function(json) {
+					    				// errors are handled as HTML.
+										
+										
+//											var store =		
+//											
+										onSuccess(json);
+									})
+									.otherwise(errFunction);
+								};
+								reloadUserData(showUserData, null);
+								
+								limitSelect.onchange = function(e) {
+									if(limitSelect.value=="") {
+										limit = null;
+									} else {
+										limit = limitSelect.value;
+									}
+									showUserDataFromStore(store);
+									stStopPropagation(e);
+								};
+								
+								showLocked.onchange = function(e) {
+									showUserDataFromStore(store);
+								};
+								
+					        });
+					   });
 				} else {
 					var msg_fmt = stui.sub("v_bad_special_msg",
 							{special: surveyCurrentSpecial });

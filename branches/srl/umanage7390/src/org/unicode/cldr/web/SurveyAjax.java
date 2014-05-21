@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URLDecoder;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import org.unicode.cldr.util.PathHeader.SurveyToolStatus;
 import org.unicode.cldr.util.SpecialLocales;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.VoteResolver;
+import org.unicode.cldr.util.VoteResolver.Organization;
 import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.web.BallotBox.InvalidXPathException;
 import org.unicode.cldr.web.BallotBox.VoteNotAcceptedException;
@@ -230,6 +232,7 @@ public class SurveyAjax extends HttpServlet {
     public static final String WHAT_REVIEW_HIDE = "review_hide";
     public static final String WHAT_REVIEW_ADD_POST = "add_post";
     public static final String WHAT_REVIEW_GET_POST = "get_post";
+    public static final String WHAT_USERS_LIST = "user_list";
 
     
     String settablePrefsList[] = { SurveyMain.PREF_CODES_PER_PAGE, SurveyMain.PREF_COVLEV,
@@ -1173,6 +1176,65 @@ public class SurveyAjax extends HttpServlet {
                         r.put("results", results);
 
                         send(r, out);
+                    } else if(mySession.user != null) {
+                        mySession.userDidAction();
+                        switch(what) {
+                        case WHAT_USERS_LIST:
+                        {
+                            if(mySession.user.isAdminForOrg(mySession.user.org)) {
+                                try {
+                                    Connection conn = null;
+                                    ResultSet rs = null;
+                                    JSONArray users = new JSONArray();
+                                    final String forOrg = (UserRegistry.userIsAdmin(mySession.user))?null:mySession.user.org;
+                                    try {
+                                        conn = DBUtils.getInstance().getDBConnection();
+                                        rs = sm.reg.list(forOrg, conn);
+                                        // id,userlevel,name,email,org,locales,intlocs,lastlogin
+                                        while(rs.next()) {
+                                            int id = rs.getInt("id");
+                                            UserRegistry.User them = sm.reg.getInfo(id);
+                                            users.put(JSONWriter.wrap(them)
+                                                .put("locales", rs.getString("locales"))
+                                                .put("lastlogin", rs.getTimestamp("lastlogin"))
+                                                .put("intlocs", rs.getString("intlocs")));
+                                        }
+                                    } finally {
+                                        DBUtils.close(rs, conn);
+                                    }
+                                    final JSONWriter r = newJSONStatusQuick(sm);
+                                    r.put("what", what);
+                                    r.put("users", users);
+                                    r.put("org", forOrg);
+                                    JSONObject userPerms = new JSONObject();
+                                    final boolean userCanCreateUsers = sm.reg.userCanCreateUsers(mySession.user);
+                                    userPerms.put("canCreateUsers", userCanCreateUsers);
+                                    if(userCanCreateUsers) {
+                                        final org.unicode.cldr.util.VoteResolver.Level myLevel = mySession.user.getLevel();
+                                        final Organization myOrganization = mySession.user.getOrganization();
+                                        JSONObject forLevel = new JSONObject();  
+                                        for(VoteResolver.Level v : VoteResolver.Level.values()) {
+                                            JSONObject jo = new JSONObject();  
+                                            jo.put("canCreateOrSetLevelTo", myLevel.canCreateOrSetLevelTo(v));
+                                            jo.put("isManagerFor", myLevel.isManagerFor(myOrganization, v, myOrganization));
+                                            forLevel.put(v.name(), jo);
+                                        }
+                                        userPerms.put("forLevel",forLevel);
+                                    }
+                                    r.put("userPerms", userPerms);
+                                    send(r, out);                                    
+                                } catch(SQLException e) {
+                                    SurveyLog.logException(e, "listing users for " + mySession.user.toString());
+                                    throw new SurveyException(ErrorCode.E_INTERNAL, "Internal error listing users: " + e.toString());
+                                }
+                            } else {
+                                throw new SurveyException(ErrorCode.E_NO_PERMISSION, "You do not have permission to list users.");
+                            }
+                        }
+                        break;
+                        default: 
+                            sendError(out, "Unknown User Session-based Request: " + what, ErrorCode.E_INTERNAL);
+                        }
                     } else {
                         sendError(out, "Unknown Session-based Request: " + what, ErrorCode.E_INTERNAL);
                     }
@@ -1184,6 +1246,9 @@ public class SurveyAjax extends HttpServlet {
             } else {
                 sendError(out, "Unknown Request: " + what, ErrorCode.E_INTERNAL);
             }
+        } catch (SurveyException e) {
+            SurveyLog.logException(e, "Processing: " + what);
+            sendError(out, e);
         } catch (JSONException e) {
             SurveyLog.logException(e, "Processing: " + what);
             sendError(out, "JSONException: " + e, ErrorCode.E_INTERNAL);
@@ -1525,6 +1590,19 @@ public class SurveyAjax extends HttpServlet {
         r.put("SurveyOK", "0");
         r.put("err", message);
         r.put("err_code", errCode);
+        send(r, out);
+    }
+    private void sendError(PrintWriter out, SurveyException e) throws IOException {
+        JSONWriter r = newJSON();
+        r.put("SurveyOK", "0");
+        r.put("err", e.getMessage());
+        r.put("err_code", e.getErrCode());
+        try {
+            e.addDataTo(r);
+        } catch (JSONException e1) {
+            SurveyLog.logException(e1, "While processing " + e.toString());
+            r.put("err", e.getMessage()+ " - and JSON error " + e1.toString());
+        }
         send(r, out);
     }
 

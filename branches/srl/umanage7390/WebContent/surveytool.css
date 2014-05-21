@@ -3361,3 +3361,17 @@ div.bulkInputForm div label {
 	display: table-cell;
 	margin-left: 1em;
 }
+
+label.lockedLabel {
+    display:  block;
+    font-weight: normal !important; 
+}
+
+label.lockedLabel input {
+    margin:  0.5em;
+}
+
+div.listUsers h2.subOrg {
+    border-top:  2px solid gray;
+    font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}

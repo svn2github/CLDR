@@ -36,6 +36,11 @@ public class SurveyException extends Exception {
     private final ErrorCode err_code;
     JSONObject err_data = null;
     
+    /**
+     * Adds extra data (not err or err_code)
+     * @param r
+     * @throws JSONException
+     */
     public void addDataTo(JSONWriter r) throws JSONException {
         if(err_data != null) {
             r.put("err_data", r);
