@@ -1434,38 +1434,8 @@ public class SupplementalDataInfo {
                     "match")) : null;
                 String valueStr = parts.getAttributeValue(-1, "value");
                 // Ticket 7125: map the number to English. So switch from English to number for construction
-                switch(valueStr){
-                    case "undetermined":
-                        valueStr = "0";
-                        break;
-                    case "core":
-                        valueStr = "10";
-                        break;
-                    case "posix":
-                        valueStr = "20";
-                        break;
-                    case "minimal": 
-                        valueStr = "30";
-                        break;
-                    case "basic":
-                        valueStr = "40";
-                        break;
-                    case "moderate": 
-                        valueStr = "60";
-                        break;
-                    case "modern":
-                        valueStr = "80";
-                        break;
-                    case "comprehensive": 
-                        valueStr = "100";
-                        break;
-                    case "optional": 
-                        valueStr = "101";
-                        break;
-                    default:
-                        valueStr = null;
-                        break;
-                }
+                valueStr = Integer.toString(Level.get(valueStr).getLevel());
+
                 String inLanguage = parts.containsAttribute("inLanguage") ? coverageVariables.replace(parts
                     .getAttributeValue(-1, "inLanguage")) : null;
                 String inScript = parts.containsAttribute("inScript") ? coverageVariables.replace(parts
