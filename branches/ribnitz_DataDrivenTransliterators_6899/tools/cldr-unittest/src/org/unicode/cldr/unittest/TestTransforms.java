@@ -3,18 +3,20 @@ package org.unicode.cldr.unittest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.unicode.cldr.unittest.TestAll.TestInfo;
-import org.unicode.cldr.unittest.TextFileReader.ProcessableLine;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRTransforms;
 import org.unicode.cldr.util.Factory;
@@ -63,41 +65,44 @@ public class TestTransforms extends TestFmwkPlus {
     		this.specialCasing=special;
     	}
     }
-    private static class TestTransformLineReader extends TextFileReader<TestTransformLine> {
-    	
-    	public TestTransformLineReader(String file) throws IOException {
-			super(file);
+    
+    private static class TransformLineProcessor { 
+    	private  List<String> lines;
+    	private List<TestTransformLine> ttlList=new ArrayList<>();
+    	public TransformLineProcessor(String file) throws IOException {
+			lines=Files.readAllLines(new File(file).toPath(), Charset.forName("UTF-8"));
+			Iterator<String> iter=lines.iterator();
+			while (iter.hasNext()) {
+				String curLine=iter.next();
+				if (!lineNeedsProcessing(curLine)) {
+					iter.remove();
+				}
+			}
+			List<TestTransformLine> ttlList=new ArrayList<>();
+			for (String line: lines ) {
+				ttlList.add(processLine(line));
+			}
 		}
-
-		public Iterable<TestTransformLine> getLines() throws IOException {
-    		return getLines(new ProcessableLineImpl());
-    	}
-    }
-
-  
-	/**
-	 * Implementation doing the file parsing for the Casing transforms
-	 * @author ribnitz
-	 *
-	 */
-    private static class ProcessableLineImpl implements ProcessableLine<TestTransformLine> {
-    	private final static Splitter SEMICOLON_SPLITTER=Splitter.on(";");
-    	private final static Splitter DASH_SPLITTER=Splitter.on("-");
-    	private TestTransformLine oldValues=new TestTransformLine(null, null, null, null, true);
-    	public boolean lineNeedsProcessing(String line) {
+    	
+    	private static boolean lineNeedsProcessing(String line) {
     		return (line!=null && line.length()>0 && !line.trim().startsWith("#"));
     	}
+		public Iterable<TestTransformLine> getLines() throws IOException {
+    		return ttlList;
+    	}
+		
+		private final static Splitter SEMICOLON_SPLITTER=Splitter.on(";");
+    	private final static Splitter DASH_SPLITTER=Splitter.on("-");
+    	private  TestTransformLine oldValues=new TestTransformLine(null, null, null, null, true);
     	
-    	public TestTransformLine processLine(String line, TestTransformLine oldLine) {
-    		if (oldLine==null) {
-    			oldLine=this.oldValues;
-    		}
+    	
+    	private TestTransformLine processLine(String line) {
     		String locale;
     		Casing casing;
     		// Line structure: src; locale-casing; result (; special casing)
     		List<String> lineElements=SEMICOLON_SPLITTER.splitToList(line);
     		String currentSource=lineElements.get(0);
-    		String src=currentSource.isEmpty()?oldLine.source:currentSource;
+    		String src=currentSource.isEmpty()?oldValues.source:currentSource;
     		String currentTransform=lineElements.get(1);
     		if (!currentTransform.isEmpty()) {
     			List<String> tmpSplit=DASH_SPLITTER.splitToList(currentTransform);
@@ -105,8 +110,8 @@ public class TestTransforms extends TestFmwkPlus {
     			String casingStr=tmpSplit.get(1);
     			casing=Casing.valueOf(casingStr);
     		} else {
-    			locale=oldLine.locale;
-    			casing=oldLine.casing;
+    			locale=oldValues.locale;
+    			casing=oldValues.casing;
     		}
     		String res=lineElements.get(2).trim();
     		Boolean special=null;
@@ -120,17 +125,14 @@ public class TestTransforms extends TestFmwkPlus {
     		}
     		// Assume last parameter to be true, if it was not specified.
     		if (special==null) {
-    			special=oldLine.specialCasing;
+    			special=oldValues.specialCasing;
     		}
     		// update old values, as we may need them next time
-    		this.oldValues=new TestTransformLine(src, res, locale, casing, special);
+    		oldValues=new TestTransformLine(src, res, locale, casing, special);
     		return new TestTransformLine(src, res, locale, casing, special);
     	}
-
-    	public  TestTransformLine getOldValues() {
-    		return oldValues;
-    	}
     }
+
 	
     public static void main(String[] args) {
         new TestTransforms().run(args);
@@ -358,8 +360,7 @@ public class TestTransforms extends TestFmwkPlus {
     public void TestCasing() throws IOException {
     	register();
          String casingFileStr = getRelativeFileName(CASING_TRANSFORMS);
-         TestTransformLineReader tfr=new TestTransformLineReader(casingFileStr);
-         Iterable<TestTransformLine> ttIter=tfr.getLines();
+         Iterable<TestTransformLine> ttIter=new TransformLineProcessor(casingFileStr).getLines();
     	for (TestTransformLine ttl: ttIter) {
     		checkString(ttl.locale, ttl.casing, ttl.result,ttl.source,ttl.specialCasing);
     	}
