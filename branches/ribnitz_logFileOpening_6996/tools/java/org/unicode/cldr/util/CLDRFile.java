@@ -234,7 +234,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
                 }
             } else {
                 // count opening the file
-                FileOpeningCounter.getInstance().add(fullFileName);
+                FileOpeningCounter.addIfReadable(fullFileName);
                 // previous version - do not use buffering
                 try (InputStream fis = new FileInputStream(f);) {
                     cldrFile = load(fullFileName, localeName, fis, minimalDraftStatus, source);

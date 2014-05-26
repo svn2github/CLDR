@@ -746,13 +746,10 @@ public class GenerateNormalizeForMatch {
         return new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), UTF8));
     }
 
-    static BufferedReader openUTF8Reader(String filename) throws IOException {
-        File file = new File(filename);
-        if (file.canRead()) {
-            FileOpeningCounter.getInstance().add(filename);
-        }        
-        System.out.println("Reading:\t" + file.getCanonicalPath());
-        return new BufferedReader(new InputStreamReader(new FileInputStream(file), UTF8), 1024 * 64);
+    static BufferedReader openUTF8Reader(String filename) throws IOException {     
+        System.out.println("Reading:\t" + new File(filename).getCanonicalPath());
+        return new BufferedReader(new InputStreamReader(new FileInputStream(
+            FileOpeningCounter.addIfReadable(filename)), UTF8), 1024 * 64);
     }
 
     /**

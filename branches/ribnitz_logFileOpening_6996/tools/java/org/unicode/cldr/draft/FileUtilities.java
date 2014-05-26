@@ -121,7 +121,7 @@ public final class FileUtilities {
 
         public FileProcessor process(BufferedReader in, String fileName) {
             // log that we are reading a File
-           FileOpeningCounter.getInstance().add(fileName);
+            FileOpeningCounter.addFile(fileName);
             handleStart();
             String line = null;
             lineCount = 1;
@@ -182,10 +182,7 @@ public final class FileUtilities {
             if (charset == null) {
                 charset = UTF8;
             }
-            File f=new File(file);
-            if (f.canRead()) {
-                FileOpeningCounter.getInstance().add(f.getAbsolutePath());
-            }
+            FileOpeningCounter.addIfReadable(file);
             InputStreamReader reader = new InputStreamReader(resourceAsStream, charset);
             BufferedReader bufferedReader = new BufferedReader(reader, 1024 * 64);
             return bufferedReader;
@@ -206,11 +203,9 @@ public final class FileUtilities {
 
     public static BufferedReader openFile(String directory, String file, Charset charset) {
         try {
-            File f=new File(directory, file);
-            if (f.canRead()) {
-                FileOpeningCounter.getInstance().add(f.getAbsolutePath());
-            }
-            return new BufferedReader(new InputStreamReader(new FileInputStream(f), charset));
+            return new BufferedReader(new InputStreamReader(new FileInputStream(
+                FileOpeningCounter.addIfReadable(
+                    new File(directory, file).getAbsolutePath())), charset));
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException(e); // handle dang'd checked exception
         }

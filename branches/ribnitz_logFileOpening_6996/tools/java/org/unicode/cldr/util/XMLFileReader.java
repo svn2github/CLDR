@@ -105,8 +105,7 @@ public class XMLFileReader {
        File f=new File(fileName) ;
        long started=System.currentTimeMillis();
        final XMLFileReader result;
-       FileOpeningCounter.getInstance().add(fileName);
-       try (BufferedReader rdr=Files.newBufferedReader(f.toPath(),Charset.forName("UTF-8"))) {
+       try (BufferedReader rdr=Files.newBufferedReader(FileOpeningCounter.addIfReadable(fileName).toPath(),Charset.forName("UTF-8"))) {
 //        try (InputStream fis=InputStreamFactory.createInputStream(new File(fileName))) {
 //            InputStream fis = new FileInputStream(fileName);
             // fis = new DebuggingInputStream(fis);

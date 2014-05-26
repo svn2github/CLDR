@@ -303,12 +303,8 @@ public class IdnaLabelTester {
 
     private static BufferedReader openFile(String file) throws IOException {
         try {
-            File file1 = new File(file);
-            // System.out.println("Reading:\t" + file1.getCanonicalPath());
-            if (file1.canRead()) {
-                FileOpeningCounter.getInstance().add(file);
-            }
-            return new BufferedReader(new InputStreamReader(new FileInputStream(file1), UTF8), 1024 * 64);
+            return new BufferedReader(new InputStreamReader(new FileInputStream(
+                FileOpeningCounter.addFile(file)), UTF8), 1024 * 64);
         } catch (Exception e) {
             File f = new File(file);
             throw new IllegalArgumentException("Bad file name: " + f.getCanonicalPath());

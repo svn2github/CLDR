@@ -1,5 +1,6 @@
 package org.unicode.cldr.util;
 
+import java.io.File;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,8 +16,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import org.unicode.cldr.util.StacktraceUtils.StackTraceSanitizer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -300,6 +299,41 @@ public class FileOpeningCounter {
         }
     }
     
+    private static class StackTraceSanitizer {
+        private List<String> exactMatches=new ArrayList<>();
+        private List<String> containingMatches=new ArrayList<>();
+        public StackTraceSanitizer(List<String> exactMatches,List<String> containingMatches) {
+            this.exactMatches.addAll(exactMatches);
+            this.containingMatches.addAll(containingMatches);
+        }
+        public List<StackTraceElement> sanitizeStackTrace(Collection<StackTraceElement> stack) {
+            if (stack==null||stack.isEmpty()) {
+                return Collections.emptyList();
+            }
+            List<StackTraceElement> returned=new ArrayList<>();
+            for (StackTraceElement elem: stack) {
+                String clsName=elem.getClassName();
+                boolean add=true;
+                if (exactMatches.contains(clsName)) {
+                    add=false;
+                    break;
+                }
+                if (add) {
+                    for (String curMatch: containingMatches) {
+                        if (clsName.contains(curMatch)) {
+                            add=false;
+                            break;
+                        }
+                    }
+                }
+                if (add) {
+                    returned.add(elem);
+                }
+
+            }
+            return returned;
+        }
+    }
     /**
      * Implementation for the case that logging of file opening is enabled.
      * @author ribnitz
@@ -456,6 +490,21 @@ public class FileOpeningCounter {
         }
     }
 
+    public static File addIfReadable(String fileName) {
+        File f=new File(fileName);
+        if (f.canRead()) {
+            FileOpeningCounter c=FileOpeningCounter.getInstance();
+            c.add(f.getAbsolutePath());
+        }
+        return f;
+    }
+    
+    public static File addFile(String fileName) {
+        FileOpeningCounter c=FileOpeningCounter.getInstance();
+        c.add(fileName);
+        return new File(fileName);
+    }
+    
     /**
      * Private initializer called by getInstance()
      */

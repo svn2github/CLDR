@@ -181,11 +181,8 @@ public class FormatSpecialData {
             // File file1 = new File(externalForm);
             // boolean x = file1.canRead();
             // final InputStream resourceAsStream = new FileInputStream(file1);
-            File f= new File(file);
-            if (f.canRead()) {
-                FileOpeningCounter.getInstance().add(file);
-            }
-            final InputStream resourceAsStream = class1.getResourceAsStream(file);
+            final InputStream resourceAsStream = class1.getResourceAsStream(
+                FileOpeningCounter.addIfReadable(file).getAbsolutePath());
             InputStreamReader reader = new InputStreamReader(resourceAsStream, UTF8);
             BufferedReader bufferedReader = new BufferedReader(reader, 1024 * 64);
             return bufferedReader;

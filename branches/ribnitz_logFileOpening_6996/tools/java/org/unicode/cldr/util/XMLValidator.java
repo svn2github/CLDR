@@ -260,10 +260,8 @@ public class XMLValidator {
                         // Since we already know it should be text, this should
                         // work better than parsing by bytes.
                         StringBuffer buffer=null;
-                        try (FileReader fr = new FileReader(filename);
+                        try (FileReader fr = new FileReader(FileOpeningCounter.addIfReadable(filename));
                             BufferedReader br = new BufferedReader(fr);) {
-                            // log that we opened the file
-                            FileOpeningCounter.getInstance().add(filename);
                             // Instantiate a new StringBuffer
                             buffer=new StringBuffer();
 //                            StringBuffer buffer = new StringBuffer();
