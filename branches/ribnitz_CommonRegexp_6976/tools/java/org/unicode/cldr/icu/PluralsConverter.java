@@ -42,7 +42,7 @@ public class PluralsConverter extends SimpleLDMLConverter {
             Node child = node.getFirstChild();
 
             String locales = LDMLUtilities.getAttributeValue(node, LDMLConstants.LOCALES);
-            Iterable<String> localesArray=Patterns.splitOnSingleWhitespaceToIterable(locales);
+            Iterable<String> localesArray=Patterns.splitOnSingleWhiteSpaceToList(locales);
         //    String[] localesArray=Patterns.splitOnSingleWhitespace(locales);
 //            String[] localesArray = locales.split("\\s");
 

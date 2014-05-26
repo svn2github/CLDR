@@ -233,7 +233,6 @@ public class KeyTypeDataConverter {
                         String type = LDMLUtilities.getAttributeValue(node2, LDMLBCP47Constants.ALIAS);
                         if (type != null) {
                             // type may contain multiple values delimited by space character
-//                            String[] types = type.split(" ");
                             String[] types=Patterns.splitOnSpaceCharacter(type);
                             if (types.length > 1) {
                                 type = types[0];

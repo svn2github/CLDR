@@ -58,7 +58,7 @@ public class RadicalStroke {
                     iiCoreSet.add(cp);
                 } else if (radStrokeMatcher.reset(line).matches()) {
                     int cp = Integer.parseInt(radStrokeMatcher.group(1), 16);
-                    String[] items= Patterns.splitOnSingleWhitespace(radStrokeMatcher.group(2));
+                    Iterable<String> items= Patterns.splitOnSingleWhiteSpaceToList(radStrokeMatcher.group(2));
 //                    String[] items = radStrokeMatcher.group(2).split("\\s");
                     for (String item : items) {
                         if (!radDataMatcher.reset(item).matches()) {

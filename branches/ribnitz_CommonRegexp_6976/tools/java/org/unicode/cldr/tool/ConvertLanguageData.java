@@ -99,16 +99,10 @@ public class ConvertLanguageData {
     static Factory cldrFactory = Factory.make(CLDRPaths.MAIN_DIRECTORY, ".*");
     static CLDRFile english = cldrFactory.make("en", true);
 
-    static Set<String> skipLocales = new HashSet<String>(
-        Arrays
-            .asList(
-                Patterns.splitOnSingleWhitespace(
+    static Collection<String> skipLocales = 
+                Patterns.splitOnSingleWhiteSpaceToList(
                     "sh sh_BA sh_CS sh_YU characters supplementalData supplementalData-old supplementalData-old2 "
-                    + "supplementalData-old3 supplementalMetadata root")));
-                
-//                "sh sh_BA sh_CS sh_YU characters supplementalData supplementalData-old supplementalData-old2 supplementalData-old3 supplementalMetadata root"
-//                .split("\\s")));
-
+                    + "supplementalData-old3 supplementalMetadata root");
     static SupplementalDataInfo supplementalData = SupplementalDataInfo
         .getInstance(CLDRPaths.DEFAULT_SUPPLEMENTAL_DIRECTORY);
 
@@ -1744,12 +1738,8 @@ public class ConvertLanguageData {
     }
 
     static Set<String> languagesNeeded = new TreeSet<String>(
-        Arrays
-            .asList(
-                Patterns.splitOnSingleWhitespace("ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk "
-                    +"to tw vo yi za lb dv chr syr kha sco gv")));
-//                "ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk to tw vo yi za lb dv chr syr kha sco gv"
-//                .split("\\s")));
+                Patterns.splitOnSingleWhiteSpaceToList("ab ba bh bi bo fj fy gd ha ht ik iu ks ku ky lg mi na nb rm sa sd sg si sm sn su tg tk "
+                    +"to tw vo yi za lb dv chr syr kha sco gv"));
 
     static void generateIso639_2Data() {
         for (String languageSubtag : sc.getAvailableCodes("language")) {

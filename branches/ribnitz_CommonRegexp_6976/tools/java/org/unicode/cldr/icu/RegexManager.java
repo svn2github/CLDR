@@ -698,7 +698,6 @@ class RegexManager {
         rbPattern.append(rbPath.substring(lastIndex));
         FallbackInfo info = new FallbackInfo(argsUsed, args.size());
         info.addItem(xpathMatcher, fallbackXpath, Patterns.splitOnSingleWhitespace(fallbackValue));
-//        info.addItem(xpathMatcher, fallbackXpath, fallbackValue.split("\\s"));
         fallbackConverter.add(new FullMatcher(rbPattern.toString()), info);
     }
 

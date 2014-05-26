@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -38,15 +37,9 @@ public class JsonConverter {
                                                                           // //CldrUtility.MAIN_DIRECTORY;
     private static final String OUT_DIRECTORY = CLDRPaths.GEN_DIRECTORY + "/jason/"; // CldrUtility.MAIN_DIRECTORY;
     private static boolean COMPACT = false;
-//    static final Set<String> REPLACING_BASE = !COMPACT ? Collections.EMPTY_SET : new HashSet<String>(
-//        Arrays.asList("type id key count".split("\\s")));
-    static final Set<String> REPLACING_BASE = !COMPACT ? Collections.EMPTY_SET : new HashSet<String>(
-      Arrays.asList( Patterns.splitOnSingleWhitespace("type id key count")));
-//    static final Set<String> EXTRA_DISTINGUISHING = new HashSet<String>(
-//        Arrays.asList("locales territory desired supported".split("\\s")));
-    static final Set<String> EXTRA_DISTINGUISHING = new HashSet<String>(
-        Arrays.asList(
-            Patterns.splitOnSingleWhitespace("locales territory desired supported")));
+    static final Collection<String> REPLACING_BASE = !COMPACT ? Collections.EMPTY_SET :
+    Patterns.splitOnSingleWhiteSpaceToList("type id key count");
+    static final Collection<String> EXTRA_DISTINGUISHING = Patterns.splitOnSingleWhiteSpaceToList("locales territory desired supported");
     static final Relation<String, String> mainInfo = ElementAttributeInfo.getInstance(DtdType.ldml)
         .getElement2Attributes();
     static final Relation<String, String> suppInfo = ElementAttributeInfo.getInstance(DtdType.supplementalData)
@@ -58,8 +51,6 @@ public class JsonConverter {
         final Set<String> locales = new TreeSet<String>(cldrFactory.getAvailable());
         final XPathParts oldParts = new XPathParts();
         final XPathParts parts = new XPathParts();
-        // ElementName elementName = new ElementName();
-        // LinkedHashMap<String, String> nonDistinguishing = new LinkedHashMap<String, String>();
         for (String locale : locales) {
             System.out.println("Converting:\t" + locale);
             final CLDRFile file = (CLDRFile) cldrFactory.make(locale, false);
