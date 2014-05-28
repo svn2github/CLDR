@@ -42,13 +42,13 @@
 42	Ukraine	$     337,400,000,000
 43	Chile	$     335,400,000,000
 44	Bangladesh	$     324,600,000,000
-45	Czech Republic	$     286,500,000,000
+45	Czech Republic	$     285,600,000,000
 46	Algeria	$     284,700,000,000
 47	Norway	$     282,200,000,000
 48	Romania	$     280,700,000,000
 49	Israel	$     274,500,000,000
 50	United Arab Emirates	$     269,800,000,000
-51	Greece	$     266,000,000,000
+51	Greece	$     267,100,000,000
 52	Iraq	$     248,000,000,000
 53	Kazakhstan	$     243,600,000,000
 54	Portugal	$     243,300,000,000
@@ -81,7 +81,7 @@
 81	Serbia	$      80,470,000,000
 82	Kenya	$      79,900,000,000
 83	Tanzania	$      79,290,000,000
-84	Croatia	$      78,150,000,000
+84	Croatia	$      78,900,000,000
 85	Libya	$      73,600,000,000
 86	Lithuania	$      67,430,000,000
 87	Puerto Rico	$      64,840,000,000
@@ -124,7 +124,7 @@
 124	Zambia	$      25,470,000,000
 125	Timor-Leste	$      25,410,000,000
 126	Jamaica	$      25,130,000,000
-127	Macedonia	$      22,400,000,000
+127	Macedonia	$      22,570,000,000
 128	Brunei	$      22,250,000,000
 129	Madagascar	$      22,030,000,000
 130	Cyprus	$      21,620,000,000
@@ -134,7 +134,7 @@
 134	Congo, Republic of the	$      20,260,000,000
 135	Papua New Guinea	$      19,960,000,000
 136	Equatorial Guinea	$      19,680,000,000
-137	Tajikistan	$      19,000,000,000
+137	Tajikistan	$      19,200,000,000
 138	Mali	$      18,900,000,000
 139	Namibia	$      17,790,000,000
 140	Mongolia	$      17,030,000,000
@@ -146,8 +146,8 @@
 146	Kosovo	$      14,110,000,000
 147	Niger	$      13,980,000,000
 148	Haiti	$      13,420,000,000
-149	Iceland	$      13,110,000,000
-150	Moldova	$      12,680,000,000
+149	Moldova	$      13,250,000,000
+150	Iceland	$      13,110,000,000
 151	Guinea	$      12,560,000,000
 152	Malta	$      11,460,000,000
 153	Bahamas, The	$      11,400,000,000
@@ -227,4 +227,3 @@
 227	Saint Helena, Ascension, and Tristan da Cunha	$         31,100,000
 228	Niue	$         10,010,000
 229	Tokelau	$          1,500,000
-

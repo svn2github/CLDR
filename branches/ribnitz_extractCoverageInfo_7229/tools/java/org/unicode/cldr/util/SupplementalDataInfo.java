@@ -54,6 +54,7 @@ import java.util.regex.Pattern;
 
 import org.unicode.cldr.test.CoverageLevel2;
 import org.unicode.cldr.tool.LikelySubtags;
+import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.Builder.CBuilder;
 import org.unicode.cldr.util.CLDRFile.DtdType;
 import org.unicode.cldr.util.CldrUtility.VariableReplacer;
@@ -61,6 +62,7 @@ import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
 import org.unicode.cldr.util.SupplementalDataInfo.BasicLanguageData.Type;
 import org.unicode.cldr.util.SupplementalDataInfo.NumberingSystemInfo.NumberingSystemType;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
+import org.unicode.cldr.util.VoteResolver.Organization;
 
 /**
  * Singleton class to provide API access to supplemental data -- in all the supplemental data files.
@@ -80,7 +82,7 @@ import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 
 public class SupplementalDataInfo implements CoverageInformationGettable {
     private static final boolean DEBUG = false;
-
+    private static final StandardCodes sc = StandardCodes.make();
     // TODO add structure for items shown by TestSupplementalData to be missing
     /*
      * [calendarData/calendar,
@@ -466,8 +468,8 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
     public static final class DateRange implements Comparable<DateRange> {
         static final long START_OF_TIME = Long.MIN_VALUE;
         static final long END_OF_TIME = Long.MAX_VALUE;
-        private final long from;
-        private final long to;
+        public final long from;
+        public final long to;
 
         public DateRange(String fromString, String toString) {
             from = parseDate(fromString, START_OF_TIME);
@@ -595,8 +597,8 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
     }
 
     public static final class MetaZoneRange implements Comparable<MetaZoneRange> {
-        final DateRange dateRange;
-        final String metazone;
+        public final DateRange dateRange;
+        public final String metazone;
 
         /**
          * @param metazone
@@ -728,8 +730,7 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
     public static class CoverageLevelInfo implements Comparable<CoverageLevelInfo> {
         public final String match;
         public final Level value;
-        public final String inLanguage;
-        public final Set<String> inLanguageSet;
+        public final Pattern inLanguage;
         public final String inScript;
         public final Set<String> inScriptSet;
         public final String inTerritory;
@@ -737,10 +738,9 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
         private Set<String> inTerritorySetInternal;
 
         public CoverageLevelInfo(String match, int value, String language, String script, String territory) {
-            this.inLanguage = language;
+            this.inLanguage = language != null ? Pattern.compile(language) : null;
             this.inScript = script;
             this.inTerritory = territory;
-            this.inLanguageSet = toSet(language);
             this.inScriptSet = toSet(script);
             this.inTerritorySet = toSet(territory); // MUST BE LAST, sets inTerritorySetInternal
             this.match = match;
@@ -2324,8 +2324,7 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
                 String pattern = ci.match.replace('\'', '"')
                     .replace("[@", "\\[@") // make sure that attributes are quoted
                     .replace("(", "(?:") // make sure that there are no capturing groups (beyond what we generate
-                // below).
-                ;
+                    .replace("(?:?!", "(?!"); // Allow negative lookahead
                 pattern = "^//ldml/" + pattern + "$"; // for now, force a complete match
                 String variableType = null;
                 variable.reset(pattern);
@@ -2406,7 +2405,7 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
             }
             // Special logic added for coverage fields that are only to be applicable
             // to certain languages
-            if (ci.inLanguage != null && !targetLanguage.matches(ci.inLanguage)) {
+            if (ci.inLanguage != null && !ci.inLanguage.matcher(targetLanguage).matches()) {
                 continue;
             }
 
@@ -2575,7 +2574,17 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
                     Set<CLDRLocale> localeList = new HashSet<CLDRLocale>();
                     String[] el = localeAttrib.split(" ");
                     for (int i = 0; i < el.length; i++) {
-                        localeList.add(CLDRLocale.getInstance(el[i]));
+                        if (el[i].indexOf(":") == -1) { // Just a simple locale designation
+                            localeList.add(CLDRLocale.getInstance(el[i]));
+                        } else { // Org:CoverageLevel
+                            String [] coverageLocaleParts = el[i].split(":",2);
+                            String org = coverageLocaleParts[0];
+                            String level = coverageLocaleParts[1].toUpperCase();
+                            Set<String> coverageLocales =sc.getLocaleCoverageLocales(org, EnumSet.of(Level.valueOf(level)));
+                            for (String cl : coverageLocales) {
+                                localeList.add(CLDRLocale.getInstance(cl));
+                            }
+                        }
                     }
                     locales = Collections.unmodifiableSet(localeList);
                 }
@@ -2605,7 +2614,7 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
         }
 
         public boolean matches(CLDRLocale loc, PathHeader ph) {
-            if (false) System.err.println(">> testing " + loc + " / " + ph + " vs " + toString());
+            if (DEBUG) System.err.println(">> testing " + loc + " / " + ph + " vs " + toString());
             if (locales != null) {
                 if (!locales.contains(loc)) {
                     return false;
@@ -3783,6 +3792,22 @@ public class SupplementalDataInfo implements CoverageInformationGettable {
         return isDeprecated(deprecated.get(STAR), element, attribute, value)
             || isDeprecated(deprecated.get(type.toString()), element, attribute, value);
     }
+
+    public boolean isDeprecated(DtdType type, String path) {
+        XPathParts parts = XPathParts.getInstance(path);
+        for (int i = 0; i < parts.size(); ++i) {
+            String element = parts.getElement(i);
+            for (Entry<String, String> entry : parts.getAttributes(i).entrySet()) {
+                String attribute = entry.getKey();
+                String value = entry.getValue();
+                if (isDeprecated(type, element, attribute, value)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     private boolean isDeprecated(Map<String, Relation<String, String>> map,
         String element, String attribute, String value) {

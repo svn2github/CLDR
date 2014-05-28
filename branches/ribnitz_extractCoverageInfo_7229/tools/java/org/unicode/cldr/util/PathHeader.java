@@ -177,7 +177,7 @@ public class PathHeader implements Comparable<PathHeader> {
         CAsia(SectionId.Timezones, "Central Asia"),
         EAsia(SectionId.Timezones, "Eastern Asia"),
         SAsia(SectionId.Timezones, "Southern Asia"),
-        SEAsia(SectionId.Timezones, "South-Eastern Asia"),
+        SEAsia(SectionId.Timezones, "Southeast Asia"),
         Australasia(SectionId.Timezones),
         Antarctica(SectionId.Timezones),
         Oceania(SectionId.Timezones),
@@ -189,8 +189,14 @@ public class PathHeader implements Comparable<PathHeader> {
         Measurement_Systems(SectionId.Units, "Measurement Systems"),
         Duration(SectionId.Units),
         Length(SectionId.Units),
+        Area(SectionId.Units),
+        Volume(SectionId.Units),
+        SpeedAcceleration(SectionId.Units, "Speed and Acceleration"),
         MassWeight(SectionId.Units, "Mass and Weight"),
+        EnergyPower(SectionId.Units, "Energy and Power"),
+        ElectricalFrequency(SectionId.Units, "Electrical and Frequency"),
         Weather(SectionId.Units),
+        Digital(SectionId.Units),
         OtherUnits(SectionId.Units, "Other Units"),
         CompoundUnits(SectionId.Units, "Compound Units"),
         Displaying_Lists(SectionId.Misc, "Displaying Lists"),
@@ -269,6 +275,7 @@ public class PathHeader implements Comparable<PathHeader> {
         .getInstance(ULocale.ENGLISH);
     static {
         alphabetic.setNumericCollation(true);
+        alphabetic.freeze();
     }
     static final SupplementalDataInfo supplementalDataInfo = SupplementalDataInfo.getInstance();
     static final Map<String, String> metazoneToContinent = supplementalDataInfo
@@ -612,9 +619,8 @@ public class PathHeader implements Comparable<PathHeader> {
                         }
                         SectionPage sectionPage = pageToPathHeaders.get(result.pageId);
                         if (sectionPage == null) {
-                            pageToPathHeaders.put(result.pageId, sectionPage
-                                = new SectionPage(result.sectionId,
-                                    result.pageId));
+                            sectionPage= new SectionPage(result.sectionId, result.pageId);
+                            pageToPathHeaders.put(result.pageId, sectionPage);
                         }
                         sectionPageToPaths.put(sectionPage, path);
                     }
@@ -941,6 +947,15 @@ public class PathHeader implements Comparable<PathHeader> {
                     return source;
                 }
             });
+            functionMap.put("currencySymbol", new Transform<String, String>() {
+                public String transform(String source) {
+                    order = 901;
+                    if (source.endsWith("narrow")) {
+                        order = 902;
+                    }
+                    return source;
+                }
+            });
             functionMap.put("unitCount", new Transform<String, String>() {
                 public String transform(String source) {
                     String[] unitLengths = { "long", "short", "narrow" };
@@ -951,6 +966,7 @@ public class PathHeader implements Comparable<PathHeader> {
                             continue;
                         }
                     }
+                    order = pos;
                     suborder = new SubstringOrder(pos + "-" + source); //
                     return source;
                 }
@@ -1006,8 +1022,8 @@ public class PathHeader implements Comparable<PathHeader> {
 
                     Map<String, String> fixNames = Builder.with(new HashMap<String, String>())
                         .put("DayPeriods", "Day Periods")
-                        .put("format", "Formatting Context")
-                        .put("stand-alone", "Standalone Context")
+                        .put("format", "Formatting")
+                        .put("stand-alone", "Standalone")
                         .put("none", "")
                         .put("date", "Date Formats")
                         .put("time", "Time Formats")
@@ -1080,7 +1096,7 @@ public class PathHeader implements Comparable<PathHeader> {
                         script = likelySubtags.getLikelyScript(language);
                     }
                     String scriptName = englishFile.getName(CLDRFile.SCRIPT_NAME, script);
-                    return "Languages Using " + (script.equals("Hans") || script.equals("Hant") ? "Han Script"
+                    return "Languages in " + (script.equals("Hans") || script.equals("Hant") ? "Han Script"
                         : scriptName.endsWith(" Script") ? scriptName
                             : scriptName + " Script");
                 }
@@ -1233,7 +1249,7 @@ public class PathHeader implements Comparable<PathHeader> {
                 { "Central Asia", "Western/Central Asia (C)" },
                 { "Eastern Asia", "Eastern/Southern Asia (C)" },
                 { "Southern Asia", "Eastern/Southern Asia (C)" },
-                { "South-Eastern Asia", "Eastern/Southern Asia (C)" },
+                { "Southeast Asia", "Eastern/Southern Asia (C)" },
                 { "Australasia", "Oceania (C)" },
                 { "Melanesia", "Oceania (C)" },
                 { "Polynesia", "Oceania (C)" },
@@ -1242,6 +1258,7 @@ public class PathHeader implements Comparable<PathHeader> {
 
             final Map<String, String> currencyToTerritoryOverrides = CldrUtility.asMap(ctto);
             final Map<String, String> subContinentToContinent = CldrUtility.asMap(sctc);
+            final List<String> fundCurrencies = Arrays.asList("CHE", "CHW", "CLF", "COU", "ECV", "MXV", "USN", "USS", "UYI", "XEU", "ZAL");
             // TODO: Put this into supplementalDataInfo ?
 
             functionMap.put("categoryFromCurrency", new Transform<String, String>() {
@@ -1249,7 +1266,13 @@ public class PathHeader implements Comparable<PathHeader> {
                     String tenderOrNot = "";
                     String territory = likelySubtags.getLikelyTerritoryFromCurrency(source0);
                     if (territory == null) {
-                        tenderOrNot = ": " + source0 + " (Not Current Tender)";
+                        String tag;
+                        if (fundCurrencies.contains(source0)) {
+                            tag = " (fund)";
+                        } else {
+                            tag = " (old)";
+                        }
+                        tenderOrNot = ": " + source0 + tag;
                     }
                     if (currencyToTerritoryOverrides.keySet().contains(source0)) {
                         territory = currencyToTerritoryOverrides.get(source0);
@@ -1289,34 +1312,68 @@ public class PathHeader implements Comparable<PathHeader> {
             });
             functionMap.put("numberingSystem", new Transform<String, String>() {
                 public String transform(String source0) {
+                    if ("latn".equals(source0)) {
+                        return "";
+                    }
                     String displayName = englishFile.getStringValue("//ldml/localeDisplayNames/types/type[@type=\""
                         + source0 +
                         "\"][@key=\"numbers\"]");
-                    return displayName == null ? source0 : displayName + " (" + source0 + ")";
+                    return "using " + ( displayName == null ? source0 : displayName + " (" + source0 + ")");
                 }
             });
             // //ldml/localeDisplayNames/types/type[@type="%A"][@key="%A"]
             functionMap.put("datefield", new Transform<String, String>() {
                 private final String[] datefield = {
-                    "era", "year", "month", "week", "day", "weekday",
-                    "hour", "dayperiod", "minute", "second", "zone"
+                    "era", 
+                    "year", "year-short", "year-narrow",
+                    "quarter", "quarter-short", "quarter-narrow", 
+                    "month", "month-short", "month-narrow", 
+                    "week", "week-short", "week-narrow",
+                    "day", "day-short", "day-narrow", 
+                    "weekday", "dayperiod", "zone",
+                    "hour", "hour-short", "hour-narrow",
+                    "minute", "minute-short", "minute-narrow",
+                    "second", "second-short", "second-narrow",
+                    
                 };
 
                 public String transform(String source) {
-                    String field = source.split("-")[0];
-                    order = getIndex(field, datefield);
+                    order = getIndex(source, datefield);
                     return source;
                 }
             });
             // //ldml/dates/fields/field[@type="%A"]/relative[@type="%A"]
             functionMap.put("relativeDate", new Transform<String, String>() {
                 private final String[] relativeDateField = {
-                    "year", "month", "week", "day", "hour", "minute", "second",
-                    "sun", "mon", "tue", "wed", "thu", "fri", "sat"
+                    "year", "year-short", "year-narrow",
+                    "quarter", "quarter-short", "quarter-narrow",
+                    "month", "month-short", "month-narrow",
+                    "week", "week-short", "week-narrow",
+                    "day", "day-short", "day-narrow",
+                    "hour", "hour-short", "hour-narrow",
+                    "minute", "minute-short", "minute-narrow",
+                    "second", "second-short", "second-narrow",
+                    "sun", "sun-short", "sun-narrow",
+                    "mon", "mon-short", "mon-narrow", "tue", "tue-short", "tue-narrow",
+                    "wed", "wed-short", "wed-narrow", "thu", "thu-short", "thu-narrow",
+                    "fri", "fri-short", "fri-narrow", "sat", "sat-short", "sat-narrow",
                 };
                 private final String[] longNames = {
-                    "Year", "Month", "Week", "Day", "Hour", "Minute", "Second",
-                    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+                    "Year", "Year Short", "Year Narrow",
+                    "Quarter", "Quarter Short", "Quarter Narrow",
+                    "Month", "Month Short", "Month Narrow",
+                    "Week", "Week Short", "Week Narrow",
+                    "Day", "Day Short", "Day Narrow",
+                    "Hour", "Hour Short", "Hour Narrow",
+                    "Minute", "Minute Short", "Minute Narrow",
+                    "Second", "Second Short", "Second Narrow",
+                    "Sunday", "Sunday Short", "Sunday Narrow",
+                    "Monday", "Monday Short", "Monday Narrow",
+                    "Tuesday", "Tuesday Short", "Tuesday Narrow",
+                    "Wednesday", "Wednesday Short", "Wednesday Narrow",
+                    "Thursday", "Thursday Short", "Thursday Narrow",
+                    "Friday", "Friday Short", "Friday Narrow",
+                    "Saturday", "Saturday Short", "Saturday Narrow",
                 };
 
                 public String transform(String source) {
@@ -1478,16 +1535,17 @@ public class PathHeader implements Comparable<PathHeader> {
         return result == null ? "ZZ" : result;
     }
 
-    private static final List<String> COUNTS = Arrays.asList("zero", "one", "two", "few", "many", "other");
+    private static final List<String> COUNTS = Arrays.asList("displayName", "zero", "one", "two", "few", "many", "other", "per");
 
     private static int alphabeticCompare(String aa, String bb) {
+        return alphabetic.compare(aa, bb);
         // workaround for ICU threading issue http://bugs.icu-project.org/trac/ticket/10215
-        while (true) {
-            try {
-                return alphabetic.compare(aa, bb);
-            } catch (ArrayIndexOutOfBoundsException e) {
-            }
-        }
+//        while (true) {
+//            try {
+//                return alphabetic.compare(aa, bb);
+//            } catch (IndexOutOfBoundsException e) {
+//            }
+//        }
     }
 
     public enum BaseUrl {
