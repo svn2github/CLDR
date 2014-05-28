@@ -1,6 +1,13 @@
+<%@page import="java.util.Random"%>
 <%@ page contentType="text/html; charset=UTF-8"
 	import="org.unicode.cldr.web.*,org.unicode.cldr.util.*"%>
 
+<%!
+
+	String choose(String... option) {
+		return option[new Random().nextInt(option.length)];
+	}
+%>
 <%
 String vap = request.getParameter("vap");
 if(vap==null ||
@@ -12,7 +19,23 @@ if(vap==null ||
 	response.sendRedirect(request.getContextPath() + "/index.jsp");
 	return;
 }
-	
+
+// generate random name
+StringBuilder genname = new StringBuilder();
+
+// http://en.wikipedia.org/wiki/List_of_most_popular_given_names#Oceania
+genname.append(choose("Tarita","Hiro", "Teiki", "Moana", "Manua", "Marama", "Teiva", "Teva", "Maui", "Tehei", "Tamatoa",
+		"Ioane", "Tapuarii",
+		
+		"Tiare", "Hinano", "Poema", "Maeva", "Hina", "Vaea", "Titaua", "Moea", "Moeata", "Tarita", "Titaina", "Teura", 
+		"Heikapu", "Mareva"
+		));
+genname.append(' ');
+genname.append((char)('A'+new Random().nextInt(26)));
+genname.append('.');
+genname.append(' ');
+genname.append(choose("Vetter","Linguist","User","Typer","Tester","Specialist", "Person","Account","Login",
+		"CLDR"));
 // zap any current login
     Cookie c0 = WebContext.getCookie(request,SurveyMain.QUERY_EMAIL);
     if(c0!=null) {
@@ -60,8 +83,8 @@ String myorg = orgs[(int)Math.rint(Math.random()*(double)(orgs.length-1))];
 
 <table>
 	<tr>
-		<th><label for="new_name">Real Name (ONE WORD):</label></th>
-		<td><input id='real' size="40" value="REALNAME" name="real" /></td>
+		<th><label for="new_name">User Name:</label></th>
+		<td><input id='real' size="40" value="<%= genname %>" name="real" /></td>
 	</tr>
 	<tr class="submit">
 		<td colspan="2"><button style='font-size: xx-large' type="submit">Login</button></td>
@@ -114,6 +137,17 @@ String myorg = orgs[(int)Math.rint(Math.random()*(double)(orgs.length-1))];
 		<th><label for="new_locales">Languages responsible:</label></th>
 		<td><input name="new_locales" value="" /> <br>
 		(Space separated. Examples: "en de fr"  but not <strike>"zh_Hant"</strike> or <strike>"de_CH"</strike>. )</td>
+	</tr>
+	
+	<%--
+                    final boolean autoProceed = ctx.hasField("new_and_login_autoProceed");
+                    final boolean stayLoggedIn = ctx.hasField("new_and_login_stayLoggedIn");
+	 --%>
+	<tr>
+		<th>Login Options</th>
+		<td>
+			<label for="new_and_login_autoProceed"><input name="new_and_login_autoProceed" type="checkbox" CHECKED>Log me in immediately after creating the account?</label>
+			<label for="new_and_login_stayLoggedIn"><input name="new_and_login_stayLoggedIn" type="checkbox" CHECKED>Remember me the next time I login? (cookie)</label>
 	</tr>
 </table>
 </form>

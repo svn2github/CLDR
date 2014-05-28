@@ -13,14 +13,9 @@
 			<td id='statuscell' class='d-dr'></td>
 			<td style='display: none' id='errcell' class='d-st-okay'></td>
 			<td id='proposedcell' title="$flyoverproposed" class='d-win'></td>
+			<td id='addcell' title="$flyoveradd" class='d-win'></td>
 			<td id='othercell' title="$flyoverother" class='d-win'></td>
-<!--			<td id='changecell' title="$flyoverchange" class='d-change'></td>-->
 		</tr>
-		<!-- <tr id='proto-inforow' class='d-inforow-hid' > -->
-<!-- 	<td colspan='9' class='d-inforow-infotd'> -->
-<!-- 		<button type='button' class='d-inforow-hider'>(hide)</button> -->
-<!-- 	</td> -->
-<!-- </tr> -->
 <tr id='proto-parrow' class='d-parrow' >
 	<th class='partsection' colspan='9'>
 		<a>Partition</a>
@@ -30,7 +25,7 @@
 </table>
 
 <input id='proto-button' class='ichoice' type='radio' title='click to vote'></input>
-<button id='cancel-button' class='cancelbutton' title='click to delete'>remove</button>
+<button id='cancel-button' class='cancelbutton tip btn btn-danger' title='Delete'><span class="glyphicon glyphicon-minus"></span></button>
 
 <span id='proto-item'>
 
@@ -59,9 +54,9 @@
 	</thead>
 </table>
 
-<table id='proto-datatable' class='data'>
+<table id='proto-datatable' class='data table table-bordered'>
 <thead>
-<tr class="headingb">
+<tr class="headingb active">
 <!--  see stui.js for the following -->
     <th title="$flyovercode" id='stui-htmlcode'></th>
 	<th title="$flyoverbaseline" id='stui-htmlbaseline'></th>
@@ -70,6 +65,7 @@
 	<th title="$flyoverdraft" id='stui-htmldraft' class='d-status'></th>
 	<th title="$flyoverst" id='stui-htmlst' style='display: none' ></th>
 	<th title="$flyoverproposed" id='stui-htmlproposed'></th>
+	<th title="$flyoveradd" id='stui-htmltoadd'></td>
 	<th title="$flyoverothers" id='stui-htmlothers'></th>
 <!--	<th title="$flyoverchange" id='stui-htmlchange' class='d-change'></th>-->
 </tr>
@@ -77,5 +73,34 @@
 <tbody>
 </tbody>
 </table>
+
+<div id="proto-datafix" class="data">
+	<div class="data-vertical">
+					<div id='comparisoncell' class='d-disp comparisoncell'></div>
+					<hr/>
+					<div id='proposedcell' class='d-win proposedcell'></div>
+					
+					<div id='statuscell' class='d-dr statuscell'></div>
+					<hr/>
+					<div id='othercell' class='d-win othercell'></div>
+					<hr/>
+					<div id='nocell' class='d-no nocell'></div>
+	</div>
+	<div class="data-vote"></div>
+	<button type="button" class="close">&times;</button>	
+</div>
+
+<div id='proto-datarowfix' class='vother'>
+					<div id='comparisoncell' class='d-disp comparisoncell'></div>
+					<hr/>
+					<div id='proposedcell' class='d-win proposedcell'></div>
+					
+					<div id='statuscell' class='d-dr statuscell'></div>
+					<hr/>
+					<div id='othercell' class='d-win othercell'></div>
+					<hr/>
+					<div id='nocell' class='d-no nocell'></div>
+</div>
+
 
 <!--  end hidden.html -->

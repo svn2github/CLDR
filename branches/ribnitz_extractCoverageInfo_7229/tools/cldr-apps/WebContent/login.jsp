@@ -10,7 +10,7 @@
 <img src="<%= request.getContextPath() %>/STLogo.png" align='left'>
 <div id='smalllogin' style='position: relative !important; top: inherit !important; left: inherit !important' class='small_login_normal'>
    	  <div id='small_login_show' class='small_login_hot'>
-<form method='POST' action='<%= request.getContextPath() %>/survey' >
+<form method='POST' action='<%= request.getContextPath() %>/v' >
 		<label for="email"> Email:</label><input id="email" name="email" /> <br/>
         <label for="pw"> Password:</label> <input id="pw" type="password"            name="pw" /> <br/>
         <label for="save_cook"> Log me in automatically next time?</label> <input id="<%= SurveyMain.QUERY_SAVE_COOKIE %>" type="checkbox"            name="save_cookie" /> <br/>
@@ -61,11 +61,16 @@
 
 </form>
 
-<%@ include file="/WEB-INF/tmpl/testlogin.jsp" %>
-
+<%--
+	removing test login - as it was confusing.
+	 <%@ include file="/WEB-INF/tmpl/testlogin.jsp" %>
+ --%>
 
         </div>
 </div>
 
+	<p>
+		<img width=0 height=0 src='loader.gif'></img><!--  to preload this gif -->
+	</p>
 </body>
 </html>

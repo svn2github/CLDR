@@ -665,7 +665,7 @@ $Date$
 <!ATTLIST cyclicNameSets validSubLocales CDATA #IMPLIED >
 
 <!ELEMENT cyclicNameSet ( alias | (cyclicNameContext*, special*)) >
-<!ATTLIST cyclicNameSet type ( years | months | days | dayParts | zodiacs ) #REQUIRED >
+<!ATTLIST cyclicNameSet type ( years | months | days | dayParts | zodiacs | solarTerms ) #REQUIRED >
 <!ATTLIST cyclicNameSet alt NMTOKENS #IMPLIED >
 <!ATTLIST cyclicNameSet draft ( approved | contributed | provisional | unconfirmed ) #IMPLIED >
 <!ATTLIST cyclicNameSet references CDATA #IMPLIED >
@@ -943,7 +943,7 @@ $Date$
 <!ATTLIST fields validSubLocales CDATA #IMPLIED >
 
 <!ELEMENT field ( alias | (displayName*, relative*, relativeTime*, special*)) >
-<!ATTLIST field type ( era | year | month | week | day | weekday | sun | mon | tue | wed | thu | fri | sat | dayperiod | hour | minute | second | zone ) #IMPLIED >
+<!ATTLIST field type ( era | year | year-short | year-narrow | quarter | quarter-short | quarter-narrow | month | month-short | month-narrow | week | week-short | week-narrow | day | day-short | day-narrow | weekday | sun | sun-short | sun-narrow | mon | mon-short | mon-narrow | tue | tue-short | tue-narrow | wed | wed-short | wed-narrow | thu | thu-short | thu-narrow | fri | fri-short | fri-narrow | sat | sat-short | sat-narrow | dayperiod | hour | hour-short | hour-narrow | minute | minute-short | minute-narrow | second | second-short | second-narrow | zone ) #IMPLIED >
 <!ATTLIST field alt NMTOKENS #IMPLIED >
 <!ATTLIST field draft ( approved | contributed | provisional | unconfirmed | true | false ) #IMPLIED > <!-- true and false are deprecated. -->
 <!ATTLIST field standard CDATA #IMPLIED > <!-- the "standard" attribute is deprecated everywhere. -->
@@ -977,7 +977,7 @@ $Date$
 
 <!-- ######################################################### -->
 
-<!ELEMENT numbers (alias | (defaultNumberingSystem*, otherNumberingSystems*, symbols*, decimalFormats*, scientificFormats*, percentFormats*, currencyFormats*, currencies?, miscPatterns*, special*)) >
+<!ELEMENT numbers (alias | (defaultNumberingSystem*, otherNumberingSystems*, minimumGroupingDigits*, symbols*, decimalFormats*, scientificFormats*, percentFormats*, currencyFormats*, currencies?, miscPatterns*, special*)) >
 <!ATTLIST numbers alt NMTOKENS #IMPLIED >
 <!ATTLIST numbers draft ( approved | contributed | provisional | unconfirmed | true | false ) #IMPLIED > <!-- true and false are deprecated. -->
 <!ATTLIST numbers standard CDATA #IMPLIED > <!-- the "standard" attribute is deprecated everywhere. -->
@@ -1005,7 +1005,7 @@ $Date$
 <!ATTLIST finance alt NMTOKENS #IMPLIED >
 <!ATTLIST finance draft ( approved | contributed | provisional | unconfirmed | true | false ) #IMPLIED > <!-- true and false are deprecated. -->
 
-<!ELEMENT symbols (alias | (decimal*, group*, list*, percentSign*, nativeZeroDigit*, patternDigit*, plusSign*, minusSign*, exponential*, superscriptingExponent*, perMille*, infinity*, nan*, currencyDecimal*, currencyGroup*, special*)) >
+<!ELEMENT symbols (alias | (decimal*, group*, list*, percentSign*, nativeZeroDigit*, patternDigit*, plusSign*, minusSign*, exponential*, superscriptingExponent*, perMille*, infinity*, nan*, currencyDecimal*, currencyGroup*, timeSeparator*, special*)) >
 <!ATTLIST symbols alt NMTOKENS #IMPLIED >
 <!ATTLIST symbols draft ( approved | contributed | provisional | unconfirmed | true | false ) #IMPLIED > <!-- true and false are deprecated. -->
 <!ATTLIST symbols standard CDATA #IMPLIED > <!-- the "standard" attribute is deprecated everywhere. -->
@@ -1089,6 +1089,16 @@ $Date$
 <!ATTLIST nan draft ( approved | contributed | provisional | unconfirmed | true | false ) #IMPLIED > <!-- true and false are deprecated. -->
 <!ATTLIST nan references CDATA #IMPLIED >
 <!ATTLIST nan numberSystem CDATA #IMPLIED > <!-- deprecated -->
+
+<!ELEMENT timeSeparator ( #PCDATA ) >
+<!ATTLIST timeSeparator alt NMTOKENS #IMPLIED >
+<!ATTLIST timeSeparator draft ( approved | contributed | provisional | unconfirmed ) #IMPLIED > 
+<!ATTLIST timeSeparator references CDATA #IMPLIED >
+
+<!ELEMENT minimumGroupingDigits ( #PCDATA ) >
+<!ATTLIST minimumGroupingDigits alt NMTOKENS #IMPLIED >
+<!ATTLIST minimumGroupingDigits draft ( approved | contributed | provisional | unconfirmed ) #IMPLIED > 
+<!ATTLIST minimumGroupingDigits references CDATA #IMPLIED >
 
 <!ELEMENT currencyDecimal ( #PCDATA ) >
 <!ATTLIST currencyDecimal alt NMTOKENS #IMPLIED >
@@ -1258,7 +1268,7 @@ $Date$
 <!ATTLIST compoundUnit references CDATA #IMPLIED >
 <!ATTLIST compoundUnit validSubLocales CDATA #IMPLIED >
 
-<!ELEMENT unit (alias | (unitPattern*, special*)) >
+<!ELEMENT unit (alias | (displayName*, unitPattern*, perUnitPattern*, special*)) >
 <!ATTLIST unit type NMTOKEN #REQUIRED >
 <!ATTLIST unit alt NMTOKENS #IMPLIED >
 <!ATTLIST unit draft ( approved | contributed | provisional | unconfirmed ) #IMPLIED >
@@ -1277,6 +1287,11 @@ $Date$
 <!ATTLIST unitPattern draft ( approved | contributed | provisional | unconfirmed ) #IMPLIED >
 <!ATTLIST unitPattern references CDATA #IMPLIED >
 <!ATTLIST unitPattern validSubLocales CDATA #IMPLIED >
+
+<!ELEMENT perUnitPattern ( #PCDATA ) >
+<!ATTLIST perUnitPattern alt NMTOKENS #IMPLIED >
+<!ATTLIST perUnitPattern draft ( approved | contributed | provisional | unconfirmed ) #IMPLIED >
+<!ATTLIST perUnitPattern references CDATA #IMPLIED >
 
 <!ELEMENT compoundUnitPattern ( #PCDATA ) >
 <!ATTLIST compoundUnitPattern alt NMTOKENS #IMPLIED >
