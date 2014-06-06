@@ -1,5 +1,6 @@
 package org.unicode.cldr.util;
 
+import com.google.common.collect.ImmutableMap;
 import com.ibm.icu.dev.util.CollectionUtilities;
 import com.ibm.icu.dev.util.Relation;
 import com.ibm.icu.dev.util.XEquivalenceClass;
@@ -44,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -54,6 +56,7 @@ import java.util.regex.Pattern;
 
 import org.unicode.cldr.test.CoverageLevel2;
 import org.unicode.cldr.tool.LikelySubtags;
+import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.Builder.CBuilder;
 import org.unicode.cldr.util.CLDRFile.DtdType;
 import org.unicode.cldr.util.CldrUtility.VariableReplacer;
@@ -80,7 +83,7 @@ import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
 
 public class SupplementalDataInfo {
     private static final boolean DEBUG = false;
-
+    private static final StandardCodes sc = StandardCodes.make();
     // TODO add structure for items shown by TestSupplementalData to be missing
     /*
      * [calendarData/calendar,
@@ -466,8 +469,8 @@ public class SupplementalDataInfo {
     public static final class DateRange implements Comparable<DateRange> {
         static final long START_OF_TIME = Long.MIN_VALUE;
         static final long END_OF_TIME = Long.MAX_VALUE;
-        private final long from;
-        private final long to;
+        public final long from;
+        public final long to;
 
         public DateRange(String fromString, String toString) {
             from = parseDate(fromString, START_OF_TIME);
@@ -595,8 +598,8 @@ public class SupplementalDataInfo {
     }
 
     public static final class MetaZoneRange implements Comparable<MetaZoneRange> {
-        final DateRange dateRange;
-        final String metazone;
+        public final DateRange dateRange;
+        public final String metazone;
 
         /**
          * @param metazone
@@ -728,20 +731,20 @@ public class SupplementalDataInfo {
     public static class CoverageLevelInfo implements Comparable<CoverageLevelInfo> {
         public final String match;
         public final Level value;
-        public final String inLanguage;
-        public final Set<String> inLanguageSet;
+        public final Pattern inLanguage;
         public final String inScript;
         public final Set<String> inScriptSet;
         public final String inTerritory;
         public final Set<String> inTerritorySet;
         private Set<String> inTerritorySetInternal;
+        public final Set<String> inLanguageSet;
 
         public CoverageLevelInfo(String match, int value, String language, String script, String territory) {
-            this.inLanguage = language;
+            this.inLanguage = language != null ? Pattern.compile(language) : null;
             this.inScript = script;
             this.inTerritory = territory;
-            this.inLanguageSet = toSet(language);
             this.inScriptSet = toSet(script);
+            this.inLanguageSet=toSet(language);
             this.inTerritorySet = toSet(territory); // MUST BE LAST, sets inTerritorySetInternal
             this.match = match;
             this.value = Level.fromLevel(value);
@@ -777,6 +780,7 @@ public class SupplementalDataInfo {
             }
         }
     }
+
 
     public static final String STAR = "*";
     public static final Set<String> STAR_SET = Builder.with(new HashSet<String>()).add("*").freeze();
@@ -871,6 +875,8 @@ public class SupplementalDataInfo {
     public Map<Row.R2<String, String>, String> bcp47Deprecated = new TreeMap<Row.R2<String, String>, String>();
 
     public Map<String, Row.R2<String, String>> validityInfo = new HashMap<String, Row.R2<String, String>>();
+    //public Map<String, Row.R4<String,String,String,String>> attributeValidity=new HashMap<>();
+    public Map<String, AttributeValidityInfo> attributeValidity=new HashMap<>();
 
     public enum MeasurementType {
         measurementSystem, paperSize
@@ -887,6 +893,116 @@ public class SupplementalDataInfo {
         return numericTerritoryMapping;
     }
 
+    /**
+     * Class needed for returning the entries in AttributeValidityInfo; Elements of type Row are glorified arrays,
+     * and not future-proof; besides they would expose internals of SupplementalDataInfo.
+     * 
+     * @author ribnitz
+     *
+     */
+    public static class AttributeValidityInfo {
+        private final String attributes;
+        private final String type;
+        private final String elements;
+        private final String order;
+        private final String value;
+        private final String path;
+        private final int hashCode;
+
+        public AttributeValidityInfo(String attributes, String type, String elements, String order, String value,String path) {
+            super();
+            this.attributes = attributes;
+            this.type = type;
+            this.elements = elements;
+            this.order = order;
+            this.value = value;
+            this.path=path;
+            this.hashCode = Objects.hash(this.attributes, this.type, this.elements, this.order, this.value,this.path);
+        }
+
+        public String getAttributes() {
+            return attributes;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getElements() {
+            return elements;
+        }
+
+        public String getOrder() {
+            return order;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getPath() {
+            return path;
+        }
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other == null) {
+                return false;
+            }
+            if (this == other) {
+                return true;
+            }
+            if (hashCode != other.hashCode()) {
+                return false;
+            }
+            if (!getClass().equals(other.getClass())) {
+                return false;
+            }
+            AttributeValidityInfo o = (AttributeValidityInfo) other;
+            if (!checkEquality(value, o.value)) {
+                return false;
+            }
+            if (!checkEquality(type, o.type)) {
+                return false;
+            }
+            if (!checkEquality(order, o.order)) {
+                return false;
+            }
+            if (!checkEquality(elements, o.elements)) {
+                return false;
+            }
+            if (!checkEquality(attributes, o.attributes)) {
+                return false;
+            }
+            if (!checkEquality(path, o.path)) {
+                return false;
+            }
+            return true;
+        }
+
+        private boolean checkEquality(String myField, String otherField) {
+            if (myField != null && !myField.equals(otherField)) {
+                return false;
+            }
+            if (myField == null && otherField != null) {
+                return false;
+            }
+            return true;
+        }
+    }
+    public Map<String,AttributeValidityInfo> getAttributeValidity() {
+        return ImmutableMap.copyOf(attributeValidity);
+//       Map<String,AttributeValidityInfo> tmp=new HashMap<>();
+//       for (Map.Entry<String, R4<String,String,String,String>> entry: attributeValidity.entrySet()) {
+//           R4<String,String,String,String> val=entry.getValue();
+//           tmp.put(entry.getKey(), new AttributeValidityInfo(entry.getKey(),val.get0(), val.get1(),val.get2(), val.get3()));
+//       }
+//      return tmp;
+    }
     /**
      * Returns type -> tag -> <replacementList, reason>, like "language" -> "sh" -> <{"sr_Latn"}, reason>
      * 
@@ -1157,7 +1273,7 @@ public class SupplementalDataInfo {
     /**
      * Core function used to process each of the paths, and add the data to the appropriate data member.
      */
-    class MyHandler extends XMLFileReader.SimpleHandler {
+     class MyHandler extends XMLFileReader.SimpleHandler {
         private static final double MAX_POPULATION = 3000000000.0;
 
         XPathParts parts = new XPathParts();
@@ -1260,7 +1376,7 @@ public class SupplementalDataInfo {
                     handleParentLocales();
                     return;
                 } else if (level1.equals("metadata")) {
-                    if (handleMetadata(level2, value)) {
+                    if (handleMetadata(level2, value, path)) {
                         return;
                     }
                 } else if (level1.equals("codeMappings")) {
@@ -1543,7 +1659,7 @@ public class SupplementalDataInfo {
             return false;
         }
 
-        private boolean handleMetadata(String level2, String value) {
+        private boolean handleMetadata(String level2, String value, String path) {
             if (parts.contains("defaultContent")) {
                 String defContent = parts.getAttributeValue(-1, "locales").trim();
                 String[] defLocales = defContent.split("\\s+");
@@ -1594,6 +1710,16 @@ public class SupplementalDataInfo {
                             .unmodifiableSet(new TreeSet<String>(Arrays.asList(validCodeArray)));
                     }
                     return true;
+                }
+                if (level3.equals("attributeValues")) {
+                    Map<String, String> attributes = parts.getAttributes(-1);
+                    String type=attributes.get("type");
+                    String elements=attributes.get("elements");
+                    String order=attributes.get("order");
+                    String attr=attributes.get("attributes");
+//                    attributeValidity.put(attr,Row.of(type, elements, order,value));
+                    attributeValidity.put(attr, new AttributeValidityInfo(attr, type, elements, order, value,path));
+                    return true; 
                 }
             } else if (level2.equals("attributeOrder")) {
                 attributeOrder = Arrays.asList(value.trim().split("\\s+"));
@@ -2324,8 +2450,7 @@ public class SupplementalDataInfo {
                 String pattern = ci.match.replace('\'', '"')
                     .replace("[@", "\\[@") // make sure that attributes are quoted
                     .replace("(", "(?:") // make sure that there are no capturing groups (beyond what we generate
-                // below).
-                ;
+                    .replace("(?:?!", "(?!"); // Allow negative lookahead
                 pattern = "^//ldml/" + pattern + "$"; // for now, force a complete match
                 String variableType = null;
                 variable.reset(pattern);
@@ -2406,7 +2531,7 @@ public class SupplementalDataInfo {
             }
             // Special logic added for coverage fields that are only to be applicable
             // to certain languages
-            if (ci.inLanguage != null && !targetLanguage.matches(ci.inLanguage)) {
+            if (ci.inLanguage != null && !ci.inLanguage.matcher(targetLanguage).matches()) {
                 continue;
             }
 
@@ -2575,7 +2700,17 @@ public class SupplementalDataInfo {
                     Set<CLDRLocale> localeList = new HashSet<CLDRLocale>();
                     String[] el = localeAttrib.split(" ");
                     for (int i = 0; i < el.length; i++) {
-                        localeList.add(CLDRLocale.getInstance(el[i]));
+                        if (el[i].indexOf(":") == -1) { // Just a simple locale designation
+                            localeList.add(CLDRLocale.getInstance(el[i]));
+                        } else { // Org:CoverageLevel
+                            String [] coverageLocaleParts = el[i].split(":",2);
+                            String org = coverageLocaleParts[0];
+                            String level = coverageLocaleParts[1].toUpperCase();
+                            Set<String> coverageLocales =sc.getLocaleCoverageLocales(org, EnumSet.of(Level.valueOf(level)));
+                            for (String cl : coverageLocales) {
+                                localeList.add(CLDRLocale.getInstance(cl));
+                            }
+                        }
                     }
                     locales = Collections.unmodifiableSet(localeList);
                 }
@@ -2605,7 +2740,7 @@ public class SupplementalDataInfo {
         }
 
         public boolean matches(CLDRLocale loc, PathHeader ph) {
-            if (false) System.err.println(">> testing " + loc + " / " + ph + " vs " + toString());
+            if (DEBUG) System.err.println(">> testing " + loc + " / " + ph + " vs " + toString());
             if (locales != null) {
                 if (!locales.contains(loc)) {
                     return false;
@@ -3783,6 +3918,22 @@ public class SupplementalDataInfo {
         return isDeprecated(deprecated.get(STAR), element, attribute, value)
             || isDeprecated(deprecated.get(type.toString()), element, attribute, value);
     }
+
+    public boolean isDeprecated(DtdType type, String path) {
+        XPathParts parts = XPathParts.getInstance(path);
+        for (int i = 0; i < parts.size(); ++i) {
+            String element = parts.getElement(i);
+            for (Entry<String, String> entry : parts.getAttributes(i).entrySet()) {
+                String attribute = entry.getKey();
+                String value = entry.getValue();
+                if (isDeprecated(type, element, attribute, value)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     private boolean isDeprecated(Map<String, Relation<String, String>> map,
         String element, String attribute, String value) {
