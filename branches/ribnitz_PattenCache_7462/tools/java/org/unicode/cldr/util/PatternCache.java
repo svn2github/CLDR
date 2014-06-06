@@ -2,6 +2,8 @@ package org.unicode.cldr.util;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -13,241 +15,120 @@ import com.google.common.cache.CacheStats;
  * Simple class for caching Patterns, possibly avoiding the cost of 
  * compilation if they are in the cache.
  *
+ * The class can be parametrized using the following keys in the CLDR properties file:
+ * 
+ * org.unicode.cldr.util.PatternCache.initialCapacity: initialCapacity of the Cache (default: 30)
+ * org.unicode.cldr.util.PatternCache.maximumCapacity: maximum capacity of the Cache (default: 1000)
+ * org.unicode.cldr.util.PatternCache.enable: enable caching (default: true)
+ * org.unicode.cldr.util.PatternCache.debugRecordStatistics: record statistics for debugging purposes (default: false)
  * 
  * @author ribnitz
  *
  */
 public class PatternCache {
-    private final static int INITIAL_CAPACITY=30;
-    private final static int MAX_CAPACITY=1000;
+    
+    /**
+     * Configuration to get default values from,
+     */
+    private static final CLDRConfig config=CLDRConfig.getInstance();
+    
+    /**
+     * Logger for logging, better than System.out.println
+     */
+    private static final Logger LOGGER=Logger.getLogger(PatternCache.class.getName());
+    
+    /**
+     * Initial capacity of the cache, key org.unicode.cldr.util.PatternCache.initialCapacity
+     */
+    private final static int INITIAL_CAPACITY=config.getProperty("org.unicode.cldr.util.PatternCache.initialCapacity", 30);
+    
+    /**
+     * Maximum capacity of the cache, key org.unicode.cldr.util.PatternCache.maximumCapacity
+     */
+    private final static int MAX_CAPACITY=config.getProperty("org.unicode.cldr.util.PatternCache.maximumCapacity", 1000);
     
     /** 
      * Variable to control whether patterns are cached (true);
-     *  or whether they are created all the time */
-    private final static boolean USE_CACHE=true;
+     *  or whether they are created each time.
+     *  
+     *   key org.unicode.cldr.util.PatternCache.enable
+     */
+    private final static boolean USE_CACHE=config.getProperty("org.unicode.cldr.util.PatternCache.enable", true);
     
     /**
      * Variable that controls whether statistics are recorded for the caching.
+     * key org.unicode.cldr.util.PatternCache.debugRecordStatistics
      */
-    private final static boolean RECORD_STATISTICS=true;
+    private final static boolean DEBUG_RECORD_STATISTICS=config.getProperty("org.unicode.cldr.util.PatternCache.debugRecordStatistics", false);
   
     /**
      * The cache object
      */
-    private final static PatternCacheInterface cache=new PatternCacheInternal(
-        new PatternCacheConfigBean(INITIAL_CAPACITY, MAX_CAPACITY, USE_CACHE, RECORD_STATISTICS));
+    private final static Cache<String,Pattern> cache;
     
     /**
-     * Interface governing access to the cache
-     * @author ribnitz
-     *
+     * Static initialization of the cache object
      */
-    public static interface PatternCacheInterface {
-        /**
-         * Obtain a compiled pattern from the cache
-         * @param patternStr
-         * @return
-         */
-        Pattern get(String patternStr);
-        
-        /**
-         * Get statistics from this cache object
-         * @return
-         */
-        CacheStats getStatistics();
-        
-        /**
-         * Query whether caching is enabled
-         * @return
-         */
-        boolean isCachingEnabled();
-        
-        /**
-         * Query whether statistics are recorded
-         * @return
-         */
-        boolean isRecordStatistics();
-        
-        /**
-         * Get the current size of the cache
-         * @return
-         */
-        long size();
-    }
-   
-    /**
-     * Object to configure the behaviour of the cache;
-     * @author ribnitz
-     *
-     */
-    private static class PatternCacheConfigBean  {
-        /** 
-         * Initial capacity
-         */
-        private final int cacheInitialCapacity;
-        
-        /**
-         * Maximum capacity
-         */
-        private final int cacheMaxCapacity;
-        
-        /**
-         * Whether caching is enabled; if disabled, new Patterns will be compiled on every call
-         */
-        private final boolean isCaching;
-        
-        /**
-         * Whether cache statistics are recorded
-         */
-        private final boolean isRecordStatistics;
-        
-        /**
-         * Initialize the configuration with the given value
-         * @param cacheInitialCapacity initial capacity
-         * @param cacheMaxCapacity maximum capacity
-         * @param isCaching whether caching should be enabled
-         * @param isRecordStatistics whether statistics should be recorded
-         * @throws IllegalArgumentException if any of the capacities is negative, or maximum capacity is less than initial capacity
-         */
-        public PatternCacheConfigBean(int cacheInitialCapacity, int cacheMaxCapacity, boolean isCaching, boolean isRecordStatistics) {
-            if (cacheInitialCapacity<0) {
-                throw new IllegalArgumentException("Unable to handle negative initial capacity "+cacheInitialCapacity);
-            }
-            if (cacheMaxCapacity<0) {
-                throw new IllegalArgumentException("Unable to handle negative max capacity "+cacheMaxCapacity);
-            }
-            if (cacheMaxCapacity<cacheInitialCapacity) {
-                throw new IllegalArgumentException("The maximum capacity cannot be less than the initial capacity; maximum is currently "+
-                    cacheMaxCapacity+", initial capacity "+cacheInitialCapacity);
-            }
-            this.cacheInitialCapacity = cacheInitialCapacity;
-            this.cacheMaxCapacity = cacheMaxCapacity;
-            this.isCaching = cacheMaxCapacity==0?false:isCaching;
-            this.isRecordStatistics = isRecordStatistics;
-        }
-
-        public int getInitialCapacity() {
-            return cacheInitialCapacity;
-        }
-
-        public int getMaxCapacity() {
-            return cacheMaxCapacity;
-        }
-
-        public boolean isCaching() {
-            return isCaching;
-        }
-
-        public boolean isRecordStatistics() {
-            return isRecordStatistics;
-        }
-        
-    }
-    /**
-     * Implementation of the interface
-     * @author ribnitz
-     *
-     */
-    private static class PatternCacheInternal implements PatternCacheInterface {
-        
-        /**
-         * The cache object
-         */
-        private final Cache<String,Pattern> cache;
-        /**
-         * The configuration
-         */
-        private final PatternCacheConfigBean config;
-        
-        public PatternCacheInternal(PatternCacheConfigBean config) {
-            // internal object, no null check 
-            if (config.isCaching()) {
-                if (config.isRecordStatistics()) {
-                    cache=CacheBuilder.newBuilder().
-                        initialCapacity(config.getInitialCapacity()).
-                        maximumSize(config.getMaxCapacity()). recordStats().
-                        build();
-                } else {
-                    cache=CacheBuilder.newBuilder().
-                        initialCapacity(config.getInitialCapacity()).
-                        maximumSize(config.getMaxCapacity()).
-                        build();
-                }
+    static {
+        if (USE_CACHE) {
+            if (DEBUG_RECORD_STATISTICS) {
+                cache=CacheBuilder.newBuilder().
+                    initialCapacity(INITIAL_CAPACITY).
+                    maximumSize(MAX_CAPACITY). recordStats().
+                    build();
             } else {
-                cache=null;
+                cache=CacheBuilder.newBuilder().
+                    initialCapacity(INITIAL_CAPACITY).
+                    maximumSize(MAX_CAPACITY).
+                    build();
             }
-            this.config=config;
+        } else {
+            cache=null;
         }
-        
-        /**
-         * Obtain a compiled Pattern from the String given; results of the lookup are cached, a cached result will be returned if
-         * possible. 
-         * @param patternStr the string to use for compilation
-         * @throws IllegalArgumentException The string provided was null or empty, or there was a problem compiling the Pattern from the String
-         */
-        public  Pattern get(final String patternStr) {
-            // Pre-conditions: non-null, non-empty string
-            if (patternStr==null) {
-                throw new IllegalArgumentException("Please call with non-null argument");
-            }
-            if (patternStr.isEmpty()) {
-                throw new IllegalArgumentException("Please call with non-empty argument");
-            }
-            // If patterns are not cached, simply return a new compiled Pattern
-            if (!config.isCaching() || cache == null) {
-                try {
-                    return Pattern.compile(patternStr);
-                } catch (PatternSyntaxException pse) {
-                    throw new IllegalArgumentException("The supplied pattern is not valid: "+patternStr,pse);
-                }
-            }
-            Pattern result=null;
-            try {
-                result=cache.get(patternStr, new Callable<Pattern>() {
-
-                    @Override
-                    public Pattern call() throws Exception {
-                        return Pattern.compile(patternStr);
-                    }
-                });
-            } catch (ExecutionException e) {
-                // realistically, this is a PatternSyntaxException
-                throw new IllegalArgumentException("The supplied pattern is not valid: "+patternStr,e);
-            }
-            return result;
-        }
-
-        @Override
-        public CacheStats getStatistics() {
-            if (cache!=null) {
-                return cache.stats();
-            }
-            return new CacheStats(0, 0, 0, 0, 0, 0);
-        }
-
-        @Override
-        public boolean isCachingEnabled() {
-           return config.isCaching();
-        }
-
-        @Override
-        public boolean isRecordStatistics() {
-          return config.isRecordStatistics();
-        }
-        
-        public long size() {
-            return cache.size();
+        if (!USE_CACHE) {
+            LOGGER.log(Level.CONFIG,"PatternCache initialized; caching  Patterns is disabled");
+        } else {
+            LOGGER.log(Level.CONFIG,"PatternCache initialized: caching is enabled, minimum size: "+INITIAL_CAPACITY+", max size "+MAX_CAPACITY+"."+(!DEBUG_RECORD_STATISTICS?"not ":"")+" recording usage statistics");
         }
         
     }
+            
     /**
-     * Obtain a compiled Pattern from the String given; results of the lookup are cached, a cached result will be returned if
+     * Obtain a compiled Pattern from the String given; Results of the lookup may be cached, a cached result will be returned if
      * possible. 
      * @param patternStr the string to use for compilation
      * @throws IllegalArgumentException The string provided was null or empty, or there was a problem compiling the Pattern from the String
      */
-    public static Pattern get(String patternStr) {
-        return cache.get(patternStr);
+    public static Pattern get(final String patternStr) {
+        // Pre-conditions: non-null, non-empty string
+        if (patternStr==null) {
+            throw new IllegalArgumentException("Please call with non-null argument");
+        }
+        if (patternStr.isEmpty()) {
+            throw new IllegalArgumentException("Please call with non-empty argument");
+        }
+        // If patterns are not cached, simply return a new compiled Pattern
+        if (!USE_CACHE || cache == null) {
+            try {
+                return Pattern.compile(patternStr);
+            } catch (PatternSyntaxException pse) {
+                throw new IllegalArgumentException("The supplied pattern is not valid: "+patternStr,pse);
+            }
+        }
+        Pattern result=null;
+        try {
+            result=cache.get(patternStr, new Callable<Pattern>() {
+        
+                @Override
+                public Pattern call() throws Exception {
+                    return Pattern.compile(patternStr);
+                }
+            });
+        } catch (ExecutionException e) {
+            // realistically, this is a PatternSyntaxException
+            throw new IllegalArgumentException("The supplied pattern is not valid: "+patternStr,e);
+        }
+        return result;
     }
     
     /**
@@ -255,7 +136,10 @@ public class PatternCache {
      * @return
      */
     public static CacheStats getStatistics() {
-        return cache.getStatistics();
+        if (cache!=null) {
+            return cache.stats();
+        }
+        return new CacheStats(0, 0, 0, 0, 0, 0);
     }
     
     /**
@@ -263,27 +147,15 @@ public class PatternCache {
      * @return
      */
     public static boolean isCachingEnabled() {
-        return cache.isCachingEnabled();
+        return USE_CACHE;
     }
     
     /**
-     * Obtain information about whether this cache is recording statistics
+     * Obtain information about whether this cache is recording statistics for debugging purposes
      * @return
      */
-    public static boolean isRecordStatistics() {
-        return cache.isRecordStatistics();
-    }
-    
-    /**
-     * Obtain a new instance configured with the parameters given
-     * @param initialCapacity
-     * @param maxCapacity
-     * @param doCache
-     * @param doRecordStatistics
-     * @return
-     */
-    public static PatternCacheInterface newInstance(int initialCapacity, int maxCapacity, boolean doCache, boolean doRecordStatistics) {
-        return new PatternCacheInternal(new PatternCacheConfigBean(initialCapacity, maxCapacity, doCache, doRecordStatistics));
+    public static boolean isDebugRecordStatistics() {
+        return DEBUG_RECORD_STATISTICS;
     }
     
     /**
