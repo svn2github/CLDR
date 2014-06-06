@@ -253,6 +253,22 @@ public class TestFmwkPlus extends TestFmwk {
         }
     };
 
+  //@SuppressWarnings("rawtypes")
+         static TestRelation GEQ = new TestRelation<Comparable, Comparable>() {
+             @SuppressWarnings("unchecked")
+             @Override
+             public boolean isTrue(Comparable a, Comparable... bs) {
+                 if (bs.length != 1) {
+                     throw new IllegalArgumentException("Should have 2 arguments");
+                 }
+                 return a.compareTo(bs[0]) >= 0;
+             }
+     
+             @Override
+             public String toString() {
+                 return "≥ ";
+             }
+         };
     @SuppressWarnings("rawtypes")
     public static TestRelation CONTAINS_US = new TestRelation<UnicodeSet, Object>() {
         @Override

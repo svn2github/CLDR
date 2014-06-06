@@ -1,11 +1,12 @@
 package org.unicode.cldr.unittest;
 
+import java.util.Objects;
+
 import org.unicode.cldr.test.DisplayAndInputProcessor;
 import org.unicode.cldr.unittest.TestAll.TestInfo;
 import org.unicode.cldr.util.CLDRFile;
 
 import com.ibm.icu.dev.test.TestFmwk;
-import com.ibm.icu.lang.CharSequences;
 import com.ibm.icu.text.UnicodeSet;
 
 public class TestDisplayAndInputProcessor extends TestFmwk {
@@ -196,8 +197,8 @@ public class TestDisplayAndInputProcessor extends TestFmwk {
                     + (internalException[0] != null ? ">\n\texcep<" + internalException[0] : "")
                     + ">\n\tpath<" + path + ">");
                 daip.processInput(path, value, internalException); // for debugging
-            } else if (!CharSequences.equals(value, display)
-                || !CharSequences.equals(value, input)
+            } else if (!Objects.equals(value, display)
+                || !Objects.equals(value, input)
                 || internalException[0] != null) {
                 logln("DAIP Changes"
                     + "\n\tvalue<" + value

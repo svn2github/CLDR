@@ -3,8 +3,6 @@
  */
 package org.unicode.cldr.test;
 
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.util.Map.Entry;
 import java.util.Vector;
 
@@ -34,7 +32,7 @@ public class SimpleTestCache extends TestCache {
 //    private LruMap<CheckCLDR.Options, Reference<TestResultBundle>> map = new LruMap<CheckCLDR.Options, Reference<TestResultBundle>>(CLDRConfig.getInstance()
 //        .getProperty("CLDR_TESTCACHE_SIZE", 12));
 
-    private Cache<CheckCLDR.Options, Reference<TestResultBundle>> cache =CacheBuilder.newBuilder().maximumSize(CLDRConfig.getInstance()
+    private Cache<CheckCLDR.Options, TestResultBundle> cache =CacheBuilder.newBuilder().maximumSize(CLDRConfig.getInstance()
         .getProperty("CLDR_TESTCACHE_SIZE", 12)).softValues().build();
     /*
      * (non-Javadoc)
@@ -71,9 +69,9 @@ public class SimpleTestCache extends TestCache {
         stats.append("{" + this.getClass().getSimpleName() + super.toString() + " Size: " + cache.size() + " (");
         int good = 0;
         int total = 0;
-        for (Entry<Options, Reference<TestResultBundle>> k : cache.asMap().entrySet()) {
-            if (k.getValue().get() != null) good++;
-            if (DEBUG && true) stats.append("," + k.getKey() + "=" + k.getValue().get());
+        for (Entry<Options,TestResultBundle> k : cache.asMap().entrySet()) {
+            if (k.getValue()!= null) good++;
+            if (DEBUG && true) stats.append("," + k.getKey() + "=" + k.getValue());
             total++;
         }
         stats.append(" " + good + "/" + total + "}");
@@ -82,16 +80,15 @@ public class SimpleTestCache extends TestCache {
 
     @Override
     public TestResultBundle getBundle(CheckCLDR.Options options) {
-        Reference<TestResultBundle> ref = cache.getIfPresent(options);
-        if (DEBUG && ref != null) System.err.println("Bundle refvalid: " + options + " -> " + (ref.get() != null));
-        TestResultBundle b = (ref != null ? ref.get() : null);
+       TestResultBundle ref = cache.getIfPresent(options);
+        if (DEBUG && ref != null) System.err.println("Bundle refvalid: " + options + " -> " + (ref != null));
+        TestResultBundle b = (ref != null ? ref : null);
         if (DEBUG) System.err.println("Bundle " + b + " for " + options + " in " + this.toString());
         if (b == null) {
             // ElapsedTimer et = new ElapsedTimer("New test bundle " + locale + " opt " + options);
             b = new TestResultBundle(options);
             // System.err.println(et.toString());
-//            cache..put(options, new SoftReference<TestResultBundle>(b));
-            cache.put(options, new SoftReference<TestResultBundle> (b));
+            cache.put(options,b);
         }
         return b;
     }

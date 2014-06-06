@@ -321,7 +321,7 @@ public class LocaleMapper extends Mapper {
         fullPath = fullPath == null ? path : DRAFT_PATTERN.matcher(fullPath).replaceAll("");
         List<String> debugResults = isDebugXPath(fullPath) ? new ArrayList<String>() : null;
         Finder.Info info=new Info();
-        RegexResult result = lookup.get(fullPath, null,null, matcherFound, debugResults,info);
+        RegexResult result = lookup.get(fullPath, null,null, matcherFound, debugResults);
         if (firstInfo!=null) {
             firstInfo.value=info.value;
         }

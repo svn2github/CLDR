@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.tool.CLDRFileTransformer;
 import org.unicode.cldr.tool.CLDRFileTransformer.LocaleTransform;
 import org.unicode.cldr.tool.LikelySubtags;
