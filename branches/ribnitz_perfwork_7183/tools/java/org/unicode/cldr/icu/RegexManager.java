@@ -15,11 +15,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.unicode.cldr.draft.FileUtilities;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CldrUtility.VariableReplacer;
-import org.unicode.cldr.util.RegexLogger;
-import org.unicode.cldr.util.RegexLogger.LogType;
+import org.unicode.cldr.util.FileReaders;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup.Merger;
@@ -52,17 +50,12 @@ class RegexManager {
     private Map<String, String> xpathVariables;
     private VariableReplacer cldrVariables;
 
-    static class FullMatcher extends RegexFinder {
-        public FullMatcher(String pattern) {
-            super(pattern);
-        }
-
-        public boolean find(String item, Object context, Info info) {
-            boolean doesMatch=matcher.reset(item).matches();
-            logRegex(item, doesMatch, null,LogType.MATCH);
-            return doesMatch;
-        }
-    }
+//    static class FullMatcher extends RegexFinder {
+//        public FullMatcher(String pattern) {
+//            super(pattern);
+//        }
+//
+//    }
 
     /**
      * Wrapper class for functions that need to be performed on CLDR values as
@@ -140,9 +133,7 @@ class RegexManager {
             // Replace slashes in metazone names,
             // e.g. "America/Argentina/La_Rioja"
             Matcher matcher = QUOTES.matcher(path);
-            boolean quotesMatched=matcher.find();
-            RegexLogger.getInstance().log(QUOTES , path, quotesMatched, LogType.FIND, getClass());
-            if (quotesMatched) {
+            if (matcher.find()) {
                 path = path.substring(0, matcher.start(1))
                     + matcher.group(1).replace('/', ':')
                     + path.substring(matcher.end(1));
@@ -252,7 +243,7 @@ class RegexManager {
         }
     }
 
-    private static String processString(String value, String[] arguments) {
+     static String processString(String value, String[] arguments) {
         if (value == null) {
             return null;
         }
@@ -322,7 +313,7 @@ class RegexManager {
 
         public boolean findKey(Finder finder) {
             for (String key : map.keySet()) {
-                if (finder.find(key, null, null)) {
+                if (finder.find(key, null,null)) {
                     return true;
                 }
             }
@@ -372,7 +363,7 @@ class RegexManager {
     private static Transform<String, Finder> regexTransform = new Transform<String, Finder>() {
         @Override
         public Finder transform(String source) {
-            return new FullMatcher(source);
+            return new RegexFinder(source);
         }
     };
 
@@ -549,7 +540,7 @@ class RegexManager {
                 }
             });
         xpathVariables = new HashMap<String, String>();
-        BufferedReader reader = FileUtilities.openFile(NewLdml2IcuConverter.class, converterFile);
+        BufferedReader reader = FileReaders.openFile(NewLdml2IcuConverter.class, converterFile);
         VariableReplacer variables = new VariableReplacer();
         Finder xpathMatcher = null;
         RegexResult regexResult = null;
@@ -593,7 +584,7 @@ class RegexManager {
                             xpathConverter.add(xpathMatcher, regexResult);
                         }
                     }
-                    xpathMatcher = new FullMatcher(content[0].replace("[@", "\\[@"));
+                    xpathMatcher = new RegexFinder(content[0].replace("[@", "\\[@"));
                     regexResult = new RegexResult();
                 }
                 if (content.length > 1) {
@@ -700,7 +691,7 @@ class RegexManager {
         rbPattern.append(rbPath.substring(lastIndex));
         FallbackInfo info = new FallbackInfo(argsUsed, args.size());
         info.addItem(xpathMatcher, fallbackXpath, fallbackValue.split("\\s"));
-        fallbackConverter.add(new FullMatcher(rbPattern.toString()), info);
+        fallbackConverter.add(new RegexFinder(rbPattern.toString()), info);
     }
 
     void addFallbackValues(Map<String, CldrArray> pathValueMap) {

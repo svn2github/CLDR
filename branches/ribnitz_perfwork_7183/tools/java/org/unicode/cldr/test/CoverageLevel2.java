@@ -5,14 +5,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.unicode.cldr.unittest.TestAll;
-import org.unicode.cldr.unittest.TestAll.TestInfo;
+import org.unicode.cldr.tool.ToolConfig;
 import org.unicode.cldr.util.Builder;
+import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.LanguageTagParser;
 import org.unicode.cldr.util.Level;
-import org.unicode.cldr.util.RegexLogger.LogType;
 import org.unicode.cldr.util.RegexLookup;
 import org.unicode.cldr.util.RegexLookup.Finder;
 import org.unicode.cldr.util.RegexLookup.RegexFinder;
@@ -29,6 +28,11 @@ public class CoverageLevel2 {
 
     // To modify the results, see /cldr/common/supplemental/coverageLevels.xml
 
+    /**
+     * Enable to get more verbose output when debugging
+     */
+    private static final boolean DEBUG_LOOKUP = false;
+    
     private RegexLookup<Level> lookup = null;
 
     enum SetMatchType {
@@ -68,10 +72,10 @@ public class CoverageLevel2 {
             // Modified the logic to handle the case where we want specific languages and specific territories.
             // Any match in language script or territory will succeed when multiple items are present.
             boolean lstOK = false;
-            if (ci.inLanguageSet == null && ci.inScriptSet == null && ci.inTerritorySet == null) {
+            if (ci.inLanguage == null && ci.inScriptSet == null && ci.inTerritorySet == null) {
                 lstOK = true;
-            } else if (ci.inLanguageSet != null
-                && ci.inLanguageSet.contains(localeSpecificInfo.targetLanguage)) {
+            } else if (ci.inLanguage != null
+                && ci.inLanguage.matcher(localeSpecificInfo.targetLanguage).matches()) {
                 lstOK = true;
             } else if (ci.inScriptSet != null
                 && CollectionUtilities.containsSome(ci.inScriptSet, localeSpecificInfo.cvi.targetScripts)) {
@@ -84,36 +88,36 @@ public class CoverageLevel2 {
             if (!lstOK) {
                 return false;
             }
-
-            boolean result = super.find(item, context, info); // also sets matcher in RegexFinder
-            logRegex(item, result, null,LogType.FIND);
-            if (!result) {
-                return false;
-            }
-            if (additionalMatch != null) {
-                String groupMatch = matcher.group(1);
-                // we match on a group, so get the right one
-                switch (additionalMatch) {
-                case Target_Language:
-                    return localeSpecificInfo.targetLanguage.equals(groupMatch);
-                case Target_Scripts:
-                    return localeSpecificInfo.cvi.targetScripts.contains(groupMatch);
-                case Target_Territories:
-                    return localeSpecificInfo.cvi.targetTerritories.contains(groupMatch);
-                case Target_TimeZones:
-                    return localeSpecificInfo.cvi.targetTimeZones.contains(groupMatch);
-                case Target_Currencies:
-                    return localeSpecificInfo.cvi.targetCurrencies.contains(groupMatch);
-                    // For Target_Plurals, we have to account for the fact that the @count= part might not be in the
-                    // xpath, so we shouldn't reject the match because of that. ( i.e. The regex is usually
-                    // ([@count='${Target-Plurals}'])?
-                case Target_Plurals:
-                    return (groupMatch == null ||
-                        groupMatch.length() == 0 || localeSpecificInfo.cvi.targetPlurals.contains(groupMatch));
-                case Calendar_List:
-                    return localeSpecificInfo.cvi.calendars.contains(groupMatch);
+                boolean result = super.find(item, context,info); // also sets matcher in RegexFinder
+                if (!result) {
+                    return false;
                 }
-            }
+                if (additionalMatch != null) {
+                    String groupMatch= info.value[1];
+//                    String groupMatch = matcher.group(1);
+                    // we match on a group, so get the right one
+                    switch (additionalMatch) {
+                    case Target_Language:
+                        return localeSpecificInfo.targetLanguage.equals(groupMatch);
+                    case Target_Scripts:
+                        return localeSpecificInfo.cvi.targetScripts.contains(groupMatch);
+                    case Target_Territories:
+                        return localeSpecificInfo.cvi.targetTerritories.contains(groupMatch);
+                    case Target_TimeZones:
+                        return localeSpecificInfo.cvi.targetTimeZones.contains(groupMatch);
+                    case Target_Currencies:
+                        return localeSpecificInfo.cvi.targetCurrencies.contains(groupMatch);
+                        // For Target_Plurals, we have to account for the fact that the @count= part might not be in the
+                        // xpath, so we shouldn't reject the match because of that. ( i.e. The regex is usually
+                        // ([@count='${Target-Plurals}'])?
+                    case Target_Plurals:
+                        return (groupMatch == null ||
+                        groupMatch.length() == 0 || localeSpecificInfo.cvi.targetPlurals.contains(groupMatch));
+                    case Calendar_List:
+                        return localeSpecificInfo.cvi.calendars.contains(groupMatch);
+                    }
+                }
+           
             return true;
         }
 
@@ -152,7 +156,7 @@ public class CoverageLevel2 {
         }
         synchronized (lookup) { // synchronize on the class, since the Matchers are changed during the matching process
             Level result;
-            if (false) { // for testing
+            if (DEBUG_LOOKUP) { // for testing
                 Output<String[]> checkItems = new Output<String[]>();
                 Output<Finder> matcherFound = new Output<Finder>();
                 List<String> failures = new ArrayList<String>();
@@ -170,13 +174,12 @@ public class CoverageLevel2 {
     public int getIntLevel(String path) {
         return getLevel(path).getLevel();
     }
-
     public static void main(String[] args) {
         // quick test
         // TODO convert to unit test
         CoverageLevel2 cv2 = CoverageLevel2.getInstance("de");
         ULocale uloc = new ULocale("de");
-        TestInfo testInfo = TestAll.TestInfo.getInstance();
+        CLDRConfig testInfo = ToolConfig.getToolInstance();
         SupplementalDataInfo supplementalDataInfo2 = testInfo.getSupplementalDataInfo();
         CLDRFile englishPaths1 = testInfo.getEnglish();
         Set<String> englishPaths = Builder.with(new TreeSet<String>()).addAll(englishPaths1).get();
@@ -204,4 +207,5 @@ public class CoverageLevel2 {
             }
         }
     }
+
 }
