@@ -1760,7 +1760,6 @@ function showForumStuff(frag, forumDiv, tr) {
 						var popupSelect = document.createElement("select");
 						var inheritValue = null; // inherit value for no-value object
 						for(var s in json.others) {
-							console.log("josn other " + s);
 							for(var t in json.others[s]){
 								if(json.others[s][t] === topLocale){
 									inheritValue = s;
