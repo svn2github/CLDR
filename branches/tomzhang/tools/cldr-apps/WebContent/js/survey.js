@@ -1650,7 +1650,7 @@ function showForumStuff(frag, forumDiv, tr) {
 					oneLocales[surveyCurrentLocale] = true;
 					updateIf(sidewaysControl, "");
 				}else{
-					updateIf(sidewaysControl, JSON.stringify(json));
+//					updateIf(sidewaysControl, JSON.stringify(json));
 					if(!json.others) {
 						updateIf(sidewaysControl, ""); // no sibling locales (or all null?)
 					} else {
