@@ -85,6 +85,20 @@ function addClass(obj, className) {
 }
 
 /**
+ * @method post2text 
+ */
+function post2text(text) {
+	var out=text;
+	out = out.replace(/<p>/g, '\n');
+	out = out.replace(/&quot;/g, '"');
+	out = out.replace(/&lt;/g, '<');
+	out = out.replace(/&gt;/g, '>');
+	out = out.replace(/&amp;/g, '&');
+
+	return out;
+}
+
+/**
  * Remove all subnodes
  * @method removeAllChildNodes
  * @param {Node} td
@@ -433,7 +447,7 @@ function createChunk(text, tag, className) {
  */
 String.prototype.ucFirst = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
-}
+};
 
 /**
  * Create a 'link' that goes to a function. By default it's an 'a', but could be a button, etc.
@@ -475,10 +489,14 @@ function createUser(user) {
 		gravatar.align='laft';		
 		div.appendChild(gravatar);
 	}
-	div.appendChild(createChunk(stui_str("userlevel_"+user.userlevelName.toLowerCase(0)),"i","userlevel_"+user.userlevelName.toLowerCase()));
-	div.appendChild(createChunk(user.name,"span","adminUserName"));
-	div.appendChild(createChunk(user.orgName + ' #'+user.id,"span","adminOrgName"));
-	div.appendChild(createChunk(user.email,"address","adminUserAddress"));
+
+	div.appendChild(div.userLevel = createChunk(stui_str("userlevel_"+user.userlevelName.toLowerCase(0)),"i","userlevel_"+user.userlevelName.toLowerCase()));
+	div.appendChild(div.userName = createChunk(user.name,"span","adminUserName"));
+	if(!user.orgName) {
+	   user.orgName = user.org;
+	}
+	div.appendChild(div.userOrg = createChunk(user.orgName + ' #'+user.id,"span","adminOrgName"));
+    div.appendChild(div.userEmail = createChunk(user.email,"address","adminUserAddress"));
 	return div;
 }
 
@@ -544,7 +562,7 @@ var processXhrQueue = function() {
 		top.load=function(){return myLoad0(top,arguments); };
 		top.err=function(){return myErr0(top,arguments); };
 		top.startTime = new Date().getTime();
-		if(top.postData) {
+		if(top.postData || top.content) {
 			stdebug("PXQ("+queueOfXhr.length+"): dispatch POST " + top.url);
 			dojo.xhrPost(top);
 		} else {
@@ -576,7 +594,10 @@ myErr0 = function(top,args) {
 	return r;
 };
 
-
+/**
+ * Queue the XHR request.  It will be a GET *unless* either postData or content are set.
+ * @param xhr
+ */
 function queueXhr(xhr) {
 	queueOfXhr.push(xhr);
 	stdebug("pushed:  PXQ="+queueOfXhr.length + ", postData: " + xhr.postData);
@@ -1028,12 +1049,13 @@ function formatErrMsg(json, subkey) {
 	if(json && json.err_code) {
 		msg_str = theCode = json.err_code;
 		if(stui.str(json.err_code) == json.err_code) {
+			console.log("** Unknown error code: " + json.err_code);
 			msg_str = "E_UNKNOWN";
 		}
 	}
 	return stui.sub(msg_str,
 			{
-				json: json, what: stui.str('err_what_'+subkey), code: theCode,
+				json: json, what: stui.str('err_what_'+subkey), code: theCode, err_data: json.err_data,
 				surveyCurrentLocale: surveyCurrentLocale,
 				surveyCurrentId: surveyCurrentId,
 				surveyCurrentSection: surveyCurrentSection,
@@ -1266,8 +1288,7 @@ function updateStatus() {
  */
 function setTimerOn() {
     updateStatus();
-//    timerID = setInterval(updateStatus, timerSpeed);
-    
+    // an interval is not used - each status update does its own timeout.
 }
 
 /**
@@ -1277,8 +1298,6 @@ function setTimerOn() {
  */
 function resetTimerSpeed(speed) {
 	timerSpeed = speed;
-//	clearInterval(timerID);
-//	timerID = setInterval(updateStatus, timerSpeed);
 }
 
 // set up window. Let Dojo call us, otherwise dojo won't load.
@@ -1773,6 +1792,28 @@ function showForumStuff(frag, forumDiv, tr) {
 						
 						sidewaysControl.appendChild(popupSelect);
 					}
+					if(json.novalue) {
+						for(s in json.novalue){
+							dataList.push([json.novalue[s], inheritValue]);
+						}
+						//appendLocaleList(json.novalue,  stui.str("sideways_noValue"),  stui.str("sideways_noValue"));
+					}		
+					dataList = dataList.sort(function(a,b) {
+						return a[0] > b[0];
+				    });
+					appendLocaleList(dataList);
+					
+					listenFor(popupSelect, "change", function(e) {
+						var newLoc = popupSelect.value;
+						if(newLoc !== surveyCurrentLocale) {
+							surveyCurrentSpecial = '';
+							surveyCurrentLocale = newLoc;
+							reloadV();
+						}
+						return stStopPropagation(e);
+					});
+					
+					sidewaysControl.appendChild(popupSelect);
 				}
 			});
 		}, 2000); // wait 2 seconds before loading this.
@@ -1791,7 +1832,8 @@ function showForumStuff(frag, forumDiv, tr) {
 		}
 	}
 	var newButton = createChunk(stui.str(buttonTitle), "button", buttonClass);
-	frag.appendChild(newButton);
+	if(!isDashboard())
+		frag.appendChild(newButton);
 	
 	listenFor(newButton, "click", function(e) {
 		//window.blur(); // submit anything unsubmitted
@@ -1864,12 +1906,14 @@ function showForumStuff(frag, forumDiv, tr) {
 									var subChunk = createChunk("","div","postHeaderItem");
 									subSubChunk.appendChild(subChunk);
 									subChunk.appendChild(createChunk("Subject:","b"));
-									subChunk.appendChild(createChunk(post.subject,"span","postHeader"));
+									var postSubj = post2text(post.subject);
+									subChunk.appendChild(createChunk(postSubj,"span","postHeader"));
 									subChunk.appendChild(document.createElement("br"));
 								}
 																
 								// actual text
-								subpost.appendChild(createChunk(post.text, "div","postContent"));
+								var postText = post2text(post.text);
+								subpost.appendChild(createChunk(postText, "div","postContent"));
 								
 								// reply link
 								var replyChunk = createChunk("Reply (leaves this page)","a","postReply");
@@ -1907,18 +1951,21 @@ function showForumStuff(frag, forumDiv, tr) {
 	{
 		// load async
 		var ourUrl = tr.forumDiv.url + "&what=forum_count" + cacheKill() ;
-		var xhrArgs = {
-				url: ourUrl,
-				handleAs:"json",
-				load: function(json) {
-					if(json && json.forum_count !== undefined) {
-						havePosts(parseInt(json.forum_count));
-					} else {
-						console.log("Some error loading post count??");
-					}
-				},
-		};
-		queueXhr(xhrArgs);
+		window.setTimeout(function() {
+			var xhrArgs = {
+					url: ourUrl,
+					handleAs:"json",
+					load: function(json) {
+						if(json && json.forum_count !== undefined) {
+							havePosts(parseInt(json.forum_count));
+						} else {
+							console.log("Some error loading post count??");
+						}
+					},
+			};
+			queueXhr(xhrArgs);	
+		}, 1900);
+
 	}
 	
 	
@@ -2130,7 +2177,6 @@ dojo.ready(function() {
 			else {
 				removeAllChildNodes(pucontent);
 				pucontent.appendChild(td);
-				showRightPanel();
 			}
 		}
 		else {
@@ -2283,6 +2329,7 @@ function showProposedItem(inTd,tr,theRow,value,tests, json) {
 	var ourItem = findItemByValue(theRow.items,value);
 	var testKind = getTestKind(tests);
 	var ourDiv = null;
+	var wrap;
 	if(!ourItem) {
 		ourDiv = document.createElement("div");
 		var newButton = cloneAnon(dojo.byId('proto-button'));
@@ -2299,7 +2346,8 @@ function showProposedItem(inTd,tr,theRow,value,tests, json) {
 				tr.lastOn.className = "ichoice-o";
 			}
 			wireUpButton(newButton,tr,theRow,"[retry]", {"value":value});
-			ourDiv.appendChild(newButton);
+			wrap = wrapRadio(newButton);
+			ourDiv.appendChild(wrap);
 		}
 		var h3 = document.createElement("span");
 		var span=appendItem(h3, value, "value",tr);
@@ -2322,7 +2370,13 @@ function showProposedItem(inTd,tr,theRow,value,tests, json) {
 		if(ourItem) {
 			str = stui.sub("StatusAction_msg",
 					[ stui_str("StatusAction_"+json.statusAction) ],"p", "");
-			showInPop(str, tr, null, null, true);
+			var str2 = stui.sub("StatusAction_popupmsg",
+					[ stui_str("StatusAction_"+json.statusAction), theRow.code  ],"p", "");
+			// show in modal popup (ouch!)
+			alert(str2);
+			
+			// show this message in a sidebar also
+			showInPop(stopIcon + str, tr, null, null, true);
 		}
 		return;
 	} else if(json&&json.didNotSubmit) {
@@ -2457,11 +2511,13 @@ function addVitem(td, tr, theRow, item, vHash, newButton, cancelButton) {
 		return;
 	}
 	var choiceField = document.createElement("div");
+	var wrap;
 	choiceField.className = "choice-field";
 	if(newButton) {
 		newButton.value=item.value;
 		wireUpButton(newButton,tr,theRow,vHash);
-		choiceField.appendChild(newButton);
+		wrap = wrapRadio(newButton);
+		choiceField.appendChild(wrap);
 	}
     var subSpan = document.createElement("span");
     subSpan.className = "subSpan";
@@ -2569,7 +2625,7 @@ function addVitem(td, tr, theRow, item, vHash, newButton, cancelButton) {
 	    	return false;
 	    };
 	    
-	    //listenFor(span, "mouseover", editInPlace);
+	    listenFor(span, "mouseover", editInPlace);
 	}*/
 }
 
@@ -2955,15 +3011,52 @@ function updateRow(tr, theRow) {
 	
 	if(!children[config.comparisoncell].isSetup) {
 		if(theRow.displayName) {
+			var hintPos = theRow.displayName.indexOf('[translation hint');
+			var hasExample = false;
+			
+			if(theRow.displayExample) {
+				hasExample = true;
+			}
+			
+			if(hintPos != -1) {
+				theRow.displayExample = theRow.displayName.substr(hintPos, theRow.displayName.length) + (theRow.displayExample ? theRow.displayExample.replace(/\[translation hint.*?\]/g,"") : '');
+				theRow.displayName = theRow.displayName.substr(0, hintPos);
+			}
+			
 			children[config.comparisoncell].appendChild(createChunk(theRow.displayName, 'span', 'subSpan'));
 			setLang(children[config.comparisoncell], surveyBaselineLocale);
 			if(theRow.displayExample) {
 				var theExample = appendExample(children[config.comparisoncell], theRow.displayExample, surveyBaselineLocale);
 				//listenToPop(null,tr,theExample);
 			}
+			
+			if(hintPos != -1 || hasExample) {
+				var infos = document.createElement("div");
+				infos.className = 'infos-code';
+				
+				if(hintPos != -1) {
+					var img = document.createElement("img");
+					img.src = 'hint.png';
+					img.alt = 'Translation hint';
+					infos.appendChild(img);
+				}
+				
+				if(hasExample) {
+					var img = document.createElement("img");
+					img.src = 'example.png';
+					img.alt = 'Example';
+					infos.appendChild(img);
+				}
+				
+				children[config.comparisoncell].appendChild(infos);
+			}
+			
+			
 		} else {
 			children[config.comparisoncell].appendChild(document.createTextNode(""));
 		}
+		
+		
 		//listenToPop(null,tr,children[config.comparisoncell]);
 		children[config.comparisoncell].isSetup=true;
 	}
@@ -3020,11 +3113,12 @@ function updateRow(tr, theRow) {
 		formAdd.appendChild(buttonAdd);
 		
 		var input = document.createElement("input");
+		var popup;
 		input.className = "form-control input-add";
 		input.placeholder = 'Add a translation';
 		btn.onclick = function(e) {
 			//if no input, add one
-			if($(buttonAdd).find('input').length == 0) {
+			if($(buttonAdd).parent().find('input').length == 0) {
 				
 				//hide other
 				$.each($('button.vote-submit'), function() {
@@ -3032,15 +3126,18 @@ function updateRow(tr, theRow) {
 				});
 				
 				//transform the button
-				buttonAdd.appendChild(input);
 				toSubmitVoteButton(btn);
+				$(buttonAdd).popover({content:' '}).popover('show');
+				popup = $(buttonAdd).parent().find('.popover-content');
+				popup.append(input);
+				popup.closest('.popover').css('top', popup.closest('.popover').position().top - 19);
 				input.focus();
 				
 				
 				//enter pressed
 				$(input).keydown(function (e) {
 					var newValue = $(this).val();
-					if(e.keyCode == 13) {
+					if(e.keyCode == 13) { //enter pressed
 						if(newValue) {
 							addValueVote(children[config.othercell], tr, theRow, newValue, cloneAnon(protoButton));			
 						}
@@ -3097,21 +3194,25 @@ function updateRow(tr, theRow) {
 		tr.myProposal=null; // not needed
 	}
 
-	if(isDashboard()) {
-		children[config.othercell].appendChild(document.createElement('hr'));
-		children[config.othercell].appendChild(formAdd);//add button	
-	}
-	else {
-		removeAllChildNodes(children[config.addcell]);
-		children[config.addcell].appendChild(formAdd);//add button	
+	if(tr.canChange) {
+		if(isDashboard()) {
+			children[config.othercell].appendChild(document.createElement('hr'));
+			children[config.othercell].appendChild(formAdd);//add button	
+		}
+		else {
+			removeAllChildNodes(children[config.addcell]);
+			children[config.addcell].appendChild(formAdd);//add button	
+		}
 	}
 
 	if(canModify) {
 		removeAllChildNodes(children[config.nocell]); // no opinion
 		var noOpinion = cloneAnon(protoButton);
+		var wrap;
 		wireUpButton(noOpinion,tr, theRow, null);
 		noOpinion.value=null;
-		children[config.nocell].appendChild(noOpinion);
+		wrap = wrapRadio(noOpinion);
+		children[config.nocell].appendChild(wrap);
 		listenToPop(null, tr, children[config.nocell]);
 	}  else if(ticketOnly) { // ticket link
     	if(!tr.theTable.json.canModify) { // only if hidden in the header
@@ -3493,7 +3594,7 @@ function insertRows(theDiv,xpath,session,json) {
 
 	
 	hideLoader(theDiv.loader);
-	wrapRadios();
+	//wrapRadios();
 }
 
 function loadStui(loc) {
@@ -3714,6 +3815,9 @@ function showV() {
 			var clickyLink = createChunk(name, "a", "locName");
 			clickyLink.href = linkToLocale(subLoc);
 			subLocDiv.appendChild(clickyLink);
+			if(subInfo == null) {
+				console.log("* internal: subInfo is null for " + name + " / " + subLoc);
+			}
 			if(subInfo.name_var) {
 				addClass(clickyLink, "name_var");
 			}
@@ -3738,15 +3842,15 @@ function showV() {
 			return clickyLink;
 		};
 
-		/* trace for dijit leak */
-		if(!surveyOfficial) window.TRL=function() {
-			var sec = 5;
-			console.log("Tracing dijit registry leaks every "+sec+"s");
-			window.setInterval(function() {
-				document.title = "[dijit:"+registry.length+"] | ";
-			}, 1000 * sec);
-		};
-		
+//		/* trace for dijit leak */
+//		if(!surveyOfficial) window.TRL=function() {
+//			var sec = 5;
+//			console.log("Tracing dijit registry leaks every "+sec+"s");
+//			window.setInterval(function() {
+//				document.title = "[dijit:"+registry.length+"] | ";
+//			}, 1000 * sec);
+//		};
+//		
 		/**
 		 * list of pages to use with the flipper
 		 * @property pages
@@ -3815,6 +3919,105 @@ function showV() {
 		window.__FLIPPER = flipper;
 		
 		/**
+		 * Manage additional special pages
+		 * @class OtherSpecial
+		 */
+		function OtherSpecial() {
+			// cached page list
+			this.pages = {};
+		}
+		
+		/**
+		 * @function getSpecial
+		 */
+		OtherSpecial.prototype.getSpecial = function getSpecial(name) {
+			return this.pages[name];
+		};
+		
+		/**
+		 * @function loadSpecial
+		 */
+		OtherSpecial.prototype.loadSpecial = function loadSpecial(name, onSuccess, onFailure) {
+			var special = this.getSpecial(name);
+			var otherThis = this;
+			if(special) {
+				stdebug("OS: Using cached special: "+ name);
+				onSuccess(special);
+			} else if (special === null) {
+				stdebug("OS: cached NULL: " + name);
+				onFailure("Special page failed to load: " + name);
+			} else {
+				stdebug("OS: Attempting load.." + name);
+				try {
+					require(["js/special/"+name+".js"], function(specialFn) {
+						stdebug("OS: Loaded, instantiatin':" + name);
+						var special = new specialFn();
+						special.name = name;
+						otherThis.pages[name] = special; // cache for next time
+						
+						stdebug("OS: SUCCESS! " + name);
+						onSuccess(special);
+					});
+				} catch(e) {
+					stdebug("OS: Load FAIL!:" + name + " - " + e.message + " - " + e);
+					if(!otherThis.pages[name]) { // if the load didn't complete:
+						otherThis.pages[name]=null; // mark as don't retry load.
+					}
+					onFailure(e);
+				}
+			}
+		};
+		
+		/**
+		 * @function parseHash
+		 */
+		OtherSpecial.prototype.parseHash = function parseHash(name, hash, pieces) {
+			this.loadSpecial(name, function onSuccess(special) {
+				special.parseHash(hash.pieces);
+			}, function onFailure(e) {
+				console.log("OtherSpecial.parseHash: Failed to load " + name + " - " + e);
+				//SpecialPage.prototype.parseHash(hash, pieces); // fallback for not-exist
+			});
+		};
+		
+		/**
+		 * @function showPage
+		 */
+		OtherSpecial.prototype.show = function show(name, params) {
+			this.loadSpecial(name, function onSuccess(special) {
+				// populate the params a little more
+				params.otherSpecial = this;
+				params.name = name;
+				params.special = special;
+				
+				// add anything from scope..
+				
+				params.exports = {
+						// All things that should be separate AMD modules..
+						appendLocaleLink: appendLocaleLink,
+						handleDisconnect: handleDisconnect,
+						clickToSelect: clickToSelect
+				};
+				
+				special.show(params);
+			}, function onFailure(err) {
+				
+				// extended error
+				var loadingChunk;
+				var msg_fmt = stui.sub("v_bad_special_msg",
+						{special: name });
+				params.flipper.flipTo(params.pages.loading, loadingChunk = createChunk(msg_fmt,"p","errCodeMsg"));
+				isLoading=false;
+			});
+		};
+		
+		/**
+		 * instance of otherSpecial manager
+		 * @property otherSpecial
+		 */
+		var otherSpecial = new OtherSpecial();
+		
+		/**
 		 * parse the hash string into surveyCurrent___ variables. 
 		 * @method parseHash
 		 * @param {String} id
@@ -3877,12 +4080,8 @@ function showV() {
 							surveyCurrentPage='';
 							surveyCurrentId='';
 						}
-					} else if(surveyCurrentSpecial=='search') {
-						surveyCurrentPage='';
-						surveyCurrentId=''; // for now
 					} else {
-						surveyCurrentPage = '';
-						surveyCurrentId = '';
+						otherSpecial.parseHash(surveyCurrentSpecial, hash, pieces);
 					}
 				}
 			} else {
@@ -4078,7 +4277,13 @@ function showV() {
 		};
 		
 		function updateCoverageMenuTitle() {
-			$('#coverage-info').text(stui.sub('coverage_auto_msg', {surveyOrgCov: stui.str('coverage_' + surveyOrgCov)}));
+			var cov = '';
+			if(surveyUserCov) {
+				$('#coverage-info').text(stui.str('coverage_' + surveyUserCov));
+			}
+			else {
+				$('#coverage-info').text(stui.sub('coverage_auto_msg', {surveyOrgCov: stui.str('coverage_' + surveyOrgCov)}));
+			}
 		}
 		function updateCoverageMenuValue() 	
 		{
@@ -4366,7 +4571,8 @@ function showV() {
 					}
 				}
 				
-				menuMap.setCheck(menuMap.forumMenu,  (surveyCurrentSpecial == 'forum'),(surveyUser	===null));				
+				menuMap.setCheck(menuMap.forumMenu,  (surveyCurrentSpecial == 'forum'),(surveyUser	===null));	
+				resizeSidebar();
 			}
 
 			if(_thePages == null || _thePages.loc != surveyCurrentLocale ) {
@@ -4591,10 +4797,6 @@ function showV() {
 //			var serverLoadInfo = createChunk("","div","serverLoadInfo");			
 //			//loadingPane.appendChild(serverLoadInfo);
 			{
-				window.setTimeout(function(){
-						 updateStatus(); // will restart regular status updates
-				}, 5000); // get a status update about 5s in.
-
 				// Create a little spinner to spin "..." so the user knows we are doing something..
 				var spinChunk = createChunk("...","i","loadingMsgSpin");
 				var spin = 0;
@@ -4800,20 +5002,6 @@ function showV() {
 											tr.appendChild(createChunk(stui.str("v_oldvotes_mine"),"th","v-mine"));
 											var accept;
 											tr.appendChild(accept=createChunk(stui.str("v_oldvotes_accept"),"th","v-accept"));
-/*
-											accept.appendChild(createLinkToFn("v_oldvotes_all", function() {
-												for(var k in json.oldvotes.contested) {
-													var row = json.oldvotes.contested[k];
-													row.box.checked = true;
-												}
-											}));
-											accept.appendChild(createLinkToFn("v_oldvotes_none", function() {
-												for(var k in json.oldvotes.contested) {
-													var row = json.oldvotes.contested[k];
-													row.box.checked = false;
-												}
-											}));
-*/
 											th.appendChild(tr);
 										}
 										t.appendChild(th);
@@ -4907,6 +5095,18 @@ function showV() {
 											tb.appendChild(tr);
 										}
 										t.appendChild(tb);
+										t.appendChild(createLinkToFn("v_oldvotes_all", function() {
+											for(var k in json.oldvotes[type]) {
+												var row = json.oldvotes[type][k];
+												row.box.checked = true;
+											}
+										}, "button"));
+										t.appendChild(createLinkToFn("v_oldvotes_none", function() {
+											for(var k in json.oldvotes[type]) {
+												var row = json.oldvotes[type][k];
+												row.box.checked = false;
+											}
+										}, "button"));
 										return t;
 									}
 
@@ -5259,189 +5459,8 @@ function showV() {
 					surveyCurrentSpecial='locales';
 					showInPop2(stui.str("localesInitialGuidance"), null, null, null, true); /* show the box the first time */					
 					$('#itemInfo').html('');
-				} else if(surveyCurrentSpecial=='search') {
-					// setup
-					var searchCache = window.searchCache;
-					if(!searchCache) {
-						searchCache = window.searchCache = {};
-					}
-					
-					hideLoader(null);
-					isLoading=false;					
-					var theDiv = document.createElement("div");
-					theDiv.className = 'search';
-
-					// install
-					var theInput = document.createElement("input");
-					theDiv.appendChild(theInput);
-					
-					var theSearch = createChunk(stui.str("search"), "button");
-					theDiv.appendChild(theSearch);
-					
-					var theResult = document.createElement("div");
-					theResult.className = 'results';
-					theDiv.appendChild(theResult);
-
-					
-					var newLocale = surveyCurrentLocale;
-					
-					var showResults = function showResults(searchTerm) {
-						var results=searchCache[searchTerm];
-						removeAllChildNodes(theResult);
-						if(newLocale!=surveyCurrentLocale) {
-							var newName = locmap.getLocaleName(newLocale);
-							theResult.appendChild(createChunk(newName, "h4"));
-						}
-						theResult.appendChild(createChunk(searchTerm, "h3"));
-						
-						if(results.length == 0) {
-							theResult.appendChild(createChunk(stui.str("searchNoResults", "h3", "searchNoResults")));
-						} else {
-							for(var i=0;i<results.length;i++) {
-								var result = results[i];
-								
-								var theLi = document.createElement("li");
-								
-								var appendLink = function appendLink(title, url, theClass) {
-									var theA = createChunk(title, "a");
-									if(url && newLocale!='' && newLocale!=null) {
-										theA.href = url;
-									}
-									if(theClass!=null) {
-										theA.className = theClass;
-									}
-									theLi.appendChild(theA);
-								};
-								
-								if(result.xpath) {
-									if(result.strid) {
-										codeUrl = "#/"+newLocale+"//"+result.strid;
-									}
-									appendLink(result.xpath, codeUrl, "xpath");
-								}
-								
-								if(result.ph) {
-									result.ph.strid = result.strid;
-									result = result.ph; // pick up as section
-								}
-								
-								var codeUrl = null;
-								
-								if(result.section) {
-									codeUrl =  "#/"+newLocale+"/"+result.section+"/!";
-									if(result.page) {
-										codeUrl = "#/"+newLocale+"/"+result.page+"/";
-										if(result.strid) {
-											codeUrl = "#/"+newLocale+"/"+result.page+"/"+result.strid;
-										}
-									}
-								}
-								
-								if(result.section) {
-									appendLink(result.section, codeUrl);
-									if(result.page) {
-										theLi.appendChild(createChunk("»"));
-										appendLink(result.page, codeUrl);
-										if(result.code) {
-											theLi.appendChild(createChunk("»"));
-											appendLink(result.code, codeUrl, "codebox");
-										}
-									}
-								}
-								
-								if(result.loc) {
-									appendLocaleLink(theLi, result.loc, locmap.getLocaleInfo(result.loc), true);
-								}
-								
-								theResult.appendChild(theLi);
-							}
-						}
-						
-						theResult.last = searchTerm;
-						theResult.loc = newLocale;
-					};
-					
-					var showSearchTerm = function showSearchTerm(searchTerm) {
-						if((searchTerm != theResult.last || theResult.loc != newLocale) && searchTerm != null) {
-							theResult.last = null;
-							theResult.loc = null;
-							removeAllChildNodes(theResult);
-							theResult.appendChild(createChunk(searchTerm, "h3"));
-							
-							if(!(searchTerm in searchCache)) {
-								   var xurl = contextPath + "/SurveyAjax?&s="+surveySessionId+"&what=search"; // allow cache
-								   if(newLocale!=null&&newLocale!='') {
-									   xurl = xurl + "&_="+newLocale;
-								   }
-								   queueXhr({
-								        url:xurl, // allow cache
-							 	        handleAs:"json",
-							 	        load: function(h){
-							 	        	if(h.results) {
-							 	        		searchCache[searchTerm] = h.results;
-									 			showResults(searchTerm);
-							 	        	} else {
-							 	        		theResult.appendChild(createChunk("(search error)","i"));
-							 	        	}
-								        },
-								        error: function(err, ioArgs){
-								 			var msg ="Error: "+err.name + " - " + err.message;
-						 	        		theResult.appendChild(createChunk(msg,"i"));
-								        },
-								        postData: searchTerm
-								    });
-							} else {
-								showResults(searchTerm);
-							}
-							
-
-						} else {
-							//no change;
-						}
-					};
-					
-					var searchFn = function searchFn(e) {
-						var searchTerm = theInput.value;
-						
-						if(searchTerm.indexOf(':')>0) {
-							var segs = searchTerm.split(':');
-							if(locmap.getLocaleInfo(segs[0])!=null) {
-								newLocale = segs[0];
-								// goto
-								if(segs.length==1) {
-									surveyCurrentSpecial='';
-									surveyCurrentLocale=newLocale;
-									reloadV();
-									return;
-								}
-								searchTerm = segs[1];
-							}
-						}
-						
-						showSearchTerm(searchTerm);
-
-						return stStopPropagation(e);
-					};
-					
-					listenFor(theInput, "change", searchFn);
-					listenFor(theSearch, "click", searchFn);
-
-					flipper.flipTo(pages.other, theDiv);
-					theInput.focus();
-					surveyCurrentLocale=null;
-					surveyCurrentSpecial='search';
-					showInPop2(stui.str("searchGuidance"), null, null, null, true); /* show the box the first time */					
 				} else {
-					var msg_fmt = stui.sub("v_bad_special_msg",
-							{special: surveyCurrentSpecial });
-
-					var loadingChunk;
-					flipper.flipTo(pages.loading, loadingChunk = createChunk(msg_fmt, "p", "errCodeMsg"));
-					var retryButton = createChunk(stui.str("loading_reload"),"button");
-					loadingChunk.appendChild(retryButton);
-					retryButton.onclick = function() { 	window.location.reload(true); };
-					showLoader(theDiv.loader);
-					isLoading=false;
+					otherSpecial.show(surveyCurrentSpecial, {flipper: flipper, pages: pages});
 				}
 			}; // end shower
 
@@ -5759,7 +5778,8 @@ function showV() {
  */
 function refreshRow2(tr,theRow,vHash,onSuccess, onFailure) {
 	showLoader(tr.theTable.theDiv.loader,stui.loadingOneRow);
-    var ourUrl = contextPath + "/RefreshRow.jsp?what="+WHAT_GETROW+"&xpath="+theRow.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session +"&json=t&automatic=t";
+	// vHash not used.
+    var ourUrl = contextPath + "/RefreshRow.jsp?what="+WHAT_GETROW+"&xpath="+theRow.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+/*"&vhash="+vHash+*/"&s="+tr.theTable.session +"&json=t&automatic=t";
     
     if(isDashboard()) {
     	ourUrl += "&dashboard=true";
@@ -5776,8 +5796,7 @@ function refreshRow2(tr,theRow,vHash,onSuccess, onFailure) {
         			updateRow(tr, theRow);
 
         			//style the radios
-        			wrapRadios();
-        			
+        			//wrapRadios(tr);
         			hideLoader(tr.theTable.theDiv.loader);
         			onSuccess(theRow);
         			if(isDashboard()) {
@@ -5851,6 +5870,7 @@ function handleWiredClick(tr,theRow,vHash,box,button,what) {
 
 	// select
 	updateCurrentId(theRow.xpstrid);
+	
 	// and scroll
 	showCurrentId();
 	
@@ -5874,12 +5894,22 @@ function handleWiredClick(tr,theRow,vHash,box,button,what) {
 
 
 	console.log("Vote for " + tr.rowHash + " v='"+vHash+"', value='"+value+"'");
-	var ourUrl = contextPath + "/SurveyAjax?what="+what+"&xpath="+tr.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session;
+	var ourContent = {
+			what: what,
+			xpath: tr.xpid,
+			"_": surveyCurrentLocale,
+			fhash: tr.rowHash,
+			vhash: vHash,
+			s: tr.theTable.session
+	};
+
+	var ourUrl = contextPath + "/SurveyAjax"; // ?what="+what+"&xpath="+tr.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session;
 	
 	// vote reduced
 	var voteReduced = document.getElementById("voteReduced");
 	if(voteReduced) {
-		ourUrl = ourUrl + "&voteReduced="+voteReduced.value;
+		ourContent.voteReduced = voteReduced.value;
+//		ourUrl = ourUrl + "&voteReduced="+voteReduced.value;
 	}
 	
 //	tr.className='tr_checking';
@@ -5887,15 +5917,26 @@ function handleWiredClick(tr,theRow,vHash,box,button,what) {
 		try {
 			// var newHtml = "";
 			if(json.err && json.err.length >0) {
-				tr.className='tr_err';
-				// v_tr.className="tr_err";
-				// v_tr2.className="tr_err";
-//				showLoader(tr.theTable.theDiv.loader,"Error!");
-				handleDisconnect('Error submitting a vote', json);
-				tr.innerHTML = "<td colspan='4'>"+stopIcon + " Could not check value. Try reloading the page.<br>"+json.err+"</td>";
-				// e_div.innerHTML = newHtml;
-				myUnDefer();
-				handleDisconnect('Error submitting a vote', json);
+				/*if(json.err_code != null) {
+					var errMsg = formatErrMsg(json, "vote");
+					console.log("Error voting: " + errMsg);
+					popupAlert("danger", errMsg);
+					// uncheck..
+					button.className='ichoice-o';
+					button.checked=false;
+					myUnDefer();
+					return; // break out, but no need to disconnect.
+				} else*/ {
+					tr.className='tr_err';
+					// v_tr.className="tr_err";
+					// v_tr2.className="tr_err";
+	//				showLoader(tr.theTable.theDiv.loader,"Error!");
+					handleDisconnect('Error submitting a vote', json);
+					tr.innerHTML = "<td colspan='4'>"+stopIcon + " Could not check value. Try reloading the page.<br>"+json.err+"</td>";
+					// e_div.innerHTML = newHtml;
+					myUnDefer();
+					handleDisconnect('Error submitting a vote', json);
+				}
 			} else {
 				if(json.submitResultRaw) { // if submitted..
 					tr.className='tr_checking2';
@@ -5959,19 +6000,20 @@ function handleWiredClick(tr,theRow,vHash,box,button,what) {
 		theRow.innerHTML="Error while  loading: "+err.name + " <br> " + err.message + "<div style='border: 1px solid red;'>" + ioArgs.xhr.responseText + "</div>";
 		myUnDefer();
 	};
+	//window.xhrArgs = xhrArgs;
+	//stdebug('xhrArgs = ' + xhrArgs + ", url: " + ourUrl);
+	if(box) {
+		stdebug("this is a post: " + value);
+		ourContent.value = value;
+	}
 	var xhrArgs = {
-			url: ourUrl+cacheKill(),
+			url: ourUrl,
 			handleAs:"json",
+			content: ourContent,
 			timeout: ajaxTimeout,
 			load: loadHandler,
 			error: errorHandler
 	};
-	//window.xhrArgs = xhrArgs;
-	//stdebug('xhrArgs = ' + xhrArgs + ", url: " + ourUrl);
-	if(box) {
-		stdebug("this is a psot: " + value);
-		xhrArgs.postData = value;
-	}
 	queueXhr(xhrArgs);
 }
 
@@ -6591,14 +6633,35 @@ function showstats(hname) {
 					
 					var header=json.byday.header;
 					var data=json.byday.data;
+					var header_new=json.byday_new.header;
+					var data_new=json.byday_new.data;
+					var labels_old = [];
+					var count_old = [];
 					var labels = [];
-					var count = [];
-					for(var i in data) {
-						labels.push(data[i][header.LAST_MOD]);
-						count.push(data[i][header.COUNT]);
+					var count_new = [];
+					for(var i in data_new) {
+						var newLabel = (data_new[i][header_new.LAST_MOD]).split(' ')[0];
+						var newCount = data_new[i][header_new.COUNT];
+						labels.push(newLabel); // labels come from new data
+						count_new.push(newCount);
+						var oldLabel = (data[i][header.LAST_MOD]).split(' ')[0];
+						if(newLabel == oldLabel) {
+							// have old data
+							var oldCount = data[i][header.COUNT];
+							if(oldCount < newCount) {
+								console.log("Preposterous: at " + newLabel + ": " + oldCount + " oldCount < " + newCount + "  newCount " );
+								count_old.push(-1);
+							} else {
+								count_old.push(oldCount - newCount);
+							}
+						} else {
+							console.log("Desync: " + newLabel + " / " + oldLabel);
+							count_old.push(-1);
+						}
 					}
 					var gdata = [];
-					gdata.push(count);
+					gdata.push(count_new);
+					gdata.push(count_old);
 					showLoader(null, "Drawing");
 					// this: 0,id,node,paper,attrs,transformations,_,prev,next,type,bar,value,events
 					// this.bar ["0", "id", "node", "paper", "attrs", "transformations", "_", "prev", "next", "type", "x", "y", "w", "h", "value"]
@@ -6614,12 +6677,15 @@ function showstats(hname) {
 					var offh = 10;
 					var toffh = 30;
 					var toffv=10+(hei/(2*labels.length));
-					console.log("Drawing in : " + hname + " - "  + count.toString());
-					r.g.hbarchart(100,offh,600,hei, gdata )
-						.hover(fin,fout);
-						//.label(labels2);
+					console.log("Drawing in : " + hname + " - "  + count_new.toString());
+					r.g.hbarchart(100,offh,600,hei, gdata,  {
+						stacked: true,
+						colors: ["#8aa717","#1751a7"]
+					})
+					.hover(fin,fout);
+	                //.label(labels2);
 					for(var i in labels) {
-						r.text(toffh,toffv+(i*(hei/labels.length)), (labels[i].split(" ")[0])+"\n"+count[i]  );
+						r.text(toffh,toffv+(i*(hei/labels.length)), (labels[i].split(" ")[0])+"\n"+count_new[i]  );
 					}
 					hideLoader(null);
 				} else {
