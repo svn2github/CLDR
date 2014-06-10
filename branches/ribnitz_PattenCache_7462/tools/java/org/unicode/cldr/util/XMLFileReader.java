@@ -89,7 +89,7 @@ public class XMLFileReader {
         try {
             InputStream fis = new FileInputStream(fileName);
             // fis = new DebuggingInputStream(fis);
-            return read(fileName, new InputStreamReader(fis, Charset.forName("UTF-8")), handlers, validating);
+            return read(fileName, fis, handlers, validating);
         } catch (IOException e) {
             throw (IllegalArgumentException) new IllegalArgumentException("Can't read " + fileName).initCause(e);
         }
