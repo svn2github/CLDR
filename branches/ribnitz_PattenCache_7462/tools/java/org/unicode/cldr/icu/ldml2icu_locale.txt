@@ -115,6 +115,9 @@
 //ldml/dates/fields/field[@type="(%A)"]/relative[@type="(%A)"] ; /fields/$1/relative/"$2"
 //ldml/dates/fields/field[@type="(%A)"]/relativeTime[@type="(%A)"]/relativeTimePattern[@count="(%A)"] ; /fields/$1/relativeTime/$2/$3
 
+//ldml/dates/fields/field[@type="(%A)"]/alias[@source="locale"][@path="../field[@type='(%A)']"]
+     ; /fields/$1:alias ; values=/LOCALE/fields/$2
+
 //ldml/dates/timeZoneNames/(%GFormat)   ; /zoneStrings/$1
 //ldml/dates/timeZoneNames/regionFormat[@type="daylight"]   ; /zoneStrings/regionFormatDaylight
 //ldml/dates/timeZoneNames/regionFormat[@type="standard"]   ; /zoneStrings/regionFormatStandard
@@ -170,6 +173,7 @@
 //ldml/numbers/currencyFormats[@numberSystem="%D"]/unitPattern[@count="(%W)"] ; /CurrencyUnitPatterns/$1
 
 //ldml/numbers/defaultNumberingSystem ; /NumberElements/default
+//ldml/numbers/minimumGroupingDigits ; /NumberElements/minimumGroupingDigits
 //ldml/numbers/otherNumberingSystems/(%W)   ; /NumberElements/$1
 
 //ldml/numbers/symbols[@numberSystem="(%A)"]/(%W) ; /NumberElements/$1/symbols/$2
@@ -192,11 +196,20 @@
 //ldml/listPatterns/listPattern/listPatternPart[@type="(%A)"] ; /listPattern/standard/$1
 //ldml/listPatterns/listPattern[@type="(%A)"]/listPatternPart[@type="(%A)"] ; /listPattern/$1/$2
 
+//ldml/units/unitLength[@type="narrow"]/unit[@type="(\w++)-(%A)"]/displayName ; /unitsNarrow/$1/$2/dnam
+//ldml/units/unitLength[@type="short"]/unit[@type="(\w++)-(%A)"]/displayName ; /unitsShort/$1/$2/dnam
+//ldml/units/unitLength[@type="long"]/unit[@type="(\w++)-(%A)"]/displayName ; /units/per/$1/$2/dnam
+
 //ldml/units/unitLength[@type="narrow"]/unit[@type="(\w++)-(%A)"]/unitPattern[@count="(%A)"] ; /unitsNarrow/$1/$2/$3
 //ldml/units/unitLength[@type="short"]/unit[@type="(\w++)-(%A)"]/unitPattern[@count="(%A)"] ; /unitsShort/$1/$2/$3
 //ldml/units/unitLength[@type="long"]/unit[@type="(\w++)-(%A)"]/unitPattern[@count="(%A)"] ; /units/$1/$2/$3
+
 //ldml/units/unitLength[@type="narrow"]/compoundUnit[@type="(%A)"]/compoundUnitPattern ; /unitsNarrow/compound/$1
 //ldml/units/unitLength[@type="short"]/compoundUnit[@type="(%A)"]/compoundUnitPattern ; /unitsShort/compound/$1
 //ldml/units/unitLength[@type="long"]/compoundUnit[@type="(%A)"]/compoundUnitPattern ; /units/compound/$1
+
+//ldml/units/unitLength[@type="narrow"]/unit[@type="(\w++)-(%A)"]/perUnitPattern ; /unitsNarrow/$1/$2/per
+//ldml/units/unitLength[@type="short"]/unit[@type="(\w++)-(%A)"]/perUnitPattern ; /unitsShort/$1/$2/per
+//ldml/units/unitLength[@type="long"]/unit[@type="(\w++)-(%A)"]/perUnitPattern ; /units/per/$1/$2/per
 
 //ldml/units/durationUnit[@type="(%A)"]/durationUnitPattern ; /durationUnits/$1
