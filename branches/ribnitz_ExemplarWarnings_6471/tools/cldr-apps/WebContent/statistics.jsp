@@ -20,9 +20,12 @@
 
 	title = "Locales by Submitted Data";
 	doingByLocaleSubmit = true;
+	final String newVersion = SurveyMain.getNewVersion();
+	final String oldVersion = SurveyMain.getOldVersion();
+	final String newVersionText = (SurveyMain.isPhaseBeta())?(newVersion+"BETA"):newVersion;
 %>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>SurveyTool Statistics | <%=title%></title>
+<title>SurveyTool <%= newVersionText %> Statistics | <%=title%></title>
 <link rel='stylesheet' type='text/css' href='./surveytool.css' />
 <script type='text/javascript' src='js/raphael.js' ></script>
 <script type='text/javascript' src='js/g.raphael.js' ></script>
@@ -36,6 +39,10 @@
 
 <%@ include file="/WEB-INF/tmpl/ajax_status.jsp" %>
 
+<h2>Note: this is the OLD statistics page. Please help beta-test the new one by clicking <a href='v#statistics'>here</a></h2>
+
+<hr>
+
 <a href="<%=request.getContextPath()%>/survey">Return to the SurveyTool <img src='STLogo.png' style='float:right;' /></a>
 <!-- 	| <a class='notselected' href="statistics-org.jsp">by Organization</a> -->
 <i>This page does not auto-refresh, and is only calculated every few minutes. <br>Also, the translated names may be out of date, as they are currently using the previous-version data.</i>
@@ -47,26 +54,23 @@
 	DBUtils dbUtils = DBUtils.getInstance();
 	
     int totalItems = StatisticsUtils.getTotalItems();
-    int totalSubmitters = DBUtils.getFirstInt(DBUtils.queryToCachedJSON("total_submitters", 1*60*1000, "select count(distinct submitter) from "+DBUtils.Table.VOTE_VALUE+" "));
+    int totalNewItems = StatisticsUtils.getTotalNewItems();
+    int totalSubmitters = StatisticsUtils.getTotalSubmitters();
 	Connection conn = dbUtils.getDBConnection();
 	if (conn == null) {
 		throw new InternalError(
 				"Can't open DB connection. Note, you must use a new JNDI connection for this to work.");
 	}
 	try {
-		String limit = "";
 %>
-	<h1>SurveyTool Statistics: <%=title%></h1>
+	<h1>SurveyTool | CLDR <%= newVersionText %> Statistics: <%=title%></h1>
 	<br/>
     <%
-        String theSqlVet = "select  locale,count(*) as count from "+DBUtils.Table.VOTE_VALUE+"  where submitter is not null "
-                    + limit + " group by locale ";
+        String theSqlVet = StatisticsUtils.QUERY_ALL_VOTES;
             String theSqlData = theSqlVet;
 
-            String[][] submitsV = dbUtils.sqlQueryArrayArray(conn,
-                    theSqlVet);
-            String[][] submitsD = dbUtils.sqlQueryArrayArray(conn,
-                    theSqlData);
+            final String[][] submitsV = dbUtils.sqlQueryArrayArray(conn, theSqlData);
+            final String[][] submitsD = submitsV;
 
             String[][] submits = StatisticsUtils.calcSubmits(submitsV,
                     submitsD);
@@ -75,7 +79,7 @@
     %>
 
 
-	Total Items Submitted: <%= fmt.format( totalItems) %> in <%= fmt.format(submits.length) %> locales by <%= fmt.format(totalSubmitters)  %> submitters. <br/>
+	Total Items Submitted for <%= newVersionText %>: <%= fmt.format( totalItems) %> (<%= fmt.format(totalNewItems) %> new) in <%= fmt.format(submits.length) %> locales by <%= fmt.format(totalSubmitters)  %> submitters. <br/>
 
 
 
@@ -99,9 +103,10 @@
 			    	String baseName = name.getFirst(); /* thisLoc.getDisplayName( false, null) */
 			    	String selfName =  name.getSecond(); //CookieSession.sm.getDiskFactory().make(r[0], true).getName(r[0])
 			    	
-			    	StringBuilder selfLink = WebContext.appendContextVurl(new StringBuilder(request.getContextPath()), thisLoc, PathHeader.PageId.Languages, 
-			    			  CookieSession.sm.xpt.getStringIDString("//ldml/localeDisplayNames/languages/language[@type=\""+thisLoc.getLanguage()+"\"]"),
-			    			  "");
+			    	// Removing this since it's the "old" statistics page, and the languages page has split...
+			    	// StringBuilder selfLink = WebContext.appendContextVurl(new StringBuilder(request.getContextPath()), thisLoc, PathHeader.PageId.Languages, 
+			    	//		  CookieSession.sm.xpt.getStringIDString("//ldml/localeDisplayNames/languages/language[@type=\""+thisLoc.getLanguage()+"\"]"),
+			    	//		  "");
 			%>
 			<tr class='r<%= rank%2 %>'>
 				<td class='rank'><%=fmt.format(++rank) %></td>
@@ -110,7 +115,7 @@
 				    <a
 					href='survey?_=<%=r[0]%>'><%= baseName %></a>
 					           </td>
-                               <td dir='<%= CookieSession.sm.getHTMLDirectionFor(thisLoc) %>' class='selfname dir<%= CookieSession.sm.getHTMLDirectionFor(thisLoc)  %>'><a href='<%= selfLink %>'><%= selfName %></a></td>
+                               <td dir='<%= CookieSession.sm.getHTMLDirectionFor(thisLoc) %>' class='selfname dir<%= CookieSession.sm.getHTMLDirectionFor(thisLoc)  %>'><a><%= selfName %></a></td>
 				<td class='count'><%=fmt.format(Integer.parseInt(r[1]))%></td>
 			</tr>
 			<%
@@ -180,7 +185,7 @@
 
 <%-- OLD CRUFT ABOVE. 
   NEW STUFF...  ----------------------------------------------------- --%>
-	<h3>Submits by day</h3>
+	<h3>Submits by day:   NEW/CHANGED | OLD</h3>
 	<div id="dholder-holder">
 	        <div id="dholder" style="width: 600px; height: 800px;"></div>
 	</div>        

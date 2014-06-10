@@ -348,10 +348,10 @@ public class DBUtils {
                 }
     
                 if (rs.next() == true) {
-                    System.out.println("table " + canonName + " did exist.");
+                    SurveyLog.warnOnce("table " + canonName + " did exist.");
                     return true;
                 } else {
-                    SurveyLog.debug("table " + canonName + " did not exist.");
+                    SurveyLog.warnOnce("table " + canonName + " did not exist.");
                     return false;
                 }
             } finally {
@@ -1388,6 +1388,9 @@ public class DBUtils {
             return null;
         }
 
+        /**
+         * Debug the cachedJSON
+         */
         final boolean CDEBUG = false && SurveyMain.isUnofficial();
         DBUtils instance = getInstance(); // don't want the cache to be static
         Reference<JSONObject> ref = instance.cachedJsonQuery.get(id);
@@ -1408,6 +1411,9 @@ public class DBUtils {
         }
 
         if (result == null) { // have to fetch it
+            if(CDEBUG) {
+                System.out.println("cachedjson: id " + id + " fetching: " + query);
+            }
             result = queryToJSON(query, args);
             long queryms = System.currentTimeMillis() - now;
             result.put("birth", (Long) now);

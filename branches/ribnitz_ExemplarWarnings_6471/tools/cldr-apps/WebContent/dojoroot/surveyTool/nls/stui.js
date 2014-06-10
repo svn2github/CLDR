@@ -166,7 +166,7 @@ define({
 		lastReleaseStatus1_msg: "",
 		
 		reportGuidance: " ",
-		dataPageInitialGuidance: "Welcome to the Survey Tool.<br>Be sure to read the <a href='http://cldr.unicode.org/index/survey-tool'>Instructions</a> carefully.  To vote for items:<br><ol><li>Click on a cell in the 'Code' column.</li><li>Read the details that appear for that row.</li><li>To vote for an existing item in the Winning or Others column of that row, click on the <input type='radio'> for that item.</li><li> To vote for a value not already shown in that row, click on the button in the \"Add\" column. A new editing box will open, and you can enter a new value; you will automatically be voting for it once you hit RETURN on your keyboard.</li><li>To abstain (including retracting a vote), click on the <input type='radio'> in the Abstain column.</li></ol>",
+		dataPageInitialGuidance: "Please consult the <a target='_blank' href='http://cldr.unicode.org/index/survey-tool/guide'>Instructions <span class='glyphicon glyphicon-share'></span></a> page.<br/><br/>Briefly, for each row:<br/><ol><li>Click on a cell in the 'Code' column.</li><li>Read the details that appear in the right panel (widen your window to see it).</li><li> Hover over the English and the Winning value to see examples.</li><li>To vote:<ol><li>for an existing item in the Winning or Others column, click on the <input type='radio'/> for that item.</li><li>for a new value, click on the button in the \"Add\" column. A new editing box will open. Enter the new value and hit RETURN.</li><li>for no value (abstain, or retract a vote), click on the  <input type='radio'/> in the Abstain column.</li></ol></li></ol>",
 		generalPageInitialGuidance: "This area will show details of items as you work with the Survey Tool.",
 		localesInitialGuidance: "Choose a locale to get started.  <ul><li><span class='locked'>locked</span> locales may not be modified by anyone,</li><li><span class='canmodify'>hand icon</span> indicates editing allowed by you</li><li><span class='name_var'>Locales with (Variants)</span> may have specific differences to note.</li></ul><p>Don't see your locale? See: <a href='http://cldr.unicode.org/index/bug-reports#New_Locales'>Adding New Locales</a></p>",
 		
@@ -198,12 +198,13 @@ define({
 		voteInfo_perValue_desc: "This shows the state and voters for a particular item.",
 		voteInfo_moreInfo: "Click here for a full explanation of the icons and their meanings.",
 		// CheckCLDR.StatusAction 
-		StatusAction_msg:              "Item was not submitted: ${0}",
+		StatusAction_msg:              "Not submitted: ${0}",
+		StatusAction_popupmsg:         "Sorry, your vote for '${1}' could not be submitted: ${0}", // same as StatusAction_msg but with context
 		StatusAction_ALLOW:            "(Actually, it was allowed.)", // shouldn't happen
 		StatusAction_FORBID:           "Forbidden.",
-		StatusAction_FORBID_ERRORS:    "Item had errors.",
-		StatusAction_FORBID_READONLY:  "Read-only.",
-		StatusAction_FORBID_COVERAGE:  "Outside of coverage.",
+		StatusAction_FORBID_ERRORS:    "The item had errors.",
+		StatusAction_FORBID_READONLY:  "The item is read-only.",
+		StatusAction_FORBID_COVERAGE:  "The item is not visible by coverage rules.",
 
 		// v.jsp
 		"v-title2_desc": "Locale title",
@@ -255,12 +256,15 @@ define({
 		section_forum: "Forum",
 		section_subpages: "Subpages",
 		special_search:  "Search",
+		special_statistics: "Statistics",
 		special_r_compact: "Numbers",
 		special_r_datetime: "Datetime",
 		special_r_zones: "Zones",
 		searchNoResults: "No results found.",
 		searchGuidance: "This is a basic search facility. An exact word such as 'Monday' or 'Montag' can be entered, or an XPath or string ID like 'eeaf1f975877a5d'.  An optional locale ID can be prefixed to any search term, so 'mt:Monday' or 'mt:eeaf1f975877a5d'.",
 		section_help: "Choose an item from the 'Subpages' menu to begin working with this section.",
+		
+		statisticsGuidance: "This page is in BETA. This shows some basic statistics. More information is currently available under the 'Manage' menu.",
 		
         section_info_Core_Data:  "The Core Data is vital for proper functioning of each locale. Because changes can disrupt the survey tool, data can only be changed via tickets. Please also review the Plural Rules for your locale: they are also vital.",
         section_info_Locale_Display_Names:  "The Locale Display Names are used to format names of locales, languages, scripts, and regions (including countries).",
@@ -310,7 +314,12 @@ define({
 		coverage_menu_desc: 'Change the displayed coverage level. "Automatic" will use your organization\'s preferred value for this locale, if any.',
 
 		section_mail: 'Messages',
-		
+
+		special_vsummary: "Priority Items Summary",
+		vsummaryGuidance: "This is the vetting summary. Click Recalculate to start and be patient, this may take a while.",
+		vsReload: "Recalculate",
+		vsStop: "Stop",
+		vsContent_initial: "Click Recalculate to calculate the summary",
 		
 		jsonStatus_msg: "You should see your content shortly, thank you for waiting. By the way, there are ${users} logged-in users and ${guests} visitors to the Survey Tool. The server's workload is about ${sysloadpct} of normal capacity. You have been waiting about ${waitTime} seconds.",
 		err_what_section: "load part of this locale",

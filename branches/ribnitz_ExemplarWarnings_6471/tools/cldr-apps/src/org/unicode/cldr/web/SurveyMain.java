@@ -77,6 +77,7 @@ import org.unicode.cldr.util.CLDRLocale.CLDRFormatter;
 import org.unicode.cldr.util.CLDRLocale.FormatBehavior;
 import org.unicode.cldr.util.CachingEntityResolver;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.CoverageInfo;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Factory.DirectoryType;
 import org.unicode.cldr.util.Factory.SourceTreeType;
@@ -687,8 +688,14 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
                     ctx.println(ctx.iconHtml("stop", "fail")
                         + "<b>Please go <a href='javascript:window.history.back();'>Back</a> and fill in your real name.</b>");
                 } else {
+                    final boolean autoProceed = ctx.hasField("new_and_login_autoProceed");
+                    final boolean stayLoggedIn = ctx.hasField("new_and_login_stayLoggedIn");
                     ctx.println("<div style='margin: 2em;'>");
-                    ctx.println("<img src='loader.gif' align='right'>");
+                    if(autoProceed) {
+                        ctx.println("<img src='loader.gif' align='right'>");
+                    } else {
+                        ctx.println("<img src='STLogo.png' align='right'>");
+                    }
                     UserRegistry.User u = reg.getEmptyUser();
                     StringBuffer myRealName = new StringBuffer(real.trim());
                     StringBuilder newRealName = new StringBuilder();
@@ -716,14 +723,26 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
                     }
                     UserRegistry.User registeredUser = reg.newUser(ctx, u);
                     ctx.println("<i>" + ctx.iconHtml("okay", "added") + "'" + u.name
-                        + "'. You should be logged in shortly, otherwise click this link:</i>");
+                        + "'. <br>Email: " + u.email + "  <br>Password: " + u.password +" <br>userlevel: " + u.getLevel()+"<br>");
+                    if(autoProceed) {
+                        ctx.print("You should be logged in shortly, otherwise click this link:");
+                    } else {
+                        ctx.print("You will be logged in when you click this link:");
+                    }
+                    ctx.print("</i>");
                     ctx.println("<br>");
                     registeredUser.printPasswordLink(ctx);
                     ctx.println("<br><br><br><br><i>Note: this is a test account, and may be removed at any time.</i>");
-                    ctx.addCookie(QUERY_EMAIL, u.email, TWELVE_WEEKS);
-                    ctx.addCookie(QUERY_PASSWORD, u.password, TWELVE_WEEKS);
-                    ctx.println("<script>document.location = '" + ctx.base() + "/survey?email=" + u.email + "&pw=" + u.password
-                       + "';</script>");
+                    if(stayLoggedIn) {
+                        ctx.addCookie(QUERY_EMAIL, u.email, TWELVE_WEEKS);
+                        ctx.addCookie(QUERY_PASSWORD, u.password, TWELVE_WEEKS);
+                    } else {
+                        ctx.removeLoginCookies(request, response);
+                    }
+                    if(autoProceed) {
+                        ctx.println("<script>window.setTimeout(function(){document.location = '" + ctx.base() + "/v?email=" + u.email + "&pw=" + u.password
+                           + "';},3000);</script>");
+                    }
                     ctx.println("</div>");
                 }
             } else if (ctx.hasAdminPassword()) {
@@ -2526,8 +2545,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
         printMenu(ctx, doWhat, "coverage", "Show Vetting Participation", QUERY_DO);
 
         if (UserRegistry.userIsTC(ctx.session.user)) {
-            ctx.println("| <a class='notselected' href='" + ctx.jspUrl("tc-emaillist.jsp")
-                + "'>Email Address of Users Who Participated</a>");
+            ctx.println("| <a class='notselected' href='v#tc-emaillist'>Email Address of Users Who Participated</a>");
             ctx.print(" | ");
         }
 
@@ -5049,11 +5067,13 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
 
             Set<CLDRLocale> failedSuppTest = new TreeSet<CLDRLocale>();
 
+            // Initialize CoverageInfo outside the loop.
+            CoverageInfo covInfo=CLDRConfig.getInstance().getCoverageInfo();
             for (File f : getInFiles()) {
                 CLDRLocale loc = fileNameToLocale(f.getName());
 
                 try {
-                    getSupplementalDataInfo().getCoverageValue("//ldml", loc.getBaseName());
+                    covInfo.getCoverageValue("//ldml", loc.getBaseName());
                 } catch (Throwable t) {
                     SurveyLog.logException(t, "checking SDI for " + loc);
                     failedSuppTest.add(loc);
