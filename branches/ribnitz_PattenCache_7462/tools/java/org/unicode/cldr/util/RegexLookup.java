@@ -31,8 +31,9 @@ import com.ibm.icu.util.Output;
  */
 public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
     private VariableReplacer variables = new VariableReplacer();
-    private StarPatternMap<T> SPEntries;
-    private RegexTree<T> RTEntries;
+     private StorageInterfaceBase<T> storage;
+//    private StarPatternMap<T> SPEntries;
+//    private RegexTree<T> RTEntries;
     private Map<Finder, T> MEntries;
     private Transform<String, ? extends Finder> patternTransform = RegexFinderTransform;
     private Transform<String, ? extends T> valueTransform;
@@ -46,6 +47,7 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
         STAR_PATTERN_LOOKUP, OPTIMIZED_DIRECTORY_PATTERN_LOOKUP, STANDARD
     };
 
+   
     private LookupType _lookupType;
 
     /*
@@ -72,10 +74,12 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
         _lookupType = type;
         switch (type) {
         case STAR_PATTERN_LOOKUP:
-            SPEntries = new StarPatternMap<T>();
+         //   SPEntries = new StarPatternMap<T>();
+            storage= new StarPatternMap<T>();
             break;
         case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
-            RTEntries = new RegexTree<T>();
+         //   RTEntries = new RegexTree<T>();
+            storage = new RegexTree<T>();
             break;
         default:
             MEntries = new LinkedHashMap<Finder, T>();
@@ -84,53 +88,59 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
     }
 
     public RegexLookup() {
-        _lookupType = RegexLookup.LookupType.OPTIMIZED_DIRECTORY_PATTERN_LOOKUP;
-        RTEntries = new RegexTree<T>();
+        this(LookupType.OPTIMIZED_DIRECTORY_PATTERN_LOOKUP);
+//        _lookupType = RegexLookup.LookupType.OPTIMIZED_DIRECTORY_PATTERN_LOOKUP;
+//        RTEntries = new RegexTree<T>();
     }
 
     public abstract static class Finder {
         public static class Info {
             public String[] value;
         }
-//        abstract public String[] getInfo();
+   //   abstract public String[] getInfo();
 
-        abstract public boolean find(String item, Object context, Info info);
-
+     // abstract public boolean find(String item, Object context);
+        
+       abstract  public boolean find(String item, Object context, Info info);
+       abstract  public boolean matches(String item, Object context, Info info);
         public int getFailPoint(String source) {
             return -1;
         }
         // must also define toString
     }
-
-    public static class RegexFinder extends Finder {
-        protected final Matcher matcher;
-
+    
+    public static class RegexFinder extends Finder  {
+        /**
+         * The matcher used by this RegexFinder
+         */
+        private final Matcher matcher;
+        
+        /**
+         * The Pattern used by this RegexFinder
+         */
+        protected final Pattern pattern;
+ 
         public RegexFinder(String pattern) {
-            matcher = Pattern.compile(pattern, Pattern.COMMENTS).matcher("");
+            this.pattern=Pattern.compile(pattern, Pattern.COMMENTS);
+            matcher = this.pattern.matcher("");
         }
-
-
-        public boolean find(String item, Object context, Info info) {
+        
+        /**
+         * Call Matches on the pattern, returning additional information in the Info field, 
+         * if it is non null 
+         */
+        public  boolean matches(String item, Object context, Info info) {
             synchronized(matcher) {
                 try {
-
-//                    if (DEBUG_PATTERNS) {
-//                        Timer timer=new Timer();
-//                        boolean result=matcher.reset(item).find();
-//                        double duration=timer.getDuration()/1000000.0;
-//                        return result;
-//                    }
-                    boolean result= matcher.reset(item).find();
-                    if (result && info!=null) {
-                        info.value=getInfo();
-                    }
+                    boolean result= matcher.reset(item).matches();
+                    extractInfo(info, result);
                     return result;
                 } catch (StringIndexOutOfBoundsException e) {
                     // We don't know what causes this error (cldrbug 5051) so
                     // make the exception message more detailed.
                     throw new IllegalArgumentException("Matching error caused by pattern: ["
                         + matcher.toString() + "] on text: [" + item + "]", e);
-                }
+                }    
             }
         }
 
@@ -152,9 +162,45 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
                 return value;
             }
         }
-
+        
+        /**
+         * Call find() on the pattern, returning additional information in the info field,
+         * if it is non-null
+         */
+        public  boolean find(String item, Object context, Info info) {
+            synchronized(matcher) {
+                try {
+                    boolean result= matcher.reset(item).find();
+                    extractInfo(info, result);
+                    return result;
+                } catch (StringIndexOutOfBoundsException e) {
+                    // We don't know what causes this error (cldrbug 5051) so
+                    // make the exception message more detailed.
+                    throw new IllegalArgumentException("Matching error caused by pattern: ["
+                        + matcher.toString() + "] on text: [" + item + "]", e);
+                }    
+            }
+        }
+        /**
+         * Extract match related information into  the info field, if result is true, and info
+         * is not null.
+         * @param info
+         * @param result
+         */
+        private void extractInfo(Info info, boolean result) {
+            if (result && info!=null) {
+                int limit = matcher.groupCount() + 1;
+                String[] value = new String[limit];
+                for (int i = 0; i < limit; ++i) {
+                    value[i] = matcher.group(i);
+                }         
+                info.value=value;
+            }
+        }
+           
         public String toString() {
-            return matcher.pattern().pattern();
+            // Use pattern here, to avoid having to synchronize on matcher
+            return pattern.pattern();
         }
 
         @Override
@@ -173,11 +219,30 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
 
         @Override
         public int getFailPoint(String source) {
-            return RegexUtilities.findMismatch(matcher, source);
+            synchronized (matcher) {
+                return RegexUtilities.findMismatch(matcher, source);
+            }
         }
     }
 
-    private static class RegexTree<T> {
+    private static interface StorageInterfaceBase<T> {
+        Set<Entry<Finder, T>> entrySet();
+        T get(Finder finder);
+        T get(String pattern, Object context, Output<String[]> arguments, Output<Finder> matcherFound);
+        List<T> getAll(String pattern, Object context, List<Finder> matcherList,Output<String[]> firstInfo);
+        void put(Finder pattern, T value);
+        int size();
+    }
+    
+//    private static class FinderWithInfo {
+//        Finder _finder;
+//        Info _info;
+//        public FinderWithInfo(Finder finder,Info info) {
+//            _info=info;
+//            _finder=finder;
+//        }
+//    }
+    private static class RegexTree<T> implements StorageInterfaceBase<T> {
         private RTNode root;
         private int _size;
         private RTNodeRankComparator rankComparator = new RTNodeRankComparator();
@@ -187,26 +252,38 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             _size = 0;
         }
 
+        @Override
         public int size() {
             return _size;
         }
-
+        
+        @Override
         public void put(Finder pattern, T value) {
             root.put(new RTNode(pattern, value, _size));
             _size++;
         }
 
+        @Override
         public T get(Finder finder) {
             return root.get(finder);
         }
-
-        public List<T> getAll(String pattern, Object context, List<Finder> matcherList, Info firstInfo) {
+        
+        @Override
+        public List<T> getAll(String pattern, Object context, List<Finder> matcherList,Output<String[]> firstInfo) {
             List<RTNode> list = new ArrayList<RTNode>();
             List<T> retList = new ArrayList<T>();
 
             root.addToList(pattern, context, list);
             Collections.sort(list, rankComparator);
             boolean isFirst=true;
+            if (firstInfo!=null && !list.isEmpty()) {
+                RTNode firstNode=list.get(0);
+                if (firstNode._info!=null) {
+                    firstInfo.value= firstNode._info.value;
+                }
+            }
+
+            
             for (RTNode n : list) {
                 if (isFirst) {
                     firstInfo.value=n._info.value;
@@ -223,10 +300,12 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
 
         public T get(String pattern, Object context, Output<String[]> arguments, Output<Finder> matcherFound) {
             List<Finder> matcherList = new ArrayList<Finder>();
-            Info firstInfo=new Info();
-            List<T> matches = getAll(pattern, context, matcherList, firstInfo); //need to get whole list because we want value that was entered first
+            Output<String[]> firstInfo=new Output<>();
+            List<T> matches = getAll(pattern, context, matcherList,firstInfo); //need to get whole list because we want value that was entered first
             if (arguments != null) {
 //                arguments.value = (matcherList.size() > 0) ? matcherList.get(0).getInfo() : null;
+                arguments.value=firstInfo.value;
+//               arguments.value = (matcherList.size() > 0) ? matcherList.get(0).getInfo() : null;
                 arguments.value=firstInfo.value;
             }
             if (matcherFound != null) {
@@ -247,26 +326,27 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             return ret.entrySet();
         }
 
-        public class RTNode {
-            Finder _finder;
-            Finder.Info _info;
-            T _val;
+        public class RTNode extends NodeBase<T> {
+//            Finder _finder;
+//            T _val;
             List<RTNode> _children = new ArrayList<RTNode>();
-            int _rank; //rank -1 means the node was not inserted, but only used for structural purposes
+            int _rank=-1; //rank -1 means the node was not inserted, but only used for structural purposes
 
             //constructor for regular nodes with a Finder
             public RTNode(Finder finder, T val, int rank) {
-                _finder = finder;
-                _val = val;
+                super(finder,val);
+//                _finder = finder;
+//                _val = val;
                 _rank = rank;
                 _info=new Info();
             }
 
             //constructors for nodes without a Finder
             public RTNode(String key, T val) {
-                _finder = new RegexFinder(key);
-                _val = val;
-                _rank = -1;
+                super(new RegexFinder(key),val);
+//                _finder = new RegexFinder(key);
+//                _val = val;
+//                _rank = -1;
                 _info=new Info();
             }
 
@@ -400,11 +480,11 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
                 if (_children.size() == 0) {
                     return;
                 } else {
+                    Info firstInfo=new Info();
                     for (RTNode child : _children) {
-
                         boolean found;
-                        synchronized (child._finder) {
-                            found = child._finder.find(pattern, context, child._info);
+                        synchronized (child._finder) {      
+                            found = child._finder.find(pattern, context,firstInfo);
                         }
 
                         //check if child matches pattern
@@ -412,7 +492,18 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
                             if (child._rank != -1) {
                                 list.add(child);
                             }
-
+                            // if this node's info value is unset, set it to the result of the
+                            // lookup
+//                            if (child._info!=null && child._info.value==null) {
+                            if (child._info!=null) {
+                                // set the value to the result of the last find
+                                child._info.value=firstInfo.value;
+                            } else {
+                                // for some reason, child._info is null, so simply initialize it.
+                                child._info=new Info();
+                                // set the value to the result of the last find
+                                child._info.value=firstInfo.value;
+                            }
                             //check if child is the parent of node then enter that node
                             child.addToList(pattern, context, list);
                         }
@@ -455,13 +546,13 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
         }
     }
 
-    private static class StarPatternMap<T> {
+    private static class StarPatternMap<T>implements StorageInterfaceBase<T> {
         private Map<String, List<SPNode>> _spmap;
-        private int _size;
+        private int _size=0;
 
         public StarPatternMap() {
             _spmap = new HashMap<String, List<SPNode>>();
-            _size = 0;
+//            _size = 0;
         }
 
         public int size() {
@@ -496,7 +587,7 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             return null;
         }
 
-        public List<T> getAll(String pattern, Object context, List<Finder> matcherList, Info firstinfo) {
+        public List<T> getAll(String pattern, Object context, List<Finder> matcherList,Output<String[]> firstInfo) {
             List<SPNode> list = new ArrayList<SPNode>();
             List<T> retList = new ArrayList<T>();
 
@@ -506,8 +597,12 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
                 return retList;
             }
             for (SPNode cand : candidates) {
-                if (cand._finder.find(pattern, context, cand._info)) {
+                Info info=new Info();
+                if (cand._finder.find(pattern, context,info)) {
                     list.add(cand);
+                    if (firstInfo!=null) {
+                        firstInfo.value=info.value;
+                    }
                 }
             }
 
@@ -523,11 +618,11 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
 
         public T get(String pattern, Object context, Output<String[]> arguments, Output<Finder> matcherFound) {
             List<Finder> matcherList = new ArrayList<Finder>();
-            Info firstInfo=new Info();
-            List<T> matches = getAll(pattern, context, matcherList, firstInfo); //need to get whole list because we want value that was entered first
-            if (arguments != null) {
+            Output<String[]> firstInfo=new Output<>();
+            List<T> matches = getAll(pattern, context, matcherList,firstInfo); //need to get whole list because we want value that was entered first
+            if (arguments != null && firstInfo.value!=null) {
 //                arguments.value = (matcherList.size() > 0) ? matcherList.get(0).getInfo() : null;
-                arguments.value= firstInfo.value.length==0?null:firstInfo.value;
+                arguments.value=matcherList.isEmpty()? null: firstInfo.value;
             }
             if (matcherFound != null) {
                 matcherFound.value = (matcherList.size() > 0) ? matcherList.get(0) : null;
@@ -547,14 +642,19 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             return ret.entrySet();
         }
 
-        public class SPNode {
-            Info _info;
-            Finder _finder;
-            T _val;
+        /**
+         * A Node of a StarPatternMap
+         * @author ribnitz
+         *
+         */
+        public class SPNode extends NodeBase<T> {
+//            Finder _finder;
+//            T _val;
 
             public SPNode(Finder finder, T val) {
-                _finder = finder;
-                _val = val;
+//                _finder = finder;
+//                _val = val;
+                super(finder,val);
             }
 
             public String toString() {
@@ -562,7 +662,24 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             }
         }
     }
-
+    
+    /**
+     * The basic class of an information node, featuring a Finder, a value and an Info
+     * 
+     * @author ribnitz
+     *
+     * @param <T>
+     */
+    private static class NodeBase<T> {
+        Finder _finder;
+        T _val;
+        Info _info=new Info();
+        public NodeBase(Finder finder, T value) {
+            this._finder=finder;
+            this._val=value;
+        }
+    }
+    
     public static Transform<String, RegexFinder> RegexFinderTransform = new Transform<String, RegexFinder>() {
         public RegexFinder transform(String source) {
             return new RegexFinder(source);
@@ -630,13 +747,15 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
         Output<Finder> matcherFound, List<String> failures,Finder.Info firstInfo) {
 
         if (_lookupType == RegexLookup.LookupType.STAR_PATTERN_LOOKUP) {
-            T ret = SPEntries.get(source, context, arguments, matcherFound);
+         //   T ret = SPEntries.get(source, context, arguments, matcherFound);
+            T ret = storage.get(source, context, arguments, matcherFound);
             if (ret != null) {
                 return ret;
             }
 
             if (failures != null) {
-                for (Map.Entry<Finder, T> entry : SPEntries.entrySet()) {
+                for (Map.Entry<Finder, T> entry : storage.entrySet()) {
+//                for (Map.Entry<Finder, T> entry : SPEntries.entrySet()) {
                     Finder matcher = entry.getKey();
                     synchronized (matcher) {
                         int failPoint = matcher.getFailPoint(source);
@@ -647,13 +766,15 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
                 }
             }
         } else if (_lookupType == RegexLookup.LookupType.OPTIMIZED_DIRECTORY_PATTERN_LOOKUP) {
-            T ret = RTEntries.get(source, context, arguments, matcherFound);
+      //      T ret = RTEntries.get(source, context, arguments, matcherFound);
+            T ret = storage.get(source, context, arguments, matcherFound);
             if (ret != null) {
                 return ret;
             }
 
             if (failures != null) {
-                for (Map.Entry<Finder, T> entry : RTEntries.entrySet()) {
+                for (Map.Entry<Finder, T> entry : storage.entrySet()) {
+//                for (Map.Entry<Finder, T> entry : RTEntries.entrySet()) {
                     Finder matcher = entry.getKey();
                     synchronized (matcher) {
                         int failPoint = matcher.getFailPoint(source);
@@ -665,13 +786,14 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             }
         } else {
             //slow but versatile implementation
-            Info info=new Info();
             for (Map.Entry<Finder, T> entry : MEntries.entrySet()) {
                 Finder matcher = entry.getKey();
                 synchronized (matcher) {
-                    if (matcher.find(source, context, info)) {
-                        if (firstInfo != null) {
-                            firstInfo.value = info.value;
+                     firstInfo=new Info();
+                    if (matcher.find(source, context,firstInfo)) {
+                        if (arguments != null) {
+//                            arguments.value = matcher.getInfo();
+                            arguments.value=firstInfo.value;
                         }
                         if (matcherFound != null) {
                             matcherFound.value = matcher;
@@ -708,13 +830,16 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
      */
     public List<T> getAll(String source, Object context, List<Finder> matcherList, List<String> failures) {
         if (_lookupType == RegexLookup.LookupType.STAR_PATTERN_LOOKUP) {
-            List<T> matches = SPEntries.getAll(source, context, matcherList, null);
+            Output<String[]> firstInfo=new Output<>();
+//            List<T> matches = SPEntries.getAll(source, context, matcherList,firstInfo);
+            List<T> matches = storage.getAll(source, context, matcherList,firstInfo);
             if (matches != null) {
                 return matches;
             }
 
             if (failures != null) {
-                for (Map.Entry<Finder, T> entry : SPEntries.entrySet()) {
+                for (Map.Entry<Finder, T> entry : storage.entrySet()) {
+//                for (Map.Entry<Finder, T> entry : SPEntries.entrySet()) {
                     Finder matcher = entry.getKey();
                     synchronized (matcher) {
                         int failPoint = matcher.getFailPoint(source);
@@ -726,13 +851,16 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             }
             return null;
         } else if (_lookupType == RegexLookup.LookupType.OPTIMIZED_DIRECTORY_PATTERN_LOOKUP) {
-            List<T> matches = RTEntries.getAll(source, context, matcherList, null);
+            Output<String[]> info=new Output<>();
+//            List<T> matches = RTEntries.getAll(source, context, matcherList,info);
+            List<T> matches = storage.getAll(source, context, matcherList,info);
             if (matches != null) {
                 return matches;
             }
 
             if (failures != null) {
-                for (Map.Entry<Finder, T> entry : RTEntries.entrySet()) {
+                for (Map.Entry<Finder, T> entry : storage.entrySet()) {
+//                for (Map.Entry<Finder, T> entry : RTEntries.entrySet()) {
                     Finder matcher = entry.getKey();
                     synchronized (matcher) {
                         int failPoint = matcher.getFailPoint(source);
@@ -748,7 +876,8 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
             List<T> matches = new ArrayList<T>();
             for (Map.Entry<Finder, T> entry : MEntries.entrySet()) {
                 Finder matcher = entry.getKey();
-                if (matcher.find(source, context, null)) {
+                Info firstInfo=new Info();
+                if (matcher.find(source, context,firstInfo)) {
                     if (matcherList != null) {
                         matcherList.add(matcher);
                     }
@@ -776,10 +905,12 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
         Set<Map.Entry<Finder, T>> entrySet;
         switch (_lookupType) {
         case STAR_PATTERN_LOOKUP:
-            entrySet = SPEntries.entrySet();
+//            entrySet = SPEntries.entrySet();
+            entrySet= storage.entrySet();
             break;
         case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
-            entrySet = RTEntries.entrySet();
+//            entrySet = RTEntries.entrySet();
+            entrySet = storage.entrySet();
             break;
         default:
             entrySet = MEntries.entrySet();
@@ -912,12 +1043,15 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
 
         T old;
         switch (_lookupType) {
-        case STAR_PATTERN_LOOKUP:
-            old = SPEntries.get(pattern);
-            break;
+        case STAR_PATTERN_LOOKUP: // fallthrough
         case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
-            old = RTEntries.get(pattern);
+            old = storage.get(pattern);
+//            old = SPEntries.get(pattern);
             break;
+//        case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
+//            old = storage.get(pattern);
+//            old = RTEntries.get(pattern);
+//            break;
         default:
             old = MEntries.get(pattern);
             break;
@@ -925,12 +1059,15 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
 
         if (old == null) {
             switch (_lookupType) {
-            case STAR_PATTERN_LOOKUP:
-                SPEntries.put(pattern, target);
-                break;
+            case STAR_PATTERN_LOOKUP: // fallthrough
             case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
-                RTEntries.put(pattern, target);
+                storage.put(pattern, target);
+//                SPEntries.put(pattern, target);
                 break;
+//            case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
+//                storage.put(pattern, target);
+//                RTEntries.put(pattern, target);
+//                break;
             default:
                 MEntries.put(pattern, target);
                 break;
@@ -947,10 +1084,13 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
     @Override
     public Iterator<Map.Entry<Finder, T>> iterator() {
         switch (_lookupType) {
-        case STAR_PATTERN_LOOKUP:
-            return Collections.unmodifiableCollection(SPEntries.entrySet()).iterator();
+        case STAR_PATTERN_LOOKUP: // fall through
         case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
-            return Collections.unmodifiableCollection(RTEntries.entrySet()).iterator();
+//            return Collections.unmodifiableCollection(SPEntries.entrySet()).iterator();
+            return Collections.unmodifiableCollection(storage.entrySet()).iterator();
+//        case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
+//            return Collections.unmodifiableCollection(RTEntries.entrySet()).iterator();
+//            return Collections.unmodifiableCollection(storage.entrySet()).iterator();
         default:
             return Collections.unmodifiableCollection(MEntries.entrySet()).iterator();
         }
@@ -983,10 +1123,13 @@ public class RegexLookup<T> implements Iterable<Map.Entry<Finder, T>> {
      */
     public int size() {
         switch (_lookupType) {
-        case STAR_PATTERN_LOOKUP:
-            return SPEntries.size();
+        case STAR_PATTERN_LOOKUP:  // fall through
         case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
-            return RTEntries.size();
+//            return SPEntries.size();
+            return storage.size();
+//        case OPTIMIZED_DIRECTORY_PATTERN_LOOKUP:
+//            return storage.size();
+//            return RTEntries.size();
         default:
             return MEntries.size();
         }
