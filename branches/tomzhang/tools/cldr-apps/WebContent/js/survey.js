@@ -4437,16 +4437,56 @@ function showV() {
 			 * 'title' - override of menu name
 			 * @property specialItems
 			 */
-			var specialItems = [
-			    {divider: true}, // li class=nav-divider
-			    {title: 'Manage', url:'survey?do=options' }, //       <li><a href="<%= survURL  %>?do=options" target="_blank">Manage <span class="glyphicon glyphicon-share"></span></a></li>	            <li class="nav-divider"></li>
-			    {divider: true}, // li class=nav-divider
-				{name: "statistics"},
-				//{name: "search"},
-				{name: "vsummary", hidden: (surveyUser===null || !(surveyUserPerms.userCanUseVettingSummary))},
-				{name: "mail", hidden: (surveyOfficial==true || surveyUser===null)},
-				{title: "About", url: 'about.jsp?r='+surveyCurrev},
-			];
+			var specialItems = new Array();
+			if(surveyUser != null){
+				specialItems = [
+//				    {divider: true}, // li class=nav-divider
+//				    {title: 'Manage', url:'survey?do=options' }, 
+				    
+				    {divider: true},
+				    {title: 'My Account'},
+				  
+				    {title: 'My Account Settings', level: 2, url: surveyUserURL.myAccountSetting, display: surveyUserPerms.userExist },
+				    {title: 'Permanently disable my account!(account lock)', level: 2, url: surveyUserURL.disableMyAccount, display: surveyUserPerms.userExist },
+	
+				    {divider: true},
+				    {title: 'My Votes'},
+				  
+				    {title: 'Import my Old Votes(from CLDR ' + surveyOldVersion + ' and prior)', level: 2, url:surveyUserURL.importOldVotes, display: surveyUserPerms.userCanImportOldVotes },
+				    {title: 'See My Recent Activity', level: 2, url: surveyUserURL.recentActivity },
+				    {title: 'Upload an XML file as my votes(bulk upload)', level: 2, url: surveyUserURL.xmlUpload },
+	
+				    {divider: true},
+				    {title: 'My Organization('+organizationName+')'},
+				  
+				    {title: 'Priority Items Summary', level: 2, url: surveyUserURL.summary },
+				    {title: 'Manage Users', level: 2, url: surveyUserURL.manageUser, display: surveyUserPerms.useruserIsTC },
+				    {title: 'List '+org+' Users', level: 2, url: surveyUserURL.manageUser, display: surveyUserPerms.userIsVetter},
+				    {title: 'LOCKED: Note: your account is currently locked. Please contact ' + org + 's CLDR Technical Committee member.', level: 2,  display: surveyUserPerms.userIsLocked, bold: true},
+				    
+				    {title: '(The SurveyTool is in a read-only state, no changes may be made.)', level: 2,  display: surveyUserPerms.isPhaseReadonly },
+				    {title: '(Note: in the Vetting phase, you may not submit new data.)', level: 2,  display: surveyUserPerms.isPhaseVetting },
+				    {title: '(SurveyTool is closed to vetting and data submissions.)', level: 2,  display: surveyUserPerms.isPhaseClosed },
+				    
+				    {title: 'you have been granted extended privileges for the CLDR ' + surveyVersion +' vetting period.', level: 2,  display: surveyUserPerms.isPrivilegeExtended, bold: true},
+				    
+				    {divider: true},
+				    {title: 'Forum'},
+				  
+				    {title: 'View Flagged Entries', level: 2, url: surveyUserURL.flag, display: surveyUserPerms.hasFlag, img: surveyImgInfo.flag},
+				    {title: '(no flagged items)', level: 2, display: !surveyUserPerms.hasFlag, italic: true },
+				    {title: 'RSS 2.0', level: 2, url: surveyUserURL.RSS, img: surveyImgInfo.RSS},
+				    
+				    {divider: true},
+				    {title: 'Informational'},
+				  
+				    {title: 'Overall SurveyTool Statistics', level: 2, url: surveyUserURL.statistics, display: surveyUserPerms.hasDataSource },
+				    {title: 'About the SurveyTool Installation', level: 2, url: surveyUserURL.about, display: surveyUserPerms.hasDataSource },
+				    {title: 'Lookup a code or xpath', level: 2, url: surveyUserURL.browse, display: surveyUserPerms.hasDataSource },
+				    
+				    {divider: true}, 
+				];
+			}
 			if(!doPush) {doPush = false;}
 			replaceHash(doPush); // update the hash
 			updateLocaleMenu();
@@ -4477,30 +4517,60 @@ function showV() {
 					for(var k =0; k< specialItems.length; k++) {
 						var item = specialItems[k];
 						(function(item){
-							if(!item.name) {
-								item.name = 'unknown_'+k;
-							}
-							if(!item.title) {
-								item.title = stui.str('special_'+item.name);
-							}
-							if(!item.hidden) {
+							if(item.display != false) {
 								var subLi = document.createElement("li");
-								//subLi.id = "menu_special_"+item.name;
-								item.subLi = subLi;
+								if(item.url){	
+									var subA = document.createElement("a");
+									
+									if(item.img){ // forum may need images attached to it
+										var Img=document.createElement("img");
+										Img.setAttribute('src', item.img.src);
+										Img.setAttribute('alt', item.img.alt);
+										Img.setAttribute('title', item.img.src);
+										Img.setAttribute('border', item.img.border);
+										
+										subA.appendChild(Img);
+									}
+									subA.appendChild(document.createTextNode(item.title+' '));
+									subA.href = item.url;
+									subA.target = '_blank';
+									subA.appendChild(createChunk('','span','glyphicon glyphicon-share manage-list-icon'));
+	
+									if(item.level){ // append it to appropriate levels
+										var level = item.level;
+										for(var i=0; i< level-1; i++){
+											var sublevel = document.createElement("ul");
+											sublevel.appendChild(subA);
+											subA = sublevel;
+										}
+									}
+									subLi.appendChild(subA);
+								}
+								if(!item.url && !item.divider){ // if it is pure text/html & not a divider
+									if(!item.level){
+										subLi.appendChild(document.createTextNode(item.title+' '));
+									}else{
+										var subA = null;
+										if(item.bold){
+											subA = document.createElement("b");
+										}else if(item.italic){
+											subA = document.createElement("i");
+										}else{
+											subA = document.createElement("span");
+										}
+										subA.appendChild(document.createTextNode(item.title+' '));
+										
+										var level = item.level;
+										for(var i=0; i< level-1; i++){
+											var sublevel = document.createElement("ul");
+											sublevel.appendChild(subA);
+											subA = sublevel;
+										}
+										subLi.appendChild(subA);
+									}
+								}
 								if(item.divider) {
 									subLi.className = 'nav-divider';
-								} else {
-									var subA = document.createElement("a");
-									item.subA = subA;
-									subA.appendChild(document.createTextNode(item.title+' '));
-									subLi.appendChild(subA);
-									if(item.url) {
-										subA.href = item.url;
-										subA.target = '_blank';
-										subA.appendChild(createChunk('','span','glyphicon glyphicon-share manage-list-icon'));
-									} else {
-										subA.href = '#'+item.name; // for now
-									}
 								}
 								parMenu.appendChild(subLi);
 							}
