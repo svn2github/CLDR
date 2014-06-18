@@ -4513,7 +4513,7 @@ function showV() {
 						(function(item){
 							if(item.display != false) {
 								var subLi = document.createElement("li");
-								if(item.special){
+								if(item.special){ // special items so look up in stui.js
 									item.title = stui.str('special_' + item.special);
 									item.url = '#' + item.special;
 									item.blank = false;
