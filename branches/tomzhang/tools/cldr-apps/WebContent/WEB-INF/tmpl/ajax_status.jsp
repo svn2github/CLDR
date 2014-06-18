@@ -104,50 +104,36 @@ var org = '<%= myUser.org %>';
 
 var surveyUserPerms = {
 		userExist: (surveyUser != null),
-        
         userCanImportOldVotes: <%= myUser.canImportOldVotes() %>,
-
         userCanUseVettingSummary: <%= UserRegistry.userCanUseVettingSummary(myUser) %>,
-        
         userIsTC: <%=UserRegistry.userIsTC(myUser) %>,
         userIsVetter: <%= !UserRegistry.userIsTC(myUser) && UserRegistry.userIsVetter(myUser)%>,
         userIsLocked: <%= !UserRegistry.userIsTC(myUser) && !UserRegistry.userIsVetter(myUser) && !UserRegistry.userIsLocked(myUser)%>,
         
-        isPhaseReadonly: <%=SurveyMain.isPhaseReadonly() %>,
-        isPhaseVetting: <%=!SurveyMain.isPhaseVetting() && UserRegistry.userIsStreet(myUser) && !UserRegistry.userIsExpert(myUser) %>,
-        isPhaseClosed: <%= !SurveyMain.isPhaseReadonly() 
-        		        && !(!SurveyMain.isPhaseVetting() && UserRegistry.userIsStreet(myUser) && !UserRegistry.userIsExpert(myUser))
-        		        && SurveyMain.isPhaseClosed() && !UserRegistry.userIsTC(myUser) %>,
-        isPrivilegeExtended: <%= (mySession != null) && (myUser != null) && SurveyMain.isPhaseVettingClosed() && myUser.userIsSpecialForCLDR15(null) %>,
-
         hasFlag: <%= (mySession != null) && (myUser != null) && UserRegistry.userIsTC(myUser) && curSurveyMain.getSTFactory().haveFlags()%>,
-        
         hasDataSource: <%= curSurveyMain.dbUtils.hasDataSource() %>,
 };
 var surveyUserURL = {
         myAccountSetting: "survey?do=listu",
         disableMyAccount: "lock.jsp?email='+userEmail"+userEmail,
 
-        importOldVotes: "v#oldvotes",
         recentActivity: "myvotes.jsp?user="+userID+"&s="+surveySessionId,
         xmlUpload: "upload.jsp?a=/cldr-apps/survey&s="+surveySessionId,
         
-        summary: "#vsummary",
         manageUser: "survey?do=list",
 
         flag: "tc-flagged.jsp?s="+surveySessionId,
         RSS: "survey/feed?email=" + userEmail + "&pw=" + userPWD+ "&&feed=rss_2.0",
-        		
-        statistics: "statistics.jsp",
+                
         about: "about.jsp",
         browse: "browse.jsp",
 };
 var surveyImgInfo = {
         flag: { 
-        	src: "flag.png",
-        	alt: "flag",
-        	title: "flag",
-        	border: 0,
+            src: "flag.png",
+            alt: "flag",
+            title: "flag",
+            border: 0,
         },
         RSS: {
             src: "/cldr-apps/feed.png",
@@ -155,7 +141,6 @@ var surveyImgInfo = {
             title: "RSS 2.0",
             border: 0,
         }
-        		
 };
 <% } else { %>
 var surveyUser=null;

@@ -4444,44 +4444,38 @@ function showV() {
 //				    {title: 'Manage', url:'survey?do=options' }, 
 				    
 				    {divider: true},
-				    {title: 'My Account'},
+				    {title: 'My Account'}, // My Account section 
 				  
-				    {title: 'My Account Settings', level: 2, url: surveyUserURL.myAccountSetting, display: surveyUserPerms.userExist },
-				    {title: 'Permanently disable my account!(account lock)', level: 2, url: surveyUserURL.disableMyAccount, display: surveyUserPerms.userExist },
+				    {title: 'Settings', level: 2, url: surveyUserURL.myAccountSetting, display: surveyUserPerms.userExist },
+				    {title: 'Lock (Disable) My Account', level: 2, url: surveyUserURL.disableMyAccount, display: surveyUserPerms.userExist },
 	
 				    {divider: true},
-				    {title: 'My Votes'},
+				    {title: 'My Votes'}, // My Votes section 
 				  
-				    {title: 'Import my Old Votes(from CLDR ' + surveyOldVersion + ' and prior)', level: 2, url:surveyUserURL.importOldVotes, display: surveyUserPerms.userCanImportOldVotes },
+				    {special: 'oldvotes', level: 2, display: surveyUserPerms.userCanImportOldVotes },
 				    {title: 'See My Recent Activity', level: 2, url: surveyUserURL.recentActivity },
-				    {title: 'Upload an XML file as my votes(bulk upload)', level: 2, url: surveyUserURL.xmlUpload },
+				    {title: 'Upload XML', level: 2, url: surveyUserURL.xmlUpload },
 	
 				    {divider: true},
-				    {title: 'My Organization('+organizationName+')'},
+				    {title: 'My Organization('+organizationName+')'}, // My Organization section
 				  
-				    {title: 'Priority Items Summary', level: 2, url: surveyUserURL.summary },
-				    {title: 'Manage Users', level: 2, url: surveyUserURL.manageUser, display: surveyUserPerms.useruserIsTC },
-				    {title: 'List '+org+' Users', level: 2, url: surveyUserURL.manageUser, display: surveyUserPerms.userIsVetter},
-				    {title: 'LOCKED: Note: your account is currently locked. Please contact ' + org + 's CLDR Technical Committee member.', level: 2,  display: surveyUserPerms.userIsLocked, bold: true},
-				    
-				    {title: '(The SurveyTool is in a read-only state, no changes may be made.)', level: 2,  display: surveyUserPerms.isPhaseReadonly },
-				    {title: '(Note: in the Vetting phase, you may not submit new data.)', level: 2,  display: surveyUserPerms.isPhaseVetting },
-				    {title: '(SurveyTool is closed to vetting and data submissions.)', level: 2,  display: surveyUserPerms.isPhaseClosed },
-				    
-				    {title: 'you have been granted extended privileges for the CLDR ' + surveyVersion +' vetting period.', level: 2,  display: surveyUserPerms.isPrivilegeExtended, bold: true},
+				    {special: 'vsummary', level: 2 },
+				    {title: 'List ' + org + ' Users', level: 2, url: surveyUserURL.manageUser, display: (surveyUserPerms.userIsTC || surveyUserPerms.userIsVetter) },
+				    {title: 'LOCKED: Note: your account is currently locked.', level: 2,  display: surveyUserPerms.userIsLocked, bold: true},
 				    
 				    {divider: true},
-				    {title: 'Forum'},
+				    {title: 'Forum'}, // Forum section
 				  
 				    {title: 'View Flagged Entries', level: 2, url: surveyUserURL.flag, display: surveyUserPerms.hasFlag, img: surveyImgInfo.flag},
 				    {title: '(no flagged items)', level: 2, display: !surveyUserPerms.hasFlag, italic: true },
 				    {title: 'RSS 2.0', level: 2, url: surveyUserURL.RSS, img: surveyImgInfo.RSS},
+				    {special: 'mail', level: 2, display: !surveyOfficial },
 				    
 				    {divider: true},
-				    {title: 'Informational'},
+				    {title: 'Informational'}, // Informational section
 				  
-				    {title: 'Overall SurveyTool Statistics', level: 2, url: surveyUserURL.statistics, display: surveyUserPerms.hasDataSource },
-				    {title: 'About the SurveyTool Installation', level: 2, url: surveyUserURL.about, display: surveyUserPerms.hasDataSource },
+				    {special: 'statistics', level: 2 },
+				    {title: 'About', level: 2, url: surveyUserURL.about },
 				    {title: 'Lookup a code or xpath', level: 2, url: surveyUserURL.browse, display: surveyUserPerms.hasDataSource },
 				    
 				    {divider: true}, 
@@ -4519,6 +4513,11 @@ function showV() {
 						(function(item){
 							if(item.display != false) {
 								var subLi = document.createElement("li");
+								if(item.special){
+									item.title = stui.str('special_' + item.special);
+									item.url = '#' + item.special;
+									item.blank = false;
+								}
 								if(item.url){	
 									var subA = document.createElement("a");
 									
@@ -4533,9 +4532,12 @@ function showV() {
 									}
 									subA.appendChild(document.createTextNode(item.title+' '));
 									subA.href = item.url;
-									subA.target = '_blank';
-									subA.appendChild(createChunk('','span','glyphicon glyphicon-share manage-list-icon'));
-	
+									
+									if(item.blank != false){
+										subA.target = '_blank';
+										subA.appendChild(createChunk('','span','glyphicon glyphicon-share manage-list-icon'));
+									}
+								
 									if(item.level){ // append it to appropriate levels
 										var level = item.level;
 										for(var i=0; i< level-1; i++){
