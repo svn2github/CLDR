@@ -103,7 +103,7 @@ var organizationName = '<%= myUser.getOrganization().getDisplayName() %>';
 var org = '<%= myUser.org %>';
 
 var surveyUserPerms = {
-	    userExist: (surveyUser != null),
+		userExist: (surveyUser != null),
         userCanImportOldVotes: <%= myUser.canImportOldVotes() %>,
         userCanUseVettingSummary: <%= UserRegistry.userCanUseVettingSummary(myUser) %>,
         userIsTC: <%=UserRegistry.userIsTC(myUser) %>,
