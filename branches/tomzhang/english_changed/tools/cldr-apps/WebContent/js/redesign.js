@@ -55,6 +55,7 @@ $(function() {
     resizeSidebar();
     
     $('body').on('click', '.toggle-right', toggleRightPanel);
+    $('body').on('click', '.toggle-lr', toggleLRDirection);
     $('.tip-log').tooltip({placement:'bottom'});
     $('body').keydown(function(event) {
     	if($(':focus').length === 0) {
@@ -543,7 +544,9 @@ function initFeedBack() {
 
 
 function toggleRightPanel() {
+	console.log("toggle right1 now!!");
 	var main = $('#main-row > .col-md-9');
+	console.log(main);
 	if(!main.length) {
 		showRightPanel();
 	}
@@ -566,6 +569,44 @@ function hideRightPanel() {
 	$('#main-row #itemInfo').hide();
 }
 
+function toggleLRDirection(){
+
+	var dirDefault = locInfo(surveyCurrentLocale).dir;
+	//var originaldir = info.dir;
+	console.log("orignial dir : " + dirDefault);
+	
+//	console.log("toggle LR 22!!");
+//	var winning = $('#proposedcell');
+//	winning.css("background-color", "red");
+//	winning.attr('dir', 'ltr');
+//	console.log(winning);
+	
+//	var test = $('#DynamicDataSection #proposedcell, #DynamicDataSection .choice-field > .subSpan > span, #DynamicDataSection #othercell');
+	var cells = $('#DynamicDataSection #proposedcell, #DynamicDataSection #othercell, #DynamicDataSection .choice-field > .subSpan > span');
+	var dir = cells.attr('dir');
+
+	var dirReverse = (dir == 'ltr' ? 'rtl' : 'ltr');
+	cells.attr('dir', dirReverse);
+//	if(dir == 'ltr') cells.attr('dir', 'rtl');
+//	else cells.attr('dir', 'ltr');
+	
+	var items = $('#DynamicDataSection .choice-field > .subSpan > span');
+	var toDefault = "";
+	if(dir == dirDefault) { 
+		items.css('background-color', 'yellow');
+		toDefault = "(Default)";
+	} else { 
+		items.css('background-color', 'transparent');
+	}
+	
+//	var button = $('.toggle-lr .ui-button-text');
+	var button = $('.toggle-lr');
+	button.text('LR Direction to ' + dir.toUpperCase() + toDefault);
+//	console.log(button);
+//	console.log("buttonText: " + button.innerHTML + " content " + button.text + " value " + button.value);
+//	button.innerHTML('Change LR Direction to ' + dirReverse);
+	
+}
 
 
 function toggleHeader() {

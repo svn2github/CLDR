@@ -259,6 +259,7 @@ Flipper.prototype.addUntilFlipped = function addUntilFlipped(showFn, killFn) {
  * @param aLocmap the map object from json
  */
 function LocaleMap(aLocmap) {
+	console.log(aLocmap);
 	this.locmap = aLocmap;
 }
 
@@ -4094,9 +4095,15 @@ function locInfo(loc) {
 	return locmap.getLocaleInfo(loc);
 }
 
+var a = 0;
 function setLang(node, loc) {
 	var info = locInfo(loc);
-	
+	if(a == 0){
+
+		console.log("int setLang");
+		console.log(info);
+		a++
+	}
 	if(info.dir) {
 		node.dir = info.dir;
 	}
@@ -5385,6 +5392,11 @@ function showV() {
 
 					} else {
 						// (common case) this is an actual locale data page.
+//						var button = $('.toggle-lr');
+//						var dirDefault = locInfo(surveyCurrentLocale).dir;
+//						var dirReverse = (dirDefault == 'ltr' ? 'rtl' : 'ltr');
+//						button.text('Change LR Direction to ' + dirReverse.toUpperCase());
+						
 						itemLoadInfo.appendChild(document.createTextNode(locmap.getLocaleName(surveyCurrentLocale) + '/' + surveyCurrentPage + '/' + surveyCurrentId));
 						var url = contextPath + "/RefreshRow.jsp?json=t&_="+surveyCurrentLocale+"&s="+surveySessionId+"&x="+surveyCurrentPage+"&strid="+surveyCurrentId+cacheKill();
 						$('#nav-page').show();

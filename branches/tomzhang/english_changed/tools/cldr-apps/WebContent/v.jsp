@@ -379,7 +379,8 @@ surveyUser =  <%= ctx.session.user.toJSONString() %>;
 				  <button type="button" class="btn btn-primary btn-xs" onclick='chgPage(-1)'><span class='glyphicon glyphicon-arrow-left'></span> Previous</button>
 				  <button type="button" class="btn btn-primary btn-xs" onclick='chgPage(1)'>Next <span class='glyphicon glyphicon-arrow-right'></span></button>
 				  <button type="button" class="btn btn-default btn-xs toggle-right">Toggle Sidebar <span class="glyphicon glyphicon-align-right"></span></button>
-				
+				  <button type="button" class="btn btn-default btn-xs toggle-lr">Toggle LRT Dir</button>
+                
 				</p>
 		 
 			    	<div class="progress nav-progress">
