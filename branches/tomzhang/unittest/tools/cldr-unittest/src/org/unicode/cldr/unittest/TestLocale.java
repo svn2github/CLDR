@@ -52,9 +52,9 @@ public class TestLocale extends TestFmwkPlus {
     static String XPATH_ALIAS_STRING = "//alias";
 
     public void TestLanguageRegions() {
-        if (logKnownIssue("Cldrbug:6114", "Language tags need to be canonicalized")) {
-            return;
-        }
+//        if (logKnownIssue("Cldrbug:6114", "Language tags need to be canonicalized")) {
+//            return;
+//        }
         LikelySubtags ls = new LikelySubtags();
         Set<String> missingLanguageRegion = new LinkedHashSet();
         Set<String> extraLanguageScript = new LinkedHashSet();

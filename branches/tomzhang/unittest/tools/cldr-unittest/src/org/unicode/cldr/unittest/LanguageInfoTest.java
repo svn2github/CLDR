@@ -33,7 +33,8 @@ public class LanguageInfoTest extends TestFmwk {
                 + "\t" + item.get1() + "\t" + getName(item.get1())
                 + "\t" + item.get2()
                 + "\t" + item.get3());
-            if (item.get2() == 10) {
+            if (item.get2() == 30) {
+//            	System.out.println(item.get0());
                 FALLBACKS.put(new ULocale(item.get0()), new ULocale(item.get1()));
             }
         }
@@ -76,14 +77,16 @@ public class LanguageInfoTest extends TestFmwk {
     }
 
     public void testFallbacks() {
-        if (logKnownIssue("Cldrbug:7133", "Problems with LocaleMatcher fallback test.")) {
-            return;
-        }
+//        if (logKnownIssue("Cldrbug:7133", "Problems with LocaleMatcher fallback test.")) {
+//            return;
+//        }
         Builder priorities = LocalePriorityList.add(new ULocale("mul")); // the default
         for (ULocale supported : new LinkedHashSet<>(FALLBACKS.values())) {
             priorities.add(supported);
         }
-        final LocaleMatcher matcher = new LocaleMatcher(priorities.build(), data);
+//        final LocaleMatcher matcher = new LocaleMatcher(priorities.build(), data, -1);
+//        final LocaleMatcher matcher = new LocaleMatcher(priorities.build(), data);
+        final LocaleMatcher matcher = new LocaleMatcher(priorities.build(), data, 0.001);
         logln(matcher.toString());
         for (Entry<ULocale, ULocale> entry : FALLBACKS.entrySet()) {
             ULocale bestMatch = matcher.getBestMatch(entry.getKey());

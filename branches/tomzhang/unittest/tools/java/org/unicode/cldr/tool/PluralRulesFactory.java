@@ -255,6 +255,7 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
         }
         for (String[] row : ORDINAL_SAMPLES) {
             ULocale locale = new ULocale(row[0]);
+//            System.out.println(" SUPPLE info : " + supplementalDataInfo.directory + " row " + row);
             PluralInfo pluralInfo = supplementalDataInfo
                 .getPlurals(SupplementalDataInfo.PluralType.ordinal, row[0]);
             if (pluralInfo == null) {
@@ -273,6 +274,7 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
             if (samplePatterns == null) {
                 temp.put(locale, samplePatterns = new SamplePatterns());
             }
+//            System.out.println("locale " + locale + " count " + count + " sample " + sample);
             // { "af", "one", "{0} dag" },
             samplePatterns.put(locale, PluralType.ORDINAL, count, sample);
             //System.out.println("*Adding ordinal sample:\t" + locale + "\t" + count + "\t" + sample + "\t" + integerValue);
@@ -389,6 +391,8 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
     //    };
 
     static String[][] SAMPLE_PATTERNS = {
+        { "ach", "other", "{0} ADD-SAMPLE-ZERO" },
+        { "be", "other", "{0} ADD-SAMPLE-ZERO" },
         { "und", "zero", "{0} ADD-SAMPLE-ZERO" },
         { "und", "one", "{0} ADD-SAMPLE-ONE" },
         { "und", "two", "{0} ADD-SAMPLE-TWO" },
@@ -401,22 +405,22 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
         { "am", "other", "{0} ቀናት" }, // fixed to 'other'
         { "ar", "few", "{0} كتب" },
         { "ar", "many", "{0} كتابًا" },
-        { "ar", "one", "كتاب" },
+        { "ar", "one", "123 كتاب" },
         { "ar", "other", "{0} كتاب" },
         { "ar", "two", "كتابان" },
-        { "ar", "zero", "{0} كتاب" },
+        { "ar", "zero", "{0} كتاب 123" },
         { "az", "one", "Alış-veriş katınızda {0} X var. Almaq istəyirsiniz?" },
         { "az", "other", "Alış-veriş kartınızda {0} X var. Almaq istəyirsiniz?" },
         { "ast", "one", "{0} día" },
         { "ast", "other", "{0} díes" },
         { "bg", "one", "{0} ден" },
         { "bg", "other", "{0} дена" },
-        { "bn", "one", "সসে {0}টি আপেল খেল" },
+        { "bn", "one", "সসে {0}টি আপেল খেল 123" },
         { "bn", "other", "সসে {0}টি আপেল খেল" },
-        { "br", "few", "{0} deiz" },
+        { "br", "few", "{0} deiz 43" },
         { "br", "many", "{0} a zeizioù" },
-        { "br", "one", "{0} deiz" },
-        { "br", "other", "{0} deiz" },
+        { "br", "one", "{0} deiz 2" },
+        { "br", "other", "{0} deiz3"  },
         { "br", "two", "{0} zeiz" },
         { "bs", "few", "za {0} mjeseca" },
         { "bs", "many", "za {0} mjeseci" },
@@ -664,6 +668,7 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
             "many: f is not 0" },
     };
     static String[][] ORDINAL_SAMPLES = {
+        { "ast", "this is right{0} ", "other" },
         { "af", "Neem die {0}e afdraai na regs.", "1" },
         { "am", "በቀኝ በኩል ባለው በ{0}ኛው መታጠፊያ ግባ።", "1" },
         { "ar", "اتجه إلى المنعطف الـ {0} يمينًا.", "1" },
@@ -772,7 +777,7 @@ public abstract class PluralRulesFactory extends PluralRules.Factory {
         { "uk", "Поверніть праворуч на {0}-му повороті.", "1" },
         { "ur", "دایاں موڑ نمبر {0} مڑیں۔", "1" },
         { "uz", "{0}chi chorraxada o'ngga buriling.", "1" },
-        { "vi", "Rẽ vào lối rẽ thứ {0} bên phải.", "1" },
+        { "vi", "Rẽ vào lối rẽ thứ {0} bên phải. 2", "1" },
         { "vi", "Rẽ vào lối rẽ thứ {0} bên phải.", "2" },
         { "zh_Hant", "在第 {0} 個路口右轉。", "1" },
         { "zu", "Thatha indlela ejikela kwesokudla engu-{0}", "other" },

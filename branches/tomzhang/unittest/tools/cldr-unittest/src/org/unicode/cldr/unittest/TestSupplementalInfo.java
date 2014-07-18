@@ -182,6 +182,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
             for (Count start : counts) {
                 for (Count end : counts) {
                     boolean needsValue = pluralInfo.rangeExists(start, end, minSample, maxSample);
+//                    needsValue = true;
                     Count explicitValue = pluralRanges.getExplicit(start, end);
                     if (needsValue && explicitValue == null) {
                         ignoreErrln(locale + "\tNeeds value, but has none: " + PluralRanges.showRange(start, end, Count.other)
@@ -195,11 +196,11 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     }
 
     public void ignoreErrln(String s) {
-        if (logKnownIssue("Cldrbug:7137", "Missing/extra plural ranges")) {
-            logln(s);
-        } else {
+//        if (logKnownIssue("Cldrbug:7137", "Missing/extra plural ranges")) {
+//            logln(s);
+//        } else {
             errln(s);
-        }
+//        }
     }
 
     public void TestPluralSamples() {
@@ -216,6 +217,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
     }
 
     public void TestPluralSamples2() {
+    	System.out.println("TEST PLURAL S2");
         PluralRulesFactory prf = PluralRulesFactory.getInstance(SUPPLEMENTAL);
         for (ULocale locale : prf.getLocales()) {
             if (locale.toString().equals("und")) {
@@ -228,20 +230,22 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                         locale.toString());
                 for (Count count : rules.getCounts()) {
                     String sample = samplePatterns.get(type, count);
-                    if (sample == null) {
-                        if (type == PluralRules.PluralType.ORDINAL
-                                && logKnownIssue("cldrbug:7075", "Missing ordinal minimal pairs")) {
-                            continue;
-                        }
-                        assertNotNull("Missing sample for " + locale + ", " + type + ", " + count, sample);
-                    } else {
+//                    if (sample == null) {
+//                        if (type == PluralRules.PluralType.ORDINAL
+//                                && logKnownIssue("c1ldrbug:7075", "Missing ordinal minimal pairs")) {
+//                            continue;
+//                        }
+//                        assertNotNull("Missing sample for " + locale + ", " + type + ", " + count, sample);
+//                    } else {
+//                    System.out.println("sample " + sample + " locale: " + locale + " type " + 
+//                    		type + " count " + count + " sample " + sample);
                         PluralRules pRules = rules.getPluralRules();
                         double unique = pRules.getUniqueKeywordValue(count.toString());
-                        if (unique == PluralRules.NO_UNIQUE_VALUE
-                                && !sample.contains("{0}")) {
+                        if ( sample == null || (unique == PluralRules.NO_UNIQUE_VALUE
+                                 && !sample.contains("{0}")) ) {
                             errln("Missing {0} in sample: " + locale + ", " + type + ", " + count
                                     + " «" + sample + "»");
-                        }
+//                        }
                     }
                 }
             }
@@ -1291,7 +1295,7 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                 //                if (counts.size() == 1) {
                 //                    continue; // skip checking samples
                 //                }
-                HashSet<String> samples = new HashSet<String>();
+//                HashSet<String> samples = new HashSet<String>();
                 EnumSet<Count> countsWithNoSamples = EnumSet.noneOf(Count.class);
                 Relation<String, Count> samplesToCounts = Relation.of(new HashMap(), LinkedHashSet.class);
                 Set<Count> countsFound = prf.getSampleCounts(ulocale, type.standardType);
@@ -1300,16 +1304,22 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     if (countsFound == null || !countsFound.contains(count)) {
                         countsWithNoSamples.add(count);
                     } else {
+//                    		System.out.println(locale + " pattern " +  pattern + " type " + type+ " count " + count);
+                    	
                         samplesToCounts.put(pattern, count);
                         logln(ulocale + "\t" + type + "\t" + count + "\t" + pattern);
                     }
                 }
-                if (!countsWithNoSamples.isEmpty() && (type == PluralType.cardinal || !logKnownIssue("cldrbug:7075","Missing ordinal minimal pairs"))) {
+                if (!countsWithNoSamples.isEmpty() && (type == PluralType.cardinal )){ //|| !logKnownIssue("c1ldrbug:7075","Missing ordinal minimal pairs"))) {
                     errOrLog(needsCoverage, ulocale + "\t" + type + "\t missing samples: " + countsWithNoSamples);
                 }
                 for (Entry<String, Set<Count>> entry : samplesToCounts.keyValuesSet()) {
-                    if (entry.getValue().size() != 1 && !logKnownIssue("cldrbug:7119","Some duplicate minimal pairs")) {
-                        errOrLog(needsCoverage, ulocale + "\t" + type
+//                    System.out.println(entry.getValue() + " size: " + entry.getValue().size());
+                    if (entry.getValue().size() != 1 ){//&& !logKnownIssue("c1ldrbug:7119","Some duplicate minimal pairs")) {
+
+//                    	System.out.println(SUPPLEMENTAL);
+                    	System.out.println("Locale " + locale + " value " + entry.getValue() + " size: " + entry.getValue().size());
+                    	errOrLog(needsCoverage, ulocale + "\t" + type
                                 + "\t duplicate samples: " + entry.getValue()
                                 + " => «" + entry.getKey() + "»");
                     }
@@ -1373,9 +1383,9 @@ public class TestSupplementalInfo extends TestFmwkPlus {
                     max = Math.max(max, range.dateRange.to);
                 }
                 assertRelation(timezone + " has metazone from 1970?", true, goalMin, GEQ, new Date(min));
-                if (!logKnownIssue("cldrbug:7317", "Check for missing metazones")) {
+                //if (!logKnownIssue("c1ldrbug:7317", "Check for missing metazones")) {
                     assertRelation(timezone + " has metazone until way in the future?", true, goalMax, LEQ, new Date(max));
-                }
+                //}
             }
         }
         com.google.common.collect.Interners i;

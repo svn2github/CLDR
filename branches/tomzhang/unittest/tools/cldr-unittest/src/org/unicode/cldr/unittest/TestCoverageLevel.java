@@ -357,9 +357,9 @@ public class TestCoverageLevel extends TestFmwk {
         );
 
     public void TestEnglishModern() {
-        if (logKnownIssue("Cldrbug:7135", "Problems with TestCoverageLevel test")) {
-            return;
-        }
+//        if (logKnownIssue("Cldrbug:7135", "Problems with TestCoverageLevel test")) {
+//            return;
+//        }
         SupplementalDataInfo sdi = testInfo.getSupplementalDataInfo();
         Factory phf = PathHeader.getFactory(testInfo.getEnglish());
         Relation<Row.R3, String> bad = Relation.of(new TreeMap<Row.R3, Set<String>>(), TreeSet.class);
@@ -375,15 +375,19 @@ public class TestCoverageLevel extends TestFmwk {
             R3<SectionId, PageId, String> row = Row.of(section, page, header);
             all.put(row, code);
             Level coverageLevel = sdi.getCoverageLevel(path, "en");
-
-            if (coverageLevel.compareTo(Level.COMPREHENSIVE) <= 0) {
+            
+//            System.out.println("path : " +  path + " header: " + header + " @@@page " + page + " ###code: " + code);
+            
+            if (coverageLevel.compareTo(Level.COMPREHENSIVE) >= 0) {
                 continue;
             }
 
             if (SKIP_PAGE_OK.contains(page)) {
+            	System.out.println("Skilled: " + page);
                 continue;
             }
             if (header.equals("Alias")) {
+            	System.out.println("ALIAS!!");
                 continue;
             }
             switch (page) {
@@ -400,6 +404,7 @@ public class TestCoverageLevel extends TestFmwk {
                 }
                 break;
             case Number_Formatting_Patterns:
+            	System.out.println("NumberFormat Pattern Header: " + header);
                 if ((header.startsWith("Currency Spacing when")
                     || header.startsWith("Standard Patterns when using")
                     || header.startsWith("Miscellaneous Patterns when")
@@ -419,6 +424,7 @@ public class TestCoverageLevel extends TestFmwk {
             }
 
             if (testInfo.getSupplementalDataInfo().hasDeprecatedItem("ldml", parts.set(path))) {
+            	System.out.println("deprecated ITE!!");
                 continue;
             }
 

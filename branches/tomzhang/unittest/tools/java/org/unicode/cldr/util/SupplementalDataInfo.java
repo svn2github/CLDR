@@ -913,7 +913,7 @@ public class SupplementalDataInfo {
     /**
      * Which directory did we come from?
      */
-    final private File directory;
+    public final File directory;
 
     /**
      * Get an instance chosen using setAsDefaultInstance(), otherwise return an instance using the default directory
@@ -3415,11 +3415,13 @@ public class SupplementalDataInfo {
         public static final FixedDecimal POSITIVE_INFINITY = new FixedDecimal(Double.POSITIVE_INFINITY, 0, 0);
 
         static double doubleValue(FixedDecimal a) {
-            return a.isNegative ? -a.doubleValue() : a.doubleValue();
+//            return a.isNegative ? -a.doubleValue() : a.doubleValue();
+            return a.doubleValue();
         }
 
         public boolean rangeExists(Count s, Count e, Output<FixedDecimal> minSample, Output<FixedDecimal> maxSample) {
             if (!getCounts().contains(s) || !getCounts().contains(e)) {
+                System.out.println("1st false?");
                 return false;
             }
             FixedDecimal temp;
@@ -3433,8 +3435,18 @@ public class SupplementalDataInfo {
             if (greaterOrFewerDecimals(temp, maxSample.value)) {
                 maxSample.value = temp;
             }
+            if(doubleValue(minSample.value) < doubleValue(maxSample.value)){
+//                System.out.println(" IT IS LESS!!!");
+            }
+
             // if there is no range, just return
+//            if (doubleValue(minSample.value) >= doubleValue(maxSample.value)) 
             if (doubleValue(minSample.value) >= doubleValue(maxSample.value)) {
+//         System.out.println(" neg infi " + (POSITIVE_INFINITY == NEGATIVE_INFINITY) 
+//             + " pos infi " + (POSITIVE_INFINITY == POSITIVE_INFINITY));
+//         System.out.println("IT is this false S: " + s + " e: " + e + 
+//                    " Min: " + (Double.POSITIVE_INFINITY == doubleValue(minSample.value)) 
+//                    + " MAX: " + (Double.POSITIVE_INFINITY == doubleValue(maxSample.value)));
                 return false;
             }
             // see if we can get a better range, with not such a large end range
@@ -3471,12 +3483,17 @@ public class SupplementalDataInfo {
             if (sSamples1 != null) {
                 for (FixedDecimalRange x : sSamples1.samples) {
                     // overlap in ranges??
-                    if (doubleValue(x.start) > doubleValue(max)
-                        || doubleValue(x.end) < doubleValue(min)) {
+//                    System.out.println("x start " + doubleValue(x.start) + " max value " + doubleValue(max) + 
+//                        " less than " + (doubleValue(x.start) < doubleValue(max)));
+                    if (doubleValue(x.start) > doubleValue(max) ) {
+                        continue;
+                    }else if(doubleValue(x.end) < doubleValue(min)) {
+//                        System.out.println("x end " + doubleValue(x.end) + " min value " + doubleValue(min) + 
+//                            " less than " + (doubleValue(x.end) < doubleValue(min)));
                         continue; // no, continue
                     }
                     // get restricted range
-                    FixedDecimal minOverlap = greaterOrFewerDecimals(min, x.start) ? max : x.start;
+                    FixedDecimal minOverlap = greaterOrFewerDecimals(min, x.start) ? min : x.start;
                     //FixedDecimal maxOverlap = lessOrFewerDecimals(max, x.end) ? max : x.end;
 
                     // replace if better
@@ -3844,10 +3861,12 @@ public class SupplementalDataInfo {
      */
     public boolean hasDeprecatedItem(String type, XPathParts parts) {
         Map<String, Relation<String, String>> badStarElements2Attributes2Values = deprecated.get(STAR);
+        System.out.println(badStarElements2Attributes2Values);
         if (matchesBad(parts, badStarElements2Attributes2Values)) {
             return true;
         }
         Map<String, Relation<String, String>> badElements2Attributes2Values = deprecated.get(type);
+        System.out.println(badElements2Attributes2Values);
         if (matchesBad(parts, badElements2Attributes2Values)) {
             return true;
         }

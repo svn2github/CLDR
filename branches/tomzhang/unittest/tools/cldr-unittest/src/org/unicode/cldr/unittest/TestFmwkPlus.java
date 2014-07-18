@@ -303,7 +303,7 @@ public class TestFmwkPlus extends TestFmwk {
         }
     };
 
-    private String sourceLocation() {
+    public static String sourceLocation() {
         // Walk up the stack to the first call site outside this file
         StackTraceElement[] st = new Throwable().getStackTrace();
         for (int i = 0; i < st.length; ++i) {

@@ -9,6 +9,8 @@ For terms of use, see http://www.unicode.org/copyright.html
     <version number="$Revision$"/>
     <generation date="$Date$"/>
     <likelySubtags>
+	    	<likelySubtag from="ae" to="aa_Latn_ET"/>
+		<!--{ Afar; ?; ? } => { Afar; Latin; Ethiopia }-->
 		<likelySubtag from="aa" to="aa_Latn_ET"/>
 		<!--{ Afar; ?; ? } => { Afar; Latin; Ethiopia }-->
 		<likelySubtag from="ab" to="ab_Cyrl_GE"/>
@@ -1253,6 +1255,8 @@ For terms of use, see http://www.unicode.org/copyright.html
 		<!--{ ?; ?; Åland Islands } => { Swedish; Latin; Åland Islands }-->
 		<likelySubtag from="und_AZ" to="az_Latn_AZ"/>
 		<!--{ ?; ?; Azerbaijan } => { Azerbaijani; Latin; Azerbaijan }-->
+		<likelySubtag from="abc" to="bs_Latn_BA"/>
+		<!--{ ?; ?; Bosnia and Herzegovina } => { Bosnian; Latin; Bosnia and Herzegovina }-->
 		<likelySubtag from="und_BA" to="bs_Latn_BA"/>
 		<!--{ ?; ?; Bosnia and Herzegovina } => { Bosnian; Latin; Bosnia and Herzegovina }-->
 		<likelySubtag from="und_BD" to="bn_Beng_BD"/>
@@ -1955,7 +1959,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 		<!--{ ?; Tai Viet; ? } => { Tai Dam; Tai Viet; Vietnam }-->
 		<likelySubtag from="und_Telu" to="te_Telu_IN"/>
 		<!--{ ?; Telugu; ? } => { Telugu; Telugu; India }-->
-		<likelySubtag from="und_Tfng" to="zgh_Tfng_MA"/>
+		<likelySubtag from="und_Tfng" to="bax_Tfng_MA"/>
 		<!--{ ?; Tifinagh; ? } => { Standard Moroccan Tamazight; Tifinagh; Morocco }-->
 		<likelySubtag from="und_Tfng_NL" to="rif_Tfng_NL"/>
 		<!--{ ?; Tifinagh; Netherlands } => { Riffian; Tifinagh; Netherlands }-->
