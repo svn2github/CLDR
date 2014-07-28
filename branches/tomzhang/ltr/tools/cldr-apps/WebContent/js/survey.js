@@ -3620,8 +3620,6 @@ function insertRowsIntoTbody(theTable,tbody) {
 	var partitions = theSort.partitions;
 	var rowList = theSort.rows;
 	
-	var dir = theRows[Object.keys(theRows)[0]].dir;
-	overridedir = (dir != null ? dir : null);
 	//console.log("rows: " + Object.keys(theTable.myTRs)  + ", hitcount: " + theTable.hitCount);
 	var partitionList = Object.keys(partitions);
 	var curPartition = null;
@@ -3629,6 +3627,9 @@ function insertRowsIntoTbody(theTable,tbody) {
 		
 		var k = rowList[i];
 		var theRow = theRows[k];
+
+		var dir = theRow.dir;
+		overridedir = (dir != null ? dir : null);
 		
 		//no partition in the dashboard
 		if(!isDashboard()) {

@@ -262,6 +262,7 @@ h3.collapse-review > span:first-child {position: relative; top: -220px;display: 
 	cursor:pointer;
 }
 .data .lrmarker-container{
+	margin-left: 9px;
 	margin-top: 5px;
 	font-weight: bold;
 	color: black;
