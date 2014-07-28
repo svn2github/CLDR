@@ -3619,7 +3619,6 @@ function insertRowsIntoTbody(theTable,tbody) {
 	var theSort = theTable.json.displaySets[theTable.curSortMode];
 	var partitions = theSort.partitions;
 	var rowList = theSort.rows;
-	
 	//console.log("rows: " + Object.keys(theTable.myTRs)  + ", hitcount: " + theTable.hitCount);
 	var partitionList = Object.keys(partitions);
 	var curPartition = null;
