@@ -1708,6 +1708,10 @@ public class DataSection implements JSONString {
 
                 VoteResolver<String> resolver = ballotBox.getResolver(xpath);
                 JSONObject jo = new JSONObject();
+                
+                if(ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS){
+                    jo.put("dir", "ltr");
+                }
                 jo.put("xpath", xpath);
                 jo.put("xpid", xpathId);
                 jo.put("rowFlagged", sm.getSTFactory().getFlag(locale, xpathId) ? true : null);

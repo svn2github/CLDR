@@ -3619,6 +3619,9 @@ function insertRowsIntoTbody(theTable,tbody) {
 	var theSort = theTable.json.displaySets[theTable.curSortMode];
 	var partitions = theSort.partitions;
 	var rowList = theSort.rows;
+	
+	var dir = theRows[Object.keys(theRows)[0]].dir;
+	overridedir = (dir != null ? dir : null);
 	//console.log("rows: " + Object.keys(theTable.myTRs)  + ", hitcount: " + theTable.hitCount);
 	var partitionList = Object.keys(partitions);
 	var curPartition = null;
@@ -4094,10 +4097,16 @@ function locInfo(loc) {
 	return locmap.getLocaleInfo(loc);
 }
 
+var overridedir = null;
 function setLang(node, loc) {
 	var info = locInfo(loc);
 	
-	if(info.dir) {
+	if(overridedir){
+		node.dir = overridedir;
+		if(info.dir && info.dir != overridedir){
+				node.style.background = 'yellow';
+		}
+	}else if(info.dir) {
 		node.dir = info.dir;
 	}
 	

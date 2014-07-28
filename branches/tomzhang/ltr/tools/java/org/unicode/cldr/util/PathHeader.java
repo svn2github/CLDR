@@ -66,7 +66,11 @@ public class PathHeader implements Comparable<PathHeader> {
         /**
          * Allow change box and votes. Can be overridden in Phase.getAction()
          */
-        READ_WRITE
+        READ_WRITE,
+        /**
+         * Always show as ltr, so rtl is disabled
+         */
+        LTR_ALWAYS
     }
 
     private static EnumNames<SectionId> SectionIdNames = new EnumNames<SectionId>();
@@ -867,7 +871,7 @@ public class PathHeader implements Comparable<PathHeader> {
 
                 code = codeOrdering.set(split[3]);
                 codeOrder = codeOrdering.getOrder();
-
+                
                 status = split.length < 5 ? SurveyToolStatus.READ_WRITE : SurveyToolStatus.valueOf(split[4]);
             }
 
