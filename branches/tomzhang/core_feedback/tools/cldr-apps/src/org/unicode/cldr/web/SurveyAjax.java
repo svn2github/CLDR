@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
+import org.unicode.cldr.test.CheckCLDR.Options;
 import org.unicode.cldr.test.DisplayAndInputProcessor;
 import org.unicode.cldr.test.TestCache.TestResultBundle;
 import org.unicode.cldr.util.CLDRConfig;
@@ -36,11 +37,13 @@ import org.unicode.cldr.util.CLDRInfo.CandidateInfo;
 import org.unicode.cldr.util.CLDRInfo.UserInfo;
 import org.unicode.cldr.util.CLDRConfigImpl;
 import org.unicode.cldr.util.CLDRLocale;
+import org.unicode.cldr.util.CoreCoverageInfo;
 import org.unicode.cldr.util.CoverageInfo;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.PathHeader.SurveyToolStatus;
+import org.unicode.cldr.util.SimpleXMLSource;
 import org.unicode.cldr.util.SpecialLocales;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.VoteResolver;
@@ -948,9 +951,25 @@ public class SurveyAjax extends HttpServlet {
                         if (!"null".equals(eff)) {
                             localeType = eff;
                         }
-//                        final CheckCLDR.Options optMap = new Options(locale, SurveyMain.getTestPhase(), requiredLevel, localeType);
+                        final CheckCLDR.Options optMap = new Options(locale, SurveyMain.getTestPhase(), requiredLevel, localeType);
                         List<CheckStatus> checkCldrResult = (List<CheckStatus>) uf.hash.get(SurveyMain.CHECKCLDR_RES + eff);
+                        
+                        XMLSource xml = new SimpleXMLSource(loc);
+                        CLDRFile file = new CLDRFile(xml);
+                        Set<String> errors = new HashSet<String>();
+                        CoreCoverageInfo.getCoreCoverageInfo(file, errors);
 
+                        if(checkCldrResult == null && errors.size() != 0){
+                            checkCldrResult = new ArrayList<CheckStatus>();
+                        }
+                      
+                        for (String err : errors) {
+                            checkCldrResult.add(new CheckStatus()
+                                           .setMainType(CheckStatus.warningType)
+                                           .setCause(uf.getCheck(loc, optMap))
+                                           .setMessage(err));
+                        }
+                      
                         if (checkCldrResult == null) {
                             r.put("possibleProblems", new JSONArray());
                         } else {
@@ -987,7 +1006,7 @@ public class SurveyAjax extends HttpServlet {
                         //                            }
                         //                            ctx.println("</div>");
                         //                        }
-
+                     
                         send(r, out);
                     } else if (what.equals("oldvotes")) {
                         mySession.userDidAction();
