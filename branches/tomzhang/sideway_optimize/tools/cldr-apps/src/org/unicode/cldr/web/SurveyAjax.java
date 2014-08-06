@@ -1206,7 +1206,6 @@ public class SurveyAjax extends HttpServlet {
                         r.put("loc", loc);
                         r.put("xpath", xpath);
                         final String xpathString = sm.xpt.getByStringID(xpath);
-
                         if (xpathString == null) {
                             throw new IllegalArgumentException("could not find strid: " + xpath);
                         }
@@ -1215,11 +1214,43 @@ public class SurveyAjax extends HttpServlet {
                         final Collection<CLDRLocale> relatedLocs = sm.getRelatedLocs(topLocale); // sublocales of the 'top' locale
                         JSONObject others = new JSONObject(); // values
                         JSONArray empties = new JSONArray(); // no value
+                        String topLocaleValue = null;
+                        
+                        // some variables used in the loop
+                        SupplementalDataInfo sdi = sm.getSupplementalDataInfo();
+                        Set<CLDRLocale> readOnlyLocales = SurveyMain.getReadOnlyLocales();
+                        STFactory stf = sm.getSTFactory();
+                        
                         for (CLDRLocale ol : relatedLocs) {
-                            //if(ol == l) continue;
-                            XMLSource src = sm.getSTFactory().makeSource(ol.getBaseName(), false);
+
+                            CLDRLocale dcParent = sdi.getBaseFromDefaultContent(ol);
+                            
+                            XMLSource src = stf.makeSource(ol.getBaseName(), false);
                             String ov = src.getValueAtDPath(xpathString);
-                            if (ov != null) {
+                            
+                            
+                            
+                            
+                            // CACHE section
+                            // get other value
+//                            STFactory.get(ol);
+//                            STFactory.getVoteValue(user, xpath);
+                            User mine = mySession.user;
+                            stf.getValueForLocale(loc, xpath, ov, mine);
+                            
+                            
+                            
+                            
+                            
+                            if(ol == topLocale){
+                                topLocaleValue = ov;
+                            }
+                            
+                            // read-only has no value, and has separte entry in JSON
+                            if (readOnlyLocales.contains(ol) || dcParent != null) {
+                                r.put("readOnlyLocale", ol.getBaseName());
+                            } else if (ov != null) {
+                                //if(ol == l) continue;
                                 JSONArray other = null;
                                 if (others.has(ov)) {
                                     other = others.getJSONArray(ov);
@@ -1232,8 +1263,21 @@ public class SurveyAjax extends HttpServlet {
                                 empties.put(ol.getBaseName());
                             }
                         }
+                        
+                        // if top locale has value, merge no value to them (work in front-end)
+//                        if (topLocaleValue != null && empties.length() > 0){
+//                            JSONArray other = others.getJSONArray(topLocaleValue.toString());
+//                            for (int i=0; i<empties.length(); i++){
+//                                String ol = (String)empties.get(i);
+//                                other.put(ol);
+//                            }
+//                        }
+                        
+                        r.put("topLocaleValue", topLocaleValue);
                         r.put("others", others);
-                        r.put("novalue", empties);
+//                        if (topLocaleValue == null){
+                            r.put("novalue", empties);
+//                        }
                         send(r, out);
                     } else if (what.equals(WHAT_SEARCH)) {
                         mySession.userDidAction();
@@ -1245,6 +1289,11 @@ public class SurveyAjax extends HttpServlet {
 
                         JSONArray results = searchResults(q, l, mySession);
 
+                        /* TOM's scope 
+                         * 
+                         * SurveyMain.getReadOnlyLocales().contains(ol);
+                         Tom: getLanguag()
+                         */
                         r.put("results", results);
 
                         send(r, out);
@@ -1515,7 +1564,7 @@ public class SurveyAjax extends HttpServlet {
         SupplementalDataInfo sdi = sm.getSupplementalDataInfo();
 
         Factory disk = sm.getDiskFactory();
-
+        
         for (CLDRLocale loc : SurveyMain.getLocales()) {
             JSONObject locale = new JSONObject();
 

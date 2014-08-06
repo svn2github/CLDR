@@ -1668,6 +1668,24 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     private final PerLocaleData get(String locale) {
         return get(CLDRLocale.getInstance(locale));
     }
+    
+    public boolean getValueForLocale(String locale, String xpath, String value, User user){
+        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
+//        pld.getValues(xpath);
+        pld.peekXpathData(xpath);
+        PerLocaleData.PerXPathData pxd = pld.peekXpathData(xpath);
+        String curValue = pxd.getVoteValue(user);
+        return (value == curValue);
+    }
+    
+    public void setValueForLocale(String locale, String xpath, String value, User user){
+        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
+//        pld.getValues(xpath);
+        pld.peekXpathData(xpath);
+        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
+        String curValue = pxd.getVoteValue(user);
+//        return (value == curValue);
+    }
 
     public TestCache.TestResultBundle getTestResult(CLDRLocale loc, CheckCLDR.Options options) {
 //        System.err.println("Fetching: " + options);
