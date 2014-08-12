@@ -814,6 +814,22 @@ public class JSONArray {
     }
 
     /**
+     * Remove an object and close the hole
+     * 
+     * @param object object to be removed.
+     * @return true if this list contained the specified object
+     */
+    public boolean remove(Object object) {
+        for (Object oj : this.myArrayList) {
+            if (oj.equals(object)) {
+                this.myArrayList.remove(object);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Produce a JSONObject by combining a JSONArray of names with the values of
      * this JSONArray.
      * 

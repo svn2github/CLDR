@@ -27,7 +27,6 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.json.JSONObject;
 import org.unicode.cldr.icu.LDMLConstants;
 import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.test.ExampleGenerator;
@@ -52,6 +51,7 @@ import org.unicode.cldr.util.XMLSource;
 import org.unicode.cldr.util.XPathParts;
 import org.unicode.cldr.util.XPathParts.Comments;
 import org.unicode.cldr.web.CLDRProgressIndicator.CLDRProgressTask;
+import org.unicode.cldr.web.SurveyAjax.JSONWriter;
 import org.unicode.cldr.web.SurveyException.ErrorCode;
 import org.unicode.cldr.web.UserRegistry.ModifyDenial;
 import org.unicode.cldr.web.UserRegistry.User;
@@ -422,6 +422,7 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
                 }
             };
             Date lastModDate = null;
+            JSONWriter sideView = null;
             Set<String> otherValues = null;
             Map<User,PerUserData> userToData = null;
             /**
@@ -1668,25 +1669,80 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     private final PerLocaleData get(String locale) {
         return get(CLDRLocale.getInstance(locale));
     }
-    
-    public boolean getValueForLocale(String locale, String xpath, String value, User user){
+
+    /**
+     * Set the cached SideView JSONWriter
+     * @param locale locale to look up
+     * @param xpath path to look up
+     * @param jw JSONWriter to cache
+     */
+    public void setCachedSideView(String locale, String xpath, JSONWriter jw) {
         PerLocaleData pld = get(CLDRLocale.getInstance(locale));
-//        pld.getValues(xpath);
-        pld.peekXpathData(xpath);
-        PerLocaleData.PerXPathData pxd = pld.peekXpathData(xpath);
-        String curValue = pxd.getVoteValue(user);
-        return (value == curValue);
+        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
+        pxd.sideView = jw;
+        pld.xpathToData.put(xpath, pxd);
     }
     
-    public void setValueForLocale(String locale, String xpath, String value, User user){
+    /**
+     * Get the cached SideView JSONWriter
+     * @param locale locale to look up
+     * @param xpath path to look up
+     * @return cached JSONWriter
+     */
+    public JSONWriter getCachedSideView(String locale, String xpath) {
         PerLocaleData pld = get(CLDRLocale.getInstance(locale));
-//        pld.getValues(xpath);
+        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
+        return pxd.sideView;
+    }
+    
+    /**
+     * Get the current value on some path for locale
+     * @param locale locale to look up
+     * @param xpath path to set
+     * @param user user to query its vote value
+     * @return the value on path for locale
+     */
+    public String getValueForLocale(String locale, String xpath, User user) {
+        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
         pld.peekXpathData(xpath);
         PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
         String curValue = pxd.getVoteValue(user);
-//        return (value == curValue);
+        return curValue;
     }
 
+    /**
+     * Get the current value on some path for locale
+     * And set the value to new Value 
+     * @param locale locale to look up
+     * @param xpath path to set
+     * @param newValue new value to set 
+     * @param user user to query its vote value
+     * @return the value on path for locale
+     */
+    public String getValueForLocale(String locale, String xpath, String newValue, User user) {
+        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
+        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
+        String curValue = pxd.getVoteValue(user);
+        pxd.setVoteForValue(user, xpath, newValue, null, new Date());
+        pld.xpathToData.put(xpath, pxd);
+        return curValue;
+    }
+
+    /**
+     * Set value on some path for locale to the new value
+     * @param locale locale to look up
+     * @param xpath path to set
+     * @param value new value to set
+     * @param user user to query its vote value
+     */
+    public void setValueForLocale(String locale, String xpath, String value, User user) {
+        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
+        pld.peekXpathData(xpath);
+        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
+        pxd.setVoteForValue(user, xpath, value, null, new Date());
+        pld.xpathToData.put(xpath, pxd);
+    }
+    
     public TestCache.TestResultBundle getTestResult(CLDRLocale loc, CheckCLDR.Options options) {
 //        System.err.println("Fetching: " + options);
         return get(loc).getTestResultData(options);

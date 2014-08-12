@@ -508,7 +508,10 @@ public final class CLDRLocale implements Comparable<CLDRLocale> {
      */
     public static final CLDRLocale ROOT = getInstance(ULocale.ROOT);
 
-    // combined Region and Variant, otherwise fall back to Name(originally created to improve sideways efficiency)
+    /**
+     * combined Region and Variant, otherwise fall back to Name(originally created to improve sideways efficiency)
+     * @return combined locale name
+     */
     public String getRegionAndOrVariantName() {
         String Region = this.getDisplayRegion();
         String Variant = this.getDisplayVariant();

@@ -6020,7 +6020,6 @@ function showV() {
 			}
 			var xurl = contextPath + "/SurveyAjax?_="+theLocale+"&s="+surveySessionId+"&what=menus&locmap="+true+cacheKill();
 			myLoad(xurl, "initial menus for " + surveyCurrentLocale, function(json) {
-				console.log(json);
 				if(!verifyJson(json,'locmap')) {
 					return;
 				} else {
