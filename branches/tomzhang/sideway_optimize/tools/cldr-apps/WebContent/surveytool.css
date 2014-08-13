@@ -630,7 +630,8 @@ pre.adminExceptionMESSAGE {
 
 div.sidewaysArea {
 	font-size: smaller;
-	padding-left: 20px;
+	/* padding-left: 20px; */
+	margin: 5px 0;
 }
 
 div.sideways_same  {

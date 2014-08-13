@@ -1272,6 +1272,7 @@ public class SurveyAjax extends HttpServlet {
                             }
                         } else { // not cached, construct and cache
                             String topLocaleValue = null;
+                            int relatedLocAmt = 0;
                             final JSONWriter r = newJSONStatusQuick(sm);
                             r.put("what", what);
                             r.put("loc", loc);
@@ -1279,6 +1280,7 @@ public class SurveyAjax extends HttpServlet {
                             r.put("topLocale", topLocale);
 
                             for (CLDRLocale ol : relatedLocs) {
+                                relatedLocAmt++;
                                 CLDRLocale dcParent = sdi.getBaseFromDefaultContent(ol);
                                 String baseName = ol.getBaseName();
                                 XMLSource src = stf.makeSource(baseName, false);
@@ -1310,6 +1312,7 @@ public class SurveyAjax extends HttpServlet {
                                 }
                             }
 
+                            r.put("relatedLocaleAmount", relatedLocAmt);
                             r.put("topLocaleValue", topLocaleValue);
                             r.put("others", others);
                             r.put("novalue", empties);

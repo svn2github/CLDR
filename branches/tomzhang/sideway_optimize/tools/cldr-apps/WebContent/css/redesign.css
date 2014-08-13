@@ -1008,6 +1008,14 @@ fieldset[disabled] .btn-primary.active {
 	
 }
 
+.sidewaysArea .sideTable, .sidewaysArea th, .sidewaysArea td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+.sidewaysArea .sideTable select {
+    width: 100%;
+}
 
 /* media queries */
 @media (max-width: 1390px) {
