@@ -1984,9 +1984,19 @@ function incrPopToken(x) {
 // timeout for showing sideways view
 var sidewaysShowTimeout = -1;
 
-// array storing all only-1 sublocale
-var oneLocales = [];
+//array storing all only-1 sublocale
+if(localStorage.getItem('oneLocales') == null){
+    var oneLocales = {};
+}else{
+	var oneLocales = JSON.parse(localStorage.getItem('oneLocales'));
+}
 
+//all table contents cached for sideway
+if(localStorage.getItem('sidewayTableContent') == null){
+    var sidewayTables ={};
+}else{
+	var sidewayTables = JSON.parse(localStorage.getItem('sidewayTableContent'));
+}
 /**
  * @method showForumStuff
  * called when showing the popup each time
@@ -1996,132 +2006,303 @@ var oneLocales = [];
  */
 function showForumStuff(frag, forumDiv, tr) {
 	{
-		var isOneLocale = false;
-		if(oneLocales[surveyCurrentLocale]){
-			isOneLocale = true;
-		}
-		if(!isOneLocale){
-		var sidewaysControl = createChunk(stui.str("sideways_loading0"), "div", "sidewaysArea");
-		frag.appendChild(sidewaysControl);		
-		
-		function clearMyTimeout() {
-			if(sidewaysShowTimeout != -1) {
-				window.clearInterval(sidewaysShowTimeout);
-				sidewaysShowTimeout = -1;
-			}
-		}
-		clearMyTimeout();
-		sidewaysShowTimeout = window.setTimeout(function() {
-			clearMyTimeout();
-			updateIf(sidewaysControl, stui.str("sideways_loading1"));
+		if ( !oneLocales[surveyCurrentLocale] ) {
+			var sidewaysControl = createChunk(stui.str("sideways_loading0"), "div", "sidewaysArea");
+			frag.appendChild(sidewaysControl);	
 			
-			var url = contextPath + "/SurveyAjax?what=getsideways&_="+surveyCurrentLocale+"&s="+surveySessionId+"&xpath="+tr.theRow.xpstrid +  cacheKill();
-			myLoad(url, "sidewaysView", function(json) {
-				// if there is 1 sublocale(+ 1 default), we do nothing
-				var locale_count = json.relatedLocaleAmount;
-				if (locale_count <= 2) { // only have 1 locale(read-only is counted);
-					oneLocales[surveyCurrentLocale] = true;
-					updateIf(sidewaysControl, "");
-				} else {
-					updateIf(sidewaysControl, "");
-					
-					// initialize the dataList:
-					// 1. add its Region/Variant name
-					// 2. sort it
-					// 3. Move noValue into appropriate places
-					var dataList = [];
-					var topValue = json.topLocaleValue;
-					
-					 // transfer to full name(with original one attached)
-					var displayName = function displayName(list){
-						for ( var i in list ) {
-							var locale = list[i];
-							list[i] = [locale, locmap.getRegionAndOrVariantName(locale)];
-						};
-					};
-					// transfer noValue locale, (others are transferred below)
-					displayName(json.novalue); 
-					for ( var s in json.others ) {
-						displayName(json.others[s]);
-						if(s == topValue){
-							dataList.push([s, json.others[s].concat(json.novalue)]);
-						} else {
-							dataList.push([s, json.others[s]]);
-						}
-					};
-					
-					// sort by value,
-					dataList.sort(function(a,b) {
-						return a[0] > b[0];
-				    });
-					// add noValue if no topValue is found (this is now on top)
-					if ( topValue == null ) {
-						dataList.unshift(["No Value Found", json.novalue]);
-					}
-					// then sort by Display Locale
-					for ( var i=0; i<dataList.length; i++ ) {
-						dataList[i][1] = (dataList[i][1]).sort(function(a,b) {
-							 var nameA=a[1], nameB=b[1];
-							 if (nameA < nameB) //sort string ascending
-								 return -1; 
-							 if (nameA > nameB)
-								 return 1;
-							 return 0; //default return value (no sorting)
-						});
-					}
-					
-					// create a drop down menu
-					var createDropDown = function createDropDown(list, td) {
-						var popupSelect = document.createElement("select");
-						var titleName = list[0];
-						var title = document.createElement("option");
-						title.setAttribute("selected", "selected");
-						title.appendChild(document.createTextNode(titleName));
-						title.setAttribute("hidden", true);
-						popupSelect.appendChild(title);
-						
-						var localeList = list[1];
-						var readOnlyLocale = locmap.getRegionAndOrVariantName(json.readOnlyLocale);
-						var topLocale = json.topLocale;
-						for ( var l=0; l<localeList.length; l++ ) {
-							var loc = localeList[l][0];
-							var displayLoc = localeList[l][1];
-							var item = document.createElement("option");
-							item.setAttribute("value", loc);
-							
-							if(loc === topLocale){ // merge read-only to topLocale
-								displayLoc = displayLoc + " (= " + readOnlyLocale + ")";
-							}
-							if(loc === surveyCurrentLocale) {
-			        			item.setAttribute("disabled", "disabled");
-							}
-
-							item.appendChild(document.createTextNode(displayLoc));
-							popupSelect.appendChild(item);
-						}
-						listenFor(popupSelect, "change", function(e) { // reload other locale if selected
-							var newLoc = popupSelect.value;
-							if(newLoc !== surveyCurrentLocale) {
-								surveyCurrentLocale = newLoc;
-								reloadV();
-							}
-							return stStopPropagation(e);
-						});
-						td.appendChild(popupSelect);
-					};
-
-					var sideTable = document.createElement("table");
-					sideTable.className = "sideTable";
-					
-					for ( var i = 0; i < dataList.length; i++) {
-				        var tr = sideTable.insertRow();
-				        var td = tr.insertCell();
-				        createDropDown(dataList[i], td);
-				    }
-					sidewaysControl.appendChild(sideTable);
+			function clearMyTimeout() {
+				if (sidewaysShowTimeout != -1) {
+					window.clearTimeout(sidewaysShowTimeout);
+					sidewaysShowTimeout = -1;
 				}
-			});
-		}, 2000); // wait 2 seconds before loading this.
+			}
+			clearMyTimeout();
+			sidewaysShowTimeout = window.setTimeout(function() {
+				clearMyTimeout();
+				updateIf(sidewaysControl, stui.str("sideways_loading1"));
+				
+				var url = contextPath + "/SurveyAjax?what=getsideways&_="+surveyCurrentLocale+"&s="+surveySessionId+"&xpath="+tr.theRow.xpstrid +  cacheKill();
+				myLoad(url, "sidewaysView", function(json) {
+					var isOneLocale = false;
+					var cacheStat = json.cacheStat;
+					var relatedLocaleInfo = json.relatedLocaleInfo;
+					var topLocale = relatedLocaleInfo.topLocale;
+					var loc = json.loc;
+					var xpath = json.xpath;
+					
+					// add listener for navigation
+					var addListener = function addListener(table) {
+						for (var i = 0; i < table.rows.length; i++) {
+							(function (){
+								var popupSelect = table.rows[i].cells[0].firstElementChild;
+								listenFor(popupSelect, "change", function(e) { // reload other locale if selected
+									var newLoc = popupSelect.value;
+									if (newLoc !== surveyCurrentLocale) {
+										surveyCurrentLocale = newLoc;
+										reloadV();
+									}
+									return stStopPropagation(e);
+								});
+							}());
+						}
+					};
+					
+					// get a side table, append to panel, may also update its contents
+					var getSideTable = function getSideTable() {
+						var newSideTable = createChunk(null, "table", "sideTable");
+						if (sidewayTables[topLocale + xpath]) {
+							newSideTable.innerHTML = sidewayTables[topLocale + xpath];
+						}
+						sidewaysControl.appendChild(newSideTable);
+						return newSideTable;
+					};
+					
+					// update side table info(listener + localStorage)
+					var updateSideTable = function updateSideTable(sideTable) {
+						addListener(sideTable);
+						sidewayTables[topLocale + xpath] = sideTable.innerHTML;
+						localStorage.setItem('sidewayTableContent', JSON.stringify(sidewayTables));
+					};
+					
+					// if there is 1 sublocale(+ 1 default), we do nothing
+					if (oneLocales[surveyCurrentLocale] == null) {
+						var locale_count = relatedLocaleInfo.relatedLocaleAmount;
+						if(locale_count <= 2) { // only have 1 locale(read-only is counted);
+							isOneLocale = true;
+							oneLocales[surveyCurrentLocale] = true;
+						} else {
+							oneLocales[surveyCurrentLocale] = false;
+						}
+						// cache 1-locale info here
+						localStorage.setItem('oneLocales', JSON.stringify(oneLocales));
+					}
+
+					updateIf(sidewaysControl, "");
+					
+					if (isOneLocale) { // only have 1 locale, skip(read-only is counted);
+					} else if (cacheStat == "same") {
+						// locale may get changed (so still need update)..
+
+						// remove all previous curValue classes
+						var removeCurLocales = function removeCurLocales() {
+							var curValues = document.getElementsByClassName("curLocale");
+							for(var i = 0; i < curValues.length; i++) {
+								var option = curValues[i];
+								option.classList.remove("curLocale");
+								option.removeAttribute("disabled");
+								option.parentNode.classList.remove("curValue");
+							}
+						};
+						
+						// add curValue/curLocale to approriate entry
+						var addCurLocale = function addCurLocale(loc) {
+							var option = document.getElementById(loc + "_value");
+							option.setAttribute("disabled", "disabled");
+							option.setAttribute("class", "curLocale");
+							option.parentNode.classList.add("curValue");
+						};
+						
+						var sideTable = getSideTable();
+						removeCurLocales();
+						addCurLocale(loc);
+						updateSideTable(sideTable);
+					} else if (cacheStat == "different") {
+						// cached but different, so we only do update (save work for sort back-end data)
+						// 1. Remove preValue & add curValue
+						// 2. remove the <select> entry if it becomes 0 length
+						// 3. it's topLocale, move all noValues as well
+						// 4. sort approriate select/options
+						// 5. update localeStorage table
+
+						// sort options for 1 specific selection (should only have 1 .curValue class)
+						var sortOptions = function sortOptions(){
+							$(".curValue").html($(".curValue option").sort(function (a, b) {
+								return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
+							}));
+
+						};
+						
+						// sort selects(actually only need to move .curValue to appropriate place)
+						var sortSelects = function sortSelects(){
+							var curValues = document.getElementsByClassName("curValue");
+							var curSelect = curValues[0];
+							var curValue = curSelect.value;
+							var table = curSelect.parentNode.parentNode.parentNode;
+							var rlen = table.rows.length;
+
+							if (rlen > 1){ // only do this if > 1 row
+								curSelect.parentNode.parentNode.parentNode.removeChild(curSelect.parentNode.parentNode); // remove previous entry
+								for (var i = 0; i < table.rows.length; i++) { // find 1st right place to insert
+									var popupSelect = table.rows[i].cells[0].firstElementChild;
+									var value = popupSelect.value;
+									if(value > curValue){
+										var row = table.insertRow(i);
+										row.insertCell().appendChild(curSelect);
+										return;
+									}
+								}
+								var row = table.insertRow(rlen-1);
+								row.insertCell().appendChild(curSelect);
+							}
+						};
+
+						// 1. Remove preValue & add curValue
+						var updateTableForLocale = function updateTable(loc, curValue, needRemove, sideTable) {
+							var curOption = document.getElementById(curValue+ "_title_value");
+							var preOption = document.getElementById(loc + "_value");
+							var preSelect = preOption.parentNode;
+							
+							// remove preValue option
+							preSelect.removeChild(preOption);
+							preSelect.classList.remove("curValue");
+
+							// 2. remove the <select> entry if it becomes 0 length (i.e. only "title" value is left)
+							if (needRemove && (preSelect.length == 1)) { 
+								preSelect.parentNode.parentNode.parentNode.removeChild(preSelect.parentNode.parentNode);
+							}
+							
+							// add to curValue
+							if (curOption != null) {
+								curOption.parentNode.appendChild(preOption);
+								curOption.parentNode.className.add("curValue");
+							} else {
+								addNewValue = true;
+								var popupSelect = createChunk(null, "select", "sidewaySelect curValue");
+	
+								var title = document.createElement("option");
+								title.setAttribute("id", curValue+"_title_value");
+								title.setAttribute("selected", "selected");
+								title.setAttribute("hidden", true);
+								title.appendChild(document.createTextNode(curValue));
+
+								popupSelect.appendChild(title);
+								popupSelect.appendChild(preOption);
+								sideTable.insertRow().insertCell().appendChild(popupSelect);
+							}
+						};
+						
+						var addNewValue = false;
+						var curValue = relatedLocaleInfo.curValue;
+						var topLocaleValue =relatedLocaleInfo.topLocaleValue;
+						if ((curValue == null) && (topLocaleValue != null)) { // inherit no-value from top Locale
+							curValue = topLocaleValue;
+						}
+						
+						var sideTable = getSideTable();
+						// 1 & 2 tasks here
+						updateTableForLocale(loc, curValue, true, sideTable);
+						// 3. move all no-value locales to topLocale as well
+						if (loc == topLocale) {
+							var noValue = json.novalue;
+							for(var noValueLoc in noValue) {
+								updateTableForLocale(noValue[noValueLoc], curValue, false, sideTable);
+							};
+						}
+						// 4. sort approriate select/options
+						sortOptions();
+						if(addNewValue){
+							sortSelects();
+						}
+						// 5. update locale stroage
+						updateSideTable(sideTable); 
+					} else {
+						// initialize the dataList:
+						// 1. add its Region/Variant name
+						// 2. sort it
+						// 3. Move noValue into appropriate places
+						var dataList = [];
+						var topValue = relatedLocaleInfo.topLocaleValue;
+						var topLocale = relatedLocaleInfo.topLocale;
+						var curValue = relatedLocaleInfo.curValue;
+						
+						 // transfer to full name(with original one attached)
+						var displayName = function displayName(list){
+							for ( var i in list ) {
+								var locale = list[i];
+								list[i] = [locale, locmap.getRegionAndOrVariantName(locale)];
+							};
+						};
+						// transfer noValue locale, (values are transferred below)
+						displayName(json.novalue); 
+						for ( var s in json.values ) {
+							displayName(json.values[s]);
+							if (s == topValue) {
+								dataList.push([s, json.values[s].concat(json.novalue)]);
+							} else {
+								dataList.push([s, json.values[s]]);
+							}
+						};
+						
+						// 1st sort by value,
+						dataList.sort(function(a,b) {
+							return a[0] > b[0];
+					    });
+						// add noValue if no topValue is found (this is now on top)
+						if ( topValue == null ) {
+							dataList.unshift(["No Value Found", json.novalue]);
+						}
+						// 2nd sort by Display Locale
+						for ( var i=0; i<dataList.length; i++ ) {
+							dataList[i][1] = (dataList[i][1]).sort(function(a,b) {
+								 var nameA=a[1], nameB=b[1];
+								 if (nameA < nameB) //sort string ascending
+									 return -1; 
+								 if (nameA > nameB)
+									 return 1;
+								 return 0; //default return value (no sorting)
+							});
+						}
+						
+						// create a drop down menu
+						var createDropDown = function createDropDown(list, td) {
+							var popupSelect = createChunk(null, "select", "sidewaySelect");
+							var titleName = list[0];
+							var title = document.createElement("option");
+							title.setAttribute("id", titleName+"_title_value");
+							title.setAttribute("selected", "selected");
+							title.setAttribute("hidden", true);
+							title.appendChild(document.createTextNode(titleName));
+							popupSelect.appendChild(title);
+							
+							if (titleName == curValue || ((curValue == null) && (titleName == "No Value Found"))){
+								popupSelect.className += " curValue";
+							}
+							
+							var localeList = list[1];
+							var readOnlyLocale = locmap.getRegionAndOrVariantName(relatedLocaleInfo.readOnlyLocale);
+							
+							for ( var l=0; l<localeList.length; l++ ) {
+								var loc = localeList[l][0];
+								var displayLoc = localeList[l][1];
+								var item = document.createElement("option");
+								item.setAttribute("value", loc);
+								item.setAttribute("id", loc+"_value");
+								
+								if(loc === topLocale){ // merge read-only to topLocale
+									displayLoc = displayLoc + " (= " + readOnlyLocale + ")";
+								}
+								if(loc === surveyCurrentLocale) {
+				        			item.setAttribute("disabled", "disabled");
+				        			item.setAttribute("class", "curLocale");
+								}
+								
+								item.appendChild(document.createTextNode(displayLoc));
+								popupSelect.appendChild(item);
+							}
+							td.appendChild(popupSelect);
+						};
+						
+						// create/update table, and create downdown with pre-processed dataList
+						var sideTable = getSideTable();
+						for ( var i = 0; i < dataList.length; i++) {
+					        var trow = sideTable.insertRow();
+					        var td = trow.insertCell();
+					        createDropDown(dataList[i], td);
+					    }
+						updateSideTable(sideTable);
+					}
+				});
+			}, 2000); // wait 2 seconds before loading this.
 		}
 	}
 	

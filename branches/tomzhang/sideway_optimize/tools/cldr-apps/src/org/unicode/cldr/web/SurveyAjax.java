@@ -1218,7 +1218,7 @@ public class SurveyAjax extends HttpServlet {
                         // initialize some used variables
                         final CLDRLocale topLocale = l.getHighestNonrootParent();
                         final Collection<CLDRLocale> relatedLocs = sm.getRelatedLocs(topLocale); // sublocales of the 'top' locale
-                        JSONObject others = new JSONObject(); // values
+                        JSONObject values = new JSONObject(); // values
                         JSONArray empties = new JSONArray(); // no value
 
                         // some variables used in the loop
@@ -1228,25 +1228,34 @@ public class SurveyAjax extends HttpServlet {
                         JSONWriter cachedSideView = stf.getCachedSideView(topLocale.getBaseName(), xpath);
 
                         if (cachedSideView != null) { // it has been cached, update
+                            final JSONWriter cached = newJSONStatusQuick(sm);
+                            cached.put("what", what);
+                            cached.put("loc", loc);
+                            cached.put("xpath", xpath);
+                            
+                            JSONObject relatedLocaleInfo = (JSONObject) cachedSideView.get("relatedLocaleInfo");
                             XMLSource src = stf.makeSource(loc, false);
                             User mine = mySession.user;
                             String curValue = src.getValueAtDPath(xpathString);
                             String preValue = stf.getValueForLocale(loc, xpath, curValue, mine);
 
-                            if (preValue == curValue) { // same, directly send cached one
-                                send(cachedSideView, out);
+                            relatedLocaleInfo.put("curValue", curValue);
+                            cached.put("relatedLocaleInfo", relatedLocaleInfo);
+                            if ((preValue == curValue || ((preValue != null) && preValue.equals(curValue)))) { // same, directly send cached one
+                                cached.put("cacheStat", "same");
+                                send(cached, out);
                             } else {
                                 // update curValue here
-                                others = (JSONObject) cachedSideView.get("others");
+                                values = (JSONObject) cachedSideView.get("values");
                                 empties = (JSONArray) cachedSideView.get("novalue");
 
                                 JSONArray other = null;
-                                if (others.has(curValue)) {
-                                    other = others.getJSONArray(curValue);
+                                if (values.has(curValue)) {
+                                    other = values.getJSONArray(curValue);
                                     other.put(loc);
                                 } else if (curValue != null) {
                                     other = new JSONArray();
-                                    others.put(curValue, other);
+                                    values.put(curValue, other);
                                     other.put(loc);
                                 } else if (curValue == null) {
                                     empties.put(loc);
@@ -1254,30 +1263,35 @@ public class SurveyAjax extends HttpServlet {
 
                                 // update topLocaleValue here
                                 if (l == topLocale) {
-                                    cachedSideView.put("topLocaleValue", curValue);
+                                    relatedLocaleInfo.put("topLocaleValue", curValue);
                                 }
 
-                                // remove preValue based on its category(novalue, others)
+                                // remove preValue based on its category(novalue, values)
                                 if (preValue != null) {
-                                    JSONArray previous = others.getJSONArray(preValue);
+                                    JSONArray previous = values.getJSONArray(preValue);
                                     previous.remove(loc);
                                     if (previous.length() == 0) { // totaly remove if nothing there
-                                        others.remove(preValue);
+                                        values.remove(preValue);
                                     }
-                                    send(cachedSideView, out);
                                 } else {
                                     empties.remove(loc);
-                                    send(cachedSideView, out);
                                 }
+                                relatedLocaleInfo.put("preValue", preValue);
+                                cached.put("cacheStat", "different");
+                                cached.put("relatedLocaleInfo", relatedLocaleInfo);
+                                cached.put("novalue", empties);
+                                send(cached, out);
                             }
                         } else { // not cached, construct and cache
                             String topLocaleValue = null;
+                            String curValue = null;
                             int relatedLocAmt = 0;
+                            JSONObject relatedLocaleInfo = new JSONObject();
                             final JSONWriter r = newJSONStatusQuick(sm);
                             r.put("what", what);
                             r.put("loc", loc);
                             r.put("xpath", xpath);
-                            r.put("topLocale", topLocale);
+                            relatedLocaleInfo.put("topLocale", topLocale);
 
                             for (CLDRLocale ol : relatedLocs) {
                                 relatedLocAmt++;
@@ -1293,18 +1307,22 @@ public class SurveyAjax extends HttpServlet {
                                 if (ol == topLocale) {
                                     topLocaleValue = ov;
                                 }
+                                
+                                if (baseName != null && baseName.equals(loc)) {
+                                    curValue = ov;
+                                }
 
                                 // read-only has no value, and has separate entry in JSON
                                 if (readOnlyLocales.contains(ol) || dcParent != null) {
-                                    r.put("readOnlyLocale", baseName);
+                                    relatedLocaleInfo.put("readOnlyLocale", baseName);
                                 } else if (ov != null) {
                                     //if(ol == l) continue;
                                     JSONArray other = null;
-                                    if (others.has(ov)) {
-                                        other = others.getJSONArray(ov);
+                                    if (values.has(ov)) {
+                                        other = values.getJSONArray(ov);
                                     } else {
                                         other = new JSONArray();
-                                        others.put(ov, other);
+                                        values.put(ov, other);
                                     }
                                     other.put(baseName);
                                 } else {
@@ -1312,9 +1330,11 @@ public class SurveyAjax extends HttpServlet {
                                 }
                             }
 
-                            r.put("relatedLocaleAmount", relatedLocAmt);
-                            r.put("topLocaleValue", topLocaleValue);
-                            r.put("others", others);
+                            relatedLocaleInfo.put("relatedLocaleAmount", relatedLocAmt);
+                            relatedLocaleInfo.put("topLocaleValue", topLocaleValue);
+                            relatedLocaleInfo.put("curValue", curValue);
+                            r.put("relatedLocaleInfo", relatedLocaleInfo);
+                            r.put("values", values);
                             r.put("novalue", empties);
                             // cache JSONWriter here
                             stf.setCachedSideView(topLocale.getBaseName(), xpath, r);
