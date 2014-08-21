@@ -1986,16 +1986,23 @@ var sidewaysShowTimeout = -1;
 
 //array storing all only-1 sublocale
 if(localStorage.getItem('oneLocales') == null){
-    var oneLocales = {};
+	var oneLocales = {};
 }else{
 	var oneLocales = JSON.parse(localStorage.getItem('oneLocales'));
 }
 
 //all table contents cached for sideway
 if(localStorage.getItem('sidewayTableContent') == null){
-    var sidewayTables ={};
+	var sidewayTables ={};
 }else{
 	var sidewayTables = JSON.parse(localStorage.getItem('sidewayTableContent'));
+}
+
+//all jsons cached for sideway (used to compare client vs server cache)
+if(localStorage.getItem('sidewayJSON') == null){
+	var sidewayJSON ={};
+}else{
+	var sidewayJSON = JSON.parse(localStorage.getItem('sidewayJSON'));
 }
 /**
  * @method showForumStuff
@@ -2027,9 +2034,61 @@ function showForumStuff(frag, forumDiv, tr) {
 					var cacheStat = json.cacheStat;
 					var relatedLocaleInfo = json.relatedLocaleInfo;
 					var topLocale = relatedLocaleInfo.topLocale;
-					var loc = json.loc;
+					var loc = surveyCurrentLocale;// alternative should be json.loc
 					var xpath = json.xpath;
 					
+					// find an option element by ID in the table,
+					// this is introduced because sometimes(I think when value changes),
+					// the table has not yet attached to DOM..
+					var getOptionByIdFromTable = function getOptionByIdFromTable(table, ID) {
+						for (var i = 0; i < table.rows.length; i++) {
+							var popupSelect = table.rows[i].cells[0].firstElementChild;
+							for (var j = 0; j < popupSelect.length; j++) {
+								var option = popupSelect[j];
+								if (option.id == ID) {
+									return option;
+								}
+							}
+						}
+					};
+
+					// find an option element by class name in the table (for same reason as above)
+					// tag: whether it is "select" or "option" tag
+					var getElementsByClassFromTable = function getElementsByClassFromTable(table, className, tag) {
+						var elements = [];
+						for (var i = 0; i < table.rows.length; i++) {
+							var popupSelect = table.rows[i].cells[0].firstElementChild;
+							if ( (tag == "select") && (' ' + popupSelect.className + ' ').indexOf(' ' + className + ' ') > -1) {
+								elements.push(popupSelect);
+							}
+							if (tag == "option") {
+								for (var j = 0; j < popupSelect.length; j++) {
+									var option = popupSelect[j];
+									// tweak it so avoid substring case
+									if ((' ' + option.className + ' ').indexOf(' ' + className + ' ') > -1) {
+										elements.push(option);
+									}
+								}
+							}
+						}
+						return elements;
+					};
+					/* clear "curValue" & "curLocale" classes in the table
+					 * NOTE: 1. it is really heavy-weight (loop through the entire table) so inefficient
+					 * 		 2. Even without this clear fn, the 2nd AJAX call for getSideView will do expected work
+					 * So I define it and mark it here. But in the actual code I did not use it
+					 */
+//					var clearCurrentClasses = function clearCurrentClasses(table) {
+//						for (var i = 0; i < table.rows.length; i++) {
+//							var popupSelect = table.rows[i].cells[0].firstElementChild;
+//							popupSelect.classList.remove("curValue");
+//							for (var j = 0; j < popupSelect.length; j++) {
+//								var option = popupSelect[j];
+//								option.classList.remove("curLocale");
+//							}
+//						}
+//					};
+//					
 					// add listener for navigation
 					var addListener = function addListener(table) {
 						for (var i = 0; i < table.rows.length; i++) {
@@ -2048,9 +2107,9 @@ function showForumStuff(frag, forumDiv, tr) {
 					};
 					
 					// get a side table, append to panel, may also update its contents
-					var getSideTable = function getSideTable() {
+					var getSideTable = function getSideTable(needData) {
 						var newSideTable = createChunk(null, "table", "sideTable");
-						if (sidewayTables[topLocale + xpath]) {
+						if (needData && sidewayTables[topLocale + xpath]) {
 							newSideTable.innerHTML = sidewayTables[topLocale + xpath];
 						}
 						sidewaysControl.appendChild(newSideTable);
@@ -2079,13 +2138,149 @@ function showForumStuff(frag, forumDiv, tr) {
 
 					updateIf(sidewaysControl, "");
 					
-					if (isOneLocale) { // only have 1 locale, skip(read-only is counted);
-					} else if (cacheStat == "same") {
+					/* count differences in 2 arrays (length/compare fn is attached)
+					 * outerLength: length fn to get its top level length (used to get max length element)
+					 * innerLength: length fn for the nested element
+					 * elementEqualFn: check if 2 elements are the same
+					 */ 
+					var countDiff = function JSONCompare(Obj1, Obj2, outerLength, lengthFn, innerLength, elementEqualFn) {
+						var diffCount = 0,
+							minObj = Obj1,
+							maxObj = Obj2;
+
+						if (outerLength(maxObj) < outerLength(minObj)) {
+							var tmp = maxObj;
+							maxObj = minObj;
+							minObj = tmp;
+						}
+
+						if (minObj == null) {
+							if ( maxObj != null ) 
+								diffCount += lengthFn(maxObj);
+						} else if ( maxObj == null ) {
+							if (minObj !=null) {
+								diffCount += lengthFn(minObj);
+							}
+						} else {
+							for (var t in maxObj) {
+								if (!(t in minObj)) {
+									diffCount += innerLength(maxObj[t]);
+								} else if (!elementEqualFn(maxObj[t], minObj[t])) {
+									diffCount += Math.abs(innerLength(maxObj[t]) - innerLength(minObj[t]));;
+								} 
+							} 
+							// inefficient as it may count duplicate keys anyway,
+							// but we need to count those unique ones in minObj as well
+							for (var t in minObj) {
+								if (!(t in maxObj)) {
+									diffCount += innerLength(minObj[t]);
+								}
+							}
+						}
+						return diffCount;
+					};
+					
+					// check Cached JSON difference == expected value
+					var checkCache = function checkCacheSame(curJSON, preJSON, expected) {
+						var maxValues = curJSON.values;
+						var maxNoValue = curJSON.novalue;
+						var minValues = preJSON.values;
+						var minNoValue = preJSON.novalue;
+						var diffCount = 0;
+
+						// compare string value 
+						var stringEquals = function stringEquals(s1, s2) {
+							return s1 == s2;
+						};
+
+						// compare 2 arrays
+						var arrayEquals = function arrayEquals(arr1, arr2) {
+						    // if any array is a falsy value, return false
+						    if (!arr2 || !arr1) 
+						        return false;
+						
+						    // compare lengths - can save a lot of time 
+						    if (arr1.length != arr2.length)
+						        return false;
+
+						    for (var i = 0, l=arr1.length; i < l; i++) {
+						        // Check if we have nested arrays
+						        if (arr1[i] instanceof Array && arr2[i] instanceof Array) {
+						            if (!arrayEquals(arr1[i], arr2[i])) {
+						                return false;     
+						            }  
+						        }
+						        else if (arr1[i] != arr2[i]) { 
+						            return false;   
+						        }
+						    }
+						    return true;
+						};
+						
+						// string is counted as 1 element
+						var strLength = function strLength(str) {
+							return 1;
+						};
+						// array is normal length
+						var arrLength = function strLength(arr) {
+							return arr.length;
+						};
+						// object is counted as its key length
+						var objLength = function objeLength(obj) {
+							Object.keys(obj).length;
+						};
+						// no Value is a normal array
+						var noValueLength = function noValueLength(array) {
+							return array.length;
+						};
+						
+						// value is a nested array, so length is its nested length
+						var valueLength = function valueLength(array) {
+							var totalLength = 0;
+							for(var i in array) {
+								totalLength += array[i].length;
+							}
+							return totalLength;
+						};
+						
+						diffCount += countDiff(minValues, maxValues, objLength, valueLength, arrLength, arrayEquals);
+						diffCount += countDiff(minNoValue, maxNoValue, arrLength, noValueLength, strLength, stringEquals);
+						return (diffCount == expected);
+					};
+					
+					// here we check JSON to see whether client cache can be used or not
+					// problem introduced if server cache != client cache 
+					// (i.e. others(server) modify the data, but browser(clients) may store duplicate previous copies)
+					var clientCacheMatchesServerCache = false;
+					var preJSON = sidewayJSON[topLocale + xpath];
+					if (preJSON != null) {
+						if (cacheStat == "same") {
+							clientCacheMatchesServerCache = checkCache(json, preJSON, 0);
+						} else if (cacheStat == "different") {
+							clientCacheMatchesServerCache = checkCache(json, preJSON, 2);
+						}
+					}
+					
+					// use a deep(nested) copy since json may be modified later
+					var jsonCopy = $.extend( true, {}, json );
+					sidewayJSON[topLocale + xpath] = jsonCopy;
+					localStorage.setItem('sidewayJSON', JSON.stringify(sidewayJSON));
+					
+					// some debug info, hide it for now
+//					if (clientCacheMatchesServerCache) {
+//						console.log("client cache used, pay attention");
+//					}
+					
+					// SideTable is generated here, cases include:
+					// 1. it is oneLocale(checked 1st time, skip for following), no table
+					// 2. cacheStat is set: client cache is actually expected
+					if (isOneLocale) {
+					} else if ( clientCacheMatchesServerCache && (cacheStat == "same") ) {
 						// locale may get changed (so still need update)..
 
 						// remove all previous curValue classes
-						var removeCurLocales = function removeCurLocales() {
-							var curValues = document.getElementsByClassName("curLocale");
+						var removeCurLocales = function removeCurLocales(table) {
+							var curValues = getElementsByClassFromTable(table, "curLocale", "option");
 							for(var i = 0; i < curValues.length; i++) {
 								var option = curValues[i];
 								option.classList.remove("curLocale");
@@ -2095,18 +2290,18 @@ function showForumStuff(frag, forumDiv, tr) {
 						};
 						
 						// add curValue/curLocale to approriate entry
-						var addCurLocale = function addCurLocale(loc) {
-							var option = document.getElementById(loc + "_value");
+						var addCurLocale = function addCurLocale(loc, table) {
+							var option = getOptionByIdFromTable(table, loc + "_value");
 							option.setAttribute("disabled", "disabled");
 							option.setAttribute("class", "curLocale");
 							option.parentNode.classList.add("curValue");
 						};
 						
-						var sideTable = getSideTable();
-						removeCurLocales();
-						addCurLocale(loc);
+						var sideTable = getSideTable(true);
+						removeCurLocales(sideTable);
+						addCurLocale(loc, sideTable);
 						updateSideTable(sideTable);
-					} else if (cacheStat == "different") {
+					} else if ( clientCacheMatchesServerCache && (cacheStat == "different") ) {
 						// cached but different, so we only do update (save work for sort back-end data)
 						// 1. Remove preValue & add curValue
 						// 2. remove the <select> entry if it becomes 0 length
@@ -2115,21 +2310,35 @@ function showForumStuff(frag, forumDiv, tr) {
 						// 5. update localeStorage table
 
 						// sort options for 1 specific selection (should only have 1 .curValue class)
-						var sortOptions = function sortOptions(){
-							$(".curValue").html($(".curValue option").sort(function (a, b) {
-								return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
-							}));
-
+						var sortOptions = function sortOptions(table){
+							var curOption = getOptionByIdFromTable(table, loc + "_value");
+							var curSelect = curOption.parentNode;
+							var length = curSelect.options.length;
+							var x = [];
+							for (var i = length-1; i >= 0; i--) {
+							   x.push(curSelect.options[i]);
+							   curSelect.removeChild(curSelect.options[i]);
+							}
+							x.sort(function(o1,o2){
+							   if(o1.value > o2.value) {
+							      return 1;
+							   } else if(o1.value < o2.value) {
+							      return -1;
+							   }
+							   return 0;
+							});
+							for (var i = 0; i < length; i++) {
+								curSelect.appendChild(x[i]);
+							}
 						};
 						
 						// sort selects(actually only need to move .curValue to appropriate place)
-						var sortSelects = function sortSelects(){
-							var curValues = document.getElementsByClassName("curValue");
-							var curSelect = curValues[0];
+						var sortSelects = function sortSelects(table){
+							var curOption = getOptionByIdFromTable(table, loc + "_value");
+							var curSelect = curOption.parentNode;
 							var curValue = curSelect.value;
-							var table = curSelect.parentNode.parentNode.parentNode;
 							var rlen = table.rows.length;
-
+							
 							if (rlen > 1){ // only do this if > 1 row
 								curSelect.parentNode.parentNode.parentNode.removeChild(curSelect.parentNode.parentNode); // remove previous entry
 								for (var i = 0; i < table.rows.length; i++) { // find 1st right place to insert
@@ -2141,32 +2350,41 @@ function showForumStuff(frag, forumDiv, tr) {
 										return;
 									}
 								}
-								var row = table.insertRow(rlen-1);
+								var row = table.insertRow(rlen-1); //diff 1 because we delete one entry..
 								row.insertCell().appendChild(curSelect);
 							}
 						};
 
 						// 1. Remove preValue & add curValue
-						var updateTableForLocale = function updateTable(loc, curValue, needRemove, sideTable) {
-							var curOption = document.getElementById(curValue+ "_title_value");
-							var preOption = document.getElementById(loc + "_value");
+						var updateTableForLocale = function updateTable(loc, curValue, sideTable) {
+							var curOption = getOptionByIdFromTable(sideTable, curValue+ "_title_value");
+							var preOption = getOptionByIdFromTable(sideTable, loc + "_value");
 							var preSelect = preOption.parentNode;
 							
-							// remove preValue option
+							/* Note: if the users change the locale and then change the value(<2s),
+							 * 		 they may see incorrect CSS styles. Reason is the class is not moved correctly
+							 * Solution: 1. Enable this function, loop through the table and update -> inefficient
+							 * 			 2. Disable this, and the 2nd getSideView AJAX call will do update
+							 * As for efficiency purpose and unknown user behaviors, I disable it now.
+							*/
+//							clearCurrentClasses(sideTable);
+
+							// remove preValue option & add .curLocale
+							preOption.classList.add("curLocale");
 							preSelect.removeChild(preOption);
 							preSelect.classList.remove("curValue");
 
 							// 2. remove the <select> entry if it becomes 0 length (i.e. only "title" value is left)
-							if (needRemove && (preSelect.length == 1)) { 
+							if ( preSelect.length == 1 ) { 
 								preSelect.parentNode.parentNode.parentNode.removeChild(preSelect.parentNode.parentNode);
 							}
-							
+
 							// add to curValue
 							if (curOption != null) {
 								curOption.parentNode.appendChild(preOption);
-								curOption.parentNode.className.add("curValue");
+								curOption.parentNode.classList.add("curValue");
 							} else {
-								addNewValue = true;
+								addNewOption = true;
 								var popupSelect = createChunk(null, "select", "sidewaySelect curValue");
 	
 								var title = document.createElement("option");
@@ -2181,28 +2399,30 @@ function showForumStuff(frag, forumDiv, tr) {
 							}
 						};
 						
-						var addNewValue = false;
+						var addNewOption = false;
 						var curValue = relatedLocaleInfo.curValue;
 						var topLocaleValue =relatedLocaleInfo.topLocaleValue;
 						if ((curValue == null) && (topLocaleValue != null)) { // inherit no-value from top Locale
 							curValue = topLocaleValue;
+						} else if (curValue == null) { // no top Locale Value, so value is "No Value Found"
+							curValue = "No Value Found";
 						}
 						
-						var sideTable = getSideTable();
-						// 1 & 2 tasks here
-						updateTableForLocale(loc, curValue, true, sideTable);
+						var sideTable = getSideTable(true);
+						// 1 & 2 tasks here (except the case: topLocale + noValue)
+						if (!(loc == topLocale && curValue == "No Value Found"))  // it seems it executets ANYWAY???
+							updateTableForLocale(loc, curValue, sideTable);
 						// 3. move all no-value locales to topLocale as well
 						if (loc == topLocale) {
 							var noValue = json.novalue;
 							for(var noValueLoc in noValue) {
-								updateTableForLocale(noValue[noValueLoc], curValue, false, sideTable);
+								updateTableForLocale(noValue[noValueLoc], curValue, sideTable);
 							};
 						}
 						// 4. sort approriate select/options
-						sortOptions();
-						if(addNewValue){
-							sortSelects();
-						}
+						sortOptions(sideTable);
+						if (addNewOption) 
+							sortSelects(sideTable);
 						// 5. update locale stroage
 						updateSideTable(sideTable); 
 					} else {
@@ -2293,7 +2513,7 @@ function showForumStuff(frag, forumDiv, tr) {
 						};
 						
 						// create/update table, and create downdown with pre-processed dataList
-						var sideTable = getSideTable();
+						var sideTable = getSideTable(false);
 						for ( var i = 0; i < dataList.length; i++) {
 					        var trow = sideTable.insertRow();
 					        var td = trow.insertCell();

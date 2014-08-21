@@ -1228,11 +1228,6 @@ public class SurveyAjax extends HttpServlet {
                         JSONWriter cachedSideView = stf.getCachedSideView(topLocale.getBaseName(), xpath);
 
                         if (cachedSideView != null) { // it has been cached, update
-                            final JSONWriter cached = newJSONStatusQuick(sm);
-                            cached.put("what", what);
-                            cached.put("loc", loc);
-                            cached.put("xpath", xpath);
-                            
                             JSONObject relatedLocaleInfo = (JSONObject) cachedSideView.get("relatedLocaleInfo");
                             XMLSource src = stf.makeSource(loc, false);
                             User mine = mySession.user;
@@ -1240,10 +1235,11 @@ public class SurveyAjax extends HttpServlet {
                             String preValue = stf.getValueForLocale(loc, xpath, curValue, mine);
 
                             relatedLocaleInfo.put("curValue", curValue);
-                            cached.put("relatedLocaleInfo", relatedLocaleInfo);
+                            cachedSideView.put("relatedLocaleInfo", relatedLocaleInfo);
+                            cachedSideView.put("loc", loc);
                             if ((preValue == curValue || ((preValue != null) && preValue.equals(curValue)))) { // same, directly send cached one
-                                cached.put("cacheStat", "same");
-                                send(cached, out);
+                                cachedSideView.put("cacheStat", "same");
+                                send(cachedSideView, out);
                             } else {
                                 // update curValue here
                                 values = (JSONObject) cachedSideView.get("values");
@@ -1277,10 +1273,11 @@ public class SurveyAjax extends HttpServlet {
                                     empties.remove(loc);
                                 }
                                 relatedLocaleInfo.put("preValue", preValue);
-                                cached.put("cacheStat", "different");
-                                cached.put("relatedLocaleInfo", relatedLocaleInfo);
-                                cached.put("novalue", empties);
-                                send(cached, out);
+                                cachedSideView.put("cacheStat", "different");
+                                cachedSideView.put("relatedLocaleInfo", relatedLocaleInfo);
+                                cachedSideView.put("novalue", empties);
+                                cachedSideView.put("values", values);
+                                send(cachedSideView, out);
                             }
                         } else { // not cached, construct and cache
                             String topLocaleValue = null;
