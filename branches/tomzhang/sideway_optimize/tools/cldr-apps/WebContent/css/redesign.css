@@ -1013,15 +1013,15 @@ fieldset[disabled] .btn-primary.active {
 	border-collapse: collapse;
 }
 .sidewaysArea .sideTable select {
-    width: 100%;
+	width: 100%;
 }
 .sidewaysArea .sideTable .curValue {
-    color: #2E00FF;
-    font-size: medium;
+	color: #2E00FF;
+	font-size: medium;
 }
 .sidewaysArea .sideTable .curValue .curLocale{
-    background-color: rgb(221, 224, 221);
-    color: white;
+	background-color: rgb(221, 224, 221);
+	color: white;
 }
 .sidewaysArea .sideTable select option{
 	color: #666666;
