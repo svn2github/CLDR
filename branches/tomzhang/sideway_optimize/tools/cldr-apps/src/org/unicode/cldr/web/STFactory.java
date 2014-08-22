@@ -422,7 +422,6 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
                 }
             };
             Date lastModDate = null;
-            JSONWriter sideView = null;
             Set<String> otherValues = null;
             Map<User,PerUserData> userToData = null;
             /**
@@ -1671,16 +1670,56 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     }
 
     /**
+     * class to store value-writer pair for sideways optimization
+     * used in HashMap to store value/JSON object for specific locale
+     * @author tomzhang
+     */
+    static public class ValueWriter {
+        private String value;
+        private JSONWriter jsonWriter;
+
+        ValueWriter(JSONWriter writer) {
+            value = null;
+            jsonWriter = writer;
+        }
+        ValueWriter(String val, JSONWriter writer) {
+            value = val;
+            jsonWriter = writer;
+        }
+        public void setValue(String val) {
+            value = val;
+        }
+        public String getValue() {
+            return value;
+        }
+        public void setJSONWriter(JSONWriter writer) {
+            jsonWriter = writer;
+        }
+        public JSONWriter getJSONWriter() {
+            return jsonWriter;
+        }
+    }
+    
+    // Originally I tried to use PerLocaleData, but it is not static. 
+    // And this static cache should be used for synchronized data
+    static private Map<String, ValueWriter> localeXPathToValueWriter = new HashMap<String, ValueWriter>();
+    
+    /**
      * Set the cached SideView JSONWriter
      * @param locale locale to look up
      * @param xpath path to look up
+     * @param value value to set
      * @param jw JSONWriter to cache
      */
-    public void setCachedSideView(String locale, String xpath, JSONWriter jw) {
-        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
-        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
-        pxd.sideView = jw;
-        pld.xpathToData.put(xpath, pxd);
+    static public void setCachedSideView(String locale, String xpath, String value, JSONWriter jw) {
+        String locXpath = locale + "_" + xpath; // get a unique string for map
+        ValueWriter valWriter = localeXPathToValueWriter.get(locXpath);
+        if (valWriter == null) { // no previous instance stored (should not be the case, instantiate it)
+            valWriter = new ValueWriter(value, jw);
+        }
+        valWriter.setValue(value);
+        valWriter.setJSONWriter(jw);
+        localeXPathToValueWriter.put(locXpath, valWriter);
     }
     
     /**
@@ -1689,58 +1728,33 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
      * @param xpath path to look up
      * @return cached JSONWriter
      */
-    public JSONWriter getCachedSideView(String locale, String xpath) {
-        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
-        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
-        return pxd.sideView;
+    static public JSONWriter getCachedSideView(String locale, String xpath) {
+        String locXpath = locale + "_" + xpath; // get a unique string for map
+        ValueWriter valWriter = localeXPathToValueWriter.get(locXpath);
+        if (valWriter == null) { // no previous instance stored (should not be the case, instantiate it)
+            System.out.println("getCachedSideView： no Cached Side View stored for locale " + locale + " xpath " + xpath + ", check usage");
+            valWriter = new ValueWriter(null);
+        }
+        return valWriter.getJSONWriter();
     }
     
     /**
      * Get the current value on some path for locale
-     * @param locale locale to look up
-     * @param xpath path to set
-     * @param user user to query its vote value
-     * @return the value on path for locale
-     */
-    public String getValueForLocale(String locale, String xpath, User user) {
-        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
-        pld.peekXpathData(xpath);
-        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
-        String curValue = pxd.getVoteValue(user);
-        return curValue;
-    }
-
-    /**
-     * Get the current value on some path for locale
-     * And set the value to new Value 
+     * Note: sub locale has no JSONWriter, only top Locale will store it
      * @param locale locale to look up
      * @param xpath path to set
      * @param newValue new value to set 
      * @param user user to query its vote value
      * @return the value on path for locale
      */
-    public String getValueForLocale(String locale, String xpath, String newValue, User user) {
-        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
-        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
-        String curValue = pxd.getVoteValue(user);
-        pxd.setVoteForValue(user, xpath, newValue, null, new Date());
-        pld.xpathToData.put(xpath, pxd);
-        return curValue;
-    }
-
-    /**
-     * Set value on some path for locale to the new value
-     * @param locale locale to look up
-     * @param xpath path to set
-     * @param value new value to set
-     * @param user user to query its vote value
-     */
-    public void setValueForLocale(String locale, String xpath, String value, User user) {
-        PerLocaleData pld = get(CLDRLocale.getInstance(locale));
-        pld.peekXpathData(xpath);
-        PerLocaleData.PerXPathData pxd = pld.getXPathData(xpath);
-        pxd.setVoteForValue(user, xpath, value, null, new Date());
-        pld.xpathToData.put(xpath, pxd);
+    static public String getValueForLocale(String locale, String xpath) {
+        String locXpath = locale + "_" + xpath; // get a unique string for map
+        ValueWriter valWriter = localeXPathToValueWriter.get(locXpath);
+        if (valWriter == null) { // no previous instance stored (should not be the case, instantiate it)
+            System.out.println("getValueForLocale： no Cached Side View stored for locale " + locale + " xpath " + xpath + ", check usage");
+            valWriter = new ValueWriter(null);
+        }
+        return valWriter.getValue();
     }
     
     public TestCache.TestResultBundle getTestResult(CLDRLocale loc, CheckCLDR.Options options) {

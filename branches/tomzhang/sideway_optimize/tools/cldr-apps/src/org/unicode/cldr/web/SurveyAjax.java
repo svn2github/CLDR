@@ -1225,14 +1225,13 @@ public class SurveyAjax extends HttpServlet {
                         SupplementalDataInfo sdi = sm.getSupplementalDataInfo();
                         Set<CLDRLocale> readOnlyLocales = SurveyMain.getReadOnlyLocales();
                         STFactory stf = sm.getSTFactory();
-                        JSONWriter cachedSideView = stf.getCachedSideView(topLocale.getBaseName(), xpath);
+                        JSONWriter cachedSideView = STFactory.getCachedSideView(topLocale.getBaseName(), xpath);
 
                         if (cachedSideView != null) { // it has been cached, update
                             JSONObject relatedLocaleInfo = (JSONObject) cachedSideView.get("relatedLocaleInfo");
                             XMLSource src = stf.makeSource(loc, false);
-                            User mine = mySession.user;
                             String curValue = src.getValueAtDPath(xpathString);
-                            String preValue = stf.getValueForLocale(loc, xpath, curValue, mine);
+                            String preValue = STFactory.getValueForLocale(loc, xpath);
 
                             relatedLocaleInfo.put("curValue", curValue);
                             cachedSideView.put("relatedLocaleInfo", relatedLocaleInfo);
@@ -1244,7 +1243,7 @@ public class SurveyAjax extends HttpServlet {
                                 // update curValue here
                                 values = (JSONObject) cachedSideView.get("values");
                                 empties = (JSONArray) cachedSideView.get("novalue");
-
+                                
                                 JSONArray other = null;
                                 if (values.has(curValue)) {
                                     other = values.getJSONArray(curValue);
@@ -1277,6 +1276,7 @@ public class SurveyAjax extends HttpServlet {
                                 cachedSideView.put("relatedLocaleInfo", relatedLocaleInfo);
                                 cachedSideView.put("novalue", empties);
                                 cachedSideView.put("values", values);
+                                STFactory.setCachedSideView(loc, xpath, curValue, cachedSideView);
                                 send(cachedSideView, out);
                             }
                         } else { // not cached, construct and cache
@@ -1296,10 +1296,9 @@ public class SurveyAjax extends HttpServlet {
                                 String baseName = ol.getBaseName();
                                 XMLSource src = stf.makeSource(baseName, false);
                                 String ov = src.getValueAtDPath(xpathString);
-                                User mine = mySession.user;
 
                                 // cache locale path data here
-                                stf.setValueForLocale(baseName, xpath, ov, mine);
+                                STFactory.setCachedSideView(baseName, xpath, ov, null);
 
                                 if (ol == topLocale) {
                                     topLocaleValue = ov;
@@ -1334,7 +1333,7 @@ public class SurveyAjax extends HttpServlet {
                             r.put("values", values);
                             r.put("novalue", empties);
                             // cache JSONWriter here
-                            stf.setCachedSideView(topLocale.getBaseName(), xpath, r);
+                            STFactory.setCachedSideView(topLocale.getBaseName(), xpath, curValue, r);
                             send(r, out);
                         }
                     } else if (what.equals(WHAT_SEARCH)) {
