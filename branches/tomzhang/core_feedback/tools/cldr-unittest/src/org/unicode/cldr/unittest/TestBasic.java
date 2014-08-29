@@ -343,6 +343,10 @@ public class TestBasic extends TestFmwkPlus {
                     if (!parts.getElement(-1).equals("symbol")) {
                         continue;
                     }
+                    // We don't care about fallbacks for narrow currency symbols
+                    if ( "narrow".equals(parts.getAttributeValue(-1, "alt"))) {
+                        continue;
+                    }
                     String currencyType = parts.getAttributeValue(-2, "type");
 
                     UnicodeSet fishy = new UnicodeSet().addAll(value).retainAll(CHARACTERS_THAT_SHOULD_HAVE_FALLBACKS)
@@ -1149,14 +1153,6 @@ public class TestBasic extends TestFmwkPlus {
             xfr.read(myHandler.fileName, -1, true);
             logln(myHandler.fileName);
         } catch (Exception e) {
-            if (logKnownIssue("cldrbug:6743", "Bad xml files")) {
-                try {
-                    if (fileToRead.getCanonicalPath().contains("/exemplars/")) {
-                        return;
-                    }
-                } catch (IOException e1) {
-                } // skip
-            }
             Throwable t = e;
             StringBuilder b = new StringBuilder();
             String indent = "";

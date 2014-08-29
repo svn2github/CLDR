@@ -167,7 +167,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="gsw">швајцарски немачки</language>
 			<language type="gu">гуџарати</language>
 			<language type="gv">манкс</language>
-			<language type="gwi">гвич'ин</language>
+			<language type="gwi">гвич’ин</language>
 			<language type="ha">хауса</language>
 			<language type="hai">хаида</language>
 			<language type="haw">хавајски</language>
@@ -2105,6 +2105,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<gmtFormat>GMT{0}</gmtFormat>
 			<regionFormat draft="contributed">Време у земљи: {0}</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Чонгкинг</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Харбин</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Кашгар</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Непознат или неважећи град</exemplarCity>
 			</zone>
@@ -2459,20 +2468,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Дуала</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Кашгар</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Урумкви</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Чонгкинг</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Шангај</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Харбин</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Богота</exemplarCity>
@@ -6207,3 +6207,4 @@ For terms of use, see http://www.unicode.org/copyright.html
 		</messages>
 	</posix>
 </ldml>
+

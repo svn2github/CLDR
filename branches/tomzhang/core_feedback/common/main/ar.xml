@@ -143,7 +143,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="es">الإسبانية</language>
 			<language type="es_419">إسبانية أمريكا اللاتينية</language>
 			<language type="es_ES">الإسبانية الأوروبية</language>
-			<language type="es_MX">الإسبانية (المكسيك)</language>
 			<language type="et">الإستونية</language>
 			<language type="eu">لغة الباسك</language>
 			<language type="ewo">الإيوندو</language>
@@ -717,7 +716,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">جمهورية الكونغو</territory>
 			<territory type="CH">سويسرا</territory>
 			<territory type="CI">ساحل العاج</territory>
-			<territory type="CI" alt="variant">ساحل العاج</territory>
 			<territory type="CK">جزر كوك</territory>
 			<territory type="CL">شيلي</territory>
 			<territory type="CM">الكاميرون</territory>
@@ -908,7 +906,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">طاجكستان</territory>
 			<territory type="TK">توكيلو</territory>
 			<territory type="TL">تيمور الشرقية</territory>
-			<territory type="TL" alt="variant">تيمور الشرقية</territory>
 			<territory type="TM">تركمانستان</territory>
 			<territory type="TN">تونس</territory>
 			<territory type="TO">تونغا</territory>
@@ -1102,7 +1099,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 		</orientation>
 	</layout>
 	<characters>
-		<exemplarCharacters>[\u064B \u064C \u064D \u064E \u064F \u0650 \u0651 \u0652 \u0670 ء آ أ ؤ إ ئ ا ب ت ة ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي ى]</exemplarCharacters>
+		<exemplarCharacters>[\u064B \u064C \u064D \u064E \u064F \u0650 \u0651 \u0652 \u0670 ء أ ؤ إ ئ ا آ ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ى ي]</exemplarCharacters>
 		<exemplarCharacters type="auxiliary">[\u200C\u200D\u200E\u200F پ چ ژ ڜ ڢ ڤ ڥ ٯ ڧ ڨ ک گ ی]</exemplarCharacters>
 		<exemplarCharacters type="index">[ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي]</exemplarCharacters>
 		<exemplarCharacters type="punctuation">[\- ‐ – — ، ؛ \: ! ؟ . ' &quot; ( ) \[ \]]</exemplarCharacters>
@@ -1652,13 +1649,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<eras>
 					<eraNames>
 						<era type="0">قبل الميلاد</era>
-						<era type="0" alt="variant">قبل الميلاد</era>
 						<era type="1">ميلادي</era>
 						<era type="1" alt="variant">بعد الميلاد</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">ق.م</era>
-						<era type="0" alt="variant">ق.م</era>
 						<era type="1">م</era>
 						<era type="1" alt="variant">ب.م</era>
 					</eraAbbr>
@@ -2989,6 +2984,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">توقيت {0} الصيفي</regionFormat>
 			<regionFormat type="standard">توقيت {0} الرسمي</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>تشونجكينج</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>هاربين</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>كاشجار</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>مدينة غير معروفة</exemplarCity>
 			</zone>
@@ -3355,20 +3359,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>دوالا</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>كاشجار</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>أرومكي</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>تشونجكينج</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity draft="contributed">شنغهاي</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>هاربين</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>بوغوتا</exemplarCity>

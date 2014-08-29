@@ -106,7 +106,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="dar">Даргва</language>
 			<language type="dav">таита</language>
 			<language type="de">немачки</language>
-			<language type="de_AT">немачки (Аустрија)</language>
 			<language type="de_CH">швајцарски високи немачки</language>
 			<language type="del">Делавер</language>
 			<language type="den">Славски</language>
@@ -129,18 +128,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="el">грчки</language>
 			<language type="elx">Еламитски</language>
 			<language type="en">енглески</language>
-			<language type="en_AU">енглески (Аустралија)</language>
-			<language type="en_CA">енглески (Канада)</language>
-			<language type="en_GB">енглески (Велика Британија)</language>
 			<language type="en_GB" alt="short">енглески (УК)</language>
-			<language type="en_US">енглески (Сједињене Америчке Државе)</language>
 			<language type="en_US" alt="short">енглески (САД)</language>
 			<language type="enm">Средњи енглески</language>
 			<language type="eo">есперанто</language>
 			<language type="es">шпански</language>
-			<language type="es_419">шпански (Латинска Америка)</language>
-			<language type="es_ES">шпански (Шпанија)</language>
-			<language type="es_MX">шпански (Мексико)</language>
 			<language type="et">естонски</language>
 			<language type="eu">баскијски</language>
 			<language type="ewo">Евондо</language>
@@ -154,8 +146,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fo">фарски</language>
 			<language type="fon">Фон</language>
 			<language type="fr">француски</language>
-			<language type="fr_CA">француски (Канада)</language>
-			<language type="fr_CH">француски (Швајцарска)</language>
 			<language type="frm">Средњи француски</language>
 			<language type="fro">Старофранцуски</language>
 			<language type="frr">Северно-фризијски</language>
@@ -183,7 +173,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="gu">гуџарати</language>
 			<language type="guz">гуси</language>
 			<language type="gv">Манкс</language>
-			<language type="gwi">Гвич'ин</language>
+			<language type="gwi">Гвич’ин</language>
 			<language type="ha">хауса</language>
 			<language type="hai">Хаида</language>
 			<language type="haw">хавајски</language>
@@ -475,7 +465,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="tzm">централноатласки тамазигт</language>
 			<language type="udm">Удмурт</language>
 			<language type="ug">ујгурски</language>
-			<language type="ug" alt="variant" draft="contributed">ујгурски</language>
 			<language type="uga">Угаритски</language>
 			<language type="uk">украјински</language>
 			<language type="umb">Умбунду</language>
@@ -507,8 +496,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="zen">Зенага</language>
 			<language type="zgh">стандардни марокански тамазигт</language>
 			<language type="zh">кинески</language>
-			<language type="zh_Hans">кинески (поједностављено кинеско писмо)</language>
-			<language type="zh_Hant">кинески (традиционално кинеско писмо)</language>
 			<language type="zu">зулу</language>
 			<language type="zun">Зуни</language>
 			<language type="zxx">без лингвистичког садржаја</language>
@@ -728,7 +715,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Конго (Република)</territory>
 			<territory type="CH">Швајцарска</territory>
 			<territory type="CI">Обала Слоноваче</territory>
-			<territory type="CI" alt="variant">Обала Слоноваче</territory>
 			<territory type="CK">Кукова Острва</territory>
 			<territory type="CL">Чиле</territory>
 			<territory type="CM">Камерун</territory>
@@ -919,7 +905,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Таџикистан</territory>
 			<territory type="TK">Токелау</territory>
 			<territory type="TL">Источни Тимор</territory>
-			<territory type="TL" alt="variant">Источни Тимор</territory>
 			<territory type="TM">Туркменистан</territory>
 			<territory type="TN">Тунис</territory>
 			<territory type="TO">Тонга</territory>
@@ -1600,9 +1585,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 					</eraNames>
 					<eraAbbr>
 						<era type="0">п. н. е.</era>
-						<era type="0" alt="variant" draft="contributed">п. н. е.</era>
 						<era type="1">н. е.</era>
-						<era type="1" alt="variant" draft="contributed">н. е.</era>
 					</eraAbbr>
 					<eraNarrow>
 						<era type="0">п.н.е.</era>
@@ -2670,6 +2653,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0}, летње време</regionFormat>
 			<regionFormat type="standard">{0}, стандардно време</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Чонгкинг</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Харбин</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Кашгар</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Непознат град</exemplarCity>
 			</zone>
@@ -3036,20 +3028,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Дуала</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Кашгар</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Урумкви</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Чонгкинг</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Шангај</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Харбин</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Богота</exemplarCity>

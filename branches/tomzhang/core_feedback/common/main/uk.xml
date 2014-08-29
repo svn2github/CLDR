@@ -114,7 +114,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="dar">даргінська</language>
 			<language type="dav">таіта</language>
 			<language type="de">німецька</language>
-			<language type="de_AT">німецька (Австрія)</language>
 			<language type="de_CH">верхньонімецька (Швейцарія)</language>
 			<language type="del">делаварська</language>
 			<language type="den">слейв</language>
@@ -138,18 +137,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="el">грецька</language>
 			<language type="elx">еламська</language>
 			<language type="en">англійська</language>
-			<language type="en_AU">англійська (Австралія)</language>
-			<language type="en_CA">англійська (Канада)</language>
 			<language type="en_GB">англійська британська</language>
-			<language type="en_GB" alt="short" draft="provisional">англійська (Велика Британія)</language>
-			<language type="en_US">англійська (США)</language>
-			<language type="en_US" alt="short">англійська (США)</language>
 			<language type="enm">середньоанглійська</language>
 			<language type="eo">есперанто</language>
 			<language type="es">іспанська</language>
-			<language type="es_419">іспанська (Латинська Америка)</language>
 			<language type="es_ES">іспанська (Європа)</language>
-			<language type="es_MX">іспанська (Мексика)</language>
 			<language type="et">естонська</language>
 			<language type="eu">баскська</language>
 			<language type="ewo">евондо</language>
@@ -163,8 +155,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fo">фарерська</language>
 			<language type="fon">фон</language>
 			<language type="fr">французька</language>
-			<language type="fr_CA">французька (Канада)</language>
-			<language type="fr_CH">французька (Швейцарія)</language>
 			<language type="frm">середньофранцузька</language>
 			<language type="fro">давньофранцузька</language>
 			<language type="frr">фризька північна</language>
@@ -388,7 +378,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="pro">давньопровансальська</language>
 			<language type="ps">пушту</language>
 			<language type="pt">португальська</language>
-			<language type="pt_BR">португальська (Бразилія)</language>
 			<language type="pt_PT">португальська (Європа)</language>
 			<language type="qu">кечуа</language>
 			<language type="quc">кіче</language>
@@ -529,8 +518,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="zen">зенага</language>
 			<language type="zgh">стандартна марокканська берберська</language>
 			<language type="zh">китайська</language>
-			<language type="zh_Hans">китайська (спрощена)</language>
-			<language type="zh_Hant">китайська (традиційна)</language>
 			<language type="zu">зулуська</language>
 			<language type="zun">зуньї</language>
 			<language type="zxx">немає мовного вмісту</language>
@@ -563,7 +550,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Copt">Коптський</script>
 			<script type="Cprt">Кіпрський</script>
 			<script type="Cyrl">кирилиця</script>
-			<script type="Cyrs">Давньоцерковнослов'янський</script>
+			<script type="Cyrs">Давньоцерковнословʼянський</script>
 			<script type="Deva">деванагарі</script>
 			<script type="Dsrt">Дезерет</script>
 			<script type="Egyd">Єгипетський демотичний</script>
@@ -654,7 +641,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Tale">Тай-лі</script>
 			<script type="Talu">Новий тайський луе</script>
 			<script type="Taml">тамільська</script>
-			<script type="Tavt">Тай-в'єт</script>
+			<script type="Tavt">Тай-вʼєт</script>
 			<script type="Telu">телугу</script>
 			<script type="Teng">Тенгвар</script>
 			<script type="Tfng">Тифінаг</script>
@@ -946,7 +933,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Таджикистан</territory>
 			<territory type="TK">Токелау</territory>
 			<territory type="TL">Східний Тимор</territory>
-			<territory type="TL" alt="variant">Східний Тимор</territory>
 			<territory type="TM">Туркменістан</territory>
 			<territory type="TN">Туніс</territory>
 			<territory type="TO">Тонга</territory>
@@ -1001,7 +987,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<variant type="OSOJS">Осоянський діалект</variant>
 			<variant type="PINYIN">Романізація піньїн</variant>
 			<variant type="POLYTON">Політонічний</variant>
-			<variant type="POSIX">Комп'ютерний</variant>
+			<variant type="POSIX">Компʼютерний</variant>
 			<variant type="REVISED">Нова орфографія</variant>
 			<variant type="ROZAJ">Резьянський</variant>
 			<variant type="SAAHO">Сахо</variant>
@@ -1726,13 +1712,10 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<eras>
 					<eraNames>
 						<era type="0">до нашої ери</era>
-						<era type="0" alt="variant">до нашої ери</era>
 						<era type="1">нашої ери</era>
-						<era type="1" alt="variant" draft="provisional">нашої ери</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">до н.е.</era>
-						<era type="0" alt="variant" draft="contributed">до н.е.</era>
 						<era type="1">н.е.</era>
 						<era type="1" alt="variant" draft="provisional">н. е.</era>
 					</eraAbbr>
@@ -2897,6 +2880,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">Час: {0}, літній</regionFormat>
 			<regionFormat type="standard">Час: {0}, стандартний</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Чунцін</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Харбін</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Кашгар</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Невідоме місто</exemplarCity>
 			</zone>
@@ -2949,7 +2941,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Кейсі</exemplarCity>
 			</zone>
 			<zone type="Antarctica/DumontDUrville">
-				<exemplarCity>Дюмон-д'Юрвіль</exemplarCity>
+				<exemplarCity>Дюмон-дʼЮрвіль</exemplarCity>
 			</zone>
 			<zone type="Antarctica/McMurdo">
 				<exemplarCity>Мак-Мердо</exemplarCity>
@@ -3263,20 +3255,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Дуала</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Кашгар</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Урумчі</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Чунцін</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Шанхай</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Харбін</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Богота</exemplarCity>
@@ -3498,7 +3481,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Тегеран</exemplarCity>
 			</zone>
 			<zone type="Atlantic/Reykjavik">
-				<exemplarCity>Рейк'явік</exemplarCity>
+				<exemplarCity>Рейкʼявік</exemplarCity>
 			</zone>
 			<zone type="Europe/Rome">
 				<exemplarCity>Рим</exemplarCity>

@@ -314,7 +314,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="mg">madagassisk</language>
 			<language type="mga">mellomirsk</language>
 			<language type="mgh">makhuwa-meetto</language>
-			<language type="mgo">meta'</language>
+			<language type="mgo">meta’</language>
 			<language type="mh">marshallesisk</language>
 			<language type="mi">maori</language>
 			<language type="mic">micmac</language>
@@ -635,7 +635,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Narb" draft="contributed">gammelnordarabisk</script>
 			<script type="Nbat" draft="contributed">nabataeansk</script>
 			<script type="Nkgb" draft="contributed">naxi geba</script>
-			<script type="Nkoo">n'ko</script>
+			<script type="Nkoo">n’ko</script>
 			<script type="Nshu" draft="contributed">nüshu</script>
 			<script type="Ogam">ogham</script>
 			<script type="Olck">ol-chiki</script>
@@ -779,7 +779,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Republikken Kongo</territory>
 			<territory type="CH">Sveits</territory>
 			<territory type="CI">Elfenbenskysten</territory>
-			<territory type="CI" alt="variant">Elfenbenskysten</territory>
 			<territory type="CK">Cookøyene</territory>
 			<territory type="CL">Chile</territory>
 			<territory type="CM">Kamerun</territory>
@@ -970,7 +969,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Tadsjikistan</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Øst-Timor</territory>
-			<territory type="TL" alt="variant">Øst-Timor</territory>
 			<territory type="TM">Turkmenistan</territory>
 			<territory type="TN">Tunisia</territory>
 			<territory type="TO">Tonga</territory>
@@ -1151,7 +1149,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<type type="mymr" key="numbers">myanmar-tall</type>
 			<type type="mymrshan" key="numbers" draft="contributed">myanmar shan-tall</type>
 			<type type="native" key="numbers" draft="contributed">Språkspesifikke sifre</type>
-			<type type="nkoo" key="numbers" draft="contributed">n'ko-tall</type>
+			<type type="nkoo" key="numbers" draft="contributed">n’ko-tall</type>
 			<type type="no" key="colBackwards" draft="contributed">Sortér aksenttegn normalt</type>
 			<type type="no" key="colCaseFirst" draft="contributed">Sortér store og små bokstaver i vanlig rekkefølge</type>
 			<type type="no" key="colCaseLevel" draft="contributed">Sortér uavhengig av store og små bokstaver.</type>
@@ -1706,7 +1704,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 					</dateFormatLength>
 					<dateFormatLength type="short">
 						<dateFormat>
-							<pattern>dd.MM.yy</pattern>
+							<pattern>dd.MM.y</pattern>
 						</dateFormat>
 					</dateFormatLength>
 				</dateFormats>
@@ -2347,6 +2345,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">sommertid – {0}</regionFormat>
 			<regionFormat type="standard">normaltid – {0}</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Chongqing</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kashgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>ukjent by</exemplarCity>
 			</zone>
@@ -2713,20 +2720,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kashgar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Ürümqi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Chongqing</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Shanghai</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogotá</exemplarCity>
@@ -3390,7 +3388,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>El Salvador</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Damaskus</exemplarCity>
@@ -3402,7 +3400,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Grand Turk</exemplarCity>
 			</zone>
 			<zone type="Africa/Ndjamena">
-				<exemplarCity>N'Djamena</exemplarCity>
+				<exemplarCity>N’Djamena</exemplarCity>
 			</zone>
 			<zone type="Indian/Kerguelen">
 				<exemplarCity>Kerguelen</exemplarCity>
@@ -3905,7 +3903,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>tidssone for Dumont d'Urville</standard>
+					<standard>tidssone for Dumont d’Urville</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">

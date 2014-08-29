@@ -162,9 +162,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="en_AU">Australisch Engels</language>
 			<language type="en_CA">Canadees Engels</language>
 			<language type="en_GB">Brits Engels</language>
-			<language type="en_GB" alt="short">Engels (Verenigd Koninkrijk)</language>
 			<language type="en_US">Amerikaans Engels</language>
-			<language type="en_US" alt="short">Engels (Verenigde Staten)</language>
 			<language type="enm">Middelengels</language>
 			<language type="eo">Esperanto</language>
 			<language type="es">Spaans</language>
@@ -466,7 +464,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="rm">Reto-Romaans</language>
 			<language type="rn">Kirundi</language>
 			<language type="ro">Roemeens</language>
-			<language type="ro_MD">Roemeens (Moldavië)</language>
 			<language type="rof">Rombo</language>
 			<language type="rom">Romani</language>
 			<language type="root">Root</language>
@@ -878,7 +875,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Congo (Republiek)</territory>
 			<territory type="CH">Zwitserland</territory>
 			<territory type="CI">Ivoorkust</territory>
-			<territory type="CI" alt="variant" draft="contributed">Ivoorkust</territory>
 			<territory type="CK">Cookeilanden</territory>
 			<territory type="CL">Chili</territory>
 			<territory type="CM">Kameroen</territory>
@@ -1069,7 +1065,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Tadzjikistan</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Oost-Timor</territory>
-			<territory type="TL" alt="variant" draft="contributed">Oost-Timor</territory>
 			<territory type="TM">Turkmenistan</territory>
 			<territory type="TN">Tunesië</territory>
 			<territory type="TO">Tonga</territory>
@@ -1257,7 +1252,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<type type="mymr" key="numbers">Myanmarese cijfers</type>
 			<type type="mymrshan" key="numbers" draft="contributed">Myanmarese Shan cijfers</type>
 			<type type="native" key="numbers" draft="contributed">Binnenlandse cijfers</type>
-			<type type="nkoo" key="numbers" draft="contributed">N'Ko cijfers</type>
+			<type type="nkoo" key="numbers" draft="contributed">N’Ko cijfers</type>
 			<type type="no" key="colBackwards" draft="contributed">Normaal sorteren op accenten</type>
 			<type type="no" key="colCaseFirst" draft="contributed">Sorteervolgorde algemeen hoofdlettergebruik</type>
 			<type type="no" key="colCaseLevel" draft="contributed">Niet hoofdlettergevoelig sorteren</type>
@@ -1822,7 +1817,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<month type="7" draft="contributed">Baramhat</month>
 							<month type="8" draft="contributed">Baramundah</month>
 							<month type="9" draft="contributed">Bashans</month>
-							<month type="10" draft="contributed">Ba'unah</month>
+							<month type="10" draft="contributed">Ba’unah</month>
 							<month type="11" draft="contributed">Abib</month>
 							<month type="12" draft="contributed">Misra</month>
 							<month type="13" draft="contributed">Nasi</month>
@@ -1852,7 +1847,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<month type="7" draft="contributed">Baramhat</month>
 							<month type="8" draft="contributed">Baramundah</month>
 							<month type="9" draft="contributed">Bashans</month>
-							<month type="10" draft="contributed">Ba'unah</month>
+							<month type="10" draft="contributed">Ba’unah</month>
 							<month type="11" draft="contributed">Abib</month>
 							<month type="12" draft="contributed">Misra</month>
 							<month type="13" draft="contributed">Nasi</month>
@@ -1869,7 +1864,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<month type="7" draft="contributed">Baramhat</month>
 							<month type="8" draft="contributed">Baramundah</month>
 							<month type="9" draft="contributed">Bashans</month>
-							<month type="10" draft="contributed">Ba'unah</month>
+							<month type="10" draft="contributed">Ba’unah</month>
 							<month type="11" draft="contributed">Abib</month>
 							<month type="12" draft="contributed">Misra</month>
 							<month type="13" draft="contributed">Nasi</month>
@@ -1899,7 +1894,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<month type="7" draft="contributed">Baramhat</month>
 							<month type="8" draft="contributed">Baramundah</month>
 							<month type="9" draft="contributed">Bashans</month>
-							<month type="10" draft="contributed">Ba'unah</month>
+							<month type="10" draft="contributed">Ba’unah</month>
 							<month type="11" draft="contributed">Abib</month>
 							<month type="12" draft="contributed">Misra</month>
 							<month type="13" draft="contributed">Nasi</month>
@@ -2175,7 +2170,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<month type="2" draft="contributed">Teqemt</month>
 							<month type="3" draft="contributed">Hedar</month>
 							<month type="4" draft="contributed">Tahsas</month>
-							<month type="5" draft="contributed">T'er</month>
+							<month type="5" draft="contributed">T’er</month>
 							<month type="6" draft="contributed">Yäkatit</month>
 							<month type="7" draft="contributed">Mägabit</month>
 							<month type="8" draft="contributed">Miyazya</month>
@@ -2205,7 +2200,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<month type="2" draft="contributed">Teqemt</month>
 							<month type="3" draft="contributed">Hedar</month>
 							<month type="4" draft="contributed">Tahsas</month>
-							<month type="5" draft="contributed">T'er</month>
+							<month type="5" draft="contributed">T’er</month>
 							<month type="6" draft="contributed">Yäkatit</month>
 							<month type="7" draft="contributed">Mägabit</month>
 							<month type="8" draft="contributed">Miyazya</month>
@@ -2222,7 +2217,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<month type="2" draft="contributed">Teqemt</month>
 							<month type="3" draft="contributed">Hedar</month>
 							<month type="4" draft="contributed">Tahsas</month>
-							<month type="5" draft="contributed">T'er</month>
+							<month type="5" draft="contributed">T’er</month>
 							<month type="6" draft="contributed">Yäkatit</month>
 							<month type="7" draft="contributed">Mägabit</month>
 							<month type="8" draft="contributed">Miyazya</month>
@@ -2252,7 +2247,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<month type="2" draft="contributed">Teqemt</month>
 							<month type="3" draft="contributed">Hedar</month>
 							<month type="4" draft="contributed">Tahsas</month>
-							<month type="5" draft="contributed">T'er</month>
+							<month type="5" draft="contributed">T’er</month>
 							<month type="6" draft="contributed">Yäkatit</month>
 							<month type="7" draft="contributed">Mägabit</month>
 							<month type="8" draft="contributed">Miyazya</month>
@@ -2791,7 +2786,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<dayPeriods>
 					<dayPeriodContext type="format">
 						<dayPeriodWidth type="abbreviated">
-							<dayPeriod type="noon" draft="contributed">12 uur 's middags</dayPeriod>
+							<dayPeriod type="noon" draft="contributed">12 uur ‘s middags</dayPeriod>
 						</dayPeriodWidth>
 						<dayPeriodWidth type="narrow">
 							<dayPeriod type="am">a.m.</dayPeriod>
@@ -2800,7 +2795,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						</dayPeriodWidth>
 						<dayPeriodWidth type="wide">
 							<dayPeriod type="am">a.m.</dayPeriod>
-							<dayPeriod type="noon" draft="contributed">12 uur 's middags</dayPeriod>
+							<dayPeriod type="noon" draft="contributed">12 uur ‘s middags</dayPeriod>
 							<dayPeriod type="pm">p.m.</dayPeriod>
 						</dayPeriodWidth>
 					</dayPeriodContext>
@@ -4292,6 +4287,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">zomertijd {0}</regionFormat>
 			<regionFormat type="standard">standaardtijd {0}</regionFormat>
 			<fallbackFormat draft="contributed">{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity draft="contributed">Chongqing</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity draft="contributed">Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity draft="contributed">Kashgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>onbekende stad</exemplarCity>
 			</zone>
@@ -4658,20 +4662,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity draft="contributed">Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity draft="contributed">Kashgar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity draft="contributed">Urumqi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity draft="contributed">Chongqing</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Sjanghai</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity draft="contributed">Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogota</exemplarCity>
@@ -5849,7 +5844,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard draft="contributed">Dumont-d'Urville tijd</standard>
+					<standard draft="contributed">Dumont-d’Urville tijd</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">

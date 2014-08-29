@@ -915,58 +915,82 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         } else {
             removedItems.clear();
         }
+        Set<String> checked = new HashSet<String>();
         for (Iterator<String> it = iterator(); it.hasNext();) { // see what items we have that the other also has
-            String xpath = it.next();
-            switch (keepIfMatches.getRetention(xpath)) {
-            case RETAIN:
-                continue;
-            case RETAIN_IF_DIFFERENT:
-                String currentValue = dataSource.getValueAtPath(xpath);
-                // if (currentValue == null) continue;
-                String otherXpath = xpath;
-                String otherValue = other.dataSource.getValueAtPath(otherXpath);
-                if (!currentValue.equals(otherValue)) {
-                    if (MINIMIZE_ALT_PROPOSED) {
-                        otherXpath = CLDRFile.getNondraftNonaltXPath(xpath);
-                        if (otherXpath.equals(xpath)) {
-                            continue;
-                        }
-                        otherValue = other.dataSource.getValueAtPath(otherXpath);
-                        if (!currentValue.equals(otherValue)) {
-                            continue;
-                        }
-                    } else {
+            String curXpath = it.next();
+            boolean logicDuplicate = true;
+            
+            if(!checked.contains(curXpath)){
+                // we compare logic Group and only removen when all are duplicate
+                Set<String> logicGroups = LogicalGrouping.getPaths(this, curXpath);
+                Iterator<String> iter = logicGroups.iterator();
+                while(iter.hasNext() && logicDuplicate){
+                    String xpath = iter.next();
+                    switch (keepIfMatches.getRetention(xpath)) {
+                    case RETAIN:
+                        logicDuplicate = false;
                         continue;
+                    case RETAIN_IF_DIFFERENT:
+                        String currentValue = dataSource.getValueAtPath(xpath);
+                         if (currentValue == null) {
+                             logicDuplicate = false;
+                             continue;
+                         }
+                        String otherXpath = xpath;
+                        String otherValue = other.dataSource.getValueAtPath(otherXpath);
+                        if (!currentValue.equals(otherValue)) {
+                            if (MINIMIZE_ALT_PROPOSED) {
+                                otherXpath = CLDRFile.getNondraftNonaltXPath(xpath);
+                                if (otherXpath.equals(xpath)) {
+                                    logicDuplicate = false;
+                                    continue;
+                                }
+                                otherValue = other.dataSource.getValueAtPath(otherXpath);
+                                if (!currentValue.equals(otherValue)) {
+                                    logicDuplicate = false;
+                                    continue;
+                                }
+                            } else {
+                                logicDuplicate = false;
+                                continue;
+                            }
+                        }
+                        String keepValue = (String) XMLSource.getPathsAllowingDuplicates().get(xpath);
+                        if (keepValue != null && keepValue.equals(currentValue)) {
+                            logicDuplicate = false;
+                            continue;
+                        }
+                        // we've now established that the values are the same
+                        String currentFullXPath = dataSource.getFullPath(xpath);
+                        String otherFullXPath = other.dataSource.getFullPath(otherXpath);
+                        if (!equalsIgnoringDraft(currentFullXPath, otherFullXPath)) {
+                            logicDuplicate = false;
+                            continue;
+                        }
+                        if (DEBUG) {
+                            keepIfMatches.getRetention(xpath);
+                        }
+                        break;
+                    case REMOVE:
+                        if (DEBUG) {
+                            keepIfMatches.getRetention(xpath);
+                        }
+                        break;
                     }
-                }
-                String keepValue = (String) XMLSource.getPathsAllowingDuplicates().get(xpath);
-                if (keepValue != null && keepValue.equals(currentValue)) {
-                    continue;
-                }
-                // we've now established that the values are the same
-                String currentFullXPath = dataSource.getFullPath(xpath);
-                String otherFullXPath = other.dataSource.getFullPath(otherXpath);
-                if (!equalsIgnoringDraft(currentFullXPath, otherFullXPath)) {
-                    continue;
-                }
-                if (DEBUG) {
-                    keepIfMatches.getRetention(xpath);
-                }
-                break;
-            case REMOVE:
-                if (DEBUG) {
-                    keepIfMatches.getRetention(xpath);
-                }
-                break;
-            }
 
-            if (first) {
-                first = false;
-                if (butComment) appendFinalComment("Duplicates removed:");
+                }
+                if (first) {
+                    first = false;
+                    if (butComment) appendFinalComment("Duplicates removed:");
+                }
+                
+                // we can't remove right away, since that disturbs the iterator.
+                checked.addAll(logicGroups);
+                if(logicDuplicate){
+                    removedItems.addAll(logicGroups);
+                }
+                // remove(xpath, butComment);
             }
-            // we can't remove right away, since that disturbs the iterator.
-            removedItems.add(xpath);
-            // remove(xpath, butComment);
         }
         // now remove them safely
         for (String xpath : removedItems) {
@@ -1370,7 +1394,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
                 || elementName.equals("currency") && attribute.equals("from")
                 || elementName.equals("currency") && attribute.equals("to")
                 || elementName.equals("currency") && attribute.equals("iso4217")
-                || elementName.equals("parentLocale") && attribute.equals("parent");
+                || elementName.equals("parentLocale") && attribute.equals("parent")
+                || elementName.equals("currencyCodes") && (attribute.equals("numeric") || attribute.equals("type"));
         case keyboard:
             return attribute.equals("_q")
                 || elementName.equals("keyboard") && attribute.equals("locale")
@@ -2492,7 +2517,7 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     //    private static MapComparator<String> elementOrdering = new MapComparator<String>()
     //        .add(
     //            // START MECHANICALLY elementOrdering GENERATED BY FindDTDOrder
-    //            "ldml alternate attributeOrder attributes blockingItems calendarPreference calendarSystem casingData casingItem character character-fallback characterOrder codesByTerritory comment context coverageVariable coverageLevel cp dayPeriodRule dayPeriodRules deprecatedItems distinguishingItems elementOrder exception first_variable fractions hours identity indexSeparator compressedIndexSeparator indexRangePattern indexLabelBefore indexLabelAfter indexLabel info keyMap languageAlias languageCodes languageCoverage languageMatch languageMatches languagePopulation last_variable first_tertiary_ignorable last_tertiary_ignorable first_secondary_ignorable last_secondary_ignorable first_primary_ignorable last_primary_ignorable first_non_ignorable last_non_ignorable first_trailing last_trailing likelySubtag lineOrder mapKeys mapTypes mapZone numberingSystem parentLocale personList pluralRule pluralRules postCodeRegex primaryZone reference region scriptAlias scriptCoverage serialElements stopwordList substitute suppress tRule telephoneCountryCode territoryAlias territoryCodes territoryCoverage currencyCoverage timezone timezoneCoverage transform typeMap usesMetazone validity alias appendItem base beforeCurrency afterCurrency codePattern compoundUnit compoundUnitPattern contextTransform contextTransformUsage currencyMatch cyclicName cyclicNameContext cyclicNameSet cyclicNameWidth dateFormatItem day dayPeriod dayPeriodContext dayPeriodWidth defaultCollation defaultNumberingSystem deprecated distinguishing blocking coverageAdditions durationUnitPattern era eraNames eraAbbr eraNarrow exemplarCharacters ellipsis fallback field generic greatestDifference height hourFormat hoursFormat gmtFormat gmtZeroFormat intervalFormatFallback intervalFormatItem key listPattern listPatternPart localeDisplayNames layout contextTransforms localeDisplayPattern languages localePattern localeSeparator localeKeyTypePattern localizedPatternChars dateRangePattern calendars long measurementSystem measurementSystemName messages minDays firstDay month monthPattern monthPatternContext monthPatternWidth months monthNames monthAbbr monthPatterns days dayNames dayAbbr moreInformation native orientation inList inText otherNumberingSystems paperSize quarter quarters quotationStart quotationEnd alternateQuotationStart alternateQuotationEnd rbnfrule regionFormat fallbackFormat fallbackRegionFormat abbreviationFallback preferenceOrdering relativeTimePattern reset import p pc rule ruleset rulesetGrouping s sc scripts segmentation settings short commonlyUsed exemplarCity singleCountries default calendar collation currency currencyFormat currencySpacing currencyFormatLength dateFormat dateFormatLength dateTimeFormat dateTimeFormatLength availableFormats appendItems dayContext dayWidth decimalFormat decimalFormatLength intervalFormats monthContext monthWidth pattern displayName percentFormat percentFormatLength quarterContext quarterWidth relative relativeTime scientificFormat scientificFormatLength skipDefaultLocale defaultContent standard daylight stopwords indexLabels mapping suppress_contractions optimize cr rules surroundingMatch insertBetween symbol decimal group list percentSign nativeZeroDigit patternDigit plusSign minusSign exponential superscriptingExponent perMille infinity nan currencyDecimal currencyGroup symbols decimalFormats scientificFormats percentFormats currencyFormats currencies miscPatterns t tc q qc i ic extend territories timeFormat timeFormatLength traditional finance transformName type unit unitLength durationUnit unitPattern variable attributeValues variables segmentRules exceptions variantAlias variants keys types transformNames measurementSystemNames codePatterns version generation cldrVersion currencyData language script territory territoryContainment languageData territoryInfo postalCodeData calendarData calendarPreferenceData variant week am pm dayPeriods eras cyclicNameSets dateFormats timeFormats dateTimeFormats fields timeZoneNames weekData timeData measurementData timezoneData characters delimiters measurement dates numbers transforms units listPatterns collations posix segmentations rbnf metadata codeMappings parentLocales likelySubtags metazoneInfo mapTimezones plurals telephoneCodeData numberingSystems bcp47KeywordMappings gender references languageMatching dayPeriodRuleSet metaZones primaryZones weekendStart weekendEnd width windowsZones coverageLevels x yesstr nostr yesexpr noexpr zone metazone special zoneAlias zoneFormatting zoneItem supplementalData"
+    //            "ldml alternate attributeOrder attributes blockingItems calendarPreference calendarSystem casingData casingItem character character-fallback characterOrder codesByTerritory comment context coverageVariable coverageLevel cp dayPeriodRule dayPeriodRules deprecatedItems distinguishingItems elementOrder exception first_variable fractions hours identity indexSeparator compressedIndexSeparator indexRangePattern indexLabelBefore indexLabelAfter indexLabel info keyMap languageAlias languageCodes languageCoverage languageMatch languageMatches languagePopulation last_variable first_tertiary_ignorable last_tertiary_ignorable first_secondary_ignorable last_secondary_ignorable first_primary_ignorable last_primary_ignorable first_non_ignorable last_non_ignorable first_trailing last_trailing likelySubtag lineOrder mapKeys mapTypes mapZone numberingSystem parentLocale personList pluralRule pluralRules postCodeRegex primaryZone reference region scriptAlias scriptCoverage serialElements stopwordList substitute suppress tRule telephoneCountryCode territoryAlias territoryCodes territoryCoverage currencyCodes currencyCoverage timezone timezoneCoverage transform typeMap usesMetazone validity alias appendItem base beforeCurrency afterCurrency codePattern compoundUnit compoundUnitPattern contextTransform contextTransformUsage currencyMatch cyclicName cyclicNameContext cyclicNameSet cyclicNameWidth dateFormatItem day dayPeriod dayPeriodContext dayPeriodWidth defaultCollation defaultNumberingSystem deprecated distinguishing blocking coverageAdditions durationUnitPattern era eraNames eraAbbr eraNarrow exemplarCharacters ellipsis fallback field generic greatestDifference height hourFormat hoursFormat gmtFormat gmtZeroFormat intervalFormatFallback intervalFormatItem key listPattern listPatternPart localeDisplayNames layout contextTransforms localeDisplayPattern languages localePattern localeSeparator localeKeyTypePattern localizedPatternChars dateRangePattern calendars long measurementSystem measurementSystemName messages minDays firstDay month monthPattern monthPatternContext monthPatternWidth months monthNames monthAbbr monthPatterns days dayNames dayAbbr moreInformation native orientation inList inText otherNumberingSystems paperSize quarter quarters quotationStart quotationEnd alternateQuotationStart alternateQuotationEnd rbnfrule regionFormat fallbackFormat fallbackRegionFormat abbreviationFallback preferenceOrdering relativeTimePattern reset import p pc rule ruleset rulesetGrouping s sc scripts segmentation settings short commonlyUsed exemplarCity singleCountries default calendar collation currency currencyFormat currencySpacing currencyFormatLength dateFormat dateFormatLength dateTimeFormat dateTimeFormatLength availableFormats appendItems dayContext dayWidth decimalFormat decimalFormatLength intervalFormats monthContext monthWidth pattern displayName percentFormat percentFormatLength quarterContext quarterWidth relative relativeTime scientificFormat scientificFormatLength skipDefaultLocale defaultContent standard daylight stopwords indexLabels mapping suppress_contractions optimize cr rules surroundingMatch insertBetween symbol decimal group list percentSign nativeZeroDigit patternDigit plusSign minusSign exponential superscriptingExponent perMille infinity nan currencyDecimal currencyGroup symbols decimalFormats scientificFormats percentFormats currencyFormats currencies miscPatterns t tc q qc i ic extend territories timeFormat timeFormatLength traditional finance transformName type unit unitLength durationUnit unitPattern variable attributeValues variables segmentRules exceptions variantAlias variants keys types transformNames measurementSystemNames codePatterns version generation cldrVersion currencyData language script territory territoryContainment languageData territoryInfo postalCodeData calendarData calendarPreferenceData variant week am pm dayPeriods eras cyclicNameSets dateFormats timeFormats dateTimeFormats fields timeZoneNames weekData timeData measurementData timezoneData characters delimiters measurement dates numbers transforms units listPatterns collations posix segmentations rbnf metadata codeMappings parentLocales likelySubtags metazoneInfo mapTimezones plurals telephoneCodeData numberingSystems bcp47KeywordMappings gender references languageMatching dayPeriodRuleSet metaZones primaryZones weekendStart weekendEnd width windowsZones coverageLevels x yesstr nostr yesexpr noexpr zone metazone special zoneAlias zoneFormatting zoneItem supplementalData"
     //            .trim().split("\\s+"))
     //            .setErrorOnMissing(false)
     //            .freeze();
@@ -2599,8 +2624,11 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
             // <ruleset> children
             "rbnfrule",
 
-            // <exceptions> children
+            // <exceptions> children (deprecated, use 'suppressions')
             "exception",
+
+            // <suppressions> children
+            "suppression",
 
             // DTD: supplementalData
             // <territory> children
@@ -3370,7 +3398,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     }
 
     private Collection<String> getRawExtraPathsPrivate(Collection<String> toAddTo) {
-        SupplementalDataInfo supplementalData = SupplementalDataInfo.getInstance(getSupplementalDirectory());
+        SupplementalDataInfo supplementalData = CLDRConfig.getInstance().getSupplementalDataInfo();
+            // SupplementalDataInfo.getInstance(getSupplementalDirectory());
         // units
         PluralInfo plurals = supplementalData.getPlurals(PluralType.cardinal, getLocaleID());
         if (plurals == null && DEBUG) {
@@ -3548,7 +3577,8 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
     public Set<String> getExcludedZones() {
         synchronized (this) {
             if (excludedZones == null) {
-                SupplementalDataInfo supplementalData = SupplementalDataInfo.getInstance(getSupplementalDirectory());
+                SupplementalDataInfo supplementalData = CLDRConfig.getInstance().getSupplementalDataInfo();
+                // SupplementalDataInfo.getInstance(getSupplementalDirectory());
                 excludedZones = new HashSet<String>(supplementalData.getSingleRegionZones());
                 excludedZones = Collections.unmodifiableSet(excludedZones); // protect
             }

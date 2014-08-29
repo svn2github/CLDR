@@ -120,7 +120,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="dar">다르그와어</language>
 			<language type="dav" draft="contributed">타이타어</language>
 			<language type="de">독일어</language>
-			<language type="de_AT">독일어(오스트리아)</language>
 			<language type="de_CH">고지 독일어 (스위스)</language>
 			<language type="del">델라웨어어</language>
 			<language type="den">슬라브어</language>
@@ -147,15 +146,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="en_AU">영어(호주)</language>
 			<language type="en_CA">영어 (캐나다)</language>
 			<language type="en_GB">영어 (영국식)</language>
-			<language type="en_GB" alt="short">영어(영국)</language>
-			<language type="en_US">영어(미국)</language>
-			<language type="en_US" alt="short">영어(미국)</language>
 			<language type="enm">영어, 중세</language>
 			<language type="eo">에스페란토어</language>
 			<language type="es">스페인어</language>
 			<language type="es_419">중남미 스페인어</language>
 			<language type="es_ES">유럽식 스페인어</language>
-			<language type="es_MX">스페인어(멕시코)</language>
 			<language type="et">에스토니아어</language>
 			<language type="eu">바스크어</language>
 			<language type="ewo">이원도어</language>
@@ -800,7 +795,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">콩고 공화국</territory>
 			<territory type="CH">스위스</territory>
 			<territory type="CI">코트디부아르</territory>
-			<territory type="CI" alt="variant">코트디부아르</territory>
 			<territory type="CK">쿡제도</territory>
 			<territory type="CL">칠레</territory>
 			<territory type="CM">카메룬</territory>
@@ -991,7 +985,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">타지키스탄</territory>
 			<territory type="TK">토켈라우</territory>
 			<territory type="TL">동티모르</territory>
-			<territory type="TL" alt="variant">동티모르</territory>
 			<territory type="TM">투르크메니스탄</territory>
 			<territory type="TN">튀니지</territory>
 			<territory type="TO">통가</territory>
@@ -2220,9 +2213,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<eras>
 					<eraNames>
 						<era type="0">기원전</era>
-						<era type="0" alt="variant">기원전</era>
 						<era type="1">서기</era>
-						<era type="1" alt="variant">서기</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">기원전</era>
@@ -3126,6 +3117,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} 하계 표준시</regionFormat>
 			<regionFormat type="standard" draft="contributed">{0} 표준시</regionFormat>
 			<fallbackFormat>{1}({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>충칭</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>하얼빈</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>카슈가르</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>알 수 없는 장소</exemplarCity>
 			</zone>
@@ -3492,20 +3492,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>두알라</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>카슈가르</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>우루무치</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>충칭</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>상하이</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>하얼빈</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>보고타</exemplarCity>

@@ -143,7 +143,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="en_GB">britisk engelsk</language>
 			<language type="en_GB" alt="short">engelsk (UK)</language>
 			<language type="en_US">amerikansk engelsk</language>
-			<language type="en_US" alt="short">engelsk (USA)</language>
 			<language type="enm">middelengelsk</language>
 			<language type="eo">esperanto</language>
 			<language type="es">spansk</language>
@@ -636,7 +635,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Narb" draft="contributed">gammelt nordarabisk</script>
 			<script type="Nbat" draft="contributed">nabateisk</script>
 			<script type="Nkgb" draft="contributed">nakhi geba</script>
-			<script type="Nkoo">n'ko</script>
+			<script type="Nkoo">n’ko</script>
 			<script type="Nshu" draft="contributed">nüshu</script>
 			<script type="Ogam">ogham</script>
 			<script type="Olck">ol-chiki</script>
@@ -780,7 +779,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Republikken Congo</territory>
 			<territory type="CH">Schweiz</territory>
 			<territory type="CI">Elfenbenskysten</territory>
-			<territory type="CI" alt="variant">Elfenbenskysten</territory>
 			<territory type="CK">Cookøerne</territory>
 			<territory type="CL">Chile</territory>
 			<territory type="CM">Cameroun</territory>
@@ -1148,7 +1146,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<type type="mymr" key="numbers">Myanmar tal</type>
 			<type type="mymrshan" key="numbers" draft="contributed">Myanmar Shan-tal</type>
 			<type type="native" key="numbers" draft="contributed">Nationale cifre</type>
-			<type type="nkoo" key="numbers" draft="contributed">N'Ko-tal</type>
+			<type type="nkoo" key="numbers" draft="contributed">N’Ko-tal</type>
 			<type type="no" key="colBackwards" draft="contributed">Sortér efter accenter i normal rækkefølge</type>
 			<type type="no" key="colCaseFirst" draft="contributed">Sortér efter store og små bogstaver i almindelig rækkefølge</type>
 			<type type="no" key="colCaseLevel" draft="contributed">Sortér uden forskel på store og små bogstaver</type>
@@ -1690,7 +1688,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 					</dateFormatLength>
 					<dateFormatLength type="long">
 						<dateFormat>
-							<pattern>d. MMM y</pattern>
+							<pattern>d. MMMM y</pattern>
 						</dateFormat>
 					</dateFormatLength>
 					<dateFormatLength type="medium">
@@ -2341,6 +2339,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} (+1)</regionFormat>
 			<regionFormat type="standard">{0} (+0)</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Chongqing</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kashgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Ukendt by</exemplarCity>
 			</zone>
@@ -2672,7 +2679,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Blanc-Sablon</exemplarCity>
 			</zone>
 			<zone type="America/St_Johns">
-				<exemplarCity>St. John's</exemplarCity>
+				<exemplarCity>St. John’s</exemplarCity>
 			</zone>
 			<zone type="Indian/Cocos">
 				<exemplarCity>Cocos</exemplarCity>
@@ -2707,20 +2714,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kashgar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Urumqi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Chongqing</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Shanghai</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogota</exemplarCity>
@@ -3383,7 +3381,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>El Salvador</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Damaskus</exemplarCity>
@@ -3893,7 +3891,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>Dumont-d'Urville-tid</standard>
+					<standard>Dumont-d’Urville-tid</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">

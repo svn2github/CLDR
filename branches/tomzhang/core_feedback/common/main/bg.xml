@@ -138,8 +138,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="enm">средновековен английски</language>
 			<language type="eo">есперанто</language>
 			<language type="es">испански</language>
-			<language type="es_419">испански (Латинска Америка)</language>
-			<language type="es_ES">испански (Испания)</language>
 			<language type="es_MX">мексикански испански</language>
 			<language type="et">естонски</language>
 			<language type="eu">баски</language>
@@ -372,8 +370,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="ps">пущу</language>
 			<language type="ps" alt="variant">пущунски</language>
 			<language type="pt">португалски</language>
-			<language type="pt_BR">португалски (Бразилия)</language>
-			<language type="pt_PT">португалски (Португалия)</language>
 			<language type="qu">кечуа</language>
 			<language type="quc">киче</language>
 			<language type="raj">раджастански</language>
@@ -593,7 +589,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Moon">Мун</script>
 			<script type="Mtei">Манипури</script>
 			<script type="Mymr">бирманска</script>
-			<script type="Nkoo">Н'Ко</script>
+			<script type="Nkoo">Н’Ко</script>
 			<script type="Ogam">Огамическа</script>
 			<script type="Olck">Ол Чики</script>
 			<script type="Orkh">Орхоно-енисейска</script>
@@ -715,7 +711,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG">Конго</territory>
 			<territory type="CG" alt="variant">Конго (Република)</territory>
 			<territory type="CH">Швейцария</territory>
-			<territory type="CI">Кот д'Ивоар</territory>
+			<territory type="CI">Кот д’Ивоар</territory>
 			<territory type="CI" alt="variant">Бряг на слоновата кост</territory>
 			<territory type="CK">острови Кук</territory>
 			<territory type="CL">Чили</territory>
@@ -907,7 +903,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Таджикистан</territory>
 			<territory type="TK">Токелау</territory>
 			<territory type="TL">Източен Тимор</territory>
-			<territory type="TL" alt="variant">Източен Тимор</territory>
 			<territory type="TM">Туркменистан</territory>
 			<territory type="TN">Тунис</territory>
 			<territory type="TO">Тонга</territory>
@@ -2270,6 +2265,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} – лятно часово време</regionFormat>
 			<regionFormat type="standard">{0} – стандартно време</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Чунцин</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Харбин</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Кашгар</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>неизвестен</exemplarCity>
 			</zone>
@@ -2636,20 +2640,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Дуала</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Кашгар</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Урумчи</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Чунцин</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Шанхай</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Харбин</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Богота</exemplarCity>

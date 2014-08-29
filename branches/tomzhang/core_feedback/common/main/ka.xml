@@ -1480,9 +1480,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 					</eraNames>
 					<eraAbbr>
 						<era type="0">ძვ. წ.</era>
-						<era type="0" alt="variant">ძვ. წ.</era>
 						<era type="1">ახ. წ.</era>
-						<era type="1" alt="variant">ახ. წ.</era>
 					</eraAbbr>
 				</eras>
 				<dateFormats>
@@ -2363,6 +2361,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} ზაფხულის დრო</regionFormat>
 			<regionFormat type="standard">{0} სტანდარტული დრო</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>ჩონგქინგი</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>ჰარბინი</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>კაშგარი</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>უცნობი ქალაქი</exemplarCity>
 			</zone>
@@ -2415,7 +2422,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>კეისი</exemplarCity>
 			</zone>
 			<zone type="Antarctica/DumontDUrville">
-				<exemplarCity>დიუმონ დ'ურვილი</exemplarCity>
+				<exemplarCity>დიუმონ დ’ურვილი</exemplarCity>
 			</zone>
 			<zone type="Antarctica/McMurdo">
 				<exemplarCity>მაკმურდო</exemplarCity>
@@ -2729,20 +2736,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>დუალა</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>კაშგარი</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>ურუმქი</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>ჩონგქინგი</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>შანხაი</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>ჰარბინი</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>ბოგოტა</exemplarCity>
@@ -5835,9 +5833,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<symbol>ZAR</symbol>
 			</currency>
 			<currency type="ZMK">
-				<displayName>ზამბიური კვაჭა (1968-2012)</displayName>
-				<displayName count="one">ზამბიური კვაჭა (1968-2012)</displayName>
-				<displayName count="other">ზამბიური კვაჭა (1968-2012)</displayName>
+				<displayName>ზამბიური კვაჭა (1968–2012)</displayName>
+				<displayName count="one">ზამბიური კვაჭა (1968–2012)</displayName>
+				<displayName count="other">ზამბიური კვაჭა (1968–2012)</displayName>
 				<symbol>ZMK</symbol>
 			</currency>
 			<currency type="ZMW">

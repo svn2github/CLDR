@@ -133,7 +133,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="dar">dargština</language>
 			<language type="dav">taita</language>
 			<language type="de">němčina</language>
-			<language type="de_AT">němčina (Rakousko)</language>
 			<language type="de_CH">němčina standardní (Švýcarsko)</language>
 			<language type="del">delawarština</language>
 			<language type="den">slejvština (athabaský jazyk)</language>
@@ -159,18 +158,13 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="el">řečtina</language>
 			<language type="elx">elamitština</language>
 			<language type="en">angličtina</language>
-			<language type="en_AU">angličtina (Austrálie)</language>
-			<language type="en_CA">angličtina (Kanada)</language>
-			<language type="en_GB">angličtina (Velká Británie)</language>
 			<language type="en_GB" alt="short">angličtina (VB)</language>
 			<language type="en_US">angličtina (USA)</language>
 			<language type="en_US" alt="short">angličtina (USA)</language>
 			<language type="enm">angličtina (středověká)</language>
 			<language type="eo">esperanto</language>
 			<language type="es">španělština</language>
-			<language type="es_419">španělština (Latinská Amerika)</language>
 			<language type="es_ES">španělština (Evropa)</language>
-			<language type="es_MX">španělština (Mexiko)</language>
 			<language type="esu">jupikština (středoaljašská)</language>
 			<language type="et">estonština</language>
 			<language type="eu">baskičtina</language>
@@ -187,8 +181,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fo">faerština</language>
 			<language type="fon">fonština</language>
 			<language type="fr">francouzština</language>
-			<language type="fr_CA">francouzština (Kanada)</language>
-			<language type="fr_CH">francouzština (Švýcarsko)</language>
 			<language type="frc">francouzština (kajunská)</language>
 			<language type="frm">francouzština (středověká)</language>
 			<language type="fro">francouzština (stará)</language>
@@ -250,7 +242,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="id">indonéština</language>
 			<language type="ie">interlingue</language>
 			<language type="ig">igboština</language>
-			<language type="ii">s'-čchuan i</language>
+			<language type="ii">s’-čchuan i</language>
 			<language type="ik">inupiakština</language>
 			<language type="ilo">ilokánština</language>
 			<language type="inh">inguština</language>
@@ -365,7 +357,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="mg">malgaština</language>
 			<language type="mga">irština (středověká)</language>
 			<language type="mgh">makhuwa-meetto</language>
-			<language type="mgo">meta'</language>
+			<language type="mgo">meta’</language>
 			<language type="mh">maršálština</language>
 			<language type="mi">maorština</language>
 			<language type="mic">micmac</language>
@@ -452,7 +444,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="pro">provensálština</language>
 			<language type="ps">paštština</language>
 			<language type="pt">portugalština</language>
-			<language type="pt_BR">portugalština (Brazílie)</language>
 			<language type="pt_PT">portugalština (Evropa)</language>
 			<language type="qu">kečuánština</language>
 			<language type="quc">kičé</language>
@@ -623,7 +614,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="zgh">tamazight (standardní marocký)</language>
 			<language type="zh">čínština</language>
 			<language type="zh_Hans">čínština (zjednodušená)</language>
-			<language type="zh_Hant">čínština (tradiční)</language>
 			<language type="zu">zuluština</language>
 			<language type="zun">zunijština</language>
 			<language type="zxx">žádný jazykový obsah</language>
@@ -876,7 +866,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Kongo (republika)</territory>
 			<territory type="CH">Švýcarsko</territory>
 			<territory type="CI">Pobřeží slonoviny</territory>
-			<territory type="CI" alt="variant">Pobřeží slonoviny</territory>
 			<territory type="CK">Cookovy ostrovy</territory>
 			<territory type="CL">Chile</territory>
 			<territory type="CM">Kamerun</territory>
@@ -1067,7 +1056,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Tádžikistán</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Východní Timor</territory>
-			<territory type="TL" alt="variant">Východní Timor</territory>
 			<territory type="TM">Turkmenistán</territory>
 			<territory type="TN">Tunisko</territory>
 			<territory type="TO">Tonga</territory>
@@ -1842,19 +1830,14 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<eras>
 					<eraNames>
 						<era type="0">př. n. l.</era>
-						<era type="0" alt="variant">př. n. l.</era>
 						<era type="1">n. l.</era>
-						<era type="1" alt="variant">n. l.</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">př. n. l.</era>
-						<era type="0" alt="variant">př. n. l.</era>
 						<era type="1">n. l.</era>
-						<era type="1" alt="variant">n. l.</era>
 					</eraAbbr>
 					<eraNarrow>
 						<era type="0">př.n.l.</era>
-						<era type="0" alt="variant" draft="contributed">př.n.l.</era>
 						<era type="1">n.l.</era>
 						<era type="1" alt="variant" draft="contributed">n. l.</era>
 					</eraNarrow>
@@ -2766,6 +2749,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} (+1)</regionFormat>
 			<regionFormat type="standard">{0} (+0)</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Čchung-čching</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Charbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kašghar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Neznámé město</exemplarCity>
 			</zone>
@@ -3132,20 +3124,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kašghar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Urumči</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Čchung-čching</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Šanghaj</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Charbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogotá</exemplarCity>
@@ -3808,7 +3791,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Salvador</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Damašek</exemplarCity>
@@ -7559,10 +7542,10 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</compoundUnit>
 			<unit type="acceleration-g-force">
 				<displayName>gravitační síla</displayName>
-				<unitPattern count="one">{0} g</unitPattern>
-				<unitPattern count="few">{0} g</unitPattern>
-				<unitPattern count="many">{0} g</unitPattern>
-				<unitPattern count="other">{0} g</unitPattern>
+				<unitPattern count="one">{0} G</unitPattern>
+				<unitPattern count="few">{0} G</unitPattern>
+				<unitPattern count="many">{0} G</unitPattern>
+				<unitPattern count="other">{0} G</unitPattern>
 			</unit>
 			<unit type="acceleration-meter-per-second-squared">
 				<displayName>metr za sekundu na druhou</displayName>
@@ -8412,11 +8395,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<compoundUnitPattern>{0}/{1}</compoundUnitPattern>
 			</compoundUnit>
 			<unit type="acceleration-g-force">
-				<displayName>g</displayName>
-				<unitPattern count="one">{0} g</unitPattern>
-				<unitPattern count="few">{0} g</unitPattern>
-				<unitPattern count="many">{0} g</unitPattern>
-				<unitPattern count="other">{0} g</unitPattern>
+				<displayName>G</displayName>
+				<unitPattern count="one">{0} G</unitPattern>
+				<unitPattern count="few">{0} G</unitPattern>
+				<unitPattern count="many">{0} G</unitPattern>
+				<unitPattern count="other">{0} G</unitPattern>
 			</unit>
 			<unit type="acceleration-meter-per-second-squared">
 				<displayName>m/s²</displayName>
@@ -9266,11 +9249,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<compoundUnitPattern>{0}/{1}</compoundUnitPattern>
 			</compoundUnit>
 			<unit type="acceleration-g-force">
-				<displayName draft="contributed">g</displayName>
-				<unitPattern count="one">{0} g</unitPattern>
-				<unitPattern count="few">{0} g</unitPattern>
-				<unitPattern count="many">{0} g</unitPattern>
-				<unitPattern count="other">{0} g</unitPattern>
+				<displayName draft="contributed">G</displayName>
+				<unitPattern count="one">{0} G</unitPattern>
+				<unitPattern count="few">{0} G</unitPattern>
+				<unitPattern count="many">{0} G</unitPattern>
+				<unitPattern count="other">{0} G</unitPattern>
 			</unit>
 			<unit type="acceleration-meter-per-second-squared">
 				<displayName draft="contributed">m/s²</displayName>

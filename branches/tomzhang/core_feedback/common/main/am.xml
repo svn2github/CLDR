@@ -78,7 +78,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="es">ስፓኒሽ</language>
 			<language type="es_419">የላቲን አሜሪካ ስፓኒሽ</language>
 			<language type="es_ES">የአውሮፓ እስፓንኛ</language>
-			<language type="es_MX">ስፓኒሽ (ሜክሲኮ)</language>
 			<language type="et">ኢስቶኒያንኛ</language>
 			<language type="eu">ባስክኛ</language>
 			<language type="fa">ፐርሺያኛ</language>
@@ -1976,6 +1975,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} የቀን ብርሃን ሰዓት</regionFormat>
 			<regionFormat type="standard">{0} መደበኛ ሰዓት</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>ቾንግኪንግ</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>ሃሪቢን</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>ካሽጋር</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>ያልታወቀ ከተማ</exemplarCity>
 			</zone>
@@ -2342,20 +2350,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>ዱአላ</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>ካሽጋር</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>ኡሩምኪ</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>ቾንግኪንግ</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>ሸንጋይ</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>ሃሪቢን</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>ቦጎታ</exemplarCity>
@@ -5105,9 +5104,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<symbol>TND</symbol>
 			</currency>
 			<currency type="TOP">
-				<displayName>ቶንጋን ፓ'አንጋ</displayName>
-				<displayName count="one">ቶንጋን ፓ'አንጋ</displayName>
-				<displayName count="other">ቶንጋን ፓ'አንጋ</displayName>
+				<displayName>ቶንጋን ፓ’አንጋ</displayName>
+				<displayName count="one">ቶንጋን ፓ’አንጋ</displayName>
+				<displayName count="other">ቶንጋን ፓ’አንጋ</displayName>
 				<symbol>TOP</symbol>
 			</currency>
 			<currency type="TRY">

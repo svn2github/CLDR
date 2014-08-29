@@ -68,7 +68,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="en_GB">британиялық ағылшын тілі</language>
 			<language type="en_GB" alt="short">ағылшын тілі (Біріккен Корольдік)</language>
 			<language type="en_US">американдық ағылшын тілі</language>
-			<language type="en_US" alt="short">ағылшын тілі (АҚШ)</language>
 			<language type="eo">эсперанто</language>
 			<language type="es">испан тілі</language>
 			<language type="es_419">латын американдық испан тілі</language>
@@ -1111,13 +1110,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<eras>
 					<eraNames>
 						<era type="0">Біздің заманымызға дейін</era>
-						<era type="0" alt="variant">Біздің заманымызға дейін</era>
 						<era type="1">Біздің заманымыз</era>
 						<era type="1" alt="variant">Жаңа заман</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">б.з.д.</era>
-						<era type="0" alt="variant">б.з.д.</era>
 						<era type="1">б.з.</era>
 						<era type="1" alt="variant">ж.з.</era>
 					</eraAbbr>
@@ -1729,6 +1726,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} күндізгі уақыты</regionFormat>
 			<regionFormat type="standard">{0} стандартты уақыты</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Чунцин</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Харбин</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Қашқар</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Белгісіз</exemplarCity>
 			</zone>
@@ -1781,7 +1787,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Кейси</exemplarCity>
 			</zone>
 			<zone type="Antarctica/DumontDUrville">
-				<exemplarCity>Дюмон-д'Юрвиль</exemplarCity>
+				<exemplarCity>Дюмон-д’Юрвиль</exemplarCity>
 			</zone>
 			<zone type="Antarctica/McMurdo">
 				<exemplarCity>Мак Мердо</exemplarCity>
@@ -2095,20 +2101,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Дуала</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Қашқар</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Үрімші</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Чунцин</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Шанхай</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Харбин</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Богота</exemplarCity>
@@ -3246,7 +3243,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>Дюмон д'Юрвиль уақыты</standard>
+					<standard>Дюмон д’Юрвиль уақыты</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">

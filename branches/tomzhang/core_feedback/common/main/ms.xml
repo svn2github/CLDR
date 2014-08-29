@@ -1361,15 +1361,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<eras>
 					<eraNames>
 						<era type="0">S.M.</era>
-						<era type="0" alt="variant">S.M.</era>
 						<era type="1">TM</era>
-						<era type="1" alt="variant">TM</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">S.M.</era>
-						<era type="0" alt="variant">S.M.</era>
 						<era type="1">TM</era>
-						<era type="1" alt="variant">TM</era>
 					</eraAbbr>
 				</eras>
 				<dateFormats>
@@ -1973,6 +1969,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">Waktu Siang {0}</regionFormat>
 			<regionFormat type="standard">Waktu Piawai {0}</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Chongqing</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kashgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Bandar Tidak Diketahui</exemplarCity>
 			</zone>
@@ -2339,20 +2344,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kashgar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Urumqi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Chongqing</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Shanghai</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogota</exemplarCity>

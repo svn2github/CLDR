@@ -114,7 +114,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="dar">dargi</language>
 			<language type="dav">taita</language>
 			<language type="de">saksa</language>
-			<language type="de_AT">saksa (Austria)</language>
 			<language type="de_CH">saksa (kõrgsaksa)</language>
 			<language type="del">delavari</language>
 			<language type="den">sleivi</language>
@@ -138,18 +137,13 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="el">kreeka</language>
 			<language type="elx">eelami</language>
 			<language type="en">inglise</language>
-			<language type="en_AU">inglise (Austraalia)</language>
-			<language type="en_CA">inglise (Kanada)</language>
 			<language type="en_GB">inglise (Briti)</language>
-			<language type="en_GB" alt="short">inglise (Suurbritannia)</language>
 			<language type="en_US">inglise (USA)</language>
 			<language type="en_US" alt="short">inglise (USA)</language>
 			<language type="enm">keskinglise</language>
 			<language type="eo">esperanto</language>
 			<language type="es">hispaania</language>
-			<language type="es_419">hispaania (Ladina-Ameerika)</language>
 			<language type="es_ES">hispaania (Euroopa)</language>
-			<language type="es_MX">hispaania (Mehhiko)</language>
 			<language type="et">eesti</language>
 			<language type="eu">baski</language>
 			<language type="ewo">evondo</language>
@@ -163,8 +157,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fo">fääri</language>
 			<language type="fon">foni</language>
 			<language type="fr">prantsuse</language>
-			<language type="fr_CA">prantsuse (Kanada)</language>
-			<language type="fr_CH">prantsuse (Šveits)</language>
 			<language type="frm">keskprantsuse</language>
 			<language type="fro">vanaprantsuse</language>
 			<language type="frr">põhjafriisi</language>
@@ -314,7 +306,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="mg">malagassi</language>
 			<language type="mga">keskiiri</language>
 			<language type="mgh">makhuwa-meetto</language>
-			<language type="mgo" draft="contributed">meta'</language>
+			<language type="mgo" draft="contributed">meta’</language>
 			<language type="mh">maršalli</language>
 			<language type="mi">maoori</language>
 			<language type="mic">mikmaki</language>
@@ -388,10 +380,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="pro">vanaprovansi</language>
 			<language type="ps">puštu</language>
 			<language type="pt">portugali</language>
-			<language type="pt_BR">portugali (Brasiilia)</language>
 			<language type="pt_PT">portugali (Euroopa)</language>
 			<language type="qu">ketšua</language>
-			<language type="quc">k'iche'</language>
+			<language type="quc">k’iche’</language>
 			<language type="raj">radžastani</language>
 			<language type="rap">rapanui</language>
 			<language type="rar">rarotonga</language>
@@ -727,7 +718,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG">Kongo-Brazzaville</territory>
 			<territory type="CG" alt="variant">Kongo (Vabariik)</territory>
 			<territory type="CH">Šveits</territory>
-			<territory type="CI">Côte d'Ivoire</territory>
+			<territory type="CI">Côte d’Ivoire</territory>
 			<territory type="CI" alt="variant">Elevandiluurannik</territory>
 			<territory type="CK">Cooki saared</territory>
 			<territory type="CL">Tšiili</territory>
@@ -837,7 +828,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="MG">Madagaskar</territory>
 			<territory type="MH">Marshalli saared</territory>
 			<territory type="MK">Makedoonia</territory>
-			<territory type="MK" alt="variant" draft="provisional">Makedoonia</territory>
 			<territory type="ML">Mali</territory>
 			<territory type="MM">Myanmar (Birma)</territory>
 			<territory type="MN">Mongoolia</territory>
@@ -919,7 +909,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Tadžikistan</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Ida-Timor</territory>
-			<territory type="TL" alt="variant">Ida-Timor</territory>
 			<territory type="TM">Türkmenistan</territory>
 			<territory type="TN">Tuneesia</territory>
 			<territory type="TO">Tonga</territory>
@@ -967,7 +956,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<variant type="FONIPA">IPA foneetika</variant>
 			<variant type="FONUPA">UPA foneetika</variant>
 			<variant type="KKCOR">üldlevinud ortograafia</variant>
-			<variant type="LIPAW">Resia Lipovaz'i murre</variant>
+			<variant type="LIPAW">Resia Lipovaz’i murre</variant>
 			<variant type="MONOTON">monotoonne</variant>
 			<variant type="NEDIS">Natisone murre</variant>
 			<variant type="NJIVA">Gniva/Njiva murre</variant>
@@ -1018,7 +1007,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<type type="dangi" key="calendar">dangi kalender</type>
 			<type type="deva" key="numbers">Devanagari numbrid</type>
 			<type type="dictionary" key="collation">Sõnastiku sortimisjärjestus</type>
-			<type type="ducet" key="collation">Unicode'i sortimise vaikejärjestus</type>
+			<type type="ducet" key="collation">Unicode’i sortimise vaikejärjestus</type>
 			<type type="eor" key="collation" draft="unconfirmed">sortimisjärjestuse mitmekeelne Euroopa dokumendid</type>
 			<type type="ethi" key="numbers">Etioopia numbrid</type>
 			<type type="ethiopic" key="calendar">Etioopia kalender</type>
@@ -1094,7 +1083,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<type type="yes" key="colBackwards">Vastupidine sortimine rõhumärkide alusel</type>
 			<type type="yes" key="colCaseLevel">Tõstutundlikkuse alusel sortimine</type>
 			<type type="yes" key="colHiraganaQuaternary">Kana-kirjasüsteemi sortimine eraldi</type>
-			<type type="yes" key="colNormalization">Normeeritud Unicode'i alusel sortimine</type>
+			<type type="yes" key="colNormalization">Normeeritud Unicode’i alusel sortimine</type>
 			<type type="yes" key="colNumeric">Numbrite alusel sortimine</type>
 		</types>
 		<transformNames>
@@ -2176,6 +2165,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} (+1)</regionFormat>
 			<regionFormat type="standard">{0} (+0)</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Chongqing</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kashgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>määramata</exemplarCity>
 			</zone>
@@ -2542,20 +2540,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kashgar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Urumqi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Chongqing</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Shanghai</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogota</exemplarCity>
@@ -3218,7 +3207,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>El Salvador</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Damaskus</exemplarCity>
@@ -3707,7 +3696,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>Dumont-d'Urville'i aeg</standard>
+					<standard>Dumont-d’Urville’i aeg</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">
@@ -3784,7 +3773,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="Gambier">
 				<long>
-					<standard>Gambier' aeg</standard>
+					<standard>Gambier’ aeg</standard>
 				</long>
 			</metazone>
 			<metazone type="Georgia">
@@ -3955,7 +3944,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="Line_Islands">
 				<long>
-					<standard>Line'i saarte aeg</standard>
+					<standard>Line’i saarte aeg</standard>
 				</long>
 			</metazone>
 			<metazone type="Lord_Howe">
@@ -4318,7 +4307,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="Wake">
 				<long>
-					<standard>Wake'i aeg</standard>
+					<standard>Wake’i aeg</standard>
 				</long>
 			</metazone>
 			<metazone type="Wallis">
@@ -5470,9 +5459,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<symbol>TND</symbol>
 			</currency>
 			<currency type="TOP">
-				<displayName>Tonga pa'anga</displayName>
-				<displayName count="one">Tonga pa'anga</displayName>
-				<displayName count="other">Tonga pa'angat</displayName>
+				<displayName>Tonga pa’anga</displayName>
+				<displayName count="one">Tonga pa’anga</displayName>
+				<displayName count="other">Tonga pa’angat</displayName>
 				<symbol>TOP</symbol>
 			</currency>
 			<currency type="TPE">

@@ -686,7 +686,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">קונגו (רפובליקה)</territory>
 			<territory type="CH">שווייץ</territory>
 			<territory type="CI">חוף השנהב</territory>
-			<territory type="CI" alt="variant">חוף השנהב</territory>
 			<territory type="CK">איי קוק</territory>
 			<territory type="CL">צ׳ילה</territory>
 			<territory type="CM">קמרון</territory>
@@ -1062,7 +1061,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 		<exemplarCharacters>[א ב ג ד ה ו ז ח ט י כ ך ל מ ם נ ן ס ע פ ף צ ץ ק ר ש ת]</exemplarCharacters>
 		<exemplarCharacters type="auxiliary">[\u05BD\u05C4\u200E\u200F \u05B0 \u05B1 \u05B2 \u05B3 \u05B4 \u05B5 \u05B6 \u05B7 \u05B8 \u05B9 \u05BB \u05C2 \u05C1 \u05BC \u05BF ״]</exemplarCharacters>
 		<exemplarCharacters type="index">[א ב ג ד ה ו ז ח ט י כ ל מ נ ס ע פ צ ק ר ש ת]</exemplarCharacters>
-		<exemplarCharacters type="punctuation">[\- ‐ – — , ; \: ! ? . ' &quot; ( ) \[ \] / ־ ׳ ״]</exemplarCharacters>
+		<exemplarCharacters type="punctuation">[\- ‐ – — , ; \: ! ? . ׳ ' &quot; ( ) \[ \] / ״ ־]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
 		<ellipsis type="initial">…{0}</ellipsis>
 		<ellipsis type="medial">{0}…{1}</ellipsis>
@@ -1485,13 +1484,10 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<era type="0">לפני הספירה</era>
 						<era type="0" alt="variant">לפנה״ס</era>
 						<era type="1">לספירה</era>
-						<era type="1" alt="variant">לספירה</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">לפנה״ס</era>
-						<era type="0" alt="variant">לפנה״ס</era>
 						<era type="1">לספירה</era>
-						<era type="1" alt="variant">לספירה</era>
 					</eraAbbr>
 				</eras>
 				<dateFormats>
@@ -1578,7 +1574,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="hms">h:mm:ss a</dateFormatItem>
 						<dateFormatItem id="Hms">HH:mm:ss</dateFormatItem>
 						<dateFormatItem id="M">L</dateFormatItem>
-						<dateFormatItem id="Md">d/M</dateFormatItem>
+						<dateFormatItem id="Md">d.M</dateFormatItem>
 						<dateFormatItem id="MEd">E, d.M</dateFormatItem>
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">d בMMM</dateFormatItem>
@@ -2593,6 +2589,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">שעון {0} (קיץ)</regionFormat>
 			<regionFormat type="standard" draft="contributed">שעון {0} (חורף)</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>צ׳ונגקינג</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>חרבין</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>קשגר</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>עיר לא ידועה</exemplarCity>
 			</zone>
@@ -2959,20 +2964,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>דואלה</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>קשגר</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>אורומקי</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>צ׳ונגקינג</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>אסיה/שנחאי</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>חרבין</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>בוגוטה</exemplarCity>

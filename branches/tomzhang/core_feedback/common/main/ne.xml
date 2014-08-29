@@ -61,17 +61,10 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="ee">इवि</language>
 			<language type="el">ग्रीक</language>
 			<language type="en">अंग्रेजी</language>
-			<language type="en_AU">अंग्रेजी (अष्ट्रेलिया)</language>
-			<language type="en_CA">अंग्रेजी (क्यानाडा)</language>
-			<language type="en_GB">अंग्रेजी (बेलायत)</language>
-			<language type="en_GB" alt="short">अंग्रेजी (बेलायत)</language>
-			<language type="en_US">अंग्रेजी (संयुक्त राज्य)</language>
 			<language type="en_US" alt="short">अंग्रेजी (अमेरिका)</language>
 			<language type="eo">एस्पेरान्तो</language>
 			<language type="es">स्पेनिस</language>
-			<language type="es_419">स्पेनिस (ल्याटिन अमेरिका)</language>
 			<language type="es_ES">युरोपेली स्पेनिस</language>
-			<language type="es_MX">स्पेनिस (मेक्सिको)</language>
 			<language type="et">इस्टोनियाली</language>
 			<language type="eu">बास्क</language>
 			<language type="fa">फारसी</language>
@@ -80,8 +73,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fj">फिजियाली</language>
 			<language type="fo">फारोज</language>
 			<language type="fr">फ्रान्सेली</language>
-			<language type="fr_CA">फ्रान्सेली (क्यानाडा)</language>
-			<language type="fr_CH">फ्रान्सेली (स्विजरल्याण्ड)</language>
 			<language type="fy">फ्रिजीयन</language>
 			<language type="ga">आइरिश</language>
 			<language type="gag">गगाउज</language>
@@ -181,7 +172,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="pl">पोलिश</language>
 			<language type="ps">पाश्तो</language>
 			<language type="pt">पोर्तुगी</language>
-			<language type="pt_BR">पोर्तुगी (ब्राजिल)</language>
 			<language type="pt_PT">पोर्तुगी (युरोप)</language>
 			<language type="qu">क्वेचुवा</language>
 			<language type="quc">किचे</language>
@@ -450,15 +440,14 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="BY">बेलारूस</territory>
 			<territory type="BZ">बेलिज</territory>
 			<territory type="CA">क्यानाडा</territory>
-			<territory type="CC">कोकोस [किलिंग] टापुहरु</territory>
+			<territory type="CC">कोकोस (किलिंग) टापुहरु</territory>
 			<territory type="CD">कोङ्गो-किन्शासा</territory>
-			<territory type="CD" alt="variant">कङ्गो [डीआर्‌सी]</territory>
+			<territory type="CD" alt="variant">कङ्गो (डीआर्‌सी)</territory>
 			<territory type="CF">केन्द्रीय अफ्रिकी गणतन्त्र</territory>
 			<territory type="CG">कोङ्गो - ब्राज्जाभिल्ले</territory>
-			<territory type="CG" alt="variant">कङ्गो [गणतन्त्र]</territory>
+			<territory type="CG" alt="variant">कङ्गो (गणतन्त्र)</territory>
 			<territory type="CH">स्विजरल्याण्ड</territory>
 			<territory type="CI">आइभरी कोस्ट</territory>
-			<territory type="CI" alt="variant">आइभरी कोस्ट</territory>
 			<territory type="CK">कुक टापुहरु</territory>
 			<territory type="CL">चिली</territory>
 			<territory type="CM">क्यामरून</territory>
@@ -491,7 +480,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="FI">फिन्ल्याण्ड</territory>
 			<territory type="FJ">फिजी</territory>
 			<territory type="FK">फकल्याण्ड टापुहरु</territory>
-			<territory type="FK" alt="variant">फक्ल्याण्ड टापुहरू [इज्लास माल्भिनास]</territory>
+			<territory type="FK" alt="variant">फक्ल्याण्ड टापुहरू (इज्लास माल्भिनास)</territory>
 			<territory type="FM">माइक्रोनेसिया</territory>
 			<territory type="FO">फारोर टापुहरु</territory>
 			<territory type="FR">फ्रान्स</territory>
@@ -567,9 +556,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="MG">मडागास्कर</territory>
 			<territory type="MH">मार्शल टापुहरु</territory>
 			<territory type="MK">म्याकेडोनिया</territory>
-			<territory type="MK" alt="variant">म्याकेडोनिया [फाइरम]</territory>
+			<territory type="MK" alt="variant">म्याकेडोनिया (फाइरम)</territory>
 			<territory type="ML">माली</territory>
-			<territory type="MM">म्यान्मार [बर्मा]</territory>
+			<territory type="MM">म्यान्मार (बर्मा)</territory>
 			<territory type="MN">मङ्गोलिया</territory>
 			<territory type="MO">मकावो चिनिँया स्वशासित क्षेत्र</territory>
 			<territory type="MO" alt="short">मकावो</territory>
@@ -1733,6 +1722,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} (+१)</regionFormat>
 			<regionFormat type="standard">{0} (+०)</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>चोङकिङ</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>हार्विन</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>काश्गर</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>अज्ञात शहर</exemplarCity>
 			</zone>
@@ -2099,20 +2097,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>डोउआला</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>काश्गर</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>उरूम्की</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>चोङकिङ</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>सान्घाई</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>हार्विन</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>बोगोटा</exemplarCity>
@@ -3250,7 +3239,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>डुमोन्ट-डी' उर्भिले समय</standard>
+					<standard>डुमोन्ट-डी‘ उर्भिले समय</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">
@@ -6403,3 +6392,4 @@ For terms of use, see http://www.unicode.org/copyright.html
 		</messages>
 	</posix>
 </ldml>
+

@@ -135,9 +135,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="en_AU">áströlsk enska</language>
 			<language type="en_CA">kanadísk enska</language>
 			<language type="en_GB">bresk enska</language>
-			<language type="en_GB" alt="short">enska (Bretland)</language>
 			<language type="en_US">bandarísk enska</language>
-			<language type="en_US" alt="short">enska (Bandaríkin)</language>
 			<language type="enm">miðenska</language>
 			<language type="eo">esperantó</language>
 			<language type="es">spænska</language>
@@ -305,7 +303,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="mg">malagasíska</language>
 			<language type="mga">miðírska</language>
 			<language type="mgh">makhuwa-meetto</language>
-			<language type="mgo">meta'</language>
+			<language type="mgo">meta’</language>
 			<language type="mh">marshallska</language>
 			<language type="mi">maorí</language>
 			<language type="mic">mikmak</language>
@@ -376,7 +374,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="pon">ponpeiska</language>
 			<language type="pro">fornpróvensalska</language>
 			<language type="ps">pastú</language>
-			<language type="ps" alt="variant">pastú</language>
 			<language type="pt">portúgalska</language>
 			<language type="pt_BR">brasílísk portúgalska</language>
 			<language type="pt_PT">evrópsk portúgalska</language>
@@ -481,7 +478,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="tzm">tamazight</language>
 			<language type="udm">údmúrt</language>
 			<language type="ug">úígúr</language>
-			<language type="ug" alt="variant">úígúr</language>
 			<language type="uga">úgarítíska</language>
 			<language type="uk">úkraínska</language>
 			<language type="umb">úmbúndú</language>
@@ -702,7 +698,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Kongó (Lýðveldið)</territory>
 			<territory type="CH">Sviss</territory>
 			<territory type="CI">Fílabeinsströndin</territory>
-			<territory type="CI" alt="variant">Fílabeinsströndin</territory>
 			<territory type="CK">Cooks-eyjar</territory>
 			<territory type="CL">Síle</territory>
 			<territory type="CM">Kamerún</territory>
@@ -967,7 +962,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<type type="eor" key="collation" draft="unconfirmed">röðina fyrir fjöltyngi evrópskum skjölum</type>
 			<type type="ethi" key="numbers">Eþíópískir tölustafir</type>
 			<type type="ethiopic" key="calendar">Eþíópískt dagatal</type>
-			<type type="ethiopic-amete-alem" key="calendar">Eþíópískt 'amete alem' tímatal</type>
+			<type type="ethiopic-amete-alem" key="calendar">Eþíópískt ‘amete alem’ tímatal</type>
 			<type type="finance" key="numbers">Viðskiptafræðileg töluorð</type>
 			<type type="fullwide" key="numbers">Tölur í fullri breidd</type>
 			<type type="gb2312han" key="collation" draft="contributed">einfölduð kínversk röðun - GB2312</type>
@@ -2128,6 +2123,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} (sumartími)</regionFormat>
 			<regionFormat type="standard">{0} (staðaltími)</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Chongqing</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kashgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Óþekkt borg</exemplarCity>
 			</zone>
@@ -2494,20 +2498,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kashgar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Urumqi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Chongqing</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Shanghai</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogota</exemplarCity>
@@ -3170,7 +3165,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>El Salvador</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Damaskus</exemplarCity>

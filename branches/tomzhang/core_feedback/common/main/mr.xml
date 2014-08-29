@@ -183,7 +183,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="gu">गुजराती</language>
 			<language type="guz">गसी</language>
 			<language type="gv">मांक्स</language>
-			<language type="gwi">ग्विच'इन</language>
+			<language type="gwi">ग्विच’इन</language>
 			<language type="ha">हौसा</language>
 			<language type="hai">हैडा</language>
 			<language type="haw">हवाईयन</language>
@@ -593,7 +593,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Moon">मून</script>
 			<script type="Mtei">मेइतेइ मायेक</script>
 			<script type="Mymr">म्यानमार</script>
-			<script type="Nkoo">एन्'को</script>
+			<script type="Nkoo">एन्‘को</script>
 			<script type="Ogam">ओघाम</script>
 			<script type="Olck">ओल चिकि</script>
 			<script type="Orkh">ओर्खोन</script>
@@ -726,7 +726,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">काँगो (प्रजासत्ताक)</territory>
 			<territory type="CH">स्वित्झर्लंड</territory>
 			<territory type="CI">आयव्हरी कोस्ट</territory>
-			<territory type="CI" alt="variant">आयव्हरी कोस्ट</territory>
 			<territory type="CK">कुक बेटे</territory>
 			<territory type="CL">चिली</territory>
 			<territory type="CM">कॅमेरून</territory>
@@ -917,7 +916,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">ताजिकिस्तान</territory>
 			<territory type="TK">तोकेलाउ</territory>
 			<territory type="TL">पूर्व तिमोर</territory>
-			<territory type="TL" alt="variant">पूर्व तिमोर</territory>
 			<territory type="TM">तुर्कमेनिस्तान</territory>
 			<territory type="TN">ट्यूनिशिया</territory>
 			<territory type="TO">टोंगा</territory>
@@ -2135,6 +2133,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} सूर्यप्रकाश वेळ</regionFormat>
 			<regionFormat type="standard">{0} प्रमाण वेळ</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>चाँगकिंग</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>हार्बिन</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>कशगर</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>अज्ञात शहर</exemplarCity>
 			</zone>
@@ -2187,7 +2194,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>कॅसे</exemplarCity>
 			</zone>
 			<zone type="Antarctica/DumontDUrville">
-				<exemplarCity>डुमोंट डी'उर्व्हिल</exemplarCity>
+				<exemplarCity>डुमोंट डी‘उर्व्हिल</exemplarCity>
 			</zone>
 			<zone type="Antarctica/McMurdo">
 				<exemplarCity>मॅक्मुरडो</exemplarCity>
@@ -2501,20 +2508,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>दोउआला</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>कशगर</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>उरुम्की</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>चाँगकिंग</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>शांघाय</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>हार्बिन</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>बोगोटा</exemplarCity>
@@ -3687,7 +3685,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>डरमाँट-डी'उर्व्हिले वेळ</standard>
+					<standard>डरमाँट-डी‘उर्व्हिले वेळ</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">

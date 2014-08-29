@@ -356,7 +356,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="no">Νορβηγικά</language>
 			<language type="nog">Νογκάι</language>
 			<language type="non">Παλαιά Νορβηγικά</language>
-			<language type="nqo">Ν'Κο</language>
+			<language type="nqo">Ν’Κο</language>
 			<language type="nr">Ντεμπέλε Νότου</language>
 			<language type="nso">Βόρεια Σόθο</language>
 			<language type="nus">Νουέρ</language>
@@ -618,7 +618,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Moon">Μουν</script>
 			<script type="Mtei">Μεϊτέι Μάγεκ</script>
 			<script type="Mymr">Μιανμάρ</script>
-			<script type="Nkoo">Ν'Κο</script>
+			<script type="Nkoo">Ν’Κο</script>
 			<script type="Ogam">Όγκχαμ</script>
 			<script type="Olck">Ολ Τσίκι</script>
 			<script type="Orkh">Όρκχον</script>
@@ -751,7 +751,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Κονγκό (Δημοκρατία)</territory>
 			<territory type="CH">Ελβετία</territory>
 			<territory type="CI">Ακτή Ελεφαντοστού</territory>
-			<territory type="CI" alt="variant">Ακτή Ελεφαντοστού</territory>
 			<territory type="CK">Νήσοι Κουκ</territory>
 			<territory type="CL">Χιλή</territory>
 			<territory type="CM">Καμερούν</territory>
@@ -2267,6 +2266,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">Θερινή ώρα ({0})</regionFormat>
 			<regionFormat type="standard">Χειμερινή ώρα ({0})</regionFormat>
 			<fallbackFormat>[{1} ({0})]</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Τσονγκίνγκ</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Χαρμπίν</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Κάσγκαρ</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Άγνωστη πόλη</exemplarCity>
 			</zone>
@@ -2633,20 +2641,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Ντουάλα</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Κάσγκαρ</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Ουρουμκί</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Τσονγκίνγκ</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Σανγκάη</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Χαρμπίν</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Μπογκοτά</exemplarCity>
@@ -3309,7 +3308,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Ελ Σαλβαδόρ</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter (Άγιος Μαρτίνος Ολλανδίας)</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter (Άγιος Μαρτίνος Ολλανδίας)</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Δαμασκός</exemplarCity>

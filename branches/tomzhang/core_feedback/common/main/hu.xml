@@ -616,7 +616,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Moon">Moon</script>
 			<script type="Mtei">Meitei mayek</script>
 			<script type="Mymr">Burmai</script>
-			<script type="Nkoo">N'ko</script>
+			<script type="Nkoo">N’ko</script>
 			<script type="Ogam">Ogham</script>
 			<script type="Olck">Ol chiki</script>
 			<script type="Orkh">Orhon</script>
@@ -749,7 +749,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Kongó (Köztársaság)</territory>
 			<territory type="CH">Svájc</territory>
 			<territory type="CI">Elefántcsontpart</territory>
-			<territory type="CI" alt="variant">Elefántcsontpart</territory>
 			<territory type="CK">Cook-szigetek</territory>
 			<territory type="CL">Chile</territory>
 			<territory type="CM">Kamerun</territory>
@@ -940,7 +939,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Tádzsikisztán</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Kelet-Timor</territory>
-			<territory type="TL" alt="variant">Kelet-Timor</territory>
 			<territory type="TM">Türkmenisztán</territory>
 			<territory type="TN">Tunézia</territory>
 			<territory type="TO">Tonga</territory>
@@ -1799,9 +1797,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 					</eraNames>
 					<eraAbbr>
 						<era type="0">i. e.</era>
-						<era type="0" alt="variant">i. e.</era>
 						<era type="1">i. sz.</era>
-						<era type="1" alt="variant">i. sz.</era>
 					</eraAbbr>
 					<eraNarrow>
 						<era type="0" draft="contributed">ie.</era>
@@ -2726,6 +2722,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} nyári idő</regionFormat>
 			<regionFormat type="standard">{0} zónaidő</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Csungking</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kasgár</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Ismeretlen város</exemplarCity>
 			</zone>
@@ -3092,20 +3097,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kasgár</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Ürümqi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Csungking</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Sanghaj</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogotá</exemplarCity>
@@ -6508,9 +6504,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<compoundUnitPattern>{0} per {1}</compoundUnitPattern>
 			</compoundUnit>
 			<unit type="acceleration-g-force">
-				<displayName>g gyorsulás</displayName>
-				<unitPattern count="one">{0} g gyorsulás</unitPattern>
-				<unitPattern count="other">{0} g gyorsulás</unitPattern>
+				<displayName>G gyorsulás</displayName>
+				<unitPattern count="one">{0} G gyorsulás</unitPattern>
+				<unitPattern count="other">{0} G gyorsulás</unitPattern>
 			</unit>
 			<unit type="acceleration-meter-per-second-squared">
 				<displayName>méter per másodpercnégyzet</displayName>
@@ -7100,9 +7096,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<compoundUnitPattern>{0}/{1}</compoundUnitPattern>
 			</compoundUnit>
 			<unit type="acceleration-g-force">
-				<displayName>g gyorsulás</displayName>
-				<unitPattern count="one">{0} g</unitPattern>
-				<unitPattern count="other">{0} g</unitPattern>
+				<displayName>G gyorsulás</displayName>
+				<unitPattern count="one">{0} G</unitPattern>
+				<unitPattern count="other">{0} G</unitPattern>
 			</unit>
 			<unit type="acceleration-meter-per-second-squared">
 				<displayName>m/s²</displayName>

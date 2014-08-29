@@ -75,7 +75,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="en_CA">kanadiska jendźelšćina</language>
 			<language type="en_GB">britiska jendźelšćina</language>
 			<language type="en_GB" alt="short">jendźelšćina (UK)</language>
-			<language type="en_US">jendźelšćina (USA)</language>
+			<language type="en_US">ameriska jendźelšćina</language>
 			<language type="en_US" alt="short">jendźelšćina (USA)</language>
 			<language type="eo">esperanto</language>
 			<language type="es">španišćina</language>
@@ -698,7 +698,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 	</localeDisplayNames>
 	<characters>
 		<exemplarCharacters>[a b c č ć d {dź} e ě f g h {ch} i j k ł l m n ń o ó p q r ř s š t u v w x y z ž]</exemplarCharacters>
-		<exemplarCharacters type="auxiliary">[á à ă â å ä ã ą ā æ ç ď đ ė é è ĕ ê ë ē ę ğ í ì ĭ î ï İ ī ľ ĺ ň ı ñ ò ŏ ô ö ő ø ō œ ŕ ş ś ß ť ú ù ŭ û ů ü ű ū ý ÿ ż ź]</exemplarCharacters>
+		<exemplarCharacters type="auxiliary">[á à ă â å ä ã ą ā æ ç ď đ é è ĕ ê ë ė ę ē ğ í ì ĭ î ï İ ī ı ĺ ľ ň ñ ò ŏ ô ö ő ø ō œ ŕ ś ş ß ť ú ù ŭ û ů ü ű ū ý ÿ ż ź]</exemplarCharacters>
 		<exemplarCharacters type="index">[A B C Č Ć D {DŹ} E F G H {CH} I J K Ł L M N O P Q R S Š T U V W X Y Z Ž]</exemplarCharacters>
 		<exemplarCharacters type="punctuation">[\- ‐ – — , ; \: ! ? . … ' ‘ ’ ‚ &quot; “ „ « » ( ) \[ \] \{ \} § @ * / \&amp; #]</exemplarCharacters>
 	</characters>
@@ -1782,6 +1782,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} lětni čas</regionFormat>
 			<regionFormat type="standard">{0} zymski čas</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kašgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>njeznate</exemplarCity>
 			</zone>
@@ -1829,9 +1832,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</zone>
 			<zone type="Pacific/Easter">
 				<exemplarCity>Jutrowna kupa</exemplarCity>
-			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kašgar</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogotá</exemplarCity>

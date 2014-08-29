@@ -134,8 +134,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="dar">達爾格瓦文</language>
 			<language type="dav">台塔文</language>
 			<language type="de">德文</language>
-			<language type="de_AT" draft="provisional">德文 (奧地利)</language>
-			<language type="de_CH">高地德文 (瑞士)</language>
+			<language type="de_CH">高地德文（瑞士）</language>
 			<language type="del">德拉瓦文</language>
 			<language type="den">斯拉夫</language>
 			<language type="dgr">多格里布文</language>
@@ -160,18 +159,10 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="el">希臘文</language>
 			<language type="elx" draft="contributed">埃蘭文</language>
 			<language type="en">英文</language>
-			<language type="en_AU" draft="provisional">英文 (澳洲)</language>
-			<language type="en_CA" draft="provisional">英文 (加拿大)</language>
-			<language type="en_GB" draft="provisional">英文 (英國)</language>
-			<language type="en_GB" alt="short" draft="provisional">英文 (英國)</language>
-			<language type="en_US" draft="provisional">英文 (美國)</language>
-			<language type="en_US" alt="short" draft="provisional">英文 (美國)</language>
 			<language type="enm">中古英文</language>
 			<language type="eo">世界文</language>
 			<language type="es">西班牙文</language>
-			<language type="es_419" draft="provisional">西班牙文 (拉丁美洲)</language>
-			<language type="es_ES" draft="provisional">西班牙文 (歐洲)</language>
-			<language type="es_MX" draft="provisional">西班牙文 (墨西哥)</language>
+			<language type="es_ES" draft="provisional">西班牙文（歐洲）</language>
 			<language type="esu" draft="contributed">中尤皮克文</language>
 			<language type="et">愛沙尼亞文</language>
 			<language type="eu">巴斯克文</language>
@@ -188,8 +179,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fo">法羅文</language>
 			<language type="fon">豐文</language>
 			<language type="fr">法文</language>
-			<language type="fr_CA" draft="provisional">法文 (加拿大)</language>
-			<language type="fr_CH" draft="provisional">法文 (瑞士)</language>
 			<language type="frc" draft="contributed">卡真法文</language>
 			<language type="frm">中古法文</language>
 			<language type="fro">古法文</language>
@@ -453,8 +442,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="pro" draft="contributed">古普羅旺斯文</language>
 			<language type="ps">普什圖文</language>
 			<language type="pt">葡萄牙文</language>
-			<language type="pt_BR" draft="provisional">葡萄牙文 (巴西)</language>
-			<language type="pt_PT" draft="provisional">葡萄牙文 (歐洲)</language>
+			<language type="pt_PT" draft="provisional">葡萄牙文（歐洲）</language>
 			<language type="qu">蓋楚瓦文</language>
 			<language type="quc">基切文</language>
 			<language type="qug" draft="contributed">欽博拉索海蘭蓋丘亞文</language>
@@ -875,7 +863,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">剛果共和國</territory>
 			<territory type="CH">瑞士</territory>
 			<territory type="CI">象牙海岸</territory>
-			<territory type="CI" alt="variant">象牙海岸</territory>
 			<territory type="CK">庫克群島</territory>
 			<territory type="CL">智利</territory>
 			<territory type="CM">喀麥隆</territory>
@@ -908,7 +895,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="FI">芬蘭</territory>
 			<territory type="FJ">斐濟</territory>
 			<territory type="FK">福克蘭群島</territory>
-			<territory type="FK" alt="variant">福克蘭群島 (馬爾維納斯群島)</territory>
+			<territory type="FK" alt="variant">福克蘭群島（馬爾維納斯群島）</territory>
 			<territory type="FM">密克羅尼西亞群島</territory>
 			<territory type="FO">法羅群島</territory>
 			<territory type="FR">法國</territory>
@@ -1066,7 +1053,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">塔吉克</territory>
 			<territory type="TK">托克勞群島</territory>
 			<territory type="TL">東帝汶</territory>
-			<territory type="TL" alt="variant">東帝汶</territory>
 			<territory type="TM">土庫曼</territory>
 			<territory type="TN">突尼西亞</territory>
 			<territory type="TO">東加</territory>
@@ -2214,7 +2200,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<dateTimeFormats>
 					<dateTimeFormatLength type="full">
 						<dateTimeFormat>
-							<pattern>{1}{0}</pattern>
+							<pattern>{1} {0}</pattern>
 						</dateTimeFormat>
 					</dateTimeFormatLength>
 					<dateTimeFormatLength type="long">
@@ -2247,7 +2233,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="Hms">H:mm:ss</dateFormatItem>
 						<dateFormatItem id="M">M月</dateFormatItem>
 						<dateFormatItem id="Md">M/d</dateFormatItem>
-						<dateFormatItem id="MEd">M/d (E)</dateFormatItem>
+						<dateFormatItem id="MEd">M/d（E）</dateFormatItem>
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">M月d日</dateFormatItem>
 						<dateFormatItem id="MMMEd">M月d日 E</dateFormatItem>
@@ -2256,7 +2242,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="yyyy">G y年</dateFormatItem>
 						<dateFormatItem id="yyyyM">G y/M</dateFormatItem>
 						<dateFormatItem id="yyyyMd">G y/M/d</dateFormatItem>
-						<dateFormatItem id="yyyyMEd">G y/M/d (E)</dateFormatItem>
+						<dateFormatItem id="yyyyMEd">G y/M/d（E）</dateFormatItem>
 						<dateFormatItem id="yyyyMMM">G y年M月</dateFormatItem>
 						<dateFormatItem id="yyyyMMMd">G y年M月d日</dateFormatItem>
 						<dateFormatItem id="yyyyMMMEd">G y年M月d日 E</dateFormatItem>
@@ -2667,7 +2653,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<dateTimeFormats>
 					<dateTimeFormatLength type="full">
 						<dateTimeFormat>
-							<pattern>{1}{0}</pattern>
+							<pattern>{1} {0}</pattern>
 						</dateTimeFormat>
 					</dateTimeFormatLength>
 					<dateTimeFormatLength type="long">
@@ -4034,6 +4020,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} (+1)</regionFormat>
 			<regionFormat type="standard">{0} (+0)</regionFormat>
 			<fallbackFormat>{1}（{0}）</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>重慶</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>哈爾濱</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>喀什米爾</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>未知城市</exemplarCity>
 			</zone>
@@ -4400,20 +4395,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>杜阿拉</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>喀什米爾</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>烏魯木齊</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>重慶</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>上海</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>哈爾濱</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>波哥大</exemplarCity>

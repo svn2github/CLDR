@@ -164,7 +164,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fy">पश्चिमी फ़्रिसियाई</language>
 			<language type="ga">आइरिश</language>
 			<language type="gaa">गा</language>
-			<language type="gag">गागौज़</language>
+			<language type="gag">गागौज़</language>
 			<language type="gay">गायो</language>
 			<language type="gba">ग्बाया</language>
 			<language type="gd">स्काट्स् गायेलिक्</language>
@@ -183,7 +183,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="gu">गुजराती</language>
 			<language type="guz">गुसी</language>
 			<language type="gv">मैंक्स</language>
-			<language type="gwi">ग्विच'इन</language>
+			<language type="gwi">ग्विच’इन</language>
 			<language type="ha">हौसा</language>
 			<language type="hai">हैडा</language>
 			<language type="haw">हवाई</language>
@@ -219,7 +219,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="jmc">मैकहैमे</language>
 			<language type="jpr">जुदेओ-पर्शियन</language>
 			<language type="jrb">जुदेओ-अरेबिक</language>
-			<language type="jv">जावानीज़</language>
+			<language type="jv">जावानीज़</language>
 			<language type="ka">जॉर्जियाई</language>
 			<language type="kaa">कारा-कल्पक</language>
 			<language type="kab">कबाइल</language>
@@ -471,7 +471,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="twq">टासवाक</language>
 			<language type="ty">ताहितियन</language>
 			<language type="tyv">तुवीनियन</language>
-			<language type="tzm">मध्य एटलस तमाज़ित</language>
+			<language type="tzm">मध्य एटलस तमाज़ित</language>
 			<language type="udm">उदमुर्त</language>
 			<language type="ug">विघुर</language>
 			<language type="uga">युगैरिटिक</language>
@@ -594,7 +594,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Moon">मून</script>
 			<script type="Mtei">मेइतेइ मायेक</script>
 			<script type="Mymr">म्यांमार</script>
-			<script type="Nkoo">एन्'को</script>
+			<script type="Nkoo">एन्‘को</script>
 			<script type="Ogam">ओगम</script>
 			<script type="Olck">ऑल चिकी</script>
 			<script type="Orkh">ओरखोन</script>
@@ -769,7 +769,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="GB" alt="short">यू.के.</territory>
 			<territory type="GD">ग्रेनाडा</territory>
 			<territory type="GE">जॉर्जिया</territory>
-			<territory type="GF">फ़्रेंच गयाना</territory>
+			<territory type="GF">फ़्रेंच गयाना</territory>
 			<territory type="GG">गर्नसी</territory>
 			<territory type="GH">घाना</territory>
 			<territory type="GI">जिब्राल्टर</territory>
@@ -1099,6 +1099,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 		<exemplarCharacters>[\u093C ॐ \u0902 \u0901 ः अ आ इ ई उ ऊ ऋ ऌ ऍ ए ऐ ऑ ओ औ क ख ग घ ङ च छ ज झ ञ ट ठ ड ढ ण त थ द ध न प फ ब भ म य र ल ळ व श ष स ह ऽ ा ि ी \u0941 \u0942 \u0943 \u0944 \u0945 \u0947 \u0948 ॉ ो ौ \u094D]</exemplarCharacters>
 		<exemplarCharacters type="auxiliary">[\u200C\u200D]</exemplarCharacters>
 		<exemplarCharacters type="index" draft="contributed">[अ आ इ ई उ ऊ ऋ ए ऐ ओ औ क ख ग घ ङ च छ ज झ ञ ट ठ ड ढ ण त थ द ध न प फ ब भ म य र ल व श ष स ह]</exemplarCharacters>
+		<exemplarCharacters type="punctuation">[\- , ; \: ! ? . ‘ ’ “ ” ( ) \[ \] \{ \} ॰]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
 		<ellipsis type="initial">…{0}</ellipsis>
 		<ellipsis type="medial">{0}…{1}</ellipsis>
@@ -2545,6 +2546,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} डेलाइट समय</regionFormat>
 			<regionFormat type="standard">{0} मानक समय</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>चोंगकिंग</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>हर्बिन</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>काश्गर</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>अज्ञात शहर</exemplarCity>
 			</zone>
@@ -2911,20 +2921,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>डूआला</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>काश्गर</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>उरूम्की</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>चोंगकिंग</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>शंघाई</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>हर्बिन</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>बोगोटा</exemplarCity>

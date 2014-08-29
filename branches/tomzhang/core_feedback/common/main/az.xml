@@ -298,7 +298,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="mg">malaqas</language>
 			<language type="mga" draft="contributed">ortacaq irlandca</language>
 			<language type="mgh">maxuva-meetto</language>
-			<language type="mgo">meta'</language>
+			<language type="mgo">meta’</language>
 			<language type="mh" draft="contributed">marşal dili</language>
 			<language type="mi">maori</language>
 			<language type="mic" draft="contributed">mikmak dili</language>
@@ -714,7 +714,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Konqo (Respublika)</territory>
 			<territory type="CH">İsveçrə</territory>
 			<territory type="CI">Fil Dişi Sahili</territory>
-			<territory type="CI" alt="variant">Fil Dişi Sahili</territory>
 			<territory type="CK">Kuk Adaları</territory>
 			<territory type="CL">Çili</territory>
 			<territory type="CM">Kamerun</territory>
@@ -2007,6 +2006,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} Yay Vaxtı</regionFormat>
 			<regionFormat type="standard">{0} Standart Vaxtı</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Çonginq</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kaşqar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Naməlum Şəhər</exemplarCity>
 			</zone>
@@ -2373,20 +2381,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Duala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kaşqar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Urumçi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Çonginq</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Şanxay</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Boqota</exemplarCity>

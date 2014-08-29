@@ -373,7 +373,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Կոնգո (Կոնգոյի Հանրապետություն)</territory>
 			<territory type="CH">Շվեյցարիա</territory>
 			<territory type="CI">Փղոսկրի Ափ</territory>
-			<territory type="CI" alt="variant">Կոտ դ'Իվուար</territory>
+			<territory type="CI" alt="variant">Կոտ դ’Իվուար</territory>
 			<territory type="CK">Կուկի կղզիներ</territory>
 			<territory type="CL">Չիլի</territory>
 			<territory type="CM">Կամերուն</territory>
@@ -1094,7 +1094,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<era type="0">մ.թ.ա.</era>
 						<era type="0" alt="variant">մ.թ.ա</era>
 						<era type="1">մ.թ.</era>
-						<era type="1" alt="variant">մ.թ.</era>
 					</eraAbbr>
 				</eras>
 				<dateFormats>
@@ -1704,6 +1703,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0}, ամառային ժամանակ</regionFormat>
 			<regionFormat type="standard">{0}, ստանդ. ժամ.</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Չունցին</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Հարբին</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Քաշգար</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Անհայտ քաղաք</exemplarCity>
 			</zone>
@@ -1756,7 +1764,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Քեյսի</exemplarCity>
 			</zone>
 			<zone type="Antarctica/DumontDUrville">
-				<exemplarCity>Դյումոն դ'Յուրվիլ</exemplarCity>
+				<exemplarCity>Դյումոն դ’Յուրվիլ</exemplarCity>
 			</zone>
 			<zone type="Antarctica/McMurdo">
 				<exemplarCity>Մակ-Մերդո</exemplarCity>
@@ -2070,20 +2078,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Դուալա</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Քաշգար</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Ուրումչի</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Չունցին</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Շանհայ</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Հարբին</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Բոգոտա</exemplarCity>
@@ -3221,7 +3220,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>Դյումոն դ'Յուրվիլի ժամանակ</standard>
+					<standard>Դյումոն դ’Յուրվիլի ժամանակ</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">
@@ -3970,8 +3969,8 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>Հայկական դրամ</displayName>
 				<displayName count="one">Հայկական դրամ</displayName>
 				<displayName count="other">Հայկական դրամ</displayName>
-				<symbol>դր.</symbol>
-				<symbol alt="variant">֏</symbol> <!-- New symbol - Unicode 6.1 -->
+				<symbol>֏</symbol>
+				<symbol alt="variant">դր.</symbol>
 			</currency>
 			<currency type="ANG">
 				<displayName>Նիդերլանդական Անտիլների գուլդեն</displayName>

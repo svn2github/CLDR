@@ -660,7 +660,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Cyrs">cyrylica staro-cerkiewno-słowiańska</script>
 			<script type="Deva">devanagari</script>
 			<script type="Dsrt">deseret</script>
-			<script type="Dupl" draft="unconfirmed">Duploye'a</script>
+			<script type="Dupl" draft="unconfirmed">Duploye’a</script>
 			<script type="Egyd">egipskie demotyczne</script>
 			<script type="Egyh">egipskie hieratyczne</script>
 			<script type="Egyp">hieroglify egipskie</script>
@@ -721,14 +721,14 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Mero">meroickie</script>
 			<script type="Mlym">malajalam</script>
 			<script type="Mong">mongolskie</script>
-			<script type="Moon">Moon'a</script>
+			<script type="Moon">Moon’a</script>
 			<script type="Mroo" draft="unconfirmed">mro</script>
 			<script type="Mtei">meitei mayek</script>
 			<script type="Mymr">birmańskie</script>
 			<script type="Narb" draft="unconfirmed">staroarabskie północne</script>
 			<script type="Nbat" draft="unconfirmed">nabatejskie</script>
 			<script type="Nkgb" draft="unconfirmed">geba</script>
-			<script type="Nkoo">n'ko</script>
+			<script type="Nkoo">n’ko</script>
 			<script type="Nshu" draft="unconfirmed">nüshu</script>
 			<script type="Ogam">ogham</script>
 			<script type="Olck">ol chiki</script>
@@ -742,7 +742,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Phlp">pahlawi psałterzowy</script>
 			<script type="Phlv">pahlawi książkowy</script>
 			<script type="Phnx">fenicki</script>
-			<script type="Plrd">fonetyczny Pollard'a</script>
+			<script type="Plrd">fonetyczny Pollard’a</script>
 			<script type="Prti">partyjski inskrypcyjny</script>
 			<script type="Rjng">rejang</script>
 			<script type="Roro">rongorongo</script>
@@ -866,7 +866,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CA">Kanada</territory>
 			<territory type="CC">Wyspy Kokosowe</territory>
 			<territory type="CD">Demokratyczna Republika Konga</territory>
-			<territory type="CD" alt="variant" draft="contributed">Demokratyczna Republika Konga</territory>
 			<territory type="CF">Republika Środkowoafrykańska</territory>
 			<territory type="CG">Kongo</territory>
 			<territory type="CG" alt="variant">Republika Konga</territory>
@@ -929,7 +928,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="GU">Guam</territory>
 			<territory type="GW">Gwinea Bissau</territory>
 			<territory type="GY">Gujana</territory>
-			<territory type="HK">Hongkong SAR</territory>
+			<territory type="HK">SRA Hongkong (Chiny)</territory>
 			<territory type="HK" alt="short">Hongkong</territory>
 			<territory type="HM">Wyspy Heard i McDonalda</territory>
 			<territory type="HN">Honduras</territory>
@@ -981,11 +980,10 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="MG">Madagaskar</territory>
 			<territory type="MH">Wyspy Marshalla</territory>
 			<territory type="MK">Macedonia</territory>
-			<territory type="MK" alt="variant" draft="contributed">Macedonia</territory>
 			<territory type="ML">Mali</territory>
 			<territory type="MM">Mjanma (Birma)</territory>
 			<territory type="MN">Mongolia</territory>
-			<territory type="MO">Makau SAR</territory>
+			<territory type="MO">SRA Makau (Chiny)</territory>
 			<territory type="MO" alt="short">Makau</territory>
 			<territory type="MP">Mariany Północne</territory>
 			<territory type="MQ">Martynika</territory>
@@ -1129,7 +1127,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<variant type="UCCOR">ortografia ujednolicona</variant>
 			<variant type="UCRCOR">zreformowana ortografia ujednolicona</variant>
 			<variant type="VALENCIA">walencki</variant>
-			<variant type="WADEGILE">latynizacja Wade'a i Gilesa</variant>
+			<variant type="WADEGILE">latynizacja Wade’a i Gilesa</variant>
 		</variants>
 		<keys>
 			<key type="calendar">kalendarz</key>
@@ -1632,7 +1630,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<intervalFormatItem id="hmv">
 							<greatestDifference id="a">h:mm a – h:mm a v</greatestDifference>
 							<greatestDifference id="h">h:mm–h:mm a v</greatestDifference>
-							<greatestDifference id="m" draft="contributed">h:mm-h:mm a v</greatestDifference>
+							<greatestDifference id="m" draft="contributed">h:mm–h:mm a v</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="Hmv">
 							<greatestDifference id="H">HH:mm–HH:mm v</greatestDifference>
@@ -1646,7 +1644,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<greatestDifference id="H">HH–HH v</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="M">
-							<greatestDifference id="M" draft="contributed">MM-MM</greatestDifference>
+							<greatestDifference id="M" draft="contributed">MM–MM</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="Md">
 							<greatestDifference id="d">dd.MM–dd.MM</greatestDifference>
@@ -1660,47 +1658,47 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<greatestDifference id="M">LLL–LLL</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="MMMd">
-							<greatestDifference id="d">d-d MMM</greatestDifference>
-							<greatestDifference id="M">d MMM - d MMM</greatestDifference>
+							<greatestDifference id="d">d–d MMM</greatestDifference>
+							<greatestDifference id="M">d MMM – d MMM</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="MMMEd">
 							<greatestDifference id="d">E, d MMM – E, d MMM</greatestDifference>
-							<greatestDifference id="M">E, d MMM - E, d MMM</greatestDifference>
+							<greatestDifference id="M">E, d MMM – E, d MMM</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="y">
 							<greatestDifference id="y">y–y G</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yM">
-							<greatestDifference id="M" draft="contributed">MM.y - MM.y G</greatestDifference>
-							<greatestDifference id="y" draft="contributed">MM.y - MM.y G</greatestDifference>
+							<greatestDifference id="M" draft="contributed">MM.y – MM.y G</greatestDifference>
+							<greatestDifference id="y" draft="contributed">MM.y – MM.y G</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMd">
-							<greatestDifference id="d">dd-dd.MM.y GGGGG</greatestDifference>
-							<greatestDifference id="M">dd.MM-dd.MM.y GGGGG</greatestDifference>
-							<greatestDifference id="y">dd.MM.y-dd.MM.y G</greatestDifference>
+							<greatestDifference id="d">dd–dd.MM.y GGGGG</greatestDifference>
+							<greatestDifference id="M">dd.MM–dd.MM.y GGGGG</greatestDifference>
+							<greatestDifference id="y">dd.MM.y–dd.MM.y G</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMEd">
-							<greatestDifference id="d" draft="contributed">E, dd.MM.y - E, dd.MM.y G</greatestDifference>
-							<greatestDifference id="M">E, dd.MM.y - E, dd.MM.y G</greatestDifference>
-							<greatestDifference id="y">E, dd.MM.y - E, dd.MM.y GGGGG</greatestDifference>
+							<greatestDifference id="d" draft="contributed">E, dd.MM.y – E, dd.MM.y G</greatestDifference>
+							<greatestDifference id="M">E, dd.MM.y – E, dd.MM.y G</greatestDifference>
+							<greatestDifference id="y">E, dd.MM.y – E, dd.MM.y GGGGG</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMMM">
-							<greatestDifference id="M">LLL-LLL y G</greatestDifference>
-							<greatestDifference id="y">LLL y - LLL y G</greatestDifference>
+							<greatestDifference id="M">LLL–LLL y G</greatestDifference>
+							<greatestDifference id="y">LLL y – LLL y G</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMMMd">
-							<greatestDifference id="d">d-d MMM y G</greatestDifference>
-							<greatestDifference id="M">d MMM - d MMM y G</greatestDifference>
-							<greatestDifference id="y">d MMM y - d MMM y G</greatestDifference>
+							<greatestDifference id="d">d–d MMM y G</greatestDifference>
+							<greatestDifference id="M">d MMM – d MMM y G</greatestDifference>
+							<greatestDifference id="y">d MMM y – d MMM y G</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMMMEd">
-							<greatestDifference id="d">E, d - E, d MMM y G</greatestDifference>
-							<greatestDifference id="M">E, d MMM - E, d MMM y G</greatestDifference>
-							<greatestDifference id="y">E, d MMM y - E, d MMM y G</greatestDifference>
+							<greatestDifference id="d">E, d – E, d MMM y G</greatestDifference>
+							<greatestDifference id="M">E, d MMM – E, d MMM y G</greatestDifference>
+							<greatestDifference id="y">E, d MMM y – E, d MMM y G</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMMMM">
-							<greatestDifference id="M" draft="contributed">LLLL-LLLL y G</greatestDifference>
-							<greatestDifference id="y">LLLL y - LLLL y G</greatestDifference>
+							<greatestDifference id="M" draft="contributed">LLLL–LLLL y G</greatestDifference>
+							<greatestDifference id="y">LLLL y – LLLL y G</greatestDifference>
 						</intervalFormatItem>
 					</intervalFormats>
 				</dateTimeFormats>
@@ -2081,7 +2079,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<intervalFormatItem id="hmv">
 							<greatestDifference id="a">h:mm a – h:mm a v</greatestDifference>
 							<greatestDifference id="h">h:mm–h:mm a v</greatestDifference>
-							<greatestDifference id="m" draft="contributed">h:mm-h:mm a v</greatestDifference>
+							<greatestDifference id="m" draft="contributed">h:mm–h:mm a v</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="Hmv">
 							<greatestDifference id="H">HH:mm–HH:mm v</greatestDifference>
@@ -2095,7 +2093,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<greatestDifference id="H">HH–HH v</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="M">
-							<greatestDifference id="M" draft="contributed">MM-MM</greatestDifference>
+							<greatestDifference id="M" draft="contributed">MM–MM</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="Md">
 							<greatestDifference id="d">dd.MM–dd.MM</greatestDifference>
@@ -2109,47 +2107,47 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<greatestDifference id="M">LLL–LLL</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="MMMd">
-							<greatestDifference id="d" draft="contributed">d-d MMM</greatestDifference>
-							<greatestDifference id="M" draft="contributed">d MMM - d MMM</greatestDifference>
+							<greatestDifference id="d" draft="contributed">d–d MMM</greatestDifference>
+							<greatestDifference id="M" draft="contributed">d MMM – d MMM</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="MMMEd">
 							<greatestDifference id="d">E, d MMM – E, d MMM</greatestDifference>
-							<greatestDifference id="M" draft="contributed">E, d MMM - E, d MMM</greatestDifference>
+							<greatestDifference id="M" draft="contributed">E, d MMM – E, d MMM</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="y">
 							<greatestDifference id="y">y–y</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yM">
-							<greatestDifference id="M" draft="contributed">MM.y - MM.y</greatestDifference>
-							<greatestDifference id="y" draft="contributed">MM.y - MM.y</greatestDifference>
+							<greatestDifference id="M" draft="contributed">MM.y – MM.y</greatestDifference>
+							<greatestDifference id="y" draft="contributed">MM.y – MM.y</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMd">
-							<greatestDifference id="d" draft="contributed">dd-dd.MM.y</greatestDifference>
-							<greatestDifference id="M" draft="contributed">dd.MM-dd.MM.y</greatestDifference>
-							<greatestDifference id="y" draft="contributed">dd.MM.y-dd.MM.y</greatestDifference>
+							<greatestDifference id="d" draft="contributed">dd–dd.MM.y</greatestDifference>
+							<greatestDifference id="M" draft="contributed">dd.MM–dd.MM.y</greatestDifference>
+							<greatestDifference id="y" draft="contributed">dd.MM.y–dd.MM.y</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMEd">
-							<greatestDifference id="d" draft="contributed">E, dd.MM.y - E, dd.MM.y</greatestDifference>
-							<greatestDifference id="M" draft="contributed">E, dd.MM.y - E, dd.MM.y</greatestDifference>
-							<greatestDifference id="y" draft="contributed">E, dd.MM.y - E, dd.MM.y</greatestDifference>
+							<greatestDifference id="d" draft="contributed">E, dd.MM.y – E, dd.MM.y</greatestDifference>
+							<greatestDifference id="M" draft="contributed">E, dd.MM.y – E, dd.MM.y</greatestDifference>
+							<greatestDifference id="y" draft="contributed">E, dd.MM.y – E, dd.MM.y</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMMM">
-							<greatestDifference id="M" draft="contributed">LLL-LLL y</greatestDifference>
-							<greatestDifference id="y" draft="contributed">LLL y - LLL y</greatestDifference>
+							<greatestDifference id="M" draft="contributed">LLL–LLL y</greatestDifference>
+							<greatestDifference id="y" draft="contributed">LLL y – LLL y</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMMMd">
-							<greatestDifference id="d" draft="contributed">d-d MMM y</greatestDifference>
-							<greatestDifference id="M" draft="contributed">d MMM - d MMM y</greatestDifference>
-							<greatestDifference id="y" draft="contributed">d MMM y - d MMM y</greatestDifference>
+							<greatestDifference id="d" draft="contributed">d–d MMM y</greatestDifference>
+							<greatestDifference id="M" draft="contributed">d MMM – d MMM y</greatestDifference>
+							<greatestDifference id="y" draft="contributed">d MMM y – d MMM y</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMMMEd">
-							<greatestDifference id="d" draft="contributed">E, d - E, d MMM y</greatestDifference>
-							<greatestDifference id="M" draft="contributed">E, d MMM - E, d MMM y</greatestDifference>
-							<greatestDifference id="y" draft="contributed">E, d MMM y - E, d MMM y</greatestDifference>
+							<greatestDifference id="d" draft="contributed">E, d – E, d MMM y</greatestDifference>
+							<greatestDifference id="M" draft="contributed">E, d MMM – E, d MMM y</greatestDifference>
+							<greatestDifference id="y" draft="contributed">E, d MMM y – E, d MMM y</greatestDifference>
 						</intervalFormatItem>
 						<intervalFormatItem id="yMMMM">
-							<greatestDifference id="M" draft="contributed">LLLL-LLLL y</greatestDifference>
-							<greatestDifference id="y" draft="contributed">LLLL y - LLLL y</greatestDifference>
+							<greatestDifference id="M" draft="contributed">LLLL–LLLL y</greatestDifference>
+							<greatestDifference id="y" draft="contributed">LLLL y – LLLL y</greatestDifference>
 						</intervalFormatItem>
 					</intervalFormats>
 				</dateTimeFormats>
@@ -2983,6 +2981,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} (czas letni)</regionFormat>
 			<regionFormat type="standard">{0} (czas standardowy)</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Czunking</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity draft="contributed">Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kaszgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Nieznane</exemplarCity>
 			</zone>
@@ -3349,20 +3356,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Duala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kaszgar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Urumczi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Czunking</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Szanghaj</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity draft="contributed">Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity draft="contributed">Bogota</exemplarCity>
@@ -4025,7 +4023,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>Salwador</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Damaszek</exemplarCity>
@@ -4507,7 +4505,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>Dumont-d'Urville</standard>
+					<standard>Dumont-d’Urville</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">
@@ -6771,11 +6769,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<symbol draft="contributed">TND</symbol>
 			</currency>
 			<currency type="TOP">
-				<displayName>pa'anga tongijska</displayName>
-				<displayName count="one">pa'anga tongijska</displayName>
-				<displayName count="few">pa'anga tongijskie</displayName>
-				<displayName count="many">pa'anga tongijskich</displayName>
-				<displayName count="other">pa'anga tongijskiej</displayName>
+				<displayName>pa’anga tongijska</displayName>
+				<displayName count="one">pa’anga tongijska</displayName>
+				<displayName count="few">pa’anga tongijskie</displayName>
+				<displayName count="many">pa’anga tongijskich</displayName>
+				<displayName count="other">pa’anga tongijskiej</displayName>
 				<symbol draft="contributed">TOP</symbol>
 			</currency>
 			<currency type="TPE">

@@ -192,7 +192,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="gu">gudžaratski</language>
 			<language type="guz">gusii</language>
 			<language type="gv">manski</language>
-			<language type="gwi">gwich'in</language>
+			<language type="gwi">gwich’in</language>
 			<language type="ha">hausa</language>
 			<language type="hai">haidi</language>
 			<language type="haw">havajski</language>
@@ -314,7 +314,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="mg">malgaški</language>
 			<language type="mga">irski, srednji</language>
 			<language type="mgh">makhuwa-meetto</language>
-			<language type="mgo">meta'</language>
+			<language type="mgo">meta’</language>
 			<language type="mh">maršalski</language>
 			<language type="mi">maorski</language>
 			<language type="mic">micmac</language>
@@ -356,7 +356,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="no">norveški</language>
 			<language type="nog">nogajski</language>
 			<language type="non">staronorveški</language>
-			<language type="nqo">n'ko</language>
+			<language type="nqo">n’ko</language>
 			<language type="nr">južni ndebele</language>
 			<language type="nso">sjeverni sotho</language>
 			<language type="nus" draft="contributed">nuer</language>
@@ -496,7 +496,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="tzm" draft="contributed">marokanski tamazight</language>
 			<language type="udm">udmurtski</language>
 			<language type="ug">ujgurski</language>
-			<language type="ug" alt="variant">ujgurski</language>
 			<language type="uga">ugaritski</language>
 			<language type="uk">ukrajinski</language>
 			<language type="umb">umbundu</language>
@@ -635,7 +634,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Narb" draft="contributed">staro sjevernoarapsko pismo</script>
 			<script type="Nbat" draft="contributed">nabatejsko pismo</script>
 			<script type="Nkgb" draft="contributed">naxi geba pismo</script>
-			<script type="Nkoo">n'ko pismo</script>
+			<script type="Nkoo">n’ko pismo</script>
 			<script type="Nshu" draft="contributed">nushu pismo</script>
 			<script type="Ogam">ogham pismo</script>
 			<script type="Olck">ol chiki pismo</script>
@@ -970,7 +969,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Tadžikistan</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Istočni Timor</territory>
-			<territory type="TL" alt="variant">Istočni Timor</territory>
 			<territory type="TM">Turkmenistan</territory>
 			<territory type="TN">Tunis</territory>
 			<territory type="TO">Tonga</territory>
@@ -3152,6 +3150,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0}, ljetno vrijeme</regionFormat>
 			<regionFormat type="standard">{0}, standardno vrijeme</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Chongqing</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Harbin</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Kashgar</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Nepoznati grad</exemplarCity>
 			</zone>
@@ -3518,20 +3525,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Kashgar</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Urumqi</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Chongqing</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Šangaj</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Harbin</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogota</exemplarCity>
@@ -4194,7 +4192,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>El Salvador</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Damask</exemplarCity>
@@ -4709,7 +4707,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			</metazone>
 			<metazone type="DumontDUrville">
 				<long>
-					<standard>vrijeme Dumont-d'Urvillea</standard>
+					<standard>vrijeme Dumont-d’Urvillea</standard>
 				</long>
 			</metazone>
 			<metazone type="East_Timor">
@@ -7227,10 +7225,10 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<symbol>TND</symbol>
 			</currency>
 			<currency type="TOP">
-				<displayName>tongaška pa'anga</displayName>
-				<displayName count="one">tongaška pa'anga</displayName>
-				<displayName count="few">tongaške pa'ange</displayName>
-				<displayName count="other">tongaških pa'angi</displayName>
+				<displayName>tongaška pa’anga</displayName>
+				<displayName count="one">tongaška pa’anga</displayName>
+				<displayName count="few">tongaške pa’ange</displayName>
+				<displayName count="other">tongaških pa’angi</displayName>
 				<symbol>TOP</symbol>
 			</currency>
 			<currency type="TPE">

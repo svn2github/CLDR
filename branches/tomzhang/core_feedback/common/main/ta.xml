@@ -137,7 +137,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="en_GB">பிரிட்டிஷ் ஆங்கிலம்</language>
 			<language type="en_GB" alt="short">ஆங்கிலம் (யூகே)</language>
 			<language type="en_US">அமெரிக்க ஆங்கிலம்</language>
-			<language type="en_US" alt="short">ஆங்கிலம்(அமெரிக்கா)</language>
 			<language type="enm">மத்திய ஆங்கிலம்</language>
 			<language type="eo">எஸ்பரேன்டோ</language>
 			<language type="es">ஸ்பானிஷ்</language>
@@ -343,7 +342,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="no">நார்வே</language>
 			<language type="nog">நோகை</language>
 			<language type="non">பழைய நோர்ஸ்</language>
-			<language type="nqo">என்'கோ</language>
+			<language type="nqo">என்‘கோ</language>
 			<language type="nr">தெற்கு தெபெலே</language>
 			<language type="nso">வடக்கு சோதோ</language>
 			<language type="nus">நியூர்</language>
@@ -480,7 +479,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="tzm">மத்திய அட்லஸ் தமசைட்</language>
 			<language type="udm">உட்முர்ட்</language>
 			<language type="ug">உய்குர்</language>
-			<language type="ug" alt="variant">உய்குர்</language>
 			<language type="uga">உகாரிட்க்</language>
 			<language type="uk">உக்ரைனியன்</language>
 			<language type="umb">அம்பொண்டு</language>
@@ -600,7 +598,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<script type="Moon">மூன்</script>
 			<script type="Mtei">மெய்தெய் மயக்</script>
 			<script type="Mymr">மியான்மர்</script>
-			<script type="Nkoo">என்'கோ</script>
+			<script type="Nkoo">என்‘கோ</script>
 			<script type="Ogam">ஒகாம்</script>
 			<script type="Olck">ஒல் சிக்கி</script>
 			<script type="Orkh">ஆர்கான்</script>
@@ -2258,6 +2256,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">{0} பகல் நேரம்</regionFormat>
 			<regionFormat type="standard">{0} நிலையான நேரம்</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>சாங்குயிங்</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>ஹர்பின்</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>கஷ்கர்</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>தெரியாத நகரம்</exemplarCity>
 			</zone>
@@ -2624,20 +2631,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>தவுலா</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>கஷ்கர்</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>உரும்கி</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>சாங்குயிங்</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>ஷாங்காய்</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>ஹர்பின்</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>போகோடா</exemplarCity>

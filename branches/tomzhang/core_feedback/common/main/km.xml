@@ -75,7 +75,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="es">អេស្ប៉ាញ</language>
 			<language type="es_419">អេស្ប៉ាញ អាមេរីកឡាតាំង</language>
 			<language type="es_ES">អេស្ប៉ាញ អឺរ៉ុប</language>
-			<language type="es_MX">អេស្ប៉ាញ (ម៉ិចសិក)</language>
 			<language type="et">អេស្តូនី</language>
 			<language type="eu">បាស្កេ</language>
 			<language type="fa">ភឺសៀន</language>
@@ -84,8 +83,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fj">ហ៊្វីជី</language>
 			<language type="fo">ហ្វារូស</language>
 			<language type="fr">បារាំង</language>
-			<language type="fr_CA">បារាំង (កាណាដា)</language>
-			<language type="fr_CH">បារាំង (ស្វីស)</language>
 			<language type="fy">ហ្វ្រីស៊ានខាងលិច</language>
 			<language type="ga">អៀរឡង់</language>
 			<language type="gag">Gagauz</language>
@@ -672,9 +669,9 @@ For terms of use, see http://www.unicode.org/copyright.html
 		</codePatterns>
 	</localeDisplayNames>
 	<characters>
-		<exemplarCharacters>[\u17CC \u17CE \u17CF \u17D1 \u17D0 ៈ \u17CB \u17C9 \u17CA \u17CD ក ខ គ ឃ ង ច ឆ ជ ឈ ញ ដ ឋ ឌ ឍ ណ ត ថ ទ ធ ន ប ផ ព ភ ម យ រ ឫ ឬ ល ឭ ឮ វ ស ហ ឡ អ ឲ ឪ {អា} ឥ ឦ ឧ {ឧក} ឩ ឯ ឰ ឱ ឳ ា \u17B7 \u17B8 \u17B9 \u17BA \u17BB \u17BC \u17BD ើ ឿ ៀ េ ែ ៃ ោ ៅ \u17C6 ះ \u17D2]</exemplarCharacters>
+		<exemplarCharacters>[\u17CC \u17CE \u17CF \u17D1 \u17D0 ៈ \u17CB \u17C9 \u17CA \u17CD ក ខ គ ឃ ង ច ឆ ជ ឈ ញ ដ ឋ ឌ ឍ ណ ត ថ ទ ធ ន ប ផ ព ភ ម យ រ ឫ ឬ ល ឭ ឮ វ ស ហ ឡ អ {អា} ឥ ឦ ឧ {ឧក} ឩ ឪ ឯ ឰ ឱ ឲ ឳ ា \u17B7 \u17B8 \u17B9 \u17BA \u17BB \u17BC \u17BD ើ ឿ ៀ េ ែ ៃ ោ ៅ \u17C6 ះ \u17D2]</exemplarCharacters>
 		<exemplarCharacters type="auxiliary">[\u17B4\u17B5\u200B ឝ ឞ]</exemplarCharacters>
-		<exemplarCharacters type="index" draft="unconfirmed">[ក ខ គ ឃ ង ច ឆ ជ ឈ ញ ដ ឋ ឌ ឍ ណ ត ថ ទ ធ ន ប ផ ព ភ ម យ រ ឫ ឬ ល ឭ ឮ វ ស ហ ឡ អ ឪ ឥ ឦ ឧ ឩ ឯ ឰ ឱ ឳ]</exemplarCharacters>
+		<exemplarCharacters type="index" draft="unconfirmed">[ក ខ គ ឃ ង ច ឆ ជ ឈ ញ ដ ឋ ឌ ឍ ណ ត ថ ទ ធ ន ប ផ ព ភ ម យ រ ឫ ឬ ល ឭ ឮ វ ស ហ ឡ អ ឥ ឦ ឧ ឩ ឪ ឯ ឰ ឱ ឳ]</exemplarCharacters>
 		<exemplarCharacters type="punctuation">[\- , ៖ ! ? . ។ ៕ ‘ ’ &quot; “ ” ( ) \[ \] \{ \} ៙ ៚]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
 		<ellipsis type="initial">…{0}</ellipsis>
@@ -1099,15 +1096,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<eras>
 					<eraNames>
 						<era type="0">មុន​គ្រិស្តសករាជ</era>
-						<era type="0" alt="variant">មុន​គ្រិស្តសករាជ</era>
 						<era type="1">គ្រិស្តសករាជ</era>
-						<era type="1" alt="variant">គ្រិស្តសករាជ</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">មុន គ.ស.</era>
-						<era type="0" alt="variant">មុន គ.ស.</era>
 						<era type="1">គ.ស.</era>
-						<era type="1" alt="variant">គ.ស.</era>
 					</eraAbbr>
 				</eras>
 				<dateFormats>
@@ -1669,6 +1662,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">ម៉ោង​ពេល​ថ្ងៃ​នៅ​{0}</regionFormat>
 			<regionFormat type="standard">ម៉ោង​ស្តង់ដារ​នៅ​{0}</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>ឆុងហ្គីង</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>ហាប៊ីន</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>កាសហ្គារ</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>ទីក្រុង​មិនស្គាល់</exemplarCity>
 			</zone>
@@ -2035,20 +2037,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>ឌូអ៊ូឡា</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>កាសហ្គារ</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>អ៊ូរាំហ្គី</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>ឆុងហ្គីង</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>សៀងហៃ</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>ហាប៊ីន</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>បូហ្គោតា</exemplarCity>

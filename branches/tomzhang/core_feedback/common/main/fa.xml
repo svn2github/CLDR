@@ -727,7 +727,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">کنگو (جمهوری)</territory>
 			<territory type="CH">سوئیس</territory>
 			<territory type="CI">ساحل عاج</territory>
-			<territory type="CI" alt="variant">ساحل عاج</territory>
 			<territory type="CK">جزایر کوک</territory>
 			<territory type="CL">شیلی</territory>
 			<territory type="CM">کامرون</territory>
@@ -919,7 +918,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">تاجیکستان</territory>
 			<territory type="TK">توکلائو</territory>
 			<territory type="TL">تیمور شرقی</territory>
-			<territory type="TL" alt="variant">تیمور شرقی</territory>
 			<territory type="TM">ترکمنستان</territory>
 			<territory type="TN">تونس</territory>
 			<territory type="TO">تونگا</territory>
@@ -2560,6 +2558,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">وقت تابستانی {0}</regionFormat>
 			<regionFormat type="standard">وقت عادی {0}</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>چونگ‌کینگ</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>هاربین</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>کاشغر</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>شهر نامشخص</exemplarCity>
 			</zone>
@@ -2926,20 +2933,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>دوآلا</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>کاشغر</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>ارومچی</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>چونگ‌کینگ</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>شانگهای</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>هاربین</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>بوگوتا</exemplarCity>
@@ -7067,3 +7065,4 @@ For terms of use, see http://www.unicode.org/copyright.html
 		</messages>
 	</posix>
 </ldml>
+

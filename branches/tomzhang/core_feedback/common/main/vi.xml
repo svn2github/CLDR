@@ -114,7 +114,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="dar" draft="contributed">Tiếng Dargwa</language>
 			<language type="dav">Tiếng Taita</language>
 			<language type="de">Tiếng Đức</language>
-			<language type="de_AT">Tiếng Đức (Áo)</language>
 			<language type="de_CH">Tiếng Thượng Giéc-man (Thụy Sĩ)</language>
 			<language type="del" draft="contributed">Tiếng Delaware</language>
 			<language type="den" draft="contributed">Tiếng Slave</language>
@@ -138,8 +137,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="el">Tiếng Hy Lạp</language>
 			<language type="elx" draft="contributed">Tiếng Elamite</language>
 			<language type="en">Tiếng Anh</language>
-			<language type="en_AU">Tiếng Anh (Úc)</language>
-			<language type="en_CA">Tiếng Anh (Canada)</language>
 			<language type="en_GB">Tiếng Anh (Anh)</language>
 			<language type="en_GB" alt="short">Tiếng Anh (Anh)</language>
 			<language type="en_US">Tiếng Anh (Mỹ)</language>
@@ -148,8 +145,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="eo">Tiếng Quốc Tế Ngữ</language>
 			<language type="es">Tiếng Tây Ban Nha</language>
 			<language type="es_419">Tiếng Tây Ban Nha (Mỹ La tinh)</language>
-			<language type="es_ES">Tiếng Tây Ban Nha (Tây Ban Nha)</language>
-			<language type="es_MX">Tiếng Tây Ban Nha (Mexico)</language>
 			<language type="et">Tiếng Estonia</language>
 			<language type="eu">Tiếng Basque</language>
 			<language type="ewo" draft="contributed">Tiếng Ewondo</language>
@@ -163,8 +158,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="fo">Tiếng Faore</language>
 			<language type="fon" draft="contributed">Tiếng Fon</language>
 			<language type="fr">Tiếng Pháp</language>
-			<language type="fr_CA">Tiếng Pháp (Canada)</language>
-			<language type="fr_CH">Tiếng Pháp (Thụy Sĩ)</language>
 			<language type="frm" draft="contributed">Tiếng Pháp Trung cổ</language>
 			<language type="fro" draft="contributed">Tiếng Pháp cổ</language>
 			<language type="frr" draft="contributed">Tiếng Frisian Miền Bắc</language>
@@ -314,7 +307,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="mg">Tiếng Malagasy</language>
 			<language type="mga" draft="contributed">Tiếng Ai-len Trung cổ</language>
 			<language type="mgh">Tiếng Makhuwa-Meetto</language>
-			<language type="mgo">Tiếng Meta'</language>
+			<language type="mgo">Tiếng Meta’</language>
 			<language type="mh" draft="contributed">Tiếng Marshall</language>
 			<language type="mi">Tiếng Maori</language>
 			<language type="mic" draft="contributed">Tiếng Micmac</language>
@@ -356,7 +349,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="no">Tiếng Na Uy</language>
 			<language type="nog" draft="contributed">Tiếng Nogai</language>
 			<language type="non" draft="contributed">Tiếng Na Uy cổ</language>
-			<language type="nqo" draft="contributed">Tiếng N'Ko</language>
+			<language type="nqo" draft="contributed">Tiếng N’Ko</language>
 			<language type="nr" draft="contributed">Tiếng Ndebele Miền Nam</language>
 			<language type="nso" draft="contributed">Bắc Sotho</language>
 			<language type="nus">Tiếng Nuer</language>
@@ -390,7 +383,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="ps" alt="variant">Tiếng Pushto</language>
 			<language type="pt">Tiếng Bồ Đào Nha</language>
 			<language type="pt_BR">Tiếng Bồ Đào Nha (Braxin)</language>
-			<language type="pt_PT">Tiếng Bồ Đào Nha (Bồ Đào Nha)</language>
 			<language type="qu">Tiếng Quechua</language>
 			<language type="quc">Tiếng Kʼicheʼ</language>
 			<language type="raj" draft="contributed">Tiếng Rajasthani</language>
@@ -530,8 +522,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="zen" draft="contributed">Tiếng Zenaga</language>
 			<language type="zgh">Tiếng Tamazight Chuẩn của Ma-rốc</language>
 			<language type="zh">Tiếng Trung</language>
-			<language type="zh_Hans">Tiếng Trung (Giản thể)</language>
-			<language type="zh_Hant">Tiếng Trung (Phồn thể)</language>
 			<language type="zu">Tiếng Zulu</language>
 			<language type="zun" draft="contributed">Tiếng Zuni</language>
 			<language type="zxx">Không có nội dung ngôn ngữ</language>
@@ -779,7 +769,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="CG" alt="variant">Cộng hòa Congo</territory>
 			<territory type="CH">Thụy Sĩ</territory>
 			<territory type="CI">Bờ Biển Ngà</territory>
-			<territory type="CI" alt="variant">Bờ Biển Ngà</territory>
 			<territory type="CK">Quần đảo Cook</territory>
 			<territory type="CL">Chile</territory>
 			<territory type="CM">Cameroon</territory>
@@ -970,7 +959,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<territory type="TJ">Tajikistan</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Đông Timor</territory>
-			<territory type="TL" alt="variant">Đông Timor</territory>
 			<territory type="TM">Turkmenistan</territory>
 			<territory type="TN">Tunisia</territory>
 			<territory type="TO">Tonga</territory>
@@ -1151,7 +1139,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<type type="mymr" key="numbers">Chữ số Myanma</type>
 			<type type="mymrshan" key="numbers" draft="contributed">Chữ số Myanmar Shan</type>
 			<type type="native" key="numbers" draft="contributed">Chữ số tự nhiên</type>
-			<type type="nkoo" key="numbers" draft="contributed">Chữ số N'Ko</type>
+			<type type="nkoo" key="numbers" draft="contributed">Chữ số N’Ko</type>
 			<type type="no" key="colBackwards" draft="contributed">Sắp xếp dấu trọng âm bình thường</type>
 			<type type="no" key="colCaseFirst" draft="contributed">Sắp xếp thứ tự chữ cái bình thường</type>
 			<type type="no" key="colCaseLevel" draft="contributed">Sắp xếp không phân biệt chữ hoa/chữ thường</type>
@@ -2075,15 +2063,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<eras>
 					<eraNames>
 						<era type="0">tr. CN</era>
-						<era type="0" alt="variant" draft="provisional">tr. CN</era>
 						<era type="1">sau CN</era>
-						<era type="1" alt="variant" draft="provisional">sau CN</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">tr. CN</era>
-						<era type="0" alt="variant">tr. CN</era>
 						<era type="1">sau CN</era>
-						<era type="1" alt="variant">sau CN</era>
 					</eraAbbr>
 					<eraNarrow>
 						<era type="0">tr. CN</era>
@@ -2894,6 +2878,15 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<regionFormat type="daylight">Giờ ban ngày {0}</regionFormat>
 			<regionFormat type="standard">Giờ chuẩn {0}</regionFormat>
 			<fallbackFormat>{1} ({0})</fallbackFormat>
+			<zone type="Asia/Chongqing">
+				<exemplarCity>Trùng Khánh</exemplarCity>
+			</zone>
+			<zone type="Asia/Harbin">
+				<exemplarCity>Cáp Nhĩ Tân</exemplarCity>
+			</zone>
+			<zone type="Asia/Kashgar">
+				<exemplarCity>Khách Thập</exemplarCity>
+			</zone>
 			<zone type="Etc/Unknown">
 				<exemplarCity>Thành phố Không xác định</exemplarCity>
 			</zone>
@@ -3260,20 +3253,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<zone type="Africa/Douala">
 				<exemplarCity>Douala</exemplarCity>
 			</zone>
-			<zone type="Asia/Kashgar">
-				<exemplarCity>Khách Thập</exemplarCity>
-			</zone>
 			<zone type="Asia/Urumqi">
 				<exemplarCity>Ô Lỗ Mộc Tề</exemplarCity>
 			</zone>
-			<zone type="Asia/Chongqing">
-				<exemplarCity>Trùng Khánh</exemplarCity>
-			</zone>
 			<zone type="Asia/Shanghai">
 				<exemplarCity>Thượng Hải</exemplarCity>
-			</zone>
-			<zone type="Asia/Harbin">
-				<exemplarCity>Cáp Nhĩ Tân</exemplarCity>
 			</zone>
 			<zone type="America/Bogota">
 				<exemplarCity>Bogota</exemplarCity>
@@ -3936,7 +3920,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<exemplarCity>El Salvador</exemplarCity>
 			</zone>
 			<zone type="America/Lower_Princes">
-				<exemplarCity>Lower Prince's Quarter</exemplarCity>
+				<exemplarCity>Lower Prince’s Quarter</exemplarCity>
 			</zone>
 			<zone type="Asia/Damascus">
 				<exemplarCity>Damascus</exemplarCity>
