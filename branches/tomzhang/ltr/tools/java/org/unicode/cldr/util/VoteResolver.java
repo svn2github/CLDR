@@ -76,7 +76,6 @@ public class VoteResolver<T> {
      * so that we know when new ones show up.
      */
     public enum Organization {
-        // Not used (but keep in to avoid breakage): sun
         // Please update Locales.txt for default coverage when adding an organization here.
 
         adobe("Adobe"),
@@ -106,18 +105,15 @@ public class VoteResolver<T> {
         microsoft("Microsoft"),
         openinstitute("Open Inst (Cambodia)"),
         openoffice_org("Open Office"),
-        oracle("Oracle"),
+        oracle("Oracle","sun","Sun Micro"),
         pakistan("Pakistan"),
 	rumantscha("Lia Rumantscha"),
         sil("SIL"),
         srilanka("Sri Lanka ICTA", "Sri Lanka"),
-        sun("Sun Micro"), // TO REMOVE
         surveytool("Survey Tool"),
-        utilika("Utilika Foundation", "Utilika"), // TO REMOVE
         welsh_lc("Welsh LC"),
         wikimedia("Wikimedia Foundation"),
         yahoo("Yahoo"),
-        
         // To be removed.
         ;
 
@@ -1273,13 +1269,13 @@ public class VoteResolver<T> {
         }
         Map<T, Long> result = new LinkedHashMap<T, Long>();
         if (winningValue != null && !totals.containsKey(winningValue)) {
-            result.put(winningValue, 0l);
+            result.put(winningValue, 0L);
         }
         for (T value : totals.getKeysetSortedByCount(false, votesThenUcaCollator)) {
             result.put(value, totals.get(value));
         }
         if (lastReleaseValue != null && !totals.containsKey(lastReleaseValue)) {
-            result.put(lastReleaseValue, 0l);
+            result.put(lastReleaseValue, 0L);
         }
         return result;
     }

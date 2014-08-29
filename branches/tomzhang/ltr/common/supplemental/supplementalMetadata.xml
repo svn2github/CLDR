@@ -14,11 +14,11 @@ For terms of use, see http://www.unicode.org/copyright.html
 _q type id choice key registry source target path day date version count lines characters before from to iso4217 mzone number time casing list uri digits rounding iso3166 hex request direction alternate backwards caseFirst caseLevel hiraganaQuarternary hiraganaQuaternary maxVariable variableTop normalization numeric strength elements element attributes attribute attributeValue contains multizone order other replacement scripts services territories territory aliases tzidVersion value values variant variants visibility alpha3 code end exclude fips10 gdp internet literacyPercent locales population writingPercent populationPercent officialStatus start used otherVersion typeVersion access after allowsParsing at bcp47 decexp desired indexSource numberSystem numbers oneway ordering percent priority radix rules supported tender territoryId yeartype cldrVersion grouping inLanguage inScript inTerritory match parent private reason reorder status cashDigits cashRounding allowed override preferred regions paths votes validSubLocales standard references alt draft
         </attributeOrder>
         <elementOrder>
-ldml alternate approvalRequirement approvalRequirements attributeOrder attributes blockingItems calendarPreference calendarSystem casingData casingItem character character-fallback characterOrder codesByTerritory comment context coverageVariable coverageLevel cp dayPeriodRule dayPeriodRules deprecatedItems distinguishingItems elementOrder exception first_variable fractions hours identity indexSeparator compressedIndexSeparator indexRangePattern indexLabelBefore indexLabelAfter indexLabel info keyMap languageAlias languageCodes languageCoverage languageMatch languageMatches languagePopulation last_variable first_tertiary_ignorable last_tertiary_ignorable first_secondary_ignorable last_secondary_ignorable first_primary_ignorable last_primary_ignorable first_non_ignorable last_non_ignorable first_trailing last_trailing likelySubtag lineOrder mapKeys mapTypes mapZone numberingSystem parentLocale personList pluralRule pluralRules postCodeRegex primaryZone reference region scriptAlias scriptCoverage serialElements stopwordList substitute suppress tRule telephoneCountryCode territoryAlias territoryCodes territoryCoverage currencyCoverage timezone timezoneCoverage transform typeMap usesMetazone validity alias appendItem base beforeCurrency afterCurrency codePattern compoundUnit compoundUnitPattern contextTransform contextTransformUsage currencyMatch cyclicName cyclicNameContext cyclicNameSet cyclicNameWidth dateFormatItem day dayPeriod dayPeriodContext dayPeriodWidth defaultCollation defaultNumberingSystem deprecated distinguishing blocking coverageAdditions durationUnitPattern era eraNames eraAbbr eraNarrow exemplarCharacters ellipsis fallback field generic greatestDifference height hourFormat hoursFormat gmtFormat gmtZeroFormat intervalFormatFallback intervalFormatItem key listPattern listPatternPart localeDisplayNames layout contextTransforms localeDisplayPattern languages localePattern localeSeparator localeKeyTypePattern localizedPatternChars dateRangePattern calendars long measurementSystem measurementSystemName messages minDays firstDay month monthPattern monthPatternContext monthPatternWidth months monthNames monthAbbr monthPatterns days dayNames dayAbbr moreInformation native orientation inList inText otherNumberingSystems paperSize quarter quarters quotationStart quotationEnd alternateQuotationStart alternateQuotationEnd rbnfrule regionFormat fallbackFormat fallbackRegionFormat abbreviationFallback preferenceOrdering relativeTimePattern reset import p pc rule ruleset rulesetGrouping s sc scripts segmentation settings short commonlyUsed exemplarCity singleCountries default calendar collation currency currencyFormat currencySpacing currencyFormatLength dateFormat dateFormatLength dateTimeFormat dateTimeFormatLength availableFormats appendItems dayContext dayWidth decimalFormat decimalFormatLength intervalFormats monthContext monthWidth pattern displayName percentFormat percentFormatLength quarterContext quarterWidth relative relativeTime scientificFormat scientificFormatLength skipDefaultLocale defaultContent standard daylight stopwords indexLabels mapping suppress_contractions optimize cr rules surroundingMatch insertBetween symbol decimal group list percentSign nativeZeroDigit patternDigit plusSign minusSign exponential superscriptingExponent perMille infinity nan currencyDecimal currencyGroup symbols decimalFormats scientificFormats percentFormats currencyFormats currencies miscPatterns t tc q qc i ic extend territories timeFormat timeFormatLength traditional finance transformName type unit unitLength durationUnit unitPattern variable attributeValues variables segmentRules exceptions variantAlias variants keys types transformNames measurementSystemNames codePatterns version generation cldrVersion currencyData language script territory territoryContainment languageData territoryInfo postalCodeData calendarData calendarPreferenceData variant week am pm dayPeriods eras cyclicNameSets dateFormats timeFormats dateTimeFormats fields timeZoneNames weekData timeData measurementData timezoneData characters delimiters measurement dates numbers transforms units listPatterns collations posix segmentations rbnf metadata codeMappings parentLocales likelySubtags metazoneInfo mapTimezones plurals telephoneCodeData numberingSystems bcp47KeywordMappings gender references languageMatching dayPeriodRuleSet metaZones primaryZones weekendStart weekendEnd width windowsZones coverageLevels x yesstr nostr yesexpr noexpr zone metazone special zoneAlias zoneFormatting zoneItem supplementalData
+ldml alternate approvalRequirement approvalRequirements attributeOrder attributes blockingItems calendarPreference calendarSystem casingData casingItem character character-fallback characterOrder codesByTerritory comment context coverageVariable coverageLevel cp dayPeriodRule dayPeriodRules deprecatedItems distinguishingItems elementOrder exception first_variable fractions hours identity indexSeparator compressedIndexSeparator indexRangePattern indexLabelBefore indexLabelAfter indexLabel info keyMap languageAlias languageCodes languageCoverage languageMatch languageMatches languagePopulation last_variable first_tertiary_ignorable last_tertiary_ignorable first_secondary_ignorable last_secondary_ignorable first_primary_ignorable last_primary_ignorable first_non_ignorable last_non_ignorable first_trailing last_trailing likelySubtag lineOrder mapKeys mapTypes mapZone numberingSystem parentLocale personList pluralRule pluralRules postCodeRegex primaryZone reference region scriptAlias scriptCoverage serialElements stopwordList substitute suppress suppression tRule telephoneCountryCode territoryAlias territoryCodes territoryCoverage currencyCodes  currencyCoverage timezone timezoneCoverage transform typeMap usesMetazone validity alias appendItem base beforeCurrency afterCurrency codePattern compoundUnit compoundUnitPattern contextTransform contextTransformUsage currencyMatch cyclicName cyclicNameContext cyclicNameSet cyclicNameWidth dateFormatItem day dayPeriod dayPeriodContext dayPeriodWidth defaultCollation defaultNumberingSystem deprecated distinguishing blocking coverageAdditions durationUnitPattern era eraNames eraAbbr eraNarrow exemplarCharacters ellipsis fallback field generic greatestDifference height hourFormat hoursFormat gmtFormat gmtZeroFormat intervalFormatFallback intervalFormatItem key listPattern listPatternPart localeDisplayNames layout contextTransforms localeDisplayPattern languages localePattern localeSeparator localeKeyTypePattern localizedPatternChars dateRangePattern calendars long measurementSystem measurementSystemName messages minDays firstDay month monthPattern monthPatternContext monthPatternWidth months monthNames monthAbbr monthPatterns days dayNames dayAbbr moreInformation native orientation inList inText otherNumberingSystems paperSize quarter quarters quotationStart quotationEnd alternateQuotationStart alternateQuotationEnd rbnfrule regionFormat fallbackFormat fallbackRegionFormat abbreviationFallback preferenceOrdering relativeTimePattern reset import p pc rule ruleset rulesetGrouping s sc scripts segmentation settings short commonlyUsed exemplarCity singleCountries default calendar collation currency currencyFormat currencySpacing currencyFormatLength dateFormat dateFormatLength dateTimeFormat dateTimeFormatLength availableFormats appendItems dayContext dayWidth decimalFormat decimalFormatLength intervalFormats monthContext monthWidth pattern displayName percentFormat percentFormatLength quarterContext quarterWidth relative relativeTime scientificFormat scientificFormatLength skipDefaultLocale defaultContent standard daylight stopwords indexLabels mapping suppress_contractions optimize cr rules surroundingMatch insertBetween symbol decimal group list percentSign nativeZeroDigit patternDigit plusSign minusSign exponential superscriptingExponent perMille infinity nan currencyDecimal currencyGroup symbols decimalFormats scientificFormats percentFormats currencyFormats currencies miscPatterns t tc q qc i ic extend territories timeFormat timeFormatLength traditional finance transformName type unit unitLength durationUnit unitPattern variable attributeValues variables segmentRules exceptions suppressions variantAlias variants keys types transformNames measurementSystemNames codePatterns version generation cldrVersion currencyData language script territory territoryContainment languageData territoryInfo postalCodeData calendarData calendarPreferenceData variant week am pm dayPeriods eras cyclicNameSets dateFormats timeFormats dateTimeFormats fields timeZoneNames weekData timeData measurementData timezoneData characters delimiters measurement dates numbers transforms units listPatterns collations posix segmentations rbnf metadata codeMappings parentLocales likelySubtags metazoneInfo mapTimezones plurals telephoneCodeData numberingSystems bcp47KeywordMappings gender references languageMatching dayPeriodRuleSet metaZones primaryZones weekendStart weekendEnd width windowsZones coverageLevels x yesstr nostr yesexpr noexpr zone metazone special zoneAlias zoneFormatting zoneItem supplementalData
 
         </elementOrder>
         <serialElements>
-            attributeValues attributes base comment context exception extend i ic languageMatch last_non_ignorable last_secondary_ignorable last_tertiary_ignorable optimize p pc pluralRule rbnfrule reset rules ruleset s sc settings substitute suppress_contractions t tRule tc variable x
+            attributeValues attributes base comment context exception extend i ic languageMatch last_non_ignorable last_secondary_ignorable last_tertiary_ignorable optimize p pc pluralRule rbnfrule reset rules ruleset s sc settings substitute suppress_contractions suppression t tRule tc variable x
         </serialElements>
         <suppress>
             <attributes attribute="_q"/>
@@ -142,7 +142,8 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
 				Qabh Qabi Qabj Qabk Qabl Qabm Qabn Qabo Qabp Qabq Qabr Qabs Qabt Qabu Qabv Qabw
 				Qabx
 				Rjng Roro Runr
-				Samr Sara Sarb Saur Sgnw Shaw Shrd Sidd Sind Sinh Sora Sund Sylo Syrc Syre Syrj Syrn
+				Samr Sara Sarb Saur Sgnw Shaw Shrd Sidd Sind Sinh Sora Sund Sylo Syrc Syre Syrj
+				Syrn
 				Tagb Takr Tale Talu Taml Tang Tavt Telu Teng Tfng Tglg Thaa Thai Tibt Tirh
 				Ugar
 				Vaii Visp
@@ -189,6 +190,7 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
 			</variable>
 			<variable id="$collation_XXX" type="choice">
 				big5han
+				compat
 				dict dictionary direct ducet
 				eor
 				gb2312 gb2312han
@@ -390,7 +392,7 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
 				America/Martinique America/Matamoros America/Mazatlan America/Mendoza
 				America/Menominee America/Merida America/Metlakatla America/Mexico_City
 				America/Miquelon America/Moncton America/Monterrey America/Montevideo
-				America/Montserrat America/Nassau America/New_York
+				America/Montreal America/Montserrat America/Nassau America/New_York
 				America/Nipigon America/Nome America/Noronha America/North_Dakota/Beulah
 				America/North_Dakota/Center America/North_Dakota/New_Salem America/Ojinaga
 				America/Panama America/Pangnirtung America/Paramaribo America/Phoenix
@@ -399,34 +401,35 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
 				America/Rankin_Inlet America/Recife America/Regina America/Resolute
 				America/Rio_Branco America/Rosario America/Santa_Isabel America/Santarem
 				America/Santiago America/Santo_Domingo America/Sao_Paulo America/Scoresbysund
-				America/Sitka America/St_Barthelemy America/St_Johns
+				America/Shiprock America/Sitka America/St_Barthelemy America/St_Johns
 				America/St_Kitts America/St_Lucia America/St_Thomas America/St_Vincent
 				America/Swift_Current America/Tegucigalpa America/Thule America/Thunder_Bay
 				America/Tijuana America/Toronto America/Tortola America/Vancouver
 				America/Virgin America/Whitehorse America/Winnipeg America/Yakutat
 				America/Yellowknife amevn ancur Antarctica/Casey Antarctica/Davis
 				Antarctica/DumontDUrville Antarctica/Macquarie Antarctica/Mawson
-				Antarctica/McMurdo Antarctica/Palmer Antarctica/Rothera
-				Antarctica/Syowa Antarctica/Vostok aolad aqams aqcas aqdav aqddu aqmaw aqmcm
-				aqplm aqrot aqsyw aqvos arbue arcor arctc Arctic/Longyearbyen arirj arjuj arluq
-				armdz arrgl arsla artuc aruaq arush Asia/Aden Asia/Almaty Asia/Amman
-				Asia/Anadyr Asia/Aqtau Asia/Aqtobe Asia/Ashgabat Asia/Ashkhabad Asia/Baghdad
-				Asia/Bahrain Asia/Baku Asia/Bangkok Asia/Beirut Asia/Bishkek Asia/Brunei
-				Asia/Calcutta Asia/Choibalsan Asia/Chongqing Asia/Chungking Asia/Colombo
-				Asia/Dacca Asia/Damascus Asia/Dhaka Asia/Dili Asia/Dubai Asia/Dushanbe
-				Asia/Gaza Asia/Harbin Asia/Hebron Asia/Ho_Chi_Minh Asia/Hong_Kong Asia/Hovd
-				Asia/Irkutsk Asia/Istanbul Asia/Jakarta Asia/Jayapura Asia/Jerusalem Asia/Kabul
-				Asia/Kamchatka Asia/Karachi Asia/Kashgar Asia/Kathmandu Asia/Katmandu
-				Asia/Khandyga Asia/Kolkata Asia/Krasnoyarsk Asia/Kuala_Lumpur Asia/Kuching
-				Asia/Kuwait Asia/Macao Asia/Macau Asia/Magadan Asia/Makassar Asia/Manila
-				Asia/Muscat Asia/Nicosia Asia/Novokuznetsk Asia/Novosibirsk Asia/Omsk Asia/Oral
+				Antarctica/McMurdo Antarctica/Palmer Antarctica/Rothera Antarctica/South_Pole
+				Antarctica/Syowa Antarctica/Troll Antarctica/Vostok aolad aqams aqcas aqdav
+				aqddu aqmaw aqmcm aqplm aqrot aqsyw aqtrl aqvos arbue arcor arctc
+				Arctic/Longyearbyen arirj arjuj arluq armdz arrgl arsla artuc aruaq arush
+				Asia/Aden Asia/Almaty Asia/Amman Asia/Anadyr Asia/Aqtau Asia/Aqtobe
+				Asia/Ashgabat Asia/Ashkhabad Asia/Baghdad Asia/Bahrain Asia/Baku Asia/Bangkok
+				Asia/Beirut Asia/Bishkek Asia/Brunei Asia/Calcutta Asia/Chita Asia/Choibalsan
+				Asia/Chongqing Asia/Chungking Asia/Colombo Asia/Dacca Asia/Damascus Asia/Dhaka
+				Asia/Dili Asia/Dubai Asia/Dushanbe Asia/Gaza Asia/Harbin Asia/Hebron
+				Asia/Ho_Chi_Minh Asia/Hong_Kong Asia/Hovd Asia/Irkutsk Asia/Istanbul
+				Asia/Jakarta Asia/Jayapura Asia/Jerusalem Asia/Kabul Asia/Kamchatka
+				Asia/Karachi Asia/Kashgar Asia/Kathmandu Asia/Katmandu Asia/Khandyga
+				Asia/Kolkata Asia/Krasnoyarsk Asia/Kuala_Lumpur Asia/Kuching Asia/Kuwait
+				Asia/Macao Asia/Macau Asia/Magadan Asia/Makassar Asia/Manila Asia/Muscat
+				Asia/Nicosia Asia/Novokuznetsk Asia/Novosibirsk Asia/Omsk Asia/Oral
 				Asia/Phnom_Penh Asia/Pontianak Asia/Pyongyang Asia/Qatar Asia/Qyzylorda
 				Asia/Rangoon Asia/Riyadh Asia/Saigon Asia/Sakhalin Asia/Samarkand Asia/Seoul
-				Asia/Shanghai Asia/Singapore Asia/Taipei Asia/Tashkent Asia/Tbilisi Asia/Tehran
-				Asia/Tel_Aviv Asia/Thimbu Asia/Thimphu Asia/Tokyo Asia/Ujung_Pandang
-				Asia/Ulaanbaatar Asia/Ulan_Bator Asia/Urumqi Asia/Ust-Nera Asia/Vientiane
-				Asia/Vladivostok Asia/Yakutsk Asia/Yekaterinburg Asia/Yerevan asppg
-				Atlantic/Azores Atlantic/Bermuda Atlantic/Canary Atlantic/Cape_Verde
+				Asia/Shanghai Asia/Singapore Asia/Srednekolymsk Asia/Taipei Asia/Tashkent
+				Asia/Tbilisi Asia/Tehran Asia/Tel_Aviv Asia/Thimbu Asia/Thimphu Asia/Tokyo
+				Asia/Ujung_Pandang Asia/Ulaanbaatar Asia/Ulan_Bator Asia/Urumqi Asia/Ust-Nera
+				Asia/Vientiane Asia/Vladivostok Asia/Yakutsk Asia/Yekaterinburg Asia/Yerevan
+				asppg Atlantic/Azores Atlantic/Bermuda Atlantic/Canary Atlantic/Cape_Verde
 				Atlantic/Faeroe Atlantic/Faroe Atlantic/Jan_Mayen Atlantic/Madeira
 				Atlantic/Reykjavik Atlantic/South_Georgia Atlantic/St_Helena Atlantic/Stanley
 				atvie auadl aubhq aubne audrw aueuc auhba aukns auldc auldh aumel aumqi auper
@@ -498,8 +501,9 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
 				pelim pfgmr pfnhv pfppt pgpom phmnl pkkhi plwaw pmmqc pnpcn Poland Portugal PRC
 				prsju PST8PDT ptfnc ptlis ptpdl pwror pyasu
 				qadoh
-				rereu robuh ROC ROK rsbeg rudyr rugdx ruikt rukgd rukhndg rukra rukuf rumow
-				runoz ruoms ruovb rupkc ruunera ruuus ruvog ruvvo ruyek ruyks rwkgl
+				rereu robuh ROC ROK rsbeg ruchita rudyr rugdx ruikt rukgd rukhndg rukra rukuf
+				rumow runoz ruoms ruovb rupkc rusred ruunera ruuus ruvog ruvvo ruyek ruyks
+				rwkgl
 				saruh sbhir scmaw sdkrt sesto sgsin shshn silju Singapore sjlyr skbts slfna
 				smsai sndkr somgq srpbm ssjub sttms svsal sxphi sydam szqmn
 				tcgdt tdndj tfpfr tglfw thbkk tjdyu tkfko tldil tmasb tntun totbu trist ttpos
@@ -619,13 +623,13 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
                 Asia/Ashgabat
                 Asia/Baghdad Asia/Bahrain Asia/Baku Asia/Bangkok Asia/Beirut Asia/Bishkek
                 Asia/Brunei
-                Asia/Calcutta Asia/Choibalsan Asia/Chongqing Asia/Colombo
+                Asia/Calcutta Asia/Chita Asia/Choibalsan Asia/Colombo
                 Asia/Damascus Asia/Dhaka Asia/Dili Asia/Dubai Asia/Dushanbe
                 Asia/Gaza
-                Asia/Harbin Asia/Hebron Asia/Hong_Kong Asia/Hovd
+                Asia/Hebron Asia/Hong_Kong Asia/Hovd
                 Asia/Irkutsk
                 Asia/Jakarta Asia/Jayapura Asia/Jerusalem
-                Asia/Kabul Asia/Kamchatka Asia/Karachi Asia/Kashgar Asia/Katmandu Asia/Khandyga
+                Asia/Kabul Asia/Kamchatka Asia/Karachi Asia/Katmandu Asia/Khandyga
                 Asia/Krasnoyarsk Asia/Kuala_Lumpur Asia/Kuching Asia/Kuwait
                 Asia/Macau Asia/Magadan Asia/Makassar Asia/Manila Asia/Muscat
                 Asia/Nicosia Asia/Novokuznetsk Asia/Novosibirsk
@@ -634,7 +638,7 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
                 Asia/Qatar Asia/Qyzylorda
                 Asia/Rangoon Asia/Riyadh
                 Asia/Saigon Asia/Sakhalin Asia/Samarkand Asia/Seoul Asia/Shanghai
-                Asia/Singapore
+                Asia/Singapore Asia/Srednekolymsk
                 Asia/Taipei Asia/Tashkent Asia/Tbilisi Asia/Tehran Asia/Thimphu Asia/Tokyo
                 Asia/Ulaanbaatar Asia/Urumqi Asia/Ust-Nera
                 Asia/Vientiane Asia/Vladivostok
@@ -1113,6 +1117,27 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
 			<languageAlias type="zha" replacement="za" reason="overlong"/> <!-- [Zhuang, Chuang] -->
 			<languageAlias type="zho" replacement="zh" reason="overlong"/> <!-- [Chinese] -->
 			<languageAlias type="zul" replacement="zu" reason="overlong"/> <!-- [Zulu] -->
+			<!-- Bibliographic -->
+			<languageAlias type="alb" replacement="sq" reason="bibliographic"/> <!-- [Albanian] -->
+			<languageAlias type="arm" replacement="hy" reason="bibliographic"/> <!-- [Armenian] -->
+			<languageAlias type="baq" replacement="eu" reason="bibliographic"/> <!-- [Basque] -->
+			<languageAlias type="bur" replacement="my" reason="bibliographic"/> <!-- [Burmese] -->
+			<languageAlias type="chi" replacement="zh" reason="bibliographic"/> <!-- [Chinese] -->
+			<languageAlias type="cze" replacement="cs" reason="bibliographic"/> <!-- [Czech] -->
+			<languageAlias type="dut" replacement="nl" reason="bibliographic"/> <!-- [Dutch, Flemish] -->
+			<languageAlias type="fre" replacement="fr" reason="bibliographic"/> <!-- [French] -->
+			<languageAlias type="geo" replacement="ka" reason="bibliographic"/> <!-- [Georgian] -->
+			<languageAlias type="ger" replacement="de" reason="bibliographic"/> <!-- [German] -->
+			<languageAlias type="gre" replacement="el" reason="bibliographic"/> <!-- [Modern Greek (1453-)] -->
+			<languageAlias type="ice" replacement="is" reason="bibliographic"/> <!-- [Icelandic] -->
+			<languageAlias type="mac" replacement="mk" reason="bibliographic"/> <!-- [Macedonian] -->
+			<languageAlias type="mao" replacement="mi" reason="bibliographic"/> <!-- [Maori] -->
+			<languageAlias type="may" replacement="ms" reason="bibliographic"/> <!-- [Malay (macrolanguage)] -->
+			<languageAlias type="per" replacement="fa" reason="bibliographic"/> <!-- [Persian] -->
+			<languageAlias type="rum" replacement="ro" reason="bibliographic"/> <!-- [Romanian, Moldavian, Moldovan] -->
+			<languageAlias type="slo" replacement="sk" reason="bibliographic"/> <!-- [Slovak] -->
+			<languageAlias type="tib" replacement="bo" reason="bibliographic"/> <!-- [Tibetan] -->
+			<languageAlias type="wel" replacement="cy" reason="bibliographic"/> <!-- [Welsh] -->
             <!-- end of data generated with CountItems tool per http://sites.google.com/site/cldr/development/updating-codes/update-languagescriptregion-subtags -->
             <!-- scripts -->
             <scriptAlias type="Qaai" replacement="Zinh" reason="deprecated"/>
@@ -1801,6 +1826,9 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
             <zoneAlias type="America/Shiprock" replacement="America/Denver" reason="deprecated"/>
             <zoneAlias type="Antarctica/South_Pole" replacement="Pacific/Auckland" reason="deprecated"/>
             <zoneAlias type="America/Montreal" replacement="America/Toronto" reason="deprecated"/>
+            <zoneAlias type="Asia/Chongqing" replacement="Asia/Shanghai" reason="deprecated"/>
+            <zoneAlias type="Asia/Harbin" replacement="Asia/Shanghai" reason="deprecated"/>
+            <zoneAlias type="Asia/Kashgar" replacement="Asia/Urumqi" reason="deprecated"/>
         </alias>
         <deprecated>
             <!-- items deprecated in ldml.dtd, ldmlSupplemental.dtd -->
@@ -1822,6 +1850,8 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
             <deprecatedItems elements="calendar" attributes="type" values="civil-arabic thai-buddhist"/>
             <deprecatedItems elements="exemplarCharacters" attributes="type" values="currencySymbol"/>
             <deprecatedItems elements="decimal group list percentSign nativeZeroDigit patternDigit plusSign minusSign exponential perMille infinity nan currencyDecimal currencyGroup" attributes="numberSystem"/>
+            <deprecatedItems elements="collation" attributes="visibility"/> <!-- collations/collation@visibility, see CLDR ticket #7662 -->
+            <deprecatedItems elements="import" attributes="source" values="locale"/> <!-- collations/collation/import@source="locale", see CLDR ticket #7663 -->
             <deprecatedItems elements="base"/> <!-- collations/collation/base, see CLDR ticket #6332 -->
             <!-- collation rules element (replaced by cr) and its sub-elements, see CLDR ticket #5551 -->
             <deprecatedItems elements="rules reset p pc s sc t tc q qc i ic x extend context first_variable last_variable first_tertiary_ignorable last_tertiary_ignorable first_secondary_ignorable last_secondary_ignorable first_primary_ignorable last_primary_ignorable first_non_ignorable last_non_ignorable first_trailing last_trailing"/>
@@ -1847,6 +1877,8 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
             <deprecatedItems type="ldml" elements="compressedIndexSeparator cp currencyGroup indexLabel indexLabelAfter indexLabelBefore indexLabels indexRangePattern indexSeparator mapping nativeZeroDigit patternDigit reference usesMetazone"/>
             <deprecatedItems type="supplementalData" elements="languageCodes"/>
             <deprecatedItems type="ldml" elements="collations" attributes="validSubLocales"/>
+            <!-- segments -->
+            <deprecatedItems type="ldml" elements="exceptions exception"/>
         </deprecated>
         <distinguishing>
              <distinguishingItems attributes="key request id _q registry alt iso4217 iso3166 mzone from to type numberSystem count"/>
@@ -1891,7 +1923,7 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
 			vai_Latn_LR vai_Vaii vai_Vaii_LR ve_ZA vi_VN vo_001 vun_TZ
 			wa_BE wae_CH wal_ET wo_Latn wo_Latn_SN
 			xh_ZA xog_UG
-			yav_CM yo_NG
+			yav_CM yi_001 yo_NG
 			zgh_MA zh_Hans zh_Hans_CN zh_Hant_TW zu_ZA"
 		/>
     </metadata>

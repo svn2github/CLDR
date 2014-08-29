@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE ldml SYSTEM "../../common/dtd/ldml.dtd">
-<!-- Copyright © 1991-2013 Unicode, Inc.
+<!-- Copyright © 1991-2014 Unicode, Inc.
 CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
 For terms of use, see http://www.unicode.org/copyright.html
 -->
@@ -26,11 +26,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<pattern>Gy年MM月dd日</pattern>
 						</dateFormat>
 					</dateFormatLength>
-					<dateFormatLength type="medium">
-						<dateFormat>
-							<pattern>Gy年M月d日</pattern>
-						</dateFormat>
-					</dateFormatLength>
 					<dateFormatLength type="short">
 						<dateFormat>
 							<pattern>Gy年M月d日</pattern>
@@ -40,7 +35,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<dateTimeFormats>
 					<availableFormats>
 						<dateFormatItem id="Md" draft="contributed">M-d</dateFormatItem>
-						<dateFormatItem id="MEd" draft="contributed">M-d (E)</dateFormatItem>
+						<dateFormatItem id="MEd" draft="contributed">M-d（E）</dateFormatItem>
 					</availableFormats>
 					<intervalFormats>
 						<intervalFormatItem id="h">
@@ -103,11 +98,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 					<dateFormatLength type="long">
 						<dateFormat>
 							<pattern>y年MM月dd日</pattern>
-						</dateFormat>
-					</dateFormatLength>
-					<dateFormatLength type="medium">
-						<dateFormat>
-							<pattern>y年M月d日</pattern>
 						</dateFormat>
 					</dateFormatLength>
 					<dateFormatLength type="short">

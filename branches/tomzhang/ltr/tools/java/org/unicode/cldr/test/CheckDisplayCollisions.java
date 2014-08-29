@@ -53,7 +53,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         METAZONE("//ldml/dates/timeZoneNames/metazone", 6),
         DECIMAL_FORMAT("//ldml/numbers/decimalFormats", 7),
         UNITS_COMPOUND_LONG("//ldml/units/unitLength[@type=\"long\"]/compoundUnit", 8),
-        UNITS_COMPOUND_SHORT("//ldml/units/unitLength[@type=\"long\"]/compoundUnit", 9),
+        UNITS_COMPOUND_SHORT("//ldml/units/unitLength[@type=\"short\"]/compoundUnit", 9),
         UNITS_IGNORE("//ldml/units/unitLength[@type=\"narrow\"]", 10),
         UNITS("//ldml/units/unitLength", 11);
 
@@ -124,6 +124,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         // Add OK collisions for /unit[@type=\"proportion-karat\"]     
         Set<String> set5 = new HashSet<String>();
         set5.add("/unit[@type=\"mass-carat\"]");
+        set5.add("/unit[@type=\"temperature-kelvin\"]");
         mapPathPartsToSets.put("/unit[@type=\"proportion-karat\"]", set5);
 
         // Add OK collisions for /unit[@type=\"digital-byte\"]     
@@ -135,16 +136,8 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         Set<String> set7 = new HashSet<String>();
         set7.add("/unit[@type=\"digital-byte\"]");
         mapPathPartsToSets.put("/unit[@type=\"mass-metric-ton\"]", set7);
-
-        // Add OK collisions for /unit[@type=\"acceleration-g-force\"]     
-        Set<String> set8 = new HashSet<String>();
-        set8.add("/unit[@type=\"mass-gram\"]");
-        mapPathPartsToSets.put("/unit[@type=\"acceleration-g-force\"]", set8);
-
-        // Add OK collisions for /unit[@type=\"mass-gram\"]     
-        Set<String> set9 = new HashSet<String>();
-        set9.add("/unit[@type=\"acceleration-g-force\"]");
-        mapPathPartsToSets.put("/unit[@type=\"mass-gram\"]", set9);
+        
+        // delete the exceptions allowing acceleration-g-force and mass-gram to have the same symbol, see #7561
 
         // Add OK collisions for /unit[@type=\"length-foot\"]     
         Set<String> set10 = new HashSet<String>();
@@ -156,7 +149,12 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         set11.add("/unit[@type=\"length-foot\"]");
         mapPathPartsToSets.put("/unit[@type=\"angle-arc-minute\"]", set11);
 
-        // all done, return immutable version
+         // Add OK collisions for /unit[@type=\"temperature-kelvin\"]     
+        Set<String> set12 = new HashSet<String>();
+        set12.add("/unit[@type=\"proportion-karat\"]");
+        mapPathPartsToSets.put("/unit[@type=\"temperature-kelvin\"]", set12);
+
+       // all done, return immutable version
         return Collections.unmodifiableMap(mapPathPartsToSets);
     }
 
@@ -241,13 +239,17 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
 
         // Collisions between display names and symbols for the same currency are allowed.
         if (myType == Type.CURRENCY) {
+            if (path.contains("/decimal") || path.contains("/group")) {
+                return this;
+            }
             XPathParts parts = new XPathParts().set(path);
             String currency = parts.getAttributeValue(-2, "type");
             Iterator<String> iterator = paths.iterator();
             while (iterator.hasNext()) {
                 String curVal = iterator.next();
                 parts.set(curVal);
-                if (currency.equals(parts.getAttributeValue(-2, "type"))) {
+                if (currency.equals(parts.getAttributeValue(-2, "type")) ||
+                    curVal.contains("/decimal") || curVal.contains("/group")) {
                     iterator.remove();
                     log("Removed '" + curVal + "': COLLISON WITH CURRENCY " + currency);
                 }

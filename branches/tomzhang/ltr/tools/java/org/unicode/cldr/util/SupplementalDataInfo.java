@@ -465,8 +465,8 @@ public class SupplementalDataInfo {
      * @author markdavis
      */
     public static final class DateRange implements Comparable<DateRange> {
-        static final long START_OF_TIME = Long.MIN_VALUE;
-        static final long END_OF_TIME = Long.MAX_VALUE;
+        public static final long START_OF_TIME = Long.MIN_VALUE;
+        public static final long END_OF_TIME = Long.MAX_VALUE;
         public final long from;
         public final long to;
 
@@ -853,6 +853,9 @@ public class SupplementalDataInfo {
     public Relation<String, String> alpha3TerritoryMapping = Relation.of(new HashMap<String, Set<String>>(),
         HashSet.class);
 
+    public Relation<String, Integer> numericCurrencyCodeMapping = Relation.of(new HashMap<String, Set<Integer>>(),
+        HashSet.class);
+
     static Map<String, SupplementalDataInfo> directory_instance = new HashMap<String, SupplementalDataInfo>();
 
     public Map<String, Map<String, Row.R2<List<String>, String>>> typeToTagToReplacement = new TreeMap<String, Map<String, Row.R2<List<String>, String>>>();
@@ -886,6 +889,10 @@ public class SupplementalDataInfo {
 
     public Relation<String, Integer> getNumericTerritoryMapping() {
         return numericTerritoryMapping;
+    }
+
+    public Relation<String, Integer> getNumericCurrencyCodeMapping() {
+        return numericCurrencyCodeMapping;
     }
 
     /**
@@ -1070,6 +1077,7 @@ public class SupplementalDataInfo {
 
         numericTerritoryMapping.freeze();
         alpha3TerritoryMapping.freeze();
+        numericCurrencyCodeMapping.freeze();
 
         // freeze contents
         for (String language : languageToPopulation.keySet()) {
@@ -1146,7 +1154,7 @@ public class SupplementalDataInfo {
         }
         // HACK
         String currentScript = null;
-        for (String s : "Latn aa af agq ak asa ast bas bem bez bm br ca cgg cs cy da dav de dje dua dyo ebu ee en eo es et eu ewo ff fi fil fo fr fur fy ga gd gl gsw guz gv haw hr hu ia id ig is it jgo jmc kab kam kde kea khq ki kkj kl kln ksb ksf ksh kw lag lg lkt ln lt lu luo luy lv mas mer mfe mg mgh mgo mt mua naq nb nd nl nmg nn nnh nr nso nus nyn om pl pt rm rn ro rof rw rwk saq sbp se seh ses sg sk sl sn so sq ss ssy st sv sw swc teo tn to tr ts twq ve vi vo vun wae xh xog yav yo zu Ethi am byn ti tig wal Arab ar fa ps ur Beng as bn Cyrl be bg ky mk os ru sah uk Tibt bo dz Deva brx hi kok mr ne Cher chr Grek el Gujr gu Hebr he Armn hy Yiii ii Jpan ja Geor ka Khmr km Knda kn Kore ko Laoo lo Mlym ml Mymr my Orya or Sinh si Taml ta Telu te Tfng zgh Thai th"
+        for (String s : "Latn aa af agq ak asa ast bas bem bez bm br ca cgg cs cy da dav de dje dsb dua dyo ebu ee en eo es et eu ewo ff fi fil fo fr fur fy ga gd gl gsw guz gv haw hr hsb hu ia id ig is it jgo jmc kab kam kde kea khq ki kkj kl kln ksb ksf ksh kw lag lb lg lkt ln lt lu luo luy lv mas mer mfe mg mgh mgo mt mua naq nb nd nl nmg nn nnh nr nso nus nyn om pl pt qu rm rn ro rof rw rwk saq sbp se seh ses sg sk sl smn sn so sq ss ssy st sv sw swc teo tn to tr ts twq ve vi vo vun wae xh xog yav yo zu Ethi am byn ti tig wal Arab ar fa ps ur Beng as bn Cyrl be bg ky mk os ru sah uk Tibt bo dz Deva brx hi kok mr ne Cher chr Grek el Gujr gu Hebr he yi Armn hy Yiii ii Jpan ja Geor ka Khmr km Knda kn Kore ko Laoo lo Mlym ml Mymr my Orya or Sinh si Taml ta Telu te Tfng zgh Thai th"
             .split(" ")) {
             if (s.length() == 4) {
                 currentScript = s;
@@ -1416,6 +1424,14 @@ public class SupplementalDataInfo {
                     alpha3TerritoryMapping.put(type, alpha3);
                 }
                 return true;
+            } else if (level2.equals("currencyCodes")) {
+              // <currencyCodes type="BBD" numeric="52"/>
+              String type = parts.getAttributeValue(-1, "type");
+              final String numeric = parts.getAttributeValue(-1, "numeric");
+              if (numeric != null) {
+                numericCurrencyCodeMapping.put(type, Integer.parseInt(numeric));
+              }
+              return true;
             }
             return false;
         }
@@ -3421,7 +3437,7 @@ public class SupplementalDataInfo {
         public static final FixedDecimal POSITIVE_INFINITY = new FixedDecimal(Double.POSITIVE_INFINITY, 0, 0);
 
         static double doubleValue(FixedDecimal a) {
-            return a.isNegative ? -a.doubleValue() : a.doubleValue();
+            return a.doubleValue();
         }
 
         public boolean rangeExists(Count s, Count e, Output<FixedDecimal> minSample, Output<FixedDecimal> maxSample) {
