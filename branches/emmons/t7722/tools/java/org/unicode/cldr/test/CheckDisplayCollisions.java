@@ -55,7 +55,8 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         UNITS_COMPOUND_LONG("//ldml/units/unitLength[@type=\"long\"]/compoundUnit", 8),
         UNITS_COMPOUND_SHORT("//ldml/units/unitLength[@type=\"short\"]/compoundUnit", 9),
         UNITS_IGNORE("//ldml/units/unitLength[@type=\"narrow\"]", 10),
-        UNITS("//ldml/units/unitLength", 11);
+        UNITS("//ldml/units/unitLength", 11),
+        FIELDS("//ldml/dates/fields", 12);
 
         private String basePrefix;
 
@@ -289,6 +290,21 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
                             break;
                         }
                     }
+                }
+            }
+        }
+        // Collisions between different lengths and counts of the same field are allowed
+        if (myType == Type.FIELDS) {
+            XPathParts parts = new XPathParts().set(path);
+            String myFieldType = parts.getAttributeValue(3, "type").split("-")[0];
+            Iterator<String> iterator = paths.iterator();
+            while (iterator.hasNext()) {
+                String curVal = iterator.next();
+                parts.set(curVal);
+                String fieldType = parts.getAttributeValue(3, "type").split("-")[0];
+                if (myFieldType.equals(fieldType)) {
+                    iterator.remove();
+                    log("Removed '" + curVal + "': COLLISON WITH FIELD  " + fieldType);
                 }
             }
         }
