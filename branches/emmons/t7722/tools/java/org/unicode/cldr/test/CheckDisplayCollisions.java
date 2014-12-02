@@ -60,8 +60,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
         UNITS_IGNORE("//ldml/units/unitLength[@type=\"narrow\"]", MatchType.PREFIX,10),
         UNITS("//ldml/units/unitLength", MatchType.PREFIX,11),
         FIELDS_NARROW("//ldml/dates/fields/field\\[@type=\"(sun|mon|tue|wed|thu|fri|sat)-narrow\"\\]/relative", MatchType.REGEX, 12),
-        FIELDS_RELATIVE("//ldml/dates/fields/field\\[@type=\".*\"\\]/relative\\[@type=\"(-1|0|1)\"\\]", MatchType.REGEX, 13),
-        FIELDS("//ldml/dates/fields", MatchType.PREFIX, 14);
+        FIELDS_RELATIVE("//ldml/dates/fields/field\\[@type=\".*\"\\]/relative\\[@type=\"(-1|0|1)\"\\]", MatchType.REGEX, 13);
 
         private MatchType matchType;
         private String basePrefix;
@@ -316,7 +315,7 @@ public class CheckDisplayCollisions extends FactoryCheckCLDR {
             }
         }
         // Collisions between different lengths and counts of the same field are allowed
-        if (myType == Type.FIELDS || myType == Type.FIELDS_RELATIVE ) {
+        if (myType == Type.FIELDS_RELATIVE ) {
             XPathParts parts = new XPathParts().set(path);
             String myFieldType = parts.getAttributeValue(3, "type").split("-")[0];
             Iterator<String> iterator = paths.iterator();
