@@ -900,7 +900,7 @@ public class SurveyAjax extends HttpServlet {
                                 if (oldVoteRemind == null || // never been asked
                                     !oldVoteRemind.equals("*")) { //  dont ask again
 
-                                    String oldVotesTable = STFactory.getOldVoteTable();
+                                    String oldVotesTable = STFactory.getLastVoteTable();
 
                                     if (DBUtils.hasTable(oldVotesTable)) {
                                         int count = DBUtils.sqlCount("select  count(*) as count from " + oldVotesTable
@@ -994,17 +994,21 @@ public class SurveyAjax extends HttpServlet {
                         JSONWriter r = newJSONStatus(sm);
                         r.put("what", what);
 
+                        final String oldVotesTable = STFactory.getLastVoteTable();
                         if (mySession.user == null) {
                             r.put("err", "Must be logged in");
                             r.put("err_code", ErrorCode.E_NOT_LOGGED_IN);
                         } else if (!mySession.user.canImportOldVotes()) {
                             r.put("err", "No permission to do this (may not be the right SurveyTool phase)");
                             r.put("err_code", ErrorCode.E_NO_PERMISSION);
+                        } else if (DBUtils.hasTable(oldVotesTable) == false) {
+                            r.put("err", "No old votes available to import for " + SurveyMain.getLastVoteVersion());
+                            r.put("err_code", ErrorCode.E_NO_OLD_VOTES);
+                            SurveyLog.warnOnce("Could not import old votes, table " + oldVotesTable + " does not exist.");
                         } else {
                             JSONObject oldvotes = new JSONObject();
-                            final String oldVotesTable = STFactory.getOldVoteTable();
                             final String newVotesTable = DBUtils.Table.VOTE_VALUE.toString();
-                            oldvotes.put("votesafter", "(version" + SurveyMain.getOldVersion() + ")");
+                            oldvotes.put("votesafter", "(version" + SurveyMain.getLastVoteVersion() + ")");
 
                             if (loc == null || loc.isEmpty()) {
                                 oldvotes.put(
@@ -1031,10 +1035,10 @@ public class SurveyAjax extends HttpServlet {
                                     if (SurveyMain.isUnofficial())
                                         System.out.println("User " + mySession.user.toString() + "  is migrating old votes in " + locale.getDisplayName());
                                     JSONObject list = new JSONObject(val);
-                                    if (list.getString("locale").equals(locale + "snork")) {
-                                        throw new IllegalArgumentException("Sanity error- locales " + locale + " and " + list.getString("locale")
-                                            + " do not match");
-                                    }
+//                                    if (list.getString("locale").equals(locale + "snork")) {
+//                                        throw new IllegalArgumentException("Sanity error- locales " + locale + " and " + list.getString("locale")
+//                                            + " do not match");
+//                                    }
 
                                     BallotBox<User> box = fac.ballotBoxForLocale(locale);
 
