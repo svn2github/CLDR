@@ -903,6 +903,7 @@ public class SurveyAjax extends HttpServlet {
                                     String oldVotesTable = STFactory.getLastVoteTable();
 
                                     if (DBUtils.hasTable(oldVotesTable)) {
+                                        SurveyLog.warnOnce("Old Votes table present: " + oldVotesTable);
                                         int count = DBUtils.sqlCount("select  count(*) as count from " + oldVotesTable
                                             + " where submitter=? " +
                                             " and value is not null", mySession.user.id);
@@ -916,6 +917,8 @@ public class SurveyAjax extends HttpServlet {
                                                     + "=" + oldVoteRemind);
                                             r.put("oldVotesRemind", new JSONObject().put("pref", oldVotesPref).put("remind", oldVoteRemind).put("count", count));
                                         }
+                                    } else {
+                                        SurveyLog.warnOnce("Old Votes table missing: " + oldVotesTable);
                                     }
                                 }
                             }
@@ -995,6 +998,7 @@ public class SurveyAjax extends HttpServlet {
                         r.put("what", what);
 
                         final String oldVotesTable = STFactory.getLastVoteTable();
+                        SurveyLog.warnOnce("old votes table is " + oldVotesTable );
                         if (mySession.user == null) {
                             r.put("err", "Must be logged in");
                             r.put("err_code", ErrorCode.E_NOT_LOGGED_IN);

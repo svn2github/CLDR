@@ -126,7 +126,7 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
     private static final String VURL_LOCALES = "v#locales///";
     public static final String CLDR_OLDVERSION = "CLDR_OLDVERSION";
     public static final String CLDR_NEWVERSION = "CLDR_NEWVERSION";
-    public static final String CLDR_LASTVOTEVERSION = "CLDR_NEWVERSION";
+    public static final String CLDR_LASTVOTEVERSION = "CLDR_LASTVOTEVERSION";
     public static final String CLDR_DIR = "CLDR_DIR";
     public static final String CLDR_DIR_REPOS = "http://unicode.org/repos/cldr";
 
