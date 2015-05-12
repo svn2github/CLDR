@@ -254,7 +254,7 @@ public class VoteResolver<T> {
         /**
          * Add, but only to bring up to the maximum value.
          */
-        public MaxCounter<T> add(T obj, long countValue) {
+        public MaxCounter<T> add(T obj, long countValue, long timeValue) {
             long value = getCount(obj);
             if (value < countValue) {
                 super.add(obj, countValue - value); // only add the difference!
@@ -314,7 +314,7 @@ public class VoteResolver<T> {
          * @param voter
          * @param withVotes optionally, vote at a reduced voting level. May not exceed voter's typical level. null = use default level.
          */
-        public void add(T value, int voter, Integer withVotes) {
+        public void add(T value, int voter, Integer withVotes, Long timestamp) {
             final VoterInfo info = getVoterToInfo().get(voter);
             if (info == null) {
                 throw new UnknownVoterException(voter);
@@ -325,7 +325,7 @@ public class VoteResolver<T> {
             } else {
                 withVotes = Math.min(withVotes, maxVotes); // override to lower vote count
             }
-            addInternal(value, voter, info, withVotes); // do the add
+            addInternal(value, voter, info, withVotes, timestamp); // do the add
         }
 
         /**
@@ -337,7 +337,7 @@ public class VoteResolver<T> {
          * @param votes
          * @see #add(Object, int, Integer)
          */
-        private void addInternal(T value, int voter, final VoterInfo info, final int votes) {
+        private void addInternal(T value, int voter, final VoterInfo info, final int votes, final Long timestamp) {
             totalVotes.add(value, votes);
             Organization organization = info.getOrganization();
             orgToVotes.get(organization).add(value, votes);
@@ -598,7 +598,23 @@ public class VoteResolver<T> {
         if (resolved) {
             throw new IllegalArgumentException("Must be called after clear, and before any getters.");
         }
-        organizationToValueAndVote.add(value, voter, withVotes);
+        organizationToValueAndVote.add(value, voter, withVotes, null);
+        values.add(value);
+    }
+    
+    /**
+     * Call once for each voter for a value. If there are no voters for an item, then call add(value);
+     * 
+     * @param value
+     * @param voter
+     * @param withVotes override to lower the user's voting permission. May be null for default.
+     * @param timestamp date value for the vote (used for org conflicts). May be null if unknown.
+     */
+    public void add(T value, int voter, Integer withVotes, Long timestamp) {
+        if (resolved) {
+            throw new IllegalArgumentException("Must be called after clear, and before any getters.");
+        }
+        organizationToValueAndVote.add(value, voter, withVotes, timestamp);
         values.add(value);
     }
 
@@ -931,7 +947,7 @@ public class VoteResolver<T> {
      * Handles fine in xml format, turning into:
      * //users[@host="sarasvati.unicode.org"]/user[@id="286"][@email="mike.tardif@adobe.com"]/level[@n="1"][@type="TC"]
      * //users[@host="sarasvati.unicode.org"]/user[@id="286"][@email="mike.tardif@adobe.com"]/name
-     * Mike Tardif
+     * A. Vetter
      * //users[@host="sarasvati.unicode.org"]/user[@id="286"][@email="mike.tardif@adobe.com"]/org
      * Adobe
      * //users[@host="sarasvati.unicode.org"]/user[@id="286"][@email="mike.tardif@adobe.com"]/locales[@type="edit"]
@@ -1243,5 +1259,14 @@ public class VoteResolver<T> {
             // We voted, we won, value is approved, no disputes, have votes
             return VoteStatus.ok;
         }
+    }
+    
+    /**
+     * Does this organization tally votes as an individual?
+     * @param org
+     * @return true: tally as individuals (allow disputes).   false: tally as a group ( latest vote wins).
+     */
+    public static final boolean orgVotesAreIndividual(Organization org) {
+        return org == Organization.guest;
     }
 }
