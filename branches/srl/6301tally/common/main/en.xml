@@ -498,6 +498,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 			<language type="sco">Scots</language>
 			<language type="sd">Sindhi</language>
 			<language type="sdc">Sassarese Sardinian</language>
+			<language type="sdh">Southern Kurdish</language>
 			<language type="se">Northern Sami</language>
 			<language type="see">Seneca</language>
 			<language type="seh">Sena</language>
@@ -1509,6 +1510,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">MMM d</dateFormatItem>
 						<dateFormatItem id="MMMEd">E, MMM d</dateFormatItem>
+						<dateFormatItem id="MMMMd">MMMM d</dateFormatItem>
 						<dateFormatItem id="ms">mm:ss</dateFormatItem>
 						<dateFormatItem id="UM">M/U</dateFormatItem>
 						<dateFormatItem id="UMd">M/d/U</dateFormatItem>
@@ -1523,6 +1525,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="yyyyMMM">MMM r(U)</dateFormatItem>
 						<dateFormatItem id="yyyyMMMd">MMM d, r</dateFormatItem>
 						<dateFormatItem id="yyyyMMMEd">E, MMM d, r(U)</dateFormatItem>
+						<dateFormatItem id="yyyyMMMM">MMMM r(U)</dateFormatItem>
 						<dateFormatItem id="yyyyQQQ">QQQ r(U)</dateFormatItem>
 						<dateFormatItem id="yyyyQQQQ">QQQQ r(U)</dateFormatItem>
 					</availableFormats>
@@ -1691,6 +1694,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">MMM d</dateFormatItem>
 						<dateFormatItem id="MMMEd">E, MMM d</dateFormatItem>
+						<dateFormatItem id="MMMMd">MMMM d</dateFormatItem>
 						<dateFormatItem id="ms">mm:ss</dateFormatItem>
 						<dateFormatItem id="y">y G</dateFormatItem>
 						<dateFormatItem id="yyyy">y G</dateFormatItem>
@@ -1700,6 +1704,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="yyyyMMM">MMM y G</dateFormatItem>
 						<dateFormatItem id="yyyyMMMd">MMM d, y G</dateFormatItem>
 						<dateFormatItem id="yyyyMMMEd">E, MMM d, y G</dateFormatItem>
+						<dateFormatItem id="yyyyMMMM">MMMM y G</dateFormatItem>
 						<dateFormatItem id="yyyyQQQ">QQQ y G</dateFormatItem>
 						<dateFormatItem id="yyyyQQQQ">QQQQ y G</dateFormatItem>
 					</availableFormats>
@@ -1936,11 +1941,16 @@ For terms of use, see http://www.unicode.org/copyright.html
 							<dayPeriod type="pm">p</dayPeriod>
 						</dayPeriodWidth>
 						<dayPeriodWidth type="wide">
+							<dayPeriod type="midnight">midnight</dayPeriod>
 							<dayPeriod type="am">AM</dayPeriod>
 							<dayPeriod type="am" alt="variant">am</dayPeriod>
 							<dayPeriod type="noon">noon</dayPeriod>
 							<dayPeriod type="pm">PM</dayPeriod>
 							<dayPeriod type="pm" alt="variant">pm</dayPeriod>
+							<dayPeriod type="morning1">in the morning</dayPeriod>
+							<dayPeriod type="afternoon1">in the afternoon</dayPeriod>
+							<dayPeriod type="evening1">in the evening</dayPeriod>
+							<dayPeriod type="night1">at night</dayPeriod>
 						</dayPeriodWidth>
 					</dayPeriodContext>
 					<dayPeriodContext type="stand-alone">
@@ -2067,6 +2077,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">MMM d</dateFormatItem>
 						<dateFormatItem id="MMMEd">E, MMM d</dateFormatItem>
+						<dateFormatItem id="MMMMd">MMMM d</dateFormatItem>
 						<dateFormatItem id="ms">mm:ss</dateFormatItem>
 						<dateFormatItem id="y">y</dateFormatItem>
 						<dateFormatItem id="yM">M/y</dateFormatItem>
@@ -2075,6 +2086,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="yMMM">MMM y</dateFormatItem>
 						<dateFormatItem id="yMMMd">MMM d, y</dateFormatItem>
 						<dateFormatItem id="yMMMEd">E, MMM d, y</dateFormatItem>
+						<dateFormatItem id="yMMMM">MMMM y</dateFormatItem>
 						<dateFormatItem id="yQQQ">QQQ y</dateFormatItem>
 						<dateFormatItem id="yQQQQ">QQQQ y</dateFormatItem>
 					</availableFormats>
@@ -2228,6 +2240,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">d MMM</dateFormatItem>
 						<dateFormatItem id="MMMEd">E, d MMM</dateFormatItem>
+						<dateFormatItem id="MMMMd">d MMMM</dateFormatItem>
 						<dateFormatItem id="y">y</dateFormatItem>
 						<dateFormatItem id="yM">MMM y</dateFormatItem>
 						<dateFormatItem id="yMd">d MMM y</dateFormatItem>
@@ -2235,6 +2248,7 @@ For terms of use, see http://www.unicode.org/copyright.html
 						<dateFormatItem id="yMMM">MMM y</dateFormatItem>
 						<dateFormatItem id="yMMMd">d MMM y</dateFormatItem>
 						<dateFormatItem id="yMMMEd">E, d MMM y</dateFormatItem>
+						<dateFormatItem id="yMMMM">MMMM y</dateFormatItem>
 						<dateFormatItem id="yQQQ">QQQ y</dateFormatItem>
 						<dateFormatItem id="yQQQQ">QQQQ y</dateFormatItem>
 					</availableFormats>
@@ -5681,11 +5695,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<unitPattern count="one">{0} mile</unitPattern>
 				<unitPattern count="other">{0} miles</unitPattern>
 			</unit>
-			<unit type="length-mile-nautical">
-				<displayName>nautical mile</displayName>
-				<unitPattern count="one">{0} nautical mile</unitPattern>
-				<unitPattern count="other">{0} nautical miles</unitPattern>
-			</unit>
 			<unit type="length-mile-scandinavian">
 				<displayName>mile-scandinavian</displayName>
 				<unitPattern count="one">{0} mile-scandinavian</unitPattern>
@@ -6063,7 +6072,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>cm²</displayName>
 				<unitPattern count="one">{0} cm²</unitPattern>
 				<unitPattern count="other">{0} cm²</unitPattern>
-				<perUnitPattern>{0} per cm²</perUnitPattern>
 			</unit>
 			<unit type="area-square-foot">
 				<displayName>sq feet</displayName>
@@ -6074,7 +6082,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>inches²</displayName>
 				<unitPattern count="one">{0} in²</unitPattern>
 				<unitPattern count="other">{0} in²</unitPattern>
-				<perUnitPattern>{0} per in²</perUnitPattern>
 			</unit>
 			<unit type="area-square-kilometer">
 				<displayName>km²</displayName>
@@ -6085,7 +6092,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>meters²</displayName>
 				<unitPattern count="one">{0} m²</unitPattern>
 				<unitPattern count="other">{0} m²</unitPattern>
-				<perUnitPattern>{0} per m²</perUnitPattern>
 			</unit>
 			<unit type="area-square-mile">
 				<displayName>sq miles</displayName>
@@ -6166,7 +6172,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>hours</displayName>
 				<unitPattern count="one">{0} hr</unitPattern>
 				<unitPattern count="other">{0} hr</unitPattern>
-				<perUnitPattern>{0}ph</perUnitPattern>
 			</unit>
 			<unit type="duration-microsecond">
 				<displayName>μsecs</displayName>
@@ -6197,7 +6202,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>secs</displayName>
 				<unitPattern count="one">{0} sec</unitPattern>
 				<unitPattern count="other">{0} sec</unitPattern>
-				<perUnitPattern>{0}ps</perUnitPattern>
 			</unit>
 			<unit type="duration-week">
 				<displayName>weeks</displayName>
@@ -6680,7 +6684,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>cm²</displayName>
 				<unitPattern count="one">{0}cm²</unitPattern>
 				<unitPattern count="other">{0}cm²</unitPattern>
-				<perUnitPattern>{0}/cm²</perUnitPattern>
 			</unit>
 			<unit type="area-square-foot">
 				<displayName>ft²</displayName>
@@ -6776,7 +6779,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>hour</displayName>
 				<unitPattern count="one">{0}h</unitPattern>
 				<unitPattern count="other">{0}h</unitPattern>
-				<perUnitPattern>{0}/h</perUnitPattern>
 			</unit>
 			<unit type="duration-microsecond">
 				<displayName>μsec</displayName>
@@ -6807,7 +6809,6 @@ For terms of use, see http://www.unicode.org/copyright.html
 				<displayName>sec</displayName>
 				<unitPattern count="one">{0}s</unitPattern>
 				<unitPattern count="other">{0}s</unitPattern>
-				<perUnitPattern>{0}/s</perUnitPattern>
 			</unit>
 			<unit type="duration-week">
 				<displayName>wk</displayName>

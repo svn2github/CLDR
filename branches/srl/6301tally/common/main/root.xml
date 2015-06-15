@@ -393,6 +393,7 @@
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">MMM d</dateFormatItem>
 						<dateFormatItem id="MMMEd">MMM d, E</dateFormatItem>
+						<dateFormatItem id="MMMMd">MMMM d</dateFormatItem>
 						<dateFormatItem id="ms">mm:ss</dateFormatItem>
 						<dateFormatItem id="UM">U MM</dateFormatItem>
 						<dateFormatItem id="UMd">U MM-d</dateFormatItem>
@@ -407,6 +408,7 @@
 						<dateFormatItem id="yyyyMMM">r(U) MMM</dateFormatItem>
 						<dateFormatItem id="yyyyMMMd">r MMM d</dateFormatItem>
 						<dateFormatItem id="yyyyMMMEd">r(U) MMM d, E</dateFormatItem>
+						<dateFormatItem id="yyyyMMMM">r(U) MMMM</dateFormatItem>
 						<dateFormatItem id="yyyyQQQ">r(U) QQQ</dateFormatItem>
 						<dateFormatItem id="yyyyQQQQ">r(U) QQQQ</dateFormatItem>
 					</availableFormats>
@@ -881,6 +883,7 @@
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">MMM d</dateFormatItem>
 						<dateFormatItem id="MMMEd">MMM d, E</dateFormatItem>
+						<dateFormatItem id="MMMMd">MMMM d</dateFormatItem>
 						<dateFormatItem id="ms">mm:ss</dateFormatItem>
 						<dateFormatItem id="y">G y</dateFormatItem>
 						<dateFormatItem id="yyyy">G y</dateFormatItem>
@@ -890,6 +893,7 @@
 						<dateFormatItem id="yyyyMMM">G y MMM</dateFormatItem>
 						<dateFormatItem id="yyyyMMMd">G y MMM d</dateFormatItem>
 						<dateFormatItem id="yyyyMMMEd">G y MMM d, E</dateFormatItem>
+						<dateFormatItem id="yyyyMMMM">G y MMMM</dateFormatItem>
 						<dateFormatItem id="yyyyQQQ">G y QQQ</dateFormatItem>
 						<dateFormatItem id="yyyyQQQQ">G y QQQQ</dateFormatItem>
 					</availableFormats>
@@ -1253,6 +1257,7 @@
 						<dateFormatItem id="MMM">LLL</dateFormatItem>
 						<dateFormatItem id="MMMd">MMM d</dateFormatItem>
 						<dateFormatItem id="MMMEd">MMM d, E</dateFormatItem>
+						<dateFormatItem id="MMMMd">MMMM d</dateFormatItem>
 						<dateFormatItem id="ms">mm:ss</dateFormatItem>
 						<dateFormatItem id="y">y</dateFormatItem>
 						<dateFormatItem id="yM">y-MM</dateFormatItem>
@@ -1261,6 +1266,7 @@
 						<dateFormatItem id="yMMM">y MMM</dateFormatItem>
 						<dateFormatItem id="yMMMd">y MMM d</dateFormatItem>
 						<dateFormatItem id="yMMMEd">y MMM d, E</dateFormatItem>
+						<dateFormatItem id="yMMMM">y MMMM</dateFormatItem>
 						<dateFormatItem id="yQQQ">y QQQ</dateFormatItem>
 						<dateFormatItem id="yQQQQ">y QQQQ</dateFormatItem>
 					</availableFormats>
@@ -3518,13 +3524,16 @@
 			<currency type="FJD">
 				<symbol alt="narrow">$</symbol>
 			</currency>
-			<currency type="FKP">
-				<symbol alt="narrow">£</symbol>
-			</currency>
+            		<currency type="FKP">
+                		<symbol alt="narrow">£</symbol>
+            		</currency>
 			<currency type="GBP">
 				<symbol>£</symbol>
 				<symbol alt="narrow">£</symbol>
 			</currency>
+            		<currency type="GEL">
+                		<symbol alt="variant">₾</symbol>
+            		</currency>
 			<currency type="GIP">
 				<symbol alt="narrow">£</symbol>
 			</currency>
@@ -3706,7 +3715,7 @@
 			</currency>
 			<currency type="TWD">
 				<symbol>NT$</symbol>
-				<symbol alt="narrow">NT$</symbol>
+				<symbol alt="narrow">$</symbol>
 			</currency>
 			<currency type="UAH">
 				<symbol alt="narrow">₴</symbol>
@@ -4171,10 +4180,6 @@
 			<unit type="length-mile">
 				<displayName>mi</displayName>
 				<unitPattern count="other">{0} mi</unitPattern>
-			</unit>
-			<unit type="length-mile-nautical">
-				<displayName>nmi</displayName>
-				<unitPattern count="other">{0} nmi</unitPattern>
 			</unit>
 			<unit type="length-mile-scandinavian">
 				<displayName>smi</displayName>

@@ -66,7 +66,7 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
                 pa pag pal pam pap pau pcd pdc pdt peo pfl phn pi pl pms pnt pon prg pro ps pt
                 qu quc qug
                 raj rap rar rgn rif rm rn ro rof rom root rtm ru rue rug rup rw rwk
-                sa sad sah sam saq sas sat saz sba sbp sc scn sco sd sdc se see seh sei sel ses sg sga sgs
+                sa sad sah sam saq sas sat saz sba sbp sc scn sco sd sdc sdh se see seh sei sel ses sg sga sgs
                 sh shi shn shu si sid sk sl sli sly sm sma smj smn sms sn snk so sog sq
                 sr srn srr ss ssy st stq su suk sus sux sv sw swb swc syc syr szl 
                 ta tcy te tem teo ter tet tg th ti tig tiv tk tkl tkr tl tlh tli tly tmh tn to tog tpi
@@ -1855,6 +1855,37 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
             <territoryAlias type="716" replacement="ZW" reason="overlong"/> <!-- Zimbabwe -->
             <territoryAlias type="999" replacement="ZZ" reason="overlong"/> <!-- Unknown Region -->
             <!-- end of data generated with CountItems tool per http://sites.google.com/site/cldr/development/updating-codes/update-languagescriptregion-subtags -->
+			<!-- start of data generated with GenerateSubdivisions -->
+			<subdivisionAlias type="CN-71" replacement="TW" reason="overlong"/>
+			<subdivisionAlias type="CN-91" replacement="HK" reason="overlong"/>
+			<subdivisionAlias type="CN-92" replacement="MO" reason="overlong"/>
+			<subdivisionAlias type="FR-BL" replacement="BL" reason="overlong"/>
+			<subdivisionAlias type="FR-GF" replacement="GF" reason="overlong"/>
+			<subdivisionAlias type="FR-GP" replacement="GP" reason="overlong"/>
+			<subdivisionAlias type="FR-MF" replacement="MF" reason="overlong"/>
+			<subdivisionAlias type="FR-MQ" replacement="MQ" reason="overlong"/>
+			<subdivisionAlias type="FR-NC" replacement="NC" reason="overlong"/>
+			<subdivisionAlias type="FR-PF" replacement="PF" reason="overlong"/>
+			<subdivisionAlias type="FR-PM" replacement="PM" reason="overlong"/>
+			<subdivisionAlias type="FR-RE" replacement="RE" reason="overlong"/>
+			<subdivisionAlias type="FR-TF" replacement="TF" reason="overlong"/>
+			<subdivisionAlias type="FR-WF" replacement="WF" reason="overlong"/>
+			<subdivisionAlias type="FR-YT" replacement="YT" reason="overlong"/>
+			<subdivisionAlias type="NL-AW" replacement="AW" reason="overlong"/>
+			<subdivisionAlias type="NL-BQ1" replacement="BQ" reason="overlong"/>
+			<subdivisionAlias type="NL-BQ2" replacement="BQ" reason="overlong"/>
+			<subdivisionAlias type="NL-BQ3" replacement="BQ" reason="overlong"/>
+			<subdivisionAlias type="NL-CW" replacement="CW" reason="overlong"/>
+			<subdivisionAlias type="NL-SX" replacement="SX" reason="overlong"/>
+			<subdivisionAlias type="NO-21" replacement="SJ" reason="overlong"/>
+			<subdivisionAlias type="NO-22" replacement="SJ" reason="overlong"/>
+			<subdivisionAlias type="US-AS" replacement="AS" reason="overlong"/>
+			<subdivisionAlias type="US-GU" replacement="GU" reason="overlong"/>
+			<subdivisionAlias type="US-MP" replacement="MP" reason="overlong"/>
+			<subdivisionAlias type="US-PR" replacement="PR" reason="overlong"/>
+			<subdivisionAlias type="US-UM" replacement="UM" reason="overlong"/>
+			<subdivisionAlias type="US-VI" replacement="VI" reason="overlong"/>
+			<!-- end of data generated with GenerateSubdivisions -->
             <!-- variants -->
             <variantAlias type="AALAND" replacement="AX" reason="deprecated"/>
             <variantAlias type="POLYTONI" replacement="POLYTON" reason="deprecated"/>
@@ -1952,7 +1983,7 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
         <skipDefaultLocale services="segmentation collation"/>
 		<defaultContent locales="
 			aa_ET af_ZA agq_CM ak_GH am_ET ar_001 arn_CL as_IN asa_TZ ast_ES az_Cyrl_AZ
-			az_Latn az_Latn_AZ
+			az_Latn az_Latn_AZ azb_IR
 			ba_RU bas_CM be_BY bem_ZM bez_TZ bg_BG bgn_PK bm_ML bm_Nkoo_ML bn_BD bo_CN br_FR
 			brx_IN bs_Cyrl_BA bs_Latn bs_Latn_BA bss_CM byn_ER
 			ca_ES cch_NG ce_RU cgg_UG chr_US ckb_IQ co_FR cs_CZ cu_RU cv_RU cy_GB
@@ -1975,7 +2006,7 @@ ldml alternate approvalRequirement approvalRequirements attributeOrder attribute
 			pa_Arab_PK pa_Guru pa_Guru_IN pl_PL prg_001 ps_AF pt_BR
 			qu_PE quc_GT
 			rm_CH rn_BI ro_RO rof_TZ ru_RU rw_RW rwk_TZ
-			sa_IN sah_RU saq_KE sbp_TZ sd_PK se_NO seh_MZ ses_ML sg_CF shi_Latn_MA shi_Tfng
+			sa_IN sah_RU saq_KE sbp_TZ sd_PK sdh_IR se_NO seh_MZ ses_ML sg_CF shi_Latn_MA shi_Tfng
 			shi_Tfng_MA si_LK sid_ET sk_SK sl_SI sma_SE smj_SE smn_FI sms_FI sn_ZW so_SO
 			sq_AL sr_Cyrl sr_Cyrl_RS sr_Latn_RS ss_ZA ssy_ER st_ZA sv_SE sw_TZ syr_IQ
 			ta_IN te_IN teo_UG tg_TJ th_TH ti_ET tig_ER tk_TM tn_ZA to_TO tr_TR trv_TW

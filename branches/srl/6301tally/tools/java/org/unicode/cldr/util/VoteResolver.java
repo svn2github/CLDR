@@ -709,11 +709,11 @@ public class VoteResolver<T> {
         oValue = winningValue;
         nValue = value2; // save this
         // here is the meat.
-        winningStatus = computeStatus(weight1, weight2, lastReleaseStatus);
-        // if we are not as good as the last release, use the last release
-        if (winningStatus.compareTo(lastReleaseStatus) < 0) {
-            winningStatus = lastReleaseStatus;
-            winningValue = lastReleaseValue;
+        winningStatus = computeStatus(weight1, weight2, trunkStatus);
+        // if we are not as good as the trunk, use the trunk
+        if (trunkStatus != null && winningStatus.compareTo(trunkStatus) < 0) {
+            winningStatus = trunkStatus;
+            winningValue = trunkValue;
             valuesWithSameVotes.clear();
             valuesWithSameVotes.add(winningValue);
         }
@@ -734,7 +734,7 @@ public class VoteResolver<T> {
         if (!resolved) {
             resolveVotes();
         }
-        Status possibleStatus = computeStatus(organizationToValueAndVote.getBestPossibleVote(), 0, lastReleaseStatus);
+        Status possibleStatus = computeStatus(organizationToValueAndVote.getBestPossibleVote(), 0, trunkStatus);
         return possibleStatus.compareTo(winningStatus) > 0 ? possibleStatus : winningStatus;
     }
 
@@ -1240,13 +1240,13 @@ public class VoteResolver<T> {
         int itemsWithVotes = organizationToValueAndVote.countValuesWithVotes();
         T singleVotedItem = organizationToValueAndVote.getSingleVotedItem();
 
-        if (orgVote != null && !win.equals(orgVote)) {
+        if (orgVote != null && !orgVote.equals(win)) {
             // We voted and lost
             return VoteStatus.losing;
         } else if (itemsWithVotes > 1) {
             // If there are votes for two items, we should look at them.
             return VoteStatus.disputed;
-        } else if (singleVotedItem != null && !win.equals(singleVotedItem)) {
+        } else if (singleVotedItem != null && !singleVotedItem.equals(win)) {
             // If someone voted but didn't win
             return VoteStatus.disputed;
         } else if (provisionalOrWorse) {

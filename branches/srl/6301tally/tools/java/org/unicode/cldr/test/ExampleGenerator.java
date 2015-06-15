@@ -28,6 +28,8 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CLDRPaths;
 import org.unicode.cldr.util.CldrUtility;
+import org.unicode.cldr.util.DayPeriodInfo;
+import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.ICUServiceBuilder;
 import org.unicode.cldr.util.LanguageTagParser;
@@ -44,6 +46,7 @@ import org.unicode.cldr.util.TimezoneFormatter;
 import org.unicode.cldr.util.XPathParts;
 
 import com.ibm.icu.dev.util.TransliteratorUtilities;
+import com.ibm.icu.impl.Row.R3;
 import com.ibm.icu.text.BreakIterator;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.DateFormatSymbols;
@@ -272,6 +275,16 @@ public class ExampleGenerator {
                     return result;
                 }
             }
+            // If generating examples for an inheritance marker, then we need to find the
+            // "real" value to generate from.
+            if (CldrUtility.INHERITANCE_MARKER.equals(value)) {
+                if (type.equals(ExampleType.ENGLISH)) {
+                    value = englishFile.getConstructedBaileyValue(xpath, null, null);                  
+                } else {
+                    value = cldrFile.getConstructedBaileyValue(xpath, null, null);
+                }
+            }
+            
             // result is null at this point. Get the real value if we can.
             parts.set(xpath);
             if (parts.contains("dateRangePattern")) { // {0} - {1}
@@ -282,6 +295,8 @@ public class ExampleGenerator {
                 result = handleDisplayNames(xpath, parts, value);
             } else if (parts.contains("currency")) {
                 result = handleCurrency(xpath, value, context, type);
+            } else if (parts.contains("dayPeriods")) {
+                result = handleDayPeriod(xpath, value, context, type);
             } else if (parts.contains("pattern") || parts.contains("dateFormatItem")) {
                 if (parts.contains("calendar")) {
                     result = handleDateFormatItem(xpath, value);
@@ -352,6 +367,30 @@ public class ExampleGenerator {
             }
         }
         return result;
+    }
+
+    private String handleDayPeriod(String xpath, String value, ExampleContext context, ExampleType type) {
+      //ldml/dates/calendars/calendar[@type="gregorian"]/dayPeriods/dayPeriodContext[@type="format"]/dayPeriodWidth[@type="wide"]/dayPeriod[@type="morning1"]
+      //ldml/dates/calendars/calendar[@type="gregorian"]/dayPeriods/dayPeriodContext[@type="stand-alone"]/dayPeriodWidth[@type="wide"]/dayPeriod[@type="morning1"]
+        List<String> examples = new ArrayList<>();
+        final String dayPeriodType = parts.getAttributeValue(5, "type");
+        org.unicode.cldr.util.DayPeriodInfo.Type aType = dayPeriodType.equals("format") ? DayPeriodInfo.Type.format : DayPeriodInfo.Type.selection;
+        DayPeriodInfo dayPeriodInfo = supplementalDataInfo.getDayPeriods(aType , cldrFile.getLocaleID());
+        String periodString = parts.getAttributeValue(-1, "type");
+
+        DayPeriod dayPeriod = DayPeriod.valueOf(periodString);
+        String periods = dayPeriodInfo.toString(dayPeriod);
+        examples.add(periods);
+        if ("format".equals(dayPeriodType)) {
+            R3<Integer, Integer, Boolean> info = dayPeriodInfo.getFirstDayPeriodInfo(dayPeriod);
+            int time = (((info.get0() + info.get1()) % DayPeriodInfo.DAY_LIMIT) / 2);
+            String calendar = parts.getAttributeValue(3, "type");
+            SimpleDateFormat timeFormat = icuServiceBuilder.getDateFormat(calendar, 0, 1);    
+            String timeSeparator = timeFormat.getDateFormatSymbols().getTimeSeparatorString();
+            timeFormat = icuServiceBuilder.getDateFormat(calendar, "h" + timeSeparator + "mm");
+            examples.add( backgroundStartSymbol + timeFormat.format(time) + backgroundEndSymbol + " " + value);
+        }
+        return formatExampleList(examples.toArray(new String[examples.size()]));
     }
 
     private UnitLength getUnitLength() {
@@ -1394,20 +1433,20 @@ public class ExampleGenerator {
                         territoryName = value;
                     }
                     if (languageName == null) {
-                        languageName = cldrFile.getStringValue(CLDRFile.getKey(CLDRFile.LANGUAGE_NAME, ltp.getLanguage()));
+                        languageName = cldrFile.getStringValueWithBailey(CLDRFile.getKey(CLDRFile.LANGUAGE_NAME, ltp.getLanguage()));
                     }
                     if (scriptName == null) {
-                        scriptName = cldrFile.getStringValue(CLDRFile.getKey(CLDRFile.SCRIPT_NAME, ltp.getScript()));
+                        scriptName = cldrFile.getStringValueWithBailey(CLDRFile.getKey(CLDRFile.SCRIPT_NAME, ltp.getScript()));
                     }
                     if (territoryName == null) {
-                        territoryName = cldrFile.getStringValue(CLDRFile.getKey(CLDRFile.TERRITORY_NAME, ltp.getRegion()));
+                        territoryName = cldrFile.getStringValueWithBailey(CLDRFile.getKey(CLDRFile.TERRITORY_NAME, ltp.getRegion()));
                     }
                     languageName = languageName.replace('(', '[').replace(')', ']').replace('（', '［').replace('）', '］');
                     scriptName = scriptName.replace('(', '[').replace(')', ']').replace('（', '［').replace('）', '］');
                     territoryName = territoryName.replace('(', '[').replace(')', ']').replace('（', '［').replace('）', '］');
 
-                    String localePattern = cldrFile.getStringValue("//ldml/localeDisplayNames/localeDisplayPattern/localePattern");
-                    String localeSeparator = cldrFile.getStringValue("//ldml/localeDisplayNames/localeDisplayPattern/localeSeparator");
+                    String localePattern = cldrFile.getStringValueWithBailey("//ldml/localeDisplayNames/localeDisplayPattern/localePattern");
+                    String localeSeparator = cldrFile.getStringValueWithBailey("//ldml/localeDisplayNames/localeDisplayPattern/localeSeparator");
                     String scriptTerritory = format(localeSeparator, scriptName, territoryName);
                     if (!nameType.equals("script")) {
                         examples.add(invertBackground(format(localePattern, languageName, territoryName)));
@@ -1419,10 +1458,10 @@ public class ExampleGenerator {
                 } else {
                     int x = 0; // debugging
                 }
-                if (isStandAloneValue || cldrFile.getStringValue(xpath + ALT_STAND_ALONE) == null) {
+                if (isStandAloneValue || cldrFile.getStringValueWithBailey(xpath + ALT_STAND_ALONE) == null) {
                     // only do this if either it is a stand-alone form,
                     // or it isn't and there is no separate stand-alone form
-                    String codePattern = cldrFile.getStringValue("//ldml/localeDisplayNames/codePatterns/codePattern[@type=\"" + nameType + "\"]");
+                    String codePattern = cldrFile.getStringValueWithBailey("//ldml/localeDisplayNames/codePatterns/codePattern[@type=\"" + nameType + "\"]");
                     examples.add(invertBackground(format(codePattern, value)));
                 } else {
                     int x = 0; // debugging
@@ -1509,6 +1548,9 @@ public class ExampleGenerator {
      * @return string with attached transliteration if there is one.
      */
     private String addTransliteration(String input, String value) {
+        if (value == null) {
+            return input;
+        }
         for (LocaleTransform localeTransform : LocaleTransform.values()) {
 
             String locale = cldrFile.getLocaleID();

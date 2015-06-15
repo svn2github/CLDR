@@ -2687,6 +2687,8 @@ $Date$
 <!ATTLIST casingItem type CDATA #REQUIRED >
 <!ATTLIST casingItem override (true | false) #IMPLIED >
     <!--@VALUE-->
+<!ATTLIST casingItem forceError (true | false) #IMPLIED >
+    <!--@VALUE-->
 
 <!ELEMENT references ( reference* ) >
     <!--@DEPRECATED-->
