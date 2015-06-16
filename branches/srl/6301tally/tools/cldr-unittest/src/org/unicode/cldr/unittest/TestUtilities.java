@@ -1,8 +1,11 @@
 package org.unicode.cldr.unittest;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,7 @@ import org.unicode.cldr.util.Counter;
 import org.unicode.cldr.util.DelegatingIterator;
 import org.unicode.cldr.util.EscapingUtilities;
 import org.unicode.cldr.util.Factory;
+import org.unicode.cldr.util.FileReaders;
 import org.unicode.cldr.util.Organization;
 import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.PathHeader.PageId;
@@ -571,6 +575,10 @@ public class TestUtilities extends TestFmwk {
                 new VoterInfo(Organization.guest, Level.street,
                     "guestS") },
             {
+                802,
+                new VoterInfo(Organization.guest, Level.street,
+                    "guestS2") },
+            {
                 701,
                 new VoterInfo(Organization.gnome, Level.street,
                     "gnomeS") },
@@ -922,9 +930,7 @@ public class TestUtilities extends TestFmwk {
         // to make it easier to debug failures, the first digit is an org,
         // second is the individual in that org, and
         // third is the voting weight.
-        VoteResolver.setVoterToInfo(testdata);
-        VoteResolver<String> resolver = new VoteResolver<String>();
-        String[] tests = {
+        final String[] tests = {
             "comment=regression case from John Emmons",
             "locale=wae",
             "oldValue=2802",
@@ -1033,14 +1039,36 @@ public class TestUtilities extends TestFmwk {
             // expected values
             "value=best", "sameVotes=best", "status=contributed",
             "conflicts=[]", "check", };
+            runVoteResolverTests(tests);
+    }
+    
+    private static final class TestVote {
+      public final String value;
+      public final Integer voteLevel;
+      public final Long timestamp;
+      public TestVote(String value, Integer voteLevel, Long timestamp) {
+          this.value = value;
+          this.timestamp = timestamp;
+          this.voteLevel = voteLevel;
+      }
+    };
+    /**
+     * Run the VoteResolver tests against an array of tests
+     * @param tests
+     */
+    private void runVoteResolverTests(final String tests[]) {
+        VoteResolver.setVoterToInfo(testdata);
+        VoteResolver<String> resolver = new VoteResolver<String>();
         String expectedValue = null;
         String expectedConflicts = null;
         Status expectedStatus = null;
         String oldValue = null;
         Status oldStatus = null;
+        Long voteTimestamp = null;
+        Integer voteLevel = null;
         List<String> sameVotes = null;
         String locale = null;
-        Map<Integer, String> values = new TreeMap<Integer, String>();
+        Map<Integer, TestVote> values = new TreeMap<Integer, TestVote>();
         int counter = -1;
 
         for (String test : tests) {
@@ -1056,6 +1084,10 @@ public class TestUtilities extends TestFmwk {
                 locale = value;
             } else if (name.equalsIgnoreCase("oldValue")) {
                 oldValue = value;
+            } else if (name.equalsIgnoreCase("timestamp")) { // set a timestamp override for the next value
+                voteTimestamp = Long.parseLong(value);
+            } else if (name.equalsIgnoreCase("override")) { // set a vote override for the next value
+                voteLevel = Integer.parseInt(value);
             } else if (name.equalsIgnoreCase("oldStatus")) {
                 oldStatus = Status.valueOf(value);
             } else if (name.equalsIgnoreCase("value")) {
@@ -1072,15 +1104,25 @@ public class TestUtilities extends TestFmwk {
                 if (value == null || value.equals("null")) {
                     values.remove(voter);
                 } else {
-                    values.put(voter, value);
+                    values.put(voter, new TestVote(value, voteLevel, voteTimestamp));
                 }
+                // these are reset with each values.put
+                voteLevel = null;
+                voteTimestamp = null;
             } else if (name.equalsIgnoreCase("check")) {
                 counter++;
                 // load the resolver
                 resolver.setLocale(locale);
                 resolver.setLastRelease(oldValue, oldStatus);
                 for (int voter : values.keySet()) {
-                    resolver.add(values.get(voter), voter);
+                    TestVote entry = values.get(voter);
+                    if(entry.voteLevel == null && entry.timestamp == null) {
+                        // use the simple version if voteLevel and timestamp is not set
+                        // (keep code path the same)
+                        resolver.add(entry.value, voter);
+                    } else {
+                        resolver.add(entry.value, voter, entry.voteLevel, entry.timestamp);
+                    }
                 }
                 // print the contents
                 logln(counter + "\t" + values);
@@ -1101,6 +1143,17 @@ public class TestUtilities extends TestFmwk {
             }
         }
     }
+
+    /**
+     * Run the vote resolver tests (from disk) against the specified file
+     */
+    public void TestVoteResolverDataDriven() {
+        final String filename = "TestVoteResolverDataDriven.txt";
+        logln("Running test from " + filename);
+        List<String> s = readLines(filename);
+        runVoteResolverTests(s.toArray(new String[s.size()]));
+    }
+
 
     void assertSpecialLocale(String loc, SpecialLocales.Type type) {
         assertEquals("SpecialLocales.txt for " + loc, type,
@@ -1179,5 +1232,31 @@ public class TestUtilities extends TestFmwk {
                 + KOREAN_LANGUAGE_STRID, CLDRConfig.getInstance()
                 .absoluteUrls().forXpath(maltese, KOREAN_LANGUAGE));
 
+    }
+    
+    /* -- utils -- */
+    /**
+     * Read a file into a List of lines
+     * @param filename
+     * @return
+     */
+    private List<String> readLines(final String filename) {
+        List<String> s = new ArrayList<String>();
+        int lineno = 0;
+        try(final BufferedReader file = FileReaders.openFile(getClass(),
+            "data/"+filename)) {
+            lineno++;
+            String line = null;
+            while((line = file.readLine())!=null) {
+                line = line.trim();
+                if(line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                s.add(line);
+            }
+        } catch (IOException e) {
+            throw new Error(filename+":"+lineno + " - " + e.getMessage(), e);
+        }
+        return s;
     }
 }

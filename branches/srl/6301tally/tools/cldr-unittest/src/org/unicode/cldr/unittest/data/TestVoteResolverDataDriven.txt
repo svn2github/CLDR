@@ -1,0 +1,69 @@
+# -*- coding: utf-8 -*-
+# See ../TestUtilities.java
+#
+comment=timestamp case
+locale=de
+#oldValue=null
+#oldStatus=approved
+# // G vetter A
+timestamp=1
+404=Foo
+timestamp=2
+424=Bar
+#// expected values
+value=Bar
+status=approved
+sameVotes=[]
+conflicts=[]
+check
+
+
+comment=timestamp case 2
+locale=de
+#oldValue=null
+#oldStatus=approved
+# // G vetter A
+timestamp=1
+424=Foo
+timestamp=2
+404=Bar
+#// expected values
+value=Bar
+status=approved
+sameVotes=
+conflicts=[]
+check
+
+comment=timestamp case 3
+locale=de
+#oldValue=null
+#oldStatus=approved
+# // G vetter A
+timestamp=1
+424=Bar
+timestamp=2
+404=Foo
+#// expected values
+value=Foo
+status=approved
+sameVotes=
+conflicts=[]
+check
+
+
+comment=timestamp guest case
+locale=de
+#oldValue=null
+#oldStatus=approved
+# // G vetter A
+timestamp=1
+801=Foo
+timestamp=2
+802=Bar
+#// expected values
+value=Bar
+status=unconfirmed
+sameVotes=Bar, Foo
+conflicts=[guest]
+check
+
