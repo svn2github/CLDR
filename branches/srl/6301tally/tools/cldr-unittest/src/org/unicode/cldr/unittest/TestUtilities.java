@@ -37,6 +37,7 @@ import org.unicode.cldr.util.SpecialLocales;
 import org.unicode.cldr.util.StringId;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
+import org.unicode.cldr.util.TimeCounter;
 import org.unicode.cldr.util.VettingViewer.VoteStatus;
 import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.VoteResolver.CandidateInfo;
@@ -239,6 +240,97 @@ public class TestUtilities extends TestFmwk {
                 counter.getKeysetSortedByCount(false, uca)));
     }
 
+    /**
+     * Test TimeCounter<>, but use timestamp of null
+     * (should be same behavior as Counter<>)
+     */
+    public void TestTimeCounter() {
+        TimeCounter<String> counter = new TimeCounter<String>(true);
+        Comparator<String> uca = new Comparator<String>() {
+            Collator col = Collator.getInstance(ULocale.ENGLISH);
+
+            public int compare(String o1, String o2) {
+                return col.compare(o1, o2);
+            }
+        };
+        InverseComparator ucaDown = new InverseComparator(uca);
+
+        counter.add("c", 95, null);
+        counter.add("b", 50, null);
+        counter.add("b", 101, null);
+        counter.add("a", 100, null);
+        counter.add("a", -5, null);
+        counter.add("d", -3, null);
+        assertEquals("getCount(b)", counter.getCount("b"), 151);
+        assertEquals("getCount(a)", counter.getCount("a"), 95);
+        assertEquals("getCount(a)", counter.getTotal(), 338);
+        assertEquals("getItemCount", counter.getItemCount(), 4);
+
+        assertEquals("getMap", "{a=95, b=151, c=95, d=-3}", counter.toString());
+
+        assertEquals("getKeysetSortedByKey", Arrays.asList("a", "b", "c", "d"),
+            new ArrayList<String>(counter.getKeysetSortedByKey()));
+
+        assertEquals(
+            "getKeysetSortedByCount(true, ucaDown)",
+            Arrays.asList("d", "c", "a", "b"),
+            new ArrayList<String>(counter.getKeysetOrderedByCountAndTime(true,
+                ucaDown)));
+
+        assertEquals("getKeysetSortedByCount(true, null), value",
+            Arrays.asList("d", "a", "c", "b"), new ArrayList<String>(
+                counter.getKeysetOrderedByCountAndTime(true, uca)));
+
+        assertEquals("getKeysetSortedByCount(false, ucaDown), descending",
+            Arrays.asList("b", "c", "a", "d"), new ArrayList<String>(
+                counter.getKeysetOrderedByCountAndTime(false, ucaDown)));
+
+        assertEquals("getKeysetSortedByCount(false, null), descending, value",
+            Arrays.asList("b", "a", "c", "d"), new ArrayList<String>(
+                counter.getKeysetOrderedByCountAndTime(false, uca)));
+        
+        
+        
+        // ok, now something more complex
+        counter.clear();
+
+        Long time = 0L;
+        counter.add("b", 50, ++time);
+        counter.add("a", 100, ++time);
+        counter.add("a", -5, ++time);
+        counter.add("d", -3, ++time);
+        counter.add("b", 101, ++time);
+        counter.add("c", 95, ++time);  // c later than a
+        
+        assertEquals("getCount(b)", counter.getCount("b"), 151);
+        assertEquals("getCount(a)", counter.getCount("a"), 95);
+        assertEquals("getCount(a)", counter.getTotal(), 338);
+        assertEquals("getItemCount", counter.getItemCount(), 4);
+
+        assertEquals("getMap", "{a=95, b=151, c=95, d=-3}", counter.toString());
+
+        assertEquals("getKeysetSortedByKey", Arrays.asList("a", "b", "c", "d"),
+            new ArrayList<String>(counter.getKeysetSortedByKey()));
+
+        assertEquals(
+            "getKeysetSortedByCount(true, ucaDown)",
+            Arrays.asList("d", "a", "c", "b"),
+            new ArrayList<String>(counter.getKeysetOrderedByCountAndTime(true,
+                ucaDown)));
+
+        assertEquals("getKeysetSortedByCount(true, null), value",
+            Arrays.asList("d", "a", "c", "b"), new ArrayList<String>(
+                counter.getKeysetOrderedByCountAndTime(true, uca)));
+
+        assertEquals("getKeysetSortedByCount(false, ucaDown), descending",
+            Arrays.asList("b", "c", "a", "d"), new ArrayList<String>(
+                counter.getKeysetOrderedByCountAndTime(false, ucaDown)));
+
+        assertEquals("getKeysetSortedByCount(false, null), descending, value",
+            Arrays.asList("b", "c", "a", "d"), new ArrayList<String>(
+                counter.getKeysetOrderedByCountAndTime(false, uca)));
+    }
+    
     public void TestOrganizationOrder() {
         Map<String, Organization> stringToOrg = new TreeMap<String, Organization>();
         for (Organization org : Organization.values()) {
@@ -1069,8 +1161,7 @@ public class TestUtilities extends TestFmwk {
         List<String> sameVotes = null;
         String locale = null;
         Map<Integer, TestVote> values = new TreeMap<Integer, TestVote>();
-        int counter = -1;
-
+        int counter = -1; // test case
         for (String test : tests) {
             String[] item = test.split("=");
             String name = item[0];

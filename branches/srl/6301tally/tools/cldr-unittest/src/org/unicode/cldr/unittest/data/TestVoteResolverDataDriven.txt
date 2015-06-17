@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # See ../TestUtilities.java
 #
+
+#0
 comment=timestamp case
 locale=de
 #oldValue=null
@@ -13,11 +15,11 @@ timestamp=2
 #// expected values
 value=Bar
 status=approved
-sameVotes=[]
-conflicts=[]
+sameVotes=Bar, Foo
+conflicts=[google]
 check
 
-
+#1
 comment=timestamp case 2
 locale=de
 #oldValue=null
@@ -30,10 +32,11 @@ timestamp=2
 #// expected values
 value=Bar
 status=approved
-sameVotes=
-conflicts=[]
+sameVotes=Bar, Foo
+conflicts=[google]
 check
 
+#2
 comment=timestamp case 3
 locale=de
 #oldValue=null
@@ -46,11 +49,11 @@ timestamp=2
 #// expected values
 value=Foo
 status=approved
-sameVotes=
-conflicts=[]
+sameVotes=Bar, Foo
+conflicts=[google]
 check
 
-
+#3
 comment=timestamp guest case
 locale=de
 #oldValue=null

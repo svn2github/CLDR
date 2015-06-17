@@ -246,18 +246,19 @@ public class VoteResolver<T> {
      * 
      * @param <T>
      */
-    static class MaxCounter<T> extends Counter<T> {
+    static class MaxCounter<T> extends TimeCounter<T> {
         public MaxCounter(boolean b) {
             super(b);
         }
 
         /**
          * Add, but only to bring up to the maximum value.
+         * @param timestamp 
          */
-        public MaxCounter<T> add(T obj, long countValue, long timeValue) {
+        public MaxCounter<T> add(T obj, long countValue, Long timestamp) {
             long value = getCount(obj);
-            if (value < countValue) {
-                super.add(obj, countValue - value); // only add the difference!
+            if (value <= countValue) {
+                super.add(obj, countValue - value, timestamp); // only add the difference! Could be 0 if we are just updating timestamp.
             }
             return this;
         };
@@ -313,12 +314,14 @@ public class VoteResolver<T> {
          * @param value
          * @param voter
          * @param withVotes optionally, vote at a reduced voting level. May not exceed voter's typical level. null = use default level.
+         * @param timestamp 
          */
         public void add(T value, int voter, Integer withVotes, Long timestamp) {
             final VoterInfo info = getVoterToInfo().get(voter);
             if (info == null) {
                 throw new UnknownVoterException(voter);
             }
+            
             final int maxVotes = info.getLevel().getVotes(); // max votes available for user
             if (withVotes == null) {
                 withVotes = maxVotes; // use max (default)
@@ -335,12 +338,16 @@ public class VoteResolver<T> {
          * @param voter
          * @param info
          * @param votes
+         * @param timestamp 
          * @see #add(Object, int, Integer)
          */
-        private void addInternal(T value, int voter, final VoterInfo info, final int votes, final Long timestamp) {
+        private void addInternal(T value, int voter, final VoterInfo info, final int votes, Long timestamp) {
             totalVotes.add(value, votes);
             Organization organization = info.getOrganization();
-            orgToVotes.get(organization).add(value, votes);
+            if(info.organization.votesAreIndividual()) { // Right now, Guest votes as individual
+                timestamp = null;
+            }
+            orgToVotes.get(organization).add(value, votes, timestamp);
             // add the new votes to orgToMax, if they are greater that what was there
             Integer max = orgToMax.get(info.getOrganization());
             if (max == null || max < votes) {
@@ -361,16 +368,17 @@ public class VoteResolver<T> {
             for (Map.Entry<Organization, MaxCounter<T>> entry : orgToVotes.entrySet()) {
                 //   for (Organization org : orgToVotes.keySet()) {
 //                Counter<T> items = orgToVotes.get(org);
-                Counter<T> items = entry.getValue();
+                final boolean isIndividual = entry.getKey().votesAreIndividual();
+                MaxCounter<T> items = entry.getValue();
                 if (items.size() == 0) {
                     continue;
                 }
-                Iterator<T> iterator = items.getKeysetSortedByCount(false).iterator();
+                Iterator<T> iterator = items.getKeysetSortedByCountAndTime(false).iterator();
                 T value = iterator.next();
                 long weight = items.getCount(value);
                 Organization org = entry.getKey();
                 // if there is more than one item, check that it is less
-                if (iterator.hasNext()) {
+                if(!isIndividual && iterator.hasNext()) {
                     T value2 = iterator.next();
                     long weight2 = items.getCount(value2);
                     // if the votes for #1 are not better than #2, we have a dispute
@@ -398,7 +406,7 @@ public class VoteResolver<T> {
             for (Map.Entry<Organization, MaxCounter<T>> entry : orgToVotes.entrySet()) {
 //            for (Organization org : orgToVotes.keySet()) {
 //                Counter<T> counter = orgToVotes.get(org);
-                Counter<T> counter = entry.getValue();
+                MaxCounter<T> counter = entry.getValue();
                 long count = counter.getCount(winningValue);
                 if (count > 0) {
                     orgCount++;
@@ -422,7 +430,7 @@ public class VoteResolver<T> {
             for (Entry<Organization, MaxCounter<T>> entry : orgToVotes.entrySet()) {
 //            for (Organization org : orgToVotes.keySet()) {
 //                Counter<T> counter = orgToVotes.get(org);
-                Counter<T> counter = entry.getValue();
+                MaxCounter<T> counter = entry.getValue();
                 if (counter.size() != 0) {
                     if (orgToVotesString.length() != 0) {
                         orgToVotesString += ", ";
@@ -601,14 +609,14 @@ public class VoteResolver<T> {
         organizationToValueAndVote.add(value, voter, withVotes, null);
         values.add(value);
     }
-    
+
     /**
      * Call once for each voter for a value. If there are no voters for an item, then call add(value);
      * 
      * @param value
      * @param voter
      * @param withVotes override to lower the user's voting permission. May be null for default.
-     * @param timestamp date value for the vote (used for org conflicts). May be null if unknown.
+     * @param timestamp if present, time of vote (later overrides)
      */
     public void add(T value, int voter, Integer withVotes, Long timestamp) {
         if (resolved) {
@@ -828,6 +836,7 @@ public class VoteResolver<T> {
     /**
      * What value did this organization vote for?
      * 
+     * @deprecated since an organization can have multiple votes
      * @param org
      * @return
      */
@@ -1259,14 +1268,5 @@ public class VoteResolver<T> {
             // We voted, we won, value is approved, no disputes, have votes
             return VoteStatus.ok;
         }
-    }
-    
-    /**
-     * Does this organization tally votes as an individual?
-     * @param org
-     * @return true: tally as individuals (allow disputes).   false: tally as a group ( latest vote wins).
-     */
-    public static final boolean orgVotesAreIndividual(Organization org) {
-        return org == Organization.guest;
     }
 }

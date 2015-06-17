@@ -26,7 +26,7 @@ public enum Organization {
     georgia_isi("Georgia ISI"),
     gnome("Gnome Foundation"),
     google("Google"),
-    guest("Guest (Unicode)"),
+    guest(true, "Guest (Unicode)"),
     ibm("IBM"),
     india("India MIT"),
     iran_hci("Iran HCI"),
@@ -75,8 +75,21 @@ public enum Organization {
         }
     }
 
+    private Organization(boolean votesAreIndividual, String displayName, String... names) {
+        this.displayName = displayName;
+        this.names = names;
+        this.votesAreIndividual = votesAreIndividual;
+    }
+
     private Organization(String displayName, String... names) {
         this.displayName = displayName;
         this.names = names;
+        this.votesAreIndividual = false;
     }
+
+    public final boolean votesAreIndividual() {
+        return votesAreIndividual;
+    }
+    
+    private final boolean votesAreIndividual;
 }
