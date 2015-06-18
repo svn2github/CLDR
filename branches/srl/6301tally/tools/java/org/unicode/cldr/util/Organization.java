@@ -26,7 +26,7 @@ public enum Organization {
     georgia_isi("Georgia ISI"),
     gnome("Gnome Foundation"),
     google("Google"),
-    guest(true, "Guest (Unicode)"),
+    guest(false, "Guest (Unicode)"),
     ibm("IBM"),
     india("India MIT"),
     iran_hci("Iran HCI"),
@@ -75,21 +75,31 @@ public enum Organization {
         }
     }
 
-    private Organization(boolean votesAreIndividual, String displayName, String... names) {
+    /**
+     * 
+     * @param laterVotesOverride See {@link #laterVotesOverride()}
+     * @param displayName
+     * @param names
+     */
+    private Organization(boolean laterVotesOverride, String displayName, String... names) {
         this.displayName = displayName;
         this.names = names;
-        this.votesAreIndividual = votesAreIndividual;
+        this.laterVotesOverride = laterVotesOverride;
     }
 
     private Organization(String displayName, String... names) {
         this.displayName = displayName;
         this.names = names;
-        this.votesAreIndividual = false;
+        this.laterVotesOverride = true;
     }
 
-    public final boolean votesAreIndividual() {
-        return votesAreIndividual;
+    /**
+     * If true, later votes (in time, by the same organization and level) override previous ones
+     * @return
+     */
+    public final boolean laterVotesOverride() {
+        return laterVotesOverride;
     }
     
-    private final boolean votesAreIndividual;
+    private final boolean laterVotesOverride;
 }

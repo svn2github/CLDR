@@ -5,8 +5,8 @@
 #0
 comment=timestamp case
 locale=de
-#oldValue=null
-#oldStatus=approved
+oldValue=_
+oldStatus=unconfirmed
 # // G vetter A
 timestamp=1
 404=Foo
@@ -22,8 +22,8 @@ check
 #1
 comment=timestamp case 2
 locale=de
-#oldValue=null
-#oldStatus=approved
+oldValue=_
+oldStatus=unconfirmed
 # // G vetter A
 timestamp=1
 424=Foo
@@ -39,8 +39,8 @@ check
 #2
 comment=timestamp case 3
 locale=de
-#oldValue=null
-#oldStatus=approved
+oldValue=_
+oldStatus=unconfirmed
 # // G vetter A
 timestamp=1
 424=Bar
@@ -56,8 +56,8 @@ check
 #3
 comment=timestamp guest case
 locale=de
-#oldValue=null
-#oldStatus=approved
+oldValue=_
+oldStatus=unconfirmed
 # // G vetter A
 timestamp=1
 801=Foo

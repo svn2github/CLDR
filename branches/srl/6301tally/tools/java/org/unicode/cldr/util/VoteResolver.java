@@ -344,7 +344,7 @@ public class VoteResolver<T> {
         private void addInternal(T value, int voter, final VoterInfo info, final int votes, Long timestamp) {
             totalVotes.add(value, votes);
             Organization organization = info.getOrganization();
-            if(info.organization.votesAreIndividual()) { // Right now, Guest votes as individual
+            if(!info.organization.laterVotesOverride()) { // Right now, Guest votes as individual
                 timestamp = null;
             }
             orgToVotes.get(organization).add(value, votes, timestamp);
@@ -368,7 +368,7 @@ public class VoteResolver<T> {
             for (Map.Entry<Organization, MaxCounter<T>> entry : orgToVotes.entrySet()) {
                 //   for (Organization org : orgToVotes.keySet()) {
 //                Counter<T> items = orgToVotes.get(org);
-                final boolean isIndividual = entry.getKey().votesAreIndividual();
+                final boolean laterVotesOverride = entry.getKey().laterVotesOverride();
                 MaxCounter<T> items = entry.getValue();
                 if (items.size() == 0) {
                     continue;
@@ -377,8 +377,9 @@ public class VoteResolver<T> {
                 T value = iterator.next();
                 long weight = items.getCount(value);
                 Organization org = entry.getKey();
-                // if there is more than one item, check that it is less
-                if(!isIndividual && iterator.hasNext()) {
+                // if there is more than one item, check that it is less ( only Guest will enter this )
+                if(!laterVotesOverride 
+                    && iterator.hasNext()) {
                     T value2 = iterator.next();
                     long weight2 = items.getCount(value2);
                     // if the votes for #1 are not better than #2, we have a dispute
@@ -392,10 +393,13 @@ public class VoteResolver<T> {
                 orgToAdd.put(org, value);
 
                 // We add the max vote for each of the organizations choices
-
-                for (T item : items.keySet()) {
-                    long count = items.getCount(item);
-                    totals.add(item, count);
+                if(laterVotesOverride) {
+                    totals.add(value, weight); // just add the first
+                } else {
+                    for (T item : items.keySet()) {
+                        long count = items.getCount(item);
+                        totals.add(item, count);
+                    }
                 }
             }
             return totals;
@@ -404,13 +408,20 @@ public class VoteResolver<T> {
         public int getOrgCount(T winningValue) {
             int orgCount = 0;
             for (Map.Entry<Organization, MaxCounter<T>> entry : orgToVotes.entrySet()) {
-//            for (Organization org : orgToVotes.keySet()) {
-//                Counter<T> counter = orgToVotes.get(org);
-                MaxCounter<T> counter = entry.getValue();
-                long count = counter.getCount(winningValue);
-                if (count > 0) {
-                    orgCount++;
-                }
+               if(entry.getKey().laterVotesOverride()) {
+                   Iterator<T> iterator = entry.getValue().getKeysetSortedByCountAndTime(false).iterator();
+                   if(iterator.hasNext() && winningValue.equals(iterator.next())) {
+                       orgCount++; // only count the 'top' vote
+                   }
+               } else {
+    //            for (Organization org : orgToVotes.keySet()) {
+    //                Counter<T> counter = orgToVotes.get(org);
+                    MaxCounter<T> counter = entry.getValue();
+                    long count = counter.getCount(winningValue);
+                    if (count > 0) {
+                        orgCount++;
+                    }
+               }
             }
             return orgCount;
         }
