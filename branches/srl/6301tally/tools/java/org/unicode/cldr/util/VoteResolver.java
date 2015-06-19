@@ -58,7 +58,7 @@ import com.ibm.icu.util.ULocale;
  * conflicts = resolver.getConflictedOrganizations();
  * </pre>
  */
-public class VoteResolver<T> {
+public class VoteResolver<T extends Comparable<T>> {
     private static final boolean DEBUG = false;
 
     /**
@@ -239,35 +239,11 @@ public class VoteResolver<T> {
         }
     }
 
-    /**
-     * MaxCounter: make sure that we are always only getting the maximum of the values.
-     * 
-     * @author markdavis
-     * 
-     * @param <T>
-     */
-    static class MaxCounter<T> extends TimeCounter<T> {
-        public MaxCounter(boolean b) {
-            super(b);
-        }
-
-        /**
-         * Add, but only to bring up to the maximum value.
-         * @param timestamp 
-         */
-        public MaxCounter<T> add(T obj, long countValue, Long timestamp) {
-            long value = getCount(obj);
-            if (value <= countValue) {
-                super.add(obj, countValue - value, timestamp); // only add the difference! Could be 0 if we are just updating timestamp.
-            }
-            return this;
-        };
-    }
 
     /**
      * Internal class for getting from an organization to its vote.
      */
-    private static class OrganizationToValueAndVote<T> {
+    private static class OrganizationToValueAndVote<T extends Comparable<T>> {
         private final Map<Organization, MaxCounter<T>> orgToVotes = new EnumMap<>(Organization.class);
         private final Counter<T> totalVotes = new Counter<T>();
         private final Map<Organization, Integer> orgToMax = new EnumMap<>(Organization.class);
@@ -277,7 +253,7 @@ public class VoteResolver<T> {
 
         OrganizationToValueAndVote() {
             for (Organization org : Organization.values()) {
-                orgToVotes.put(org, new MaxCounter<T>(true));
+                orgToVotes.put(org, new MaxCounterImpl<T>());
             }
         }
 
@@ -373,7 +349,7 @@ public class VoteResolver<T> {
                 if (items.size() == 0) {
                     continue;
                 }
-                Iterator<T> iterator = items.getKeysetSortedByCountAndTime(false).iterator();
+                Iterator<T> iterator = items.iterator();
                 T value = iterator.next();
                 long weight = items.getCount(value);
                 Organization org = entry.getKey();
@@ -409,7 +385,7 @@ public class VoteResolver<T> {
             int orgCount = 0;
             for (Map.Entry<Organization, MaxCounter<T>> entry : orgToVotes.entrySet()) {
                if(entry.getKey().laterVotesOverride()) {
-                   Iterator<T> iterator = entry.getValue().getKeysetSortedByCountAndTime(false).iterator();
+                   Iterator<T> iterator = entry.getValue().iterator();
                    if(iterator.hasNext() && winningValue.equals(iterator.next())) {
                        orgCount++; // only count the 'top' vote
                    }

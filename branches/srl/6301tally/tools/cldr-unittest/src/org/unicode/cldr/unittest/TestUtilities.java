@@ -29,6 +29,7 @@ import org.unicode.cldr.util.DelegatingIterator;
 import org.unicode.cldr.util.EscapingUtilities;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.FileReaders;
+import org.unicode.cldr.util.MaxCounter;
 import org.unicode.cldr.util.Organization;
 import org.unicode.cldr.util.PathHeader;
 import org.unicode.cldr.util.PathHeader.PageId;
@@ -37,7 +38,7 @@ import org.unicode.cldr.util.SpecialLocales;
 import org.unicode.cldr.util.StringId;
 import org.unicode.cldr.util.SupplementalDataInfo;
 import org.unicode.cldr.util.SupplementalDataInfo.PluralInfo.Count;
-import org.unicode.cldr.util.TimeCounter;
+import org.unicode.cldr.util.MaxCounterImpl;
 import org.unicode.cldr.util.VettingViewer.VoteStatus;
 import org.unicode.cldr.util.VoteResolver;
 import org.unicode.cldr.util.VoteResolver.CandidateInfo;
@@ -245,7 +246,7 @@ public class TestUtilities extends TestFmwk {
      * (should be same behavior as Counter<>)
      */
     public void TestTimeCounter() {
-        TimeCounter<String> counter = new TimeCounter<String>(true);
+        MaxCounter<String> counter = new MaxCounterImpl<String>();
         Comparator<String> uca = new Comparator<String>() {
             Collator col = Collator.getInstance(ULocale.ENGLISH);
 
@@ -263,13 +264,13 @@ public class TestUtilities extends TestFmwk {
         counter.add("d", -3, null);
         assertEquals("getCount(b)", counter.getCount("b"), 151);
         assertEquals("getCount(a)", counter.getCount("a"), 95);
-        assertEquals("getCount(a)", counter.getTotal(), 338);
-        assertEquals("getItemCount", counter.getItemCount(), 4);
+        assertEquals("getTotal()", counter.getTotal(), 338);
+        assertEquals("size()", counter.size(), 4);
 
-        assertEquals("getMap", "{a=95, b=151, c=95, d=-3}", counter.toString());
+        assertEquals("toString", "{a=95 b=151 c=95 d=-3}", counter.toString());
 
         assertEquals("getKeysetSortedByKey", Arrays.asList("a", "b", "c", "d"),
-            new ArrayList<String>(counter.getKeysetSortedByKey()));
+            new ArrayList<String>(counter.iterator()));
 
         assertEquals(
             "getKeysetSortedByCount(true, ucaDown)",
