@@ -3114,6 +3114,12 @@ p.pClassExplain:after {
 	content: ')';
 }
 
+.explainVotesProse {
+	display: list-item;
+	margin-left: 2em;
+	list-style: disc;
+}
+
 div.voterList .voterName {
 	font-weight: bold;
 	display:  inline;

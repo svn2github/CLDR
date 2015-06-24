@@ -3107,9 +3107,42 @@ function updateRow(tr, theRow) {
 				perValueContainer.appendChild(vdiv);
 			}
 			
-			if(vr.requiredVotes) {
-				var msg = stui.sub("explainRequiredVotes", {requiredVotes: vr.requiredVotes  /* , votecount: surveyUser.votecount */ });
-				perValueContainer.appendChild(createChunk(msg,"p", "alert alert-warning fix-popover-help"));
+			// vote explainer
+			{
+				var msg;
+				if(vr.requiredVotes) {
+					msg = stui.sub("explainRequiredVotes", {requiredVotes: vr.requiredVotes  /* , votecount: surveyUser.votecount */ });
+				} else {
+					msg = "";
+				}
+				var explainerChunk;
+				perValueContainer.appendChild(explainerChunk = createChunk(msg,"p", "alert alert-warning fix-popover-help"));
+				
+				var explainAdd = [];
+				// explain more
+				explainAdd.push(JSON.stringify(vr.orgs));
+				if(theRow.ourVote && theRow.ourVote !== "") {
+					var myOrg = vr.orgs[surveyUser.org];
+					if(theRow.ourVote === vr.winningValue) {
+						// you have cast the winning vote.
+						explainAdd.push(stui.str("explainYoursWins")); 
+					} else {
+						if(Object.keys(myOrg.votes).length > 1) {
+							explainAdd.push(stui.str("explainOrgDispute"));
+						} 
+					}
+				} else {
+					if(surveyUser) {
+						explainAdd.push(stui.str("explainNoVote")); 
+					} else {
+						// not logged in.
+					}
+				}
+				
+				for(var nn=0;nn<explainAdd.length;nn++) {
+					explainerChunk.appendChild(createChunk(explainAdd[nn], "span", "explainVotesProse"));
+				}
+			
 			}
 			
 		} else {
