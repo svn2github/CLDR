@@ -74,10 +74,14 @@ public class LocaleTree {
         }
 
         if (t != null || v != null) {
+            String displayCountry = localeName.getDisplayCountry(displayLocale);
+            if(displayCountry == null) {
+                displayCountry = t; // Display country invalid
+            }
             if (v == null) {
-                lm.put(localeName.getDisplayCountry(displayLocale), localeName);
+                lm.put(displayCountry, localeName);
             } else if (t != null) {
-                lm.put(localeName.getDisplayCountry(displayLocale) + " (" + localeName.getDisplayVariant(displayLocale) + ")",
+                lm.put(displayCountry + " (" + localeName.getDisplayVariant(displayLocale) + ")",
                     localeName);
             } else {
                 lm.put("(" + localeName.getDisplayVariant(displayLocale) + ")",
