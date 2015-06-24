@@ -113,6 +113,16 @@ public class LocaleIDParser {
      */
     public static String getParent(String localeName) {
         SupplementalDataInfo sdi = SupplementalDataInfo.getInstance();
+        return getParent(localeName, sdi);
+    }
+
+    /**
+     * Utility to get the parent of a locale. If the input is "root", then the output is null. Only works on canonical locale names (right casing, etc.)!
+     * @param localeName
+     * @param sdi Supply a specific SupplementalDataInfo to use
+     * @return
+     */
+    public static String getParent(String localeName, SupplementalDataInfo sdi) {
         int pos = localeName.lastIndexOf('_');
         if (pos >= 0) {
             String explicitParent = sdi.getExplicitParentLocale(localeName);

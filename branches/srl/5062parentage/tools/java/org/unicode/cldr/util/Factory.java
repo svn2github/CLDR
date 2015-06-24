@@ -150,6 +150,7 @@ public abstract class Factory implements SublocaleProvider {
     protected ResolvingSource makeResolvingSource(String localeID, DraftStatus madeWithMinimalDraftStatus) {
         List<XMLSource> sourceList = new ArrayList<XMLSource>();
         String curLocale = localeID;
+        final SupplementalDataInfo sdi = SupplementalDataInfo.getInstance(this.getSupplementalDirectory());
         while (curLocale != null) {
             if (DEBUG_FACTORY) {
                 System.out.println("Factory.makeResolvingSource: calling handleMake for locale " +
@@ -161,7 +162,7 @@ public abstract class Factory implements SublocaleProvider {
             }
             XMLSource source = file.dataSource;
             sourceList.add(source);
-            curLocale = LocaleIDParser.getParent(curLocale);
+            curLocale = LocaleIDParser.getParent(curLocale, sdi);
         }
         return new ResolvingSource(sourceList);
     }
