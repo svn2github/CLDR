@@ -1,3 +1,4 @@
+<%@page import="java.io.FileOutputStream"%>
 <%@ page contentType="text/html; charset=UTF-8"
 	import="org.unicode.cldr.web.*,org.unicode.cldr.util.*,java.io.File"%>
 <%
@@ -49,6 +50,7 @@ String sql = request.getContextPath()+"/survey?sql="+vap+"";
 <hr>
 
 <% if(action!=null&&!action.isEmpty()) { %>
+<div style='padding: 1em'>
 <a href="<%= request.getContextPath() + request.getServletPath()  + "?vap="+vap+"#!admin_ops" %>">Return to Admin Panel</a> | <h3><%= action %></h3>
 
 
@@ -117,12 +119,60 @@ String sql = request.getContextPath()+"/survey?sql="+vap+"";
     </form>
 
   <% }  %>
+<% } else if (action.equals("createlocale")) { 
+	%> 	<p>Use the following to create a locale. Enter a locale id such as 'de-shav-ch' and it will get created in seed.
+		Does not cross script boundaries, etc.  So if you are trying to create 'tlh-zxxx' it will not try to create tlh.xml itself. </p>
+	 <%
+	String loc = request.getParameter("locale");
+	if(loc !=null && !loc.trim().isEmpty()) {
+		final CLDRLocale theLoc = CLDRLocale.getInstance(com.ibm.icu.util.ULocale.canonicalize(loc.trim()));
+		%><h2>To Add: <%= theLoc.getDisplayName() + " - " + theLoc.getBaseName() %></h2><%
+		java.util.Set<CLDRLocale> theLocs = CookieSession.sm.getLocalesSet();
+		for(CLDRLocale l : theLoc.getParentIterator()) {
+			if(theLocs.contains(l)) {
+				%><h3>Already there: <%= l.getDisplayName() + " - " + l.getBaseName() %>.xml</h3><%
+			} else {
+				%><h3>Adding: <%= l.getDisplayName() + " - " + l.getBaseName() %>.xml</h3><%
+				CLDRFile f = new CLDRFile(new SimpleXMLSource(l.getBaseName()));
+				// nothing to do- maybe a comment?
+				f.appendFinalComment("Created by SurveyTool admin page " + new java.util.Date());
+				try {
+					java.io.File ff = new java.io.File(CookieSession.sm.fileBaseSeed,l.getBaseName()+".xml");
+					if(ff.exists()) {
+						%> <p> <b>Warning: exists</b>: <%= ff.getAbsolutePath() %> </p> <%
+					} else {
+						java.io.PrintWriter pw = new java.io.PrintWriter(new FileOutputStream(ff));
+						f.write(pw);
+						pw.flush();
+						pw.close();
+						%> <p> write <%= ff.getAbsolutePath() %> </p> <%
+					}
+				} catch(Throwable t) {
+					t.printStackTrace();
+					%>t<%
+				}
+			}
+		}
+		%><p><i>You probably want to restart SurveyTool to pick these up.</i></p><%
+	} else {
+		loc = "";
+	}
+	%>
+    <form method='POST' action='<%= request.getContextPath() + request.getServletPath() %>'>
+    	<label>Locale: <input name='locale' value='<%= loc %>' %></label>
+                
+        <input type='hidden' value='<%= vap %>' name='vap'/>
+        <input type='hidden' value='<%= action %>' name='do'/>
+        <input type='submit'>
+    </form>
+
 <% } else { %>
     <h4>Unknown action: <%= action %></h4>
 <% } %>
 
 <hr>
 <a href="<%= request.getContextPath() + request.getServletPath()  + "?vap="+vap+"#!admin_ops" %>">Return to Admin Panel</a>
+</div>
 <% } else { %>
 <div class='fnotebox'>
     For instructions, see <a href='http://cldr.unicode.org/index/survey-tool/admin'>Admin Docs</a>. <br>

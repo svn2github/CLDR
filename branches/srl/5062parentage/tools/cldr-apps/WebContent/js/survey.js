@@ -7078,7 +7078,8 @@ function loadAdminPanel() {
 		var hashSuff  = ""; //  "#" + window.location.hash;
 
 		var actions = [
-		               				"rawload"
+		               				"rawload",
+		               				"createlocale"
 		               ];
 		
 		for(var k in actions) {
