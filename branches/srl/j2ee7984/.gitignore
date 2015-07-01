@@ -1,0 +1,6 @@
+.svn
+tools/*/classes
+tools/*/build
+tools/*/*.jar
+tools/*/*.war
+
