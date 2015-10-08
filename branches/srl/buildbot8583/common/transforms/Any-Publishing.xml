@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE supplementalData SYSTEM "../../common/dtd/ldmlSupplemental.dtd">
+<!--
+Copyright © 1991-2013 Unicode, Inc.
+CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
+For terms of use, see http://www.unicode.org/copyright.html
+-->
+<supplementalData>
+	<version number="$Revision$"/>
+	<transforms>
+		<transform source="Any" target="Publishing" direction="both">
+			<tRule>
+# Test case
+# &quot;The&quot; &quot;(quick)&quot; ('brown') `fox' ` jumped --     &quot;over?&quot;
+# Variables
+$single = \' ;
+$space = ' ' ;
+$double = \&quot; ;
+$back = \` ;
+$tab = \u0008 ;
+$makeRight = [[:Z:][:Ps:][:Pi:]$] ;
+# fix UNIX quotes
+$back $back → “ ;
+$back → ‘ ;
+# fix typewriter quotes, by context
+$makeRight {$double} ↔ “ ;
+$double ↔ ” ;
+$makeRight {$single} ↔ ‘ ;
+$single ↔ ’;
+# fix multiple spaces and hyphens
+$space {$space} → ;
+'--' ↔ — ;
+			</tRule>
+		</transform>
+	</transforms>
+</supplementalData>
