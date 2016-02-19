@@ -1,1 +1,0 @@
-locale=/.*/; action=delete ; path=//ldml/localeDisplayNames/territories/territory[@type="AN"]
