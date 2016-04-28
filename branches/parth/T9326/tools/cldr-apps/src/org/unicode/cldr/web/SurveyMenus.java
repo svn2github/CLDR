@@ -122,6 +122,9 @@ public class SurveyMenus implements Iterable<SurveyMenus.Section> {
                         }
                         break;
                     }
+                if(iter.toString().equals("[]")){
+                    pageStatus = SurveyToolStatus.HIDE;
+                }
             }
 
             public PageId getKey() {
