@@ -113,8 +113,10 @@ public class SurveyMenus implements Iterable<SurveyMenus.Section> {
                 PathHeader ph = null;
                 // check visibility
                 Iterable<String> iter = getPagePaths();
+                int iterCounter = 0;
                 if (iter != null)
                     for (String xp : iter) {
+                    	iterCounter++;
                         ph = phf.fromPath(xp);
                         SurveyToolStatus xStatus = ph.getSurveyToolStatus();
                         if (xStatus == SurveyToolStatus.HIDE || xStatus == SurveyToolStatus.DEPRECATED) {
@@ -122,7 +124,7 @@ public class SurveyMenus implements Iterable<SurveyMenus.Section> {
                         }
                         break;
                     }
-                if(iter.toString().equals("[]")){
+                if(iterCounter == 0){
                     pageStatus = SurveyToolStatus.HIDE;
                 }
             }
