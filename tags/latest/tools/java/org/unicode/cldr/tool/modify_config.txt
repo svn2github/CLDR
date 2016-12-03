@@ -1,0 +1,5 @@
+locale=zu ; action=addNew ; new_path=//ldml/annotations/annotation[@cp="🏻"][@type="tts"] ; new_value=uhlobo-1-2
+locale=zu ; action=addNew ; new_path=//ldml/annotations/annotation[@cp="🏼"][@type="tts"] ; new_value=uhlobo-3
+locale=zu ; action=addNew ; new_path=//ldml/annotations/annotation[@cp="🏽"][@type="tts"] ; new_value=uhlobo-4
+locale=zu ; action=addNew ; new_path=//ldml/annotations/annotation[@cp="🏾"][@type="tts"] ; new_value=uhlobo-5
+locale=zu ; action=addNew ; new_path=//ldml/annotations/annotation[@cp="🏿"][@type="tts"] ; new_value=uhlobo-6
