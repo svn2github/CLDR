@@ -1188,7 +1188,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
     }
 
     public AttributeStatus getAttributeStatus(String elementName, String attributeName) {
-        if ("_q".equals(attributeName)) {
+        if ("_q".equals(attributeName) || "cp".equals(attributeName)) {
             return AttributeStatus.distinguished; // special case
         }
         if ("#PCDATA".equals(elementName)) {

@@ -269,6 +269,7 @@ define({
 		special_r_datetime: "Datetime",
 		special_r_zones: "Zones",
 		special_r_vetting_json: "Dashboard",
+		special_r_annotations: "Annotations",
 		searchNoResults: "No results found.",
 		searchGuidance: "This is a basic search facility. An exact word such as 'Monday' or 'Montag' can be entered, or an XPath or string ID like 'eeaf1f975877a5d'.  An optional locale ID can be prefixed to any search term, so 'mt:Monday' or 'mt:eeaf1f975877a5d'.",
 		section_help: "Choose an item from the 'Subpages' menu to begin working with this section.",

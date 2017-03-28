@@ -83,7 +83,7 @@ public abstract class Factory implements SublocaleProvider {
     }
 
     public enum DirectoryType {
-        main, supplemental, bcp47, casing, collation, dtd, rbnf, segments, transforms, other
+        annotations, main, supplemental, bcp47, casing, collation, dtd, rbnf, segments, transforms, other
     };
 
     public static final DirectoryType getDirectoryType(File fileOrDir) {

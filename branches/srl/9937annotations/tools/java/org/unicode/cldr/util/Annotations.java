@@ -48,7 +48,7 @@ public class Annotations {
     private final String tts;
 
     static {
-        File directory = new File(CLDRPaths.COMMON_DIRECTORY, "annotations");
+        File directory = new File(CLDRPaths.COMMON_DIRECTORY, Factory.DirectoryType.annotations.name());
         try {
             DIR = directory.getCanonicalPath();
         } catch (IOException e) {

@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -965,6 +966,22 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
         if (fileBase == null)
             throw new NullPointerException("fileBase==NULL");
         return fileBase;
+    }
+    
+    /**
+     * 
+     * @param s source tree, ex: common
+     * @param t source type, ex: main
+     * @return full path
+     */
+    public static String getFileBase(Factory.SourceTreeType s, Factory.DirectoryType t) {
+        // use caches if possible
+        if(s == SourceTreeType.common && t == DirectoryType.main) return getFileBase();
+        if(s == SourceTreeType.seed && t == DirectoryType.main) return getFileBaseSeed();
+        // TODO: doesn't cache, as getFileBase() does
+        CLDRConfig survprops = CLDRConfig.getInstance();
+        File base = survprops.getCldrBaseDirectory();
+        return new File(base, s.name() + "/" + t.name()).getAbsolutePath();
     }
 
     /**
@@ -4477,6 +4494,26 @@ public class SurveyMain extends HttpServlet implements CLDRProgressIndicator, Ex
         }
         return gFactory;
     }
+    
+    private Map<Factory.DirectoryType, Factory> gOtherFactories = new LinkedHashMap<Factory.DirectoryType, Factory>();
+    
+    public synchronized Factory getDiskFactory(Factory.DirectoryType t) {
+        final Factory diskFactory = getDiskFactory(); // need this up first
+
+        if(t == null || t == DirectoryType.main) {
+            return diskFactory;
+        }
+        
+        Factory f = gOtherFactories.get(t);
+        if(f == null) {
+            final File list[] = { new File(getFileBase(SourceTreeType.common, t)),
+                                  new File(getFileBase(SourceTreeType.seed, t)) };
+            f = SimpleFactory.make(list, ".*");
+            gOtherFactories.put(t, f);
+        }
+        return f;
+    }
+    
 
     public void ensureOrCheckout(JspWriter o, final String param, final File dir, final String url) {
         if (dir == null) {
