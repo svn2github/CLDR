@@ -604,9 +604,9 @@ public class SurveyForum {
                 try {
                     conn = sm.dbUtils.getDBConnection();
 
-                    Object[][] o = DBUtils.sqlQueryArrayArrayObj(conn, "select " + getPallresultfora() + "  FROM " + DBUtils.Table.FORUM_POSTS.toString()
-                        + " WHERE (" + DBUtils.Table.FORUM_POSTS + ".forum =? AND " + DBUtils.Table.FORUM_POSTS + " .xpath =?) ORDER BY "
-                        + DBUtils.Table.FORUM_POSTS.toString()
+                    Object[][] o = DBUtils.sqlQueryArrayArrayObj(conn, "select " + getPallresultfora() + "  FROM " + "CLDR_FORUM_ALL".toString()
+                        + " WHERE (" + "CLDR_FORUM_ALL" + ".forum =? AND " + "CLDR_FORUM_ALL" + " .xpath =?) ORDER BY "
+                        + "CLDR_FORUM_ALL".toString()
                         + ".last_time DESC", forumNumber, base_xpath);
 
                     // private final static String pAllResult =
@@ -674,7 +674,7 @@ public class SurveyForum {
 
     private int getXpathForPost(int replyTo) {
         int base_xpath;
-        base_xpath = DBUtils.sqlCount("select xpath from " + DBUtils.Table.FORUM_POSTS + " where id=?", replyTo); // default to -1
+        base_xpath = DBUtils.sqlCount("select xpath from " + "CLDR_FORUM_ALL" + " where id=?", replyTo); // default to -1
         return base_xpath;
     }
 
@@ -1188,7 +1188,7 @@ public class SurveyForum {
         int xpath) {
         boolean old = time.before(oldOnOrBefore);
         // get the parent link
-        int parentPost = DBUtils.sqlCount("select parent from " + DBUtils.Table.FORUM_POSTS + " where id=?", id);
+        int parentPost = DBUtils.sqlCount("select parent from " + "CLDR_FORUM_ALL" + " where id=?", id);
 
         ctx.println("<div id='post" + id + "' " + (old ? "style='background-color: #dde;' " : "") + " class='respbox'>");
         if (old) {
@@ -1500,16 +1500,16 @@ public class SurveyForum {
     }
 
     public static PreparedStatement prepare_pList(Connection conn) throws SQLException {
-        return DBUtils.prepareStatement(conn, "pList", "SELECT poster,subj,text,id,last_time,loc,xpath FROM " + DBUtils.Table.FORUM_POSTS.toString()
+        return DBUtils.prepareStatement(conn, "pList", "SELECT poster,subj,text,id,last_time,loc,xpath FROM " + "CLDR_FORUM_ALL"
             + " WHERE (forum = ?) ORDER BY last_time DESC ");
     }
 
     public static PreparedStatement prepare_pCount(Connection conn) throws SQLException {
-        return DBUtils.prepareStatement(conn, "pCount", "SELECT COUNT(*) from " + DBUtils.Table.FORUM_POSTS + " WHERE (forum = ?)");
+        return DBUtils.prepareStatement(conn, "pCount", "SELECT COUNT(*) from " + "CLDR_FORUM_ALL" + " WHERE (forum = ?)");
     }
 
     public static PreparedStatement prepare_pGet(Connection conn) throws SQLException {
-        return DBUtils.prepareStatement(conn, "pGet", "SELECT poster,subj,text,id,last_time,loc,xpath,forum FROM " + DBUtils.Table.FORUM_POSTS.toString()
+        return DBUtils.prepareStatement(conn, "pGet", "SELECT poster,subj,text,id,last_time,loc,xpath,forum FROM " + "CLDR_FORUM_ALL"
             + " WHERE (id = ?)");
     }
 
@@ -1519,8 +1519,8 @@ public class SurveyForum {
     }
 
     public static PreparedStatement prepare_pAll(Connection conn) throws SQLException {
-        return DBUtils.prepareStatement(conn, "pAll", "SELECT " + getPallresult() + " FROM " + DBUtils.Table.FORUM_POSTS + "," + DB_FORA + " WHERE ("
-            + DBUtils.Table.FORUM_POSTS + ".forum = " + DB_FORA + ".id) ORDER BY " + DBUtils.Table.FORUM_POSTS + ".last_time DESC");
+        return DBUtils.prepareStatement(conn, "pAll", "SELECT " + getPallresult() + " FROM " + "CLDR_FORUM_ALL" + "," + DB_FORA + " WHERE ("
+            + "CLDR_FORUM_ALL" + ".forum = " + DB_FORA + ".id) ORDER BY " + "CLDR_FORUM_ALL" + ".last_time DESC");
     }
 
     // public static PreparedStatement prepare_pMine(Connection conn) throws
@@ -1536,14 +1536,14 @@ public class SurveyForum {
     // ","+DB_FORA+" WHERE ("+DB_POSTS+".forum = "+DB_FORA+".id) ORDER BY "+DB_POSTS+".last_time DESC");
     // }
     public static PreparedStatement prepare_pForMe(Connection conn) throws SQLException {
-        return DBUtils.prepareStatement(conn, "pForMe", "SELECT " + getPallresult() + " FROM " + DBUtils.Table.FORUM_POSTS.toString()
+        return DBUtils.prepareStatement(conn, "pForMe", "SELECT " + getPallresult() + " FROM " + "CLDR_FORUM_ALL"
             + ","
             + DB_FORA
             + " " // same as pAll
-            + " where (" + DBUtils.Table.FORUM_POSTS + ".forum=" + DB_FORA + ".id) AND exists ( select " + UserRegistry.CLDR_INTEREST
+            + " where (" + "CLDR_FORUM_ALL" + ".forum=" + DB_FORA + ".id) AND exists ( select " + UserRegistry.CLDR_INTEREST
             + ".forum from " + UserRegistry.CLDR_INTEREST + "," + DB_FORA + " where " + UserRegistry.CLDR_INTEREST
-            + ".uid=? AND " + UserRegistry.CLDR_INTEREST + ".forum=" + DB_FORA + ".loc AND " + DB_FORA + ".id=" + DBUtils.Table.FORUM_POSTS.toString()
-            + ".forum) ORDER BY " + DBUtils.Table.FORUM_POSTS + ".last_time DESC");
+            + ".uid=? AND " + UserRegistry.CLDR_INTEREST + ".forum=" + DB_FORA + ".loc AND " + DB_FORA + ".id=" + "CLDR_FORUM_ALL"
+            + ".forum) ORDER BY " + "CLDR_FORUM_ALL" + ".last_time DESC");
     }
 
     public static PreparedStatement prepare_pIntUsers(Connection conn) throws SQLException {
@@ -2032,13 +2032,14 @@ public class SurveyForum {
     public int postCountFor(CLDRLocale locale, int xpathId) {
         Connection conn = null;
         PreparedStatement ps = null;
-        String tableName = DBUtils.Table.FORUM_POSTS.toString();
+        final String tableName = "CLDR_FORUM_ALL";
         try {
             conn = DBUtils.getInstance().getDBConnection();
 
-            ps = DBUtils.prepareForwardReadOnly(conn, "select count(*) from " + tableName + " where loc=? and xpath=?");
+            ps = DBUtils.prepareForwardReadOnly(conn, "select count(*) from "+tableName+" where loc=? and xpath=?");
             ps.setString(1, locale.getBaseName());
             ps.setInt(2, xpathId);
+            
 
             return DBUtils.sqlCount(null, conn, ps);
         } catch (SQLException e) {
@@ -2168,19 +2169,19 @@ public class SurveyForum {
      * @return the pallresult
      */
     private static String getPallresult() {
-        return DBUtils.Table.FORUM_POSTS + ".poster," + DBUtils.Table.FORUM_POSTS + ".subj," + DBUtils.Table.FORUM_POSTS + ".text,"
-            + DBUtils.Table.FORUM_POSTS.toString()
-            + ".last_time," + DBUtils.Table.FORUM_POSTS + ".id," + DBUtils.Table.FORUM_POSTS + ".forum, " + DBUtils.Table.FORUM_POSTS + ".loc ";
+        return "CLDR_FORUM_ALL" + ".poster," + "CLDR_FORUM_ALL" + ".subj," + "CLDR_FORUM_ALL" + ".text,"
+            + "CLDR_FORUM_ALL".toString()
+            + ".last_time," + "CLDR_FORUM_ALL" + ".id," + "CLDR_FORUM_ALL" + ".forum, " + "CLDR_FORUM_ALL" + ".loc ";
     }
 
     /**
      * @return the pallresultfora
      */
     private static String getPallresultfora() {
-        return DBUtils.Table.FORUM_POSTS + ".poster," + DBUtils.Table.FORUM_POSTS + ".subj," + DBUtils.Table.FORUM_POSTS + ".text,"
-            + DBUtils.Table.FORUM_POSTS.toString()
-            + ".last_time," + DBUtils.Table.FORUM_POSTS + ".id," + DBUtils.Table.FORUM_POSTS + ".parent," + DBUtils.Table.FORUM_POSTS + ".xpath, "
-            + DBUtils.Table.FORUM_POSTS + ".loc";
+        return "CLDR_FORUM_ALL" + ".poster," + "CLDR_FORUM_ALL" + ".subj," + "CLDR_FORUM_ALL" + ".text,"
+            + "CLDR_FORUM_ALL".toString()
+            + ".last_time," + "CLDR_FORUM_ALL" + ".id," + "CLDR_FORUM_ALL" + ".parent," + "CLDR_FORUM_ALL" + ".xpath, "
+            + "CLDR_FORUM_ALL" + ".loc";
     }
 
     /**
