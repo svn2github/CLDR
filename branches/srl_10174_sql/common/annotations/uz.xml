@@ -1,0 +1,2479 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "../../common/dtd/ldml.dtd">
+<!-- Copyright © 1991-2017 Unicode, Inc.
+For terms of use, see http://www.unicode.org/copyright.html
+Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
+CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
+
+Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/ for derived annotations.
+-->
+<ldml>
+	<identity>
+		<version number="$Revision$"/>
+		<language type="uz"/>
+	</identity>
+	<annotations>
+		<annotation cp="🏻">emojini o‘zgartirish | teri | tus</annotation>
+		<annotation cp="🏻" type="tts">1–2-teri turi</annotation>
+		<annotation cp="🏼">emojini o‘zgartirish | teri | tus</annotation>
+		<annotation cp="🏼" type="tts">3-teri turi</annotation>
+		<annotation cp="🏽">emojini o‘zgartirish | teri | tus</annotation>
+		<annotation cp="🏽" type="tts">4-teri turi</annotation>
+		<annotation cp="🏾">emojini o‘zgartirish | teri | tus</annotation>
+		<annotation cp="🏾" type="tts">5-teri turi</annotation>
+		<annotation cp="🏿">emojini o‘zgartirish | teri | tus</annotation>
+		<annotation cp="🏿" type="tts">6-teri turi</annotation>
+		<annotation cp="0⃣">0 | tugma | nol</annotation>
+		<annotation cp="0⃣" type="tts">nol raqami tugmasi</annotation>
+		<annotation cp="1⃣">1 | tugma | bir</annotation>
+		<annotation cp="1⃣" type="tts">bir raqami tugmasi</annotation>
+		<annotation cp="2⃣">2 | tugma | ikki</annotation>
+		<annotation cp="2⃣" type="tts">ikki raqami tugmasi</annotation>
+		<annotation cp="3⃣">3 | tugma | uch</annotation>
+		<annotation cp="3⃣" type="tts">uch raqami tugmasi</annotation>
+		<annotation cp="4⃣">4 | tugma | to‘rt</annotation>
+		<annotation cp="4⃣" type="tts">to‘rt raqami tugmasi</annotation>
+		<annotation cp="5⃣">5 | tugma | besh</annotation>
+		<annotation cp="5⃣" type="tts">besh raqami tugmasi</annotation>
+		<annotation cp="6⃣">6 | tugma | olti</annotation>
+		<annotation cp="6⃣" type="tts">olti raqami tugmasi</annotation>
+		<annotation cp="7⃣">7 | tugma | yetti</annotation>
+		<annotation cp="7⃣" type="tts">yetti raqami tugmasi</annotation>
+		<annotation cp="8⃣">8 | tugma | sakkiz</annotation>
+		<annotation cp="8⃣" type="tts">sakkiz raqami tugmasi</annotation>
+		<annotation cp="9⃣">9 | tugma | to‘qqiz</annotation>
+		<annotation cp="9⃣" type="tts">to‘qqiz raqami tugmasi</annotation>
+		<annotation cp="😀">yuz | tirjayish</annotation>
+		<annotation cp="😀" type="tts">tirjaygan yuz</annotation>
+		<annotation cp="😁">ko‘z | yuz | tirjayish | tabassum</annotation>
+		<annotation cp="😁" type="tts">tirjaygan yuz, qisilgan ko‘zlar</annotation>
+		<annotation cp="😂">yuz | quvonch | kulgu | ko‘z yosh</annotation>
+		<annotation cp="😂" type="tts">quvonch ko‘z yoshlari</annotation>
+		<annotation cp="🤣">qotib | kulayotgan | yuz | qahqaha</annotation>
+		<annotation cp="🤣" type="tts">qotib kulayotgan</annotation>
+		<annotation cp="😃">yuz | og‘iz | ochiq | tabassum</annotation>
+		<annotation cp="😃" type="tts">og‘zini katta ochib kulayotgan yuz</annotation>
+		<annotation cp="😄">ko‘z | yuz | og‘iz | ochiq | tabassum</annotation>
+		<annotation cp="😄" type="tts">tabassum, og‘iz ochiq, ko‘zlar qisilgan</annotation>
+		<annotation cp="😅">sovuq | yuz | ochiq | tabassum | ter</annotation>
+		<annotation cp="😅" type="tts">og‘zini katta ochib kulayotgan yuz va sovuq ter</annotation>
+		<annotation cp="😆">yuz | kulgu | og‘iz | ochiq | mamnun | tabassum</annotation>
+		<annotation cp="😆" type="tts">og‘zini katta ochib kulayotgan yuz va qattiq yumilgan ko‘zlar</annotation>
+		<annotation cp="😉">yuz</annotation>
+		<annotation cp="😉" type="tts">ko‘z qisish</annotation>
+		<annotation cp="😊">qizarish | ko‘z | yuz | tabassum</annotation>
+		<annotation cp="😊" type="tts">tabassum va kulib turgan ko‘zlar</annotation>
+		<annotation cp="😋">mazali | yuz | tatib ko‘rish | tabassum | oh | shirin</annotation>
+		<annotation cp="😋" type="tts">mazali taomni tatib ko‘rgan til</annotation>
+		<annotation cp="😎">yorug‘ | salqin | ko‘z | ko‘zoynak | yuz | tabassum | quyosh | ob-havo</annotation>
+		<annotation cp="😎" type="tts">ko‘zoynak taqqan hamda kulayotgan yuz</annotation>
+		<annotation cp="😍">ko‘z | yuz | yurak | sevgi | tabassum</annotation>
+		<annotation cp="😍" type="tts">tabassum va yurak shaklidagi ko‘zlar</annotation>
+		<annotation cp="😘">yuz | yurak | o‘pish</annotation>
+		<annotation cp="😘" type="tts">bo‘sa yuborayotgan yuz</annotation>
+		<annotation cp="😗">yuz | o‘pish</annotation>
+		<annotation cp="😗" type="tts">bo‘sa olayotgan yuz</annotation>
+		<annotation cp="😙">ko‘z | yuz | o‘pish | tabassum</annotation>
+		<annotation cp="😙" type="tts">bo‘sa olayotgan yuz va kulayotgan ko‘zlar</annotation>
+		<annotation cp="😚">yumilgan | ko‘z | yuz | o‘pish</annotation>
+		<annotation cp="😚" type="tts">bo‘sa olayotgan yuz va yumilgan ko‘zlar</annotation>
+		<annotation cp="☺">yuz | xotirjam | tabassum</annotation>
+		<annotation cp="☺" type="tts">kulayotgan yuz</annotation>
+		<annotation cp="🙂">yuz | tabassum</annotation>
+		<annotation cp="🙂" type="tts">yengilgina kulayotgan yuz</annotation>
+		<annotation cp="🤗">yuz | quchoq | quchish</annotation>
+		<annotation cp="🤗" type="tts">quchayotgan yuz</annotation>
+		<annotation cp="🤔">yuz | o‘ylash</annotation>
+		<annotation cp="🤔" type="tts">o‘ylayotgan yuz</annotation>
+		<annotation cp="😐">hissiz | yuz | betaraf</annotation>
+		<annotation cp="😐" type="tts">his-tuyg‘usiz</annotation>
+		<annotation cp="😑">ifodasiz | yuz | his-tuyg‘usiz</annotation>
+		<annotation cp="😑" type="tts">his-tuyg‘usiz yuz</annotation>
+		<annotation cp="😶">yuz | og‘iz | jimjit | sukut</annotation>
+		<annotation cp="😶" type="tts">og‘izsiz yuz</annotation>
+		<annotation cp="🙄">ko‘zlar | yuz | aylantirayotgan</annotation>
+		<annotation cp="🙄" type="tts">ko‘zlarini aylantirayotgan yuz</annotation>
+		<annotation cp="😏">yuz | istehzo</annotation>
+		<annotation cp="😏" type="tts">istehzoli yuz</annotation>
+		<annotation cp="😣">yuz | o‘jar</annotation>
+		<annotation cp="😣" type="tts">o‘jarlik</annotation>
+		<annotation cp="😥">hafasalasi pir | yuz | yengil tortish | hmm</annotation>
+		<annotation cp="😥" type="tts">hafsalasi pir bo‘lgan yuz</annotation>
+		<annotation cp="😮">yuz | og‘iz | ochiq | hamdardlik</annotation>
+		<annotation cp="😮" type="tts">og‘zi katta ochiq yuz</annotation>
+		<annotation cp="🤐">yuz | og‘iz | qulf</annotation>
+		<annotation cp="🤐" type="tts">og‘zi qulflangan yuz</annotation>
+		<annotation cp="😯">yuz | sukut saqlash | karaxt | hayratlangan</annotation>
+		<annotation cp="😯" type="tts">hayratlanayotgan yuz</annotation>
+		<annotation cp="😪">yuz | uxlash</annotation>
+		<annotation cp="😪" type="tts">uyqusiragan yuz</annotation>
+		<annotation cp="😫">yuz | charchagan</annotation>
+		<annotation cp="😫" type="tts">charchagan yuz</annotation>
+		<annotation cp="😴">yuz | uxlash | xurrak</annotation>
+		<annotation cp="😴" type="tts">uxlayotgan yuz</annotation>
+		<annotation cp="😌">yuz | xotirjam</annotation>
+		<annotation cp="😌" type="tts">xotirjam yuz</annotation>
+		<annotation cp="😛">yuz | til</annotation>
+		<annotation cp="😛" type="tts">tilini chiqarib turgan yuz</annotation>
+		<annotation cp="😜">ko‘z | yuz | hazil | til | ko‘z qisish</annotation>
+		<annotation cp="😜" type="tts">tilini chiqarib turgan va ko‘zi qisilgan yuz</annotation>
+		<annotation cp="😝">ko‘z | yuz | qo‘rqinchli | tatib ko‘rish | til</annotation>
+		<annotation cp="😝" type="tts">tilini chiqarib turgan va ko‘zlari qattiq qisilgan yuz</annotation>
+		<annotation cp="🤤">yuz | so‘lak</annotation>
+		<annotation cp="🤤" type="tts">so‘lagi oqayotgan</annotation>
+		<annotation cp="😒">yuz | qoniqmagan | xafa</annotation>
+		<annotation cp="😒" type="tts">qoniqmagan yuz</annotation>
+		<annotation cp="😓">sovuq | yuz | ter</annotation>
+		<annotation cp="😓" type="tts">sovuq ter chiqayotgan yuz</annotation>
+		<annotation cp="😔">ranjigan | yuz | g‘amgin</annotation>
+		<annotation cp="😔" type="tts">g‘amgin yuz</annotation>
+		<annotation cp="😕">xijolat | yuz</annotation>
+		<annotation cp="😕" type="tts">xijolat bo‘lgan yuz</annotation>
+		<annotation cp="🙃">yuz | to‘ntarilgan</annotation>
+		<annotation cp="🙃" type="tts">to‘ntarilgan yuz</annotation>
+		<annotation cp="🤑">yuz | pul | og‘iz</annotation>
+		<annotation cp="🤑" type="tts">og‘zi pul yuz</annotation>
+		<annotation cp="😲">hayratlangan | yuz | taajjub | batamom</annotation>
+		<annotation cp="😲" type="tts">hayratlangan yuz</annotation>
+		<annotation cp="☹">yuz | arazlamoq</annotation>
+		<annotation cp="☹" type="tts">arazlagan yuz</annotation>
+		<annotation cp="🙁">yuz | arazlamoq</annotation>
+		<annotation cp="🙁" type="tts">ozroq arazlagan yuz</annotation>
+		<annotation cp="😖">xijolat | yuz</annotation>
+		<annotation cp="😖" type="tts">xijolatli yuz</annotation>
+		<annotation cp="😞">ko‘ngli qolgan | yuz</annotation>
+		<annotation cp="😞" type="tts">ko‘ngli qolgan yuz</annotation>
+		<annotation cp="😟">yuz | xavotir</annotation>
+		<annotation cp="😟" type="tts">xavotir olayotgan yuz</annotation>
+		<annotation cp="😤">yuz | zafar | g‘alaba</annotation>
+		<annotation cp="😤" type="tts">burnidan tutun chiqayotgan yuz</annotation>
+		<annotation cp="😢">yig‘lash | yuz | hafa | ko‘z yoshi</annotation>
+		<annotation cp="😢" type="tts">yig‘layotgan yuz</annotation>
+		<annotation cp="😭">yig‘lash | yuz | hafa | xo‘ngrab yig‘lash | ko‘z yoshi</annotation>
+		<annotation cp="😭" type="tts">xo‘ngrab yig‘layotgan yuz</annotation>
+		<annotation cp="😦">yuz | qovog‘ini solish | og‘iz | ochiq</annotation>
+		<annotation cp="😦" type="tts">og‘zini katta ochgan, qovog‘i solingan yuz</annotation>
+		<annotation cp="😧">tashvishli | yuz</annotation>
+		<annotation cp="😧" type="tts">g‘am-tashvishli yuz</annotation>
+		<annotation cp="😨">yuz | qo‘rquv | qo‘rqinchli | qo‘rqish</annotation>
+		<annotation cp="😨" type="tts">qo‘rqqan yuz</annotation>
+		<annotation cp="😩">yuz | charchagan | xorg‘in</annotation>
+		<annotation cp="😩" type="tts">xorg‘in yuz</annotation>
+		<annotation cp="😬">yuz | aftini burishtirish</annotation>
+		<annotation cp="😬" type="tts">afti burishgan</annotation>
+		<annotation cp="😰">ko‘kargan | sovuq | yuz | og‘iz | ochiq | toliqqan | ter</annotation>
+		<annotation cp="😰" type="tts">og‘zi ochiq va sovuq terga botgan yuz</annotation>
+		<annotation cp="😱">yuz | qo‘rquv | qo‘rqinchli | qo‘rqish | chaynash | baqiriq</annotation>
+		<annotation cp="😱" type="tts">qo‘rquvdan qichqirayotgan yuz</annotation>
+		<annotation cp="😳">mahliyo | yuz | qizarish</annotation>
+		<annotation cp="😳" type="tts">yuzi qizargan</annotation>
+		<annotation cp="😵">boshi aylanish | yuz</annotation>
+		<annotation cp="😵" type="tts">boshi aylanayotgan yuz</annotation>
+		<annotation cp="😡">jaxli chiqqan | yuz | quturgan | norozi | g‘azab | qizil</annotation>
+		<annotation cp="😡" type="tts">norozi qiyofa</annotation>
+		<annotation cp="😠">jaxli chiqqan | yuz | g‘azabnok</annotation>
+		<annotation cp="😠" type="tts">jahli chiqqan yuz</annotation>
+		<annotation cp="😷">sovuq | shifokor | yuz | niqob | dori | kasal</annotation>
+		<annotation cp="😷" type="tts">tibbiy niqob taqqan yuz</annotation>
+		<annotation cp="🤒">yuz | kasal | bemor | harorat o‘lchagich</annotation>
+		<annotation cp="🤒" type="tts">harorat o‘lchagich tutgan yuz</annotation>
+		<annotation cp="🤕">bint | yuz | jarohat | lat</annotation>
+		<annotation cp="🤕" type="tts">boshi bint bilan o‘ralgan yuz</annotation>
+		<annotation cp="🤢">yuz | ko‘ngil aynish | kasallik</annotation>
+		<annotation cp="🤢" type="tts">ko‘ngli ayniyotgan</annotation>
+		<annotation cp="🤧">yuz | aksirayotgan</annotation>
+		<annotation cp="🤧" type="tts">aksirayotgan</annotation>
+		<annotation cp="😇">farishta | yuz | ertak | fantaziya | gardish | begunoh | tabassum</annotation>
+		<annotation cp="😇" type="tts">tabassum, bosh ustida gardish</annotation>
+		<annotation cp="🤠">kovboy | shlyapa</annotation>
+		<annotation cp="🤠" type="tts">kovboyning boshi</annotation>
+		<annotation cp="🤡">masxaraboz | yuz</annotation>
+		<annotation cp="🤡" type="tts">masxaraboz</annotation>
+		<annotation cp="🤥">yuz | yolg‘on | pinokkio</annotation>
+		<annotation cp="🤥" type="tts">aldayotgan</annotation>
+		<annotation cp="🤓">yuz | bilimdon | aqlli</annotation>
+		<annotation cp="🤓" type="tts">aqlli yuz</annotation>
+		<annotation cp="😈">yuz | ertak | fantaziya | shoxlar | tabassum</annotation>
+		<annotation cp="😈" type="tts">kulayotgan shayton</annotation>
+		<annotation cp="👿">yuz | ertak | fantaziya</annotation>
+		<annotation cp="👿" type="tts">shayton</annotation>
+		<annotation cp="👹">maxluqot | yuz | ertak | fantaziya | yapon | maxluq</annotation>
+		<annotation cp="👹" type="tts">yovuz maxluq</annotation>
+		<annotation cp="👺">maxluqot | yuz | ertak | fantaziya | yapon | maxluq</annotation>
+		<annotation cp="👺" type="tts">ajina</annotation>
+		<annotation cp="💀">tana | o‘lim | yuz | ertak | maxluq</annotation>
+		<annotation cp="💀" type="tts">bosh suyagi</annotation>
+		<annotation cp="☠">tana | suyaklar | o‘lim | yuz | maxluq | bosh suyagi</annotation>
+		<annotation cp="☠" type="tts">bosh suyagi va suyaklar</annotation>
+		<annotation cp="👻">maxluqot | yuz | ertak | fantaziya | maxluq</annotation>
+		<annotation cp="👻" type="tts">arvoh</annotation>
+		<annotation cp="👽">maxluqot | yuz | ertak | fantaziya | maxluq | koinot | nuj</annotation>
+		<annotation cp="👽" type="tts">o‘zga sayyoralik</annotation>
+		<annotation cp="👾">o‘zga sayyoralik | maxluqot | yuz | ertak | fantaziya | maxluq | koinot | nuj</annotation>
+		<annotation cp="👾" type="tts">o‘zga sayyoralik maxluq</annotation>
+		<annotation cp="🤖">yuz | maxluq | robot</annotation>
+		<annotation cp="🤖" type="tts">robot qiyofa</annotation>
+		<annotation cp="💩">hazil | go‘ng | yuz | maxluq | axlat | tezak</annotation>
+		<annotation cp="💩" type="tts">tezak uyumi</annotation>
+		<annotation cp="😺">mushuk | yuz | og‘iz | ochiq | tabassum</annotation>
+		<annotation cp="😺" type="tts">og‘zi ochiq holatda kulayotgan mushuk</annotation>
+		<annotation cp="😸">mushuk | ko‘z | yuz | kulimsirash | tabassum</annotation>
+		<annotation cp="😸" type="tts">ko‘zlarini qisgan holda kulayotgan mushuk</annotation>
+		<annotation cp="😹">mushuk | yuz | xursand | ko‘z yoshi</annotation>
+		<annotation cp="😹" type="tts">quvonch ko‘z yoshlari oqayotgan mushuk</annotation>
+		<annotation cp="😻">mushuk | ko‘z | yuz | yurak | sevgi | tabassum</annotation>
+		<annotation cp="😻" type="tts">ko‘zlari yurak shaklida kulib turgan mushuk</annotation>
+		<annotation cp="😼">mushuk | yuz | kinoyali | tabassum | tirjayish</annotation>
+		<annotation cp="😼" type="tts">tirjayib turgan mushuk</annotation>
+		<annotation cp="😽">mushuk | ko‘z | yuz | o‘pish</annotation>
+		<annotation cp="😽" type="tts">ko‘zlari yopiq holda bo‘sa olayotgan mushuk</annotation>
+		<annotation cp="🙀">mushuk | yuz | charchagan | horg‘in | uhh</annotation>
+		<annotation cp="🙀" type="tts">charchagan mushuk</annotation>
+		<annotation cp="😿">mushuk | yig‘lash | yuz | hafa | ko‘z yoshi</annotation>
+		<annotation cp="😿" type="tts">yig‘layotgan mushuk</annotation>
+		<annotation cp="😾">mushuk | yuz | norozi</annotation>
+		<annotation cp="😾" type="tts">badjahl mushuk</annotation>
+		<annotation cp="🙈">yomonlik | yuz | taqiqlangan | ishora | maymun | yo‘q | man qilingan | ko‘rish</annotation>
+		<annotation cp="🙈" type="tts">yomonlikni ko‘rmaydigan maymun</annotation>
+		<annotation cp="🙉">yomonlik | yuz | taqiqlangan | ishora | eshitish | maymun | yo‘q | man qilingan</annotation>
+		<annotation cp="🙉" type="tts">yomonlikni eshitmaydigan maymun</annotation>
+		<annotation cp="🙊">yomonlik | yuz | taqiqlangan | ishora | maymun | yo‘q | man qilingan | gapirish</annotation>
+		<annotation cp="🙊" type="tts">yomonlikni gapirmaydigan maymun</annotation>
+		<annotation cp="👶">chaqaloq</annotation>
+		<annotation cp="👶" type="tts">chaqaloq</annotation>
+		<annotation cp="👦">bola | erkak</annotation>
+		<annotation cp="👦" type="tts">bola</annotation>
+		<annotation cp="👧">bo‘yi yetgan | bokira | sunbula | burj</annotation>
+		<annotation cp="👧" type="tts">qiz bola</annotation>
+		<annotation cp="👨">erkak | kishi</annotation>
+		<annotation cp="👨" type="tts">erkak</annotation>
+		<annotation cp="👩">ayol | xotin</annotation>
+		<annotation cp="👩" type="tts">ayol</annotation>
+		<annotation cp="👴">erkak kishi | qari</annotation>
+		<annotation cp="👴" type="tts">chol</annotation>
+		<annotation cp="👵">qari | ayol</annotation>
+		<annotation cp="👵" type="tts">kampir</annotation>
+		<annotation cp="👨‍⚕">doktor | salomatlik | shifokor | terapevt</annotation>
+		<annotation cp="👨‍⚕" type="tts">erkak shifokor</annotation>
+		<annotation cp="👩‍⚕">doktor | ayol | sog‘liqni saqlash | hamshira</annotation>
+		<annotation cp="👩‍⚕" type="tts">ayol shifokor</annotation>
+		<annotation cp="👨‍🎓">bitiruvchi | erkak | kishi | talaba</annotation>
+		<annotation cp="👨‍🎓" type="tts">erkak talaba</annotation>
+		<annotation cp="👩‍🎓">ayol | bitiruvchi | talaba</annotation>
+		<annotation cp="👩‍🎓" type="tts">ayol talaba</annotation>
+		<annotation cp="👨‍🏫">o‘qituvchi | erkak | professor</annotation>
+		<annotation cp="👨‍🏫" type="tts">erkak o‘qituvchi</annotation>
+		<annotation cp="👩‍🏫">ayol | o‘qituvchi | professor</annotation>
+		<annotation cp="👩‍🏫" type="tts">ayol o‘qituvchi</annotation>
+		<annotation cp="👨‍⚖">adliya | erkak | kishi | tarozi</annotation>
+		<annotation cp="👨‍⚖" type="tts">erkak sudya</annotation>
+		<annotation cp="👩‍⚖">ayol | sudya | tarozi | xotin</annotation>
+		<annotation cp="👩‍⚖" type="tts">ayol sudya</annotation>
+		<annotation cp="👨‍🌾">fermer | bog‘bon | erkak | rancho egasi</annotation>
+		<annotation cp="👨‍🌾" type="tts">erkak fermer</annotation>
+		<annotation cp="👩‍🌾">fermer | ayol | bog‘bon | rancho egasi</annotation>
+		<annotation cp="👩‍🌾" type="tts">ayol fermer</annotation>
+		<annotation cp="👨‍🍳">bosh oshpaz | oshpaz | erkak | kishi</annotation>
+		<annotation cp="👨‍🍳" type="tts">erkak oshpaz</annotation>
+		<annotation cp="👩‍🍳">bosh oshpaz | oshpaz | ayol | xotin</annotation>
+		<annotation cp="👩‍🍳" type="tts">ayol oshpaz</annotation>
+		<annotation cp="👨‍🔧">elektrik | mexanik | santexnik | sotuvchi</annotation>
+		<annotation cp="👨‍🔧" type="tts">erkak mexanik</annotation>
+		<annotation cp="👩‍🔧">elektrik | mexanik | santexnik | sotuvchi</annotation>
+		<annotation cp="👩‍🔧" type="tts">ayol mexanik</annotation>
+		<annotation cp="👨‍🏭">yig‘uv | zavod | sanoat | ishchi</annotation>
+		<annotation cp="👨‍🏭" type="tts">erkak zavod ishchisi</annotation>
+		<annotation cp="👩‍🏭">yig‘uv | zavod | sanoat | ishchi</annotation>
+		<annotation cp="👩‍🏭" type="tts">ayol zavod ishchisi</annotation>
+		<annotation cp="👨‍💼">arxitektor | biznes | menejer | ofis</annotation>
+		<annotation cp="👨‍💼" type="tts">erkak ofis xodimi</annotation>
+		<annotation cp="👩‍💼">arxitektor | biznes | menejer | ofis</annotation>
+		<annotation cp="👩‍💼" type="tts">ayol ofis xodimi</annotation>
+		<annotation cp="👨‍🔬">biolog | kimyogar | muhandis | matematik</annotation>
+		<annotation cp="👨‍🔬" type="tts">erkak olim</annotation>
+		<annotation cp="👩‍🔬">biolog | kimyogar | muhandis | matematik</annotation>
+		<annotation cp="👩‍🔬" type="tts">ayol olim</annotation>
+		<annotation cp="👨‍💻">kodchi | ishlab chiquvchi | ixtirochi</annotation>
+		<annotation cp="👨‍💻" type="tts">erkak texnolog</annotation>
+		<annotation cp="👩‍💻">kodchi | ishlab chiquvchi | ixtirochi</annotation>
+		<annotation cp="👩‍💻" type="tts">ayol texnolog</annotation>
+		<annotation cp="👨‍🎤">aktor | estrada artisti | rok | qo‘shiqchi</annotation>
+		<annotation cp="👨‍🎤" type="tts">erkak qo‘shiqchi</annotation>
+		<annotation cp="👩‍🎤">aktor | estrada artisti | rok | qo‘shiqchi</annotation>
+		<annotation cp="👩‍🎤" type="tts">ayol qo‘shiqchi</annotation>
+		<annotation cp="👨‍🎨">artist | erkak | kishi | palitra</annotation>
+		<annotation cp="👨‍🎨" type="tts">erkak rassom</annotation>
+		<annotation cp="👩‍🎨">artist | ayol | palitra | xotin</annotation>
+		<annotation cp="👩‍🎨" type="tts">ayol rassom</annotation>
+		<annotation cp="👨‍✈">erkak | kishi | uchuvchi | samolyot</annotation>
+		<annotation cp="👨‍✈" type="tts">erkak uchuvchi</annotation>
+		<annotation cp="👩‍✈">ayol | uchuvchi | samolyot | xotin</annotation>
+		<annotation cp="👩‍✈" type="tts">ayol uchuvchi</annotation>
+		<annotation cp="👨‍🚀">kosmonavt | erkak | raketa | fazo</annotation>
+		<annotation cp="👨‍🚀" type="tts">erkak kosmonavt</annotation>
+		<annotation cp="👩‍🚀">kosmonavt | ayol | raketa | fazo</annotation>
+		<annotation cp="👩‍🚀" type="tts">ayol kosmonavt</annotation>
+		<annotation cp="👨‍🚒">o‘t o‘chiruvchi | o‘t o‘chirish mashinasi | erkak</annotation>
+		<annotation cp="👨‍🚒" type="tts">erkak o‘t o‘chiruvchi</annotation>
+		<annotation cp="👩‍🚒">o‘t o‘chiruvchi | o‘t o‘chirish mashinasi | ayol</annotation>
+		<annotation cp="👩‍🚒" type="tts">ayol o‘t o‘chiruvchi</annotation>
+		<annotation cp="👮">politsiya | mirshab | militsioner</annotation>
+		<annotation cp="👮" type="tts">politsiya xodimi</annotation>
+		<annotation cp="👮‍♂">politsiyachi | erkak | politsiya</annotation>
+		<annotation cp="👮‍♂" type="tts">erkak politsiyachi</annotation>
+		<annotation cp="👮‍♀">politsiyachi | ayol | politsiya</annotation>
+		<annotation cp="👮‍♀" type="tts">ayol politsiyachi</annotation>
+		<annotation cp="🕵">josus</annotation>
+		<annotation cp="🕵" type="tts">izquvar</annotation>
+		<annotation cp="🕵‍♂">detektiv | erkak | izquvar | josus</annotation>
+		<annotation cp="🕵‍♂" type="tts">erkak izquvar</annotation>
+		<annotation cp="🕵‍♀">detektiv | ayol | izquvar | josus</annotation>
+		<annotation cp="🕵‍♀" type="tts">ayol izquvar</annotation>
+		<annotation cp="💂">soqchi</annotation>
+		<annotation cp="💂" type="tts">qo‘riqchi</annotation>
+		<annotation cp="💂‍♂">qo‘riqchi | erkak</annotation>
+		<annotation cp="💂‍♂" type="tts">erkak qo‘riqchi</annotation>
+		<annotation cp="💂‍♀">qo‘riqchi | ayol</annotation>
+		<annotation cp="💂‍♀" type="tts">ayol qo‘riqchi</annotation>
+		<annotation cp="👷">qurilish | bosh kiyim | ishchi</annotation>
+		<annotation cp="👷" type="tts">quruvchi</annotation>
+		<annotation cp="👷‍♂">qurilish | erkak | quruvchi</annotation>
+		<annotation cp="👷‍♂" type="tts">erkak quruvchi</annotation>
+		<annotation cp="👷‍♀">qurilish | ayol | quruvchi</annotation>
+		<annotation cp="👷‍♀" type="tts">ayol quruvchi</annotation>
+		<annotation cp="🤴">shahzoda</annotation>
+		<annotation cp="🤴" type="tts">shahzoda</annotation>
+		<annotation cp="👸">ertak | fantaziya</annotation>
+		<annotation cp="👸" type="tts">malika</annotation>
+		<annotation cp="👳">erkak | salla</annotation>
+		<annotation cp="👳" type="tts">salla kiygan erkak</annotation>
+		<annotation cp="👳‍♂">erkak | salla</annotation>
+		<annotation cp="👳‍♂" type="tts">sallali erkak</annotation>
+		<annotation cp="👳‍♀">ayol | salla</annotation>
+		<annotation cp="👳‍♀" type="tts">sallali ayol</annotation>
+		<annotation cp="👲">gua pi mao | bosh kiyim | erkak kishi</annotation>
+		<annotation cp="👲" type="tts">xitoy bosh kiyimini kiygan kishi</annotation>
+		<annotation cp="👱">sariq</annotation>
+		<annotation cp="👱" type="tts">sariq sochli odam</annotation>
+		<annotation cp="👱‍♂">oq-sariq | sarg‘ish | erkak</annotation>
+		<annotation cp="👱‍♂" type="tts">oq-sariq sochli erkak</annotation>
+		<annotation cp="👱‍♀">oq-sariq | sarg‘ish | ayol</annotation>
+		<annotation cp="👱‍♀" type="tts">oq-sariq sochli ayol</annotation>
+		<annotation cp="🤵">erkak | er | smoking</annotation>
+		<annotation cp="🤵" type="tts">smoking kiygan erkak</annotation>
+		<annotation cp="👰">kelin | ro‘mol | to‘y</annotation>
+		<annotation cp="👰" type="tts">to‘y ro‘molidagi kelin</annotation>
+		<annotation cp="🤰">homilador | ayol | ikki qat</annotation>
+		<annotation cp="🤰" type="tts">homilador ayol</annotation>
+		<annotation cp="👼">farishta | chaqaloq | yuz | ertak | fantaziya</annotation>
+		<annotation cp="👼" type="tts">chaqaloq farishta</annotation>
+		<annotation cp="🎅">nishonlash | ertak | fantaziya | qorbobo | santa</annotation>
+		<annotation cp="🎅" type="tts">santa-klaus</annotation>
+		<annotation cp="🤶">rojdestvo | qorqiz</annotation>
+		<annotation cp="🤶" type="tts">qorqiz</annotation>
+		<annotation cp="🙍">qovog‘ini solish | imo-ishora</annotation>
+		<annotation cp="🙍" type="tts">xo‘mraygan odam</annotation>
+		<annotation cp="🙍‍♂">xo‘mrayish | yuz ifodasi | erkak</annotation>
+		<annotation cp="🙍‍♂" type="tts">xo‘mraygan erkak</annotation>
+		<annotation cp="🙍‍♀">ayol | xo‘mrayish | yuz ifodasi</annotation>
+		<annotation cp="🙍‍♀" type="tts">xo‘mraygan ayol</annotation>
+		<annotation cp="🙎">imo-ishora | norozi</annotation>
+		<annotation cp="🙎" type="tts">norozi odam</annotation>
+		<annotation cp="🙎‍♂">yuz ifodasi | erkak | arazlagan</annotation>
+		<annotation cp="🙎‍♂" type="tts">arazlagan erkak</annotation>
+		<annotation cp="🙎‍♀">ayol | yuz ifodasi | arazlagan</annotation>
+		<annotation cp="🙎‍♀" type="tts">arazlagan ayol</annotation>
+		<annotation cp="🙅">man qilingan | imo-ishora | qo‘l | yo‘q | taqiqlangan</annotation>
+		<annotation cp="🙅" type="tts">yo‘q ishorasi</annotation>
+		<annotation cp="🙅‍♂">taqiqlangan | imo-ishora | qo‘l | yo‘q</annotation>
+		<annotation cp="🙅‍♂" type="tts">erkak yo‘q demoqda</annotation>
+		<annotation cp="🙅‍♀">taqiqlangan | imo-ishora | qo‘l | yo‘q</annotation>
+		<annotation cp="🙅‍♀" type="tts">ayol yo‘q demoqda</annotation>
+		<annotation cp="🙆">imo-ishora | qo‘l | ok</annotation>
+		<annotation cp="🙆" type="tts">ok ishorasi</annotation>
+		<annotation cp="🙆‍♂">imo-ishora | qo‘l | erkak | ha</annotation>
+		<annotation cp="🙆‍♂" type="tts">erkak ha demoqda</annotation>
+		<annotation cp="🙆‍♀">ayol | imo-ishora | qo‘l | ha</annotation>
+		<annotation cp="🙆‍♀" type="tts">ayol ha demoqda</annotation>
+		<annotation cp="💁">qo‘l | yordam | ma’lumot | surbet</annotation>
+		<annotation cp="💁" type="tts">ma’lumotxona xodimi</annotation>
+		<annotation cp="💁‍♂">erkak | surbet | qo‘l cho‘zish</annotation>
+		<annotation cp="💁‍♂" type="tts">erkak qo‘l cho‘zmoqda</annotation>
+		<annotation cp="💁‍♀">ayol | surbet | qo‘l cho‘zish</annotation>
+		<annotation cp="💁‍♀" type="tts">ayol qo‘l cho‘zmoqda</annotation>
+		<annotation cp="🙋">imo-ishora | qo‘l | xursand | ko‘tarilgan</annotation>
+		<annotation cp="🙋" type="tts">qo‘lini ko‘tarib turgan xursand odam</annotation>
+		<annotation cp="🙋‍♂">imo-ishora | erkak | qo‘l ko‘tarish</annotation>
+		<annotation cp="🙋‍♂" type="tts">erkak qo‘l ko‘tarmoqda</annotation>
+		<annotation cp="🙋‍♀">ayol | imo-ishora | qo‘l ko‘tarish</annotation>
+		<annotation cp="🙋‍♀" type="tts">ayol qo‘l ko‘tarmoqda</annotation>
+		<annotation cp="🙇">uzr so‘rash | ta’zim | imo-ishora | kechirim so‘rash</annotation>
+		<annotation cp="🙇" type="tts">ta’zim qilayotgan odam</annotation>
+		<annotation cp="🙇‍♂">uzr | imo-ishora | erkak</annotation>
+		<annotation cp="🙇‍♂" type="tts">erkak ta’zim qilmoqda</annotation>
+		<annotation cp="🙇‍♀">uzr | imo-ishora | ayol</annotation>
+		<annotation cp="🙇‍♀" type="tts">ayol ta’zim qilmoqda</annotation>
+		<annotation cp="🤦">yuz | qo‘l | feyspalm | ishonchsizlik | jahl chiqish | g‘ijinish | gap yo‘q</annotation>
+		<annotation cp="🤦" type="tts">boshqa gapim yo‘q</annotation>
+		<annotation cp="🤦‍♂">ishonmaslik | achchiqlanish | feyspalm | erkak</annotation>
+		<annotation cp="🤦‍♂" type="tts">erkak yuzini berkitmoqda</annotation>
+		<annotation cp="🤦‍♀">ishonmaslik | achchiqlanish | feyspalm | ayol</annotation>
+		<annotation cp="🤦‍♀" type="tts">ayol yuzini berkitmoqda</annotation>
+		<annotation cp="🤷">bilmayman | shubha | ikkilanish</annotation>
+		<annotation cp="🤷" type="tts">bilmayman ishorasi</annotation>
+		<annotation cp="🤷‍♂">shubha | yelka qisish | erkak</annotation>
+		<annotation cp="🤷‍♂" type="tts">erkak yelka qismoqda</annotation>
+		<annotation cp="🤷‍♀">shubha | ayol | yelka qisish</annotation>
+		<annotation cp="🤷‍♀" type="tts">ayol yelka qismoqda</annotation>
+		<annotation cp="💆">massaj | salon</annotation>
+		<annotation cp="💆" type="tts">yuzni uqalash</annotation>
+		<annotation cp="💆‍♂">yuz | erkak | massaj</annotation>
+		<annotation cp="💆‍♂" type="tts">erkak yuziga massaj olmoqda</annotation>
+		<annotation cp="💆‍♀">yuz | ayol | massaj</annotation>
+		<annotation cp="💆‍♀" type="tts">ayol yuziga massaj olmoqda</annotation>
+		<annotation cp="💇">sartarosh | go‘zallik | salon</annotation>
+		<annotation cp="💇" type="tts">soch qisqartirish</annotation>
+		<annotation cp="💇‍♂">soch oldirish | erkak</annotation>
+		<annotation cp="💇‍♂" type="tts">erkak soch kaltalatmoqda</annotation>
+		<annotation cp="💇‍♀">ayol | soch kestirish | soch turmagi</annotation>
+		<annotation cp="💇‍♀" type="tts">ayol soch kaltalatmoqda</annotation>
+		<annotation cp="🚶">sayr | piyoda yurish</annotation>
+		<annotation cp="🚶" type="tts">piyoda</annotation>
+		<annotation cp="🚶‍♂">piyoda yurish | erkak | sayr</annotation>
+		<annotation cp="🚶‍♂" type="tts">yurayotgan erkak</annotation>
+		<annotation cp="🚶‍♀">ayol | piyoda yurish | sayr</annotation>
+		<annotation cp="🚶‍♀" type="tts">yurayotgan ayol</annotation>
+		<annotation cp="🏃">marafon | yugurish</annotation>
+		<annotation cp="🏃" type="tts">yuguruvchi</annotation>
+		<annotation cp="🏃‍♂">erkak | marafon | yugurish</annotation>
+		<annotation cp="🏃‍♂" type="tts">yugurayotgan erkak</annotation>
+		<annotation cp="🏃‍♀">ayol | marafon | yugurish</annotation>
+		<annotation cp="🏃‍♀" type="tts">yugurayotgan ayol</annotation>
+		<annotation cp="💃">raqqos</annotation>
+		<annotation cp="💃" type="tts">raqqosa</annotation>
+		<annotation cp="🕺">erkak | raqs</annotation>
+		<annotation cp="🕺" type="tts">raqs tushayotgan erkak</annotation>
+		<annotation cp="👯">quyon | raqs | quloq | qiz | ayol</annotation>
+		<annotation cp="👯" type="tts">ayollar bazmi</annotation>
+		<annotation cp="👯‍♂">quyon qulog‘i | raqqos | erkak | vaqtichog‘lik</annotation>
+		<annotation cp="👯‍♂" type="tts">erkak vaqtichog‘liq qilmoqda</annotation>
+		<annotation cp="👯‍♀">quyon qulog‘i | raqqosa | ayol | vaqtichog‘lik</annotation>
+		<annotation cp="👯‍♀" type="tts">ayol vaqtichog‘lik qilmoqda</annotation>
+		<annotation cp="🛀">vanna | tos</annotation>
+		<annotation cp="🛀" type="tts">hammom qilayotgan kishi</annotation>
+		<annotation cp="🛌">mehmonxona | uyqu | uxlash</annotation>
+		<annotation cp="🛌" type="tts">karavotda yotgan kishi</annotation>
+		<annotation cp="🕴">ish | erkak | kostyum</annotation>
+		<annotation cp="🕴" type="tts">kostyum kiygan kishi</annotation>
+		<annotation cp="🗣">yuz | bosh | siluet | gapirish | nutq</annotation>
+		<annotation cp="🗣" type="tts">gapirayotgan bosh</annotation>
+		<annotation cp="👤">byust | siluet</annotation>
+		<annotation cp="👤" type="tts">kontur suratli byust</annotation>
+		<annotation cp="👥">byust | siluet</annotation>
+		<annotation cp="👥" type="tts">kontur suratli byustlar</annotation>
+		<annotation cp="🤺">qilichboz | qilichbozlik | rapira | sport | odam</annotation>
+		<annotation cp="🤺" type="tts">qilichboz</annotation>
+		<annotation cp="🏇">ot | ippodrom | ot yugurtirish</annotation>
+		<annotation cp="🏇" type="tts">otchopar</annotation>
+		<annotation cp="⛷">chang‘i | qor</annotation>
+		<annotation cp="⛷" type="tts">chang‘ichi</annotation>
+		<annotation cp="🏂">chang‘i | qor | snoubord</annotation>
+		<annotation cp="🏂" type="tts">snoubordchi</annotation>
+		<annotation cp="🏌">shar | to‘p | golf</annotation>
+		<annotation cp="🏌" type="tts">golf o‘ynovchi</annotation>
+		<annotation cp="🏌‍♂">golf | erkak</annotation>
+		<annotation cp="🏌‍♂" type="tts">erkak golf o‘ynamoqda</annotation>
+		<annotation cp="🏌‍♀">ayol | golf</annotation>
+		<annotation cp="🏌‍♀" type="tts">ayol golf o‘ynamoqda</annotation>
+		<annotation cp="🏄">serfing</annotation>
+		<annotation cp="🏄" type="tts">serfingchi</annotation>
+		<annotation cp="🏄‍♂">erkak | serfing</annotation>
+		<annotation cp="🏄‍♂" type="tts">erkak serfing qilmoqda</annotation>
+		<annotation cp="🏄‍♀">ayol | serfing</annotation>
+		<annotation cp="🏄‍♀" type="tts">ayol serfing qilmoqda</annotation>
+		<annotation cp="🚣">transport</annotation>
+		<annotation cp="🚣" type="tts">qayiq</annotation>
+		<annotation cp="🚣‍♂">qayiq | erkak | eshkak | eshish</annotation>
+		<annotation cp="🚣‍♂" type="tts">erkak eshkak eshmoqda</annotation>
+		<annotation cp="🚣‍♀">qayiq | ayol | eshkak | eshish</annotation>
+		<annotation cp="🚣‍♀" type="tts">ayol eshkak eshmoqda</annotation>
+		<annotation cp="🏊">suzish</annotation>
+		<annotation cp="🏊" type="tts">suzuvchi</annotation>
+		<annotation cp="🏊‍♂">erkak | suzish</annotation>
+		<annotation cp="🏊‍♂" type="tts">suzayotgan erkak</annotation>
+		<annotation cp="🏊‍♀">ayol | suzish</annotation>
+		<annotation cp="🏊‍♀" type="tts">suzayotgan ayol</annotation>
+		<annotation cp="⛹">to‘p</annotation>
+		<annotation cp="⛹" type="tts">odam va to‘p</annotation>
+		<annotation cp="⛹‍♂">koptok | erkak</annotation>
+		<annotation cp="⛹‍♂" type="tts">koptokli erkak</annotation>
+		<annotation cp="⛹‍♀">koptok | ayol</annotation>
+		<annotation cp="⛹‍♀" type="tts">koptokli ayol</annotation>
+		<annotation cp="🏋">atletikachi | og‘ir</annotation>
+		<annotation cp="🏋" type="tts">og‘ir atletikachi</annotation>
+		<annotation cp="🏋‍♂">erkak | og‘ir atletikachi</annotation>
+		<annotation cp="🏋‍♂" type="tts">erkak shtanga ko‘tarmoqda</annotation>
+		<annotation cp="🏋‍♀">ayol | og‘ir atletikachi</annotation>
+		<annotation cp="🏋‍♀" type="tts">ayol shtanga ko‘tarmoqda</annotation>
+		<annotation cp="🚴">velosiped</annotation>
+		<annotation cp="🚴" type="tts">velosipedchi</annotation>
+		<annotation cp="🚴‍♂">velosiped | haydash | erkak</annotation>
+		<annotation cp="🚴‍♂" type="tts">erkak velosipedda</annotation>
+		<annotation cp="🚴‍♀">velosiped | haydash | ayol</annotation>
+		<annotation cp="🚴‍♀" type="tts">ayol velosipedda</annotation>
+		<annotation cp="🚵">velosiped | velosipedchi | tog‘</annotation>
+		<annotation cp="🚵" type="tts">tog‘ velosipedchisi</annotation>
+		<annotation cp="🚵‍♂">velosiped | haydash | erkak | tog‘da</annotation>
+		<annotation cp="🚵‍♂" type="tts">erkak tog‘da velosipedda</annotation>
+		<annotation cp="🚵‍♀">velosiped | haydash | ayol | tog‘da</annotation>
+		<annotation cp="🚵‍♀" type="tts">ayol tog‘da velosipedda</annotation>
+		<annotation cp="🏎">mashina | poyga</annotation>
+		<annotation cp="🏎" type="tts">poyga mashinasi</annotation>
+		<annotation cp="🏍">poyga</annotation>
+		<annotation cp="🏍" type="tts">mototsikl</annotation>
+		<annotation cp="🤸">g‘ildirak | gimnastika | akrobatika | odam | sport</annotation>
+		<annotation cp="🤸" type="tts">akrobatik mashq</annotation>
+		<annotation cp="🤸‍♂">o‘mbaloq | akrobat | gimnastika | erkak</annotation>
+		<annotation cp="🤸‍♂" type="tts">erkak o‘mbaloq oshmoqda</annotation>
+		<annotation cp="🤸‍♀">o‘mbaloq | akrobat | gimnastika | ayol</annotation>
+		<annotation cp="🤸‍♀" type="tts">ayol o‘mbaloq oshmoqda</annotation>
+		<annotation cp="🤼">kurashchilar | kurash | sport | odam</annotation>
+		<annotation cp="🤼" type="tts">kurashchilar</annotation>
+		<annotation cp="🤼‍♂">erkak | shaxs | sport | kurash</annotation>
+		<annotation cp="🤼‍♂" type="tts">kurashayotgan erkak</annotation>
+		<annotation cp="🤼‍♀">ayol | shaxs | sport | kurash</annotation>
+		<annotation cp="🤼‍♀" type="tts">kurashayotgan ayol</annotation>
+		<annotation cp="🤽">polo | suv | odam | sport</annotation>
+		<annotation cp="🤽" type="tts">suv polosi</annotation>
+		<annotation cp="🤽‍♂">erkak | sport | suv polosi</annotation>
+		<annotation cp="🤽‍♂" type="tts">erkak suv polosi o‘ynamoqda</annotation>
+		<annotation cp="🤽‍♀">ayol | sport | suv polosi</annotation>
+		<annotation cp="🤽‍♀" type="tts">ayol suv polosi o‘ynamoqda</annotation>
+		<annotation cp="🤾">gandbol | koptok | to‘p | odam | sport</annotation>
+		<annotation cp="🤾" type="tts">gandbol</annotation>
+		<annotation cp="🤾‍♂">gandbol | erkak | sport</annotation>
+		<annotation cp="🤾‍♂" type="tts">erkak gandbol o‘ynamoqda</annotation>
+		<annotation cp="🤾‍♀">ayol | gandbol | sport</annotation>
+		<annotation cp="🤾‍♀" type="tts">ayol gandbol o‘ynamoqda</annotation>
+		<annotation cp="🤹">jonglyor | ko‘p vazifalilik | muvozanat | tajriba</annotation>
+		<annotation cp="🤹" type="tts">jonglyor</annotation>
+		<annotation cp="🤹‍♂">jonglyor | erkak | bir nechta amal</annotation>
+		<annotation cp="🤹‍♂" type="tts">erkak jonglyorlik qilmoqda</annotation>
+		<annotation cp="🤹‍♀">jonglyor | ayol | bir nechta amal</annotation>
+		<annotation cp="🤹‍♀" type="tts">ayol jonglyorlik qilmoqda</annotation>
+		<annotation cp="👫">juftlik | qo‘l | ushlash | erkak | ayol</annotation>
+		<annotation cp="👫" type="tts">qo‘l ushlashib turgan erkak va ayol</annotation>
+		<annotation cp="👬">juftlik | egizak | qo‘l | ushlash | erkak | egizaklar | burj</annotation>
+		<annotation cp="👬" type="tts">qo‘l ushlashib turgan ikki erkak</annotation>
+		<annotation cp="👭">juftlik | qo‘l | ushlash | ayol</annotation>
+		<annotation cp="👭" type="tts">qo‘l ushlashib turgan ikki ayol</annotation>
+		<annotation cp="💏">juftlik | romantika</annotation>
+		<annotation cp="💏" type="tts">bo‘sa olish</annotation>
+		<annotation cp="👩‍❤‍💋‍👨">juftlik | ayol | erkak</annotation>
+		<annotation cp="👩‍❤‍💋‍👨" type="tts">bo‘sa, ayol, erkak</annotation>
+		<annotation cp="👨‍❤‍💋‍👨">juftlik | erkak | kishi</annotation>
+		<annotation cp="👨‍❤‍💋‍👨" type="tts">bo‘sa, erkak, erkak</annotation>
+		<annotation cp="👩‍❤‍💋‍👩">juftlik | ayol | xotin</annotation>
+		<annotation cp="👩‍❤‍💋‍👩" type="tts">bo‘sa, ayol, ayol</annotation>
+		<annotation cp="💑">juftlik | yurak | sevgi | romantika</annotation>
+		<annotation cp="💑" type="tts">juftlik va yurak</annotation>
+		<annotation cp="👩‍❤‍👨">juftlik | ayol | yurak | sevgi</annotation>
+		<annotation cp="👩‍❤‍👨" type="tts">juftlik bilan yurak, ayol, erkak</annotation>
+		<annotation cp="👨‍❤‍👨">juftlik | yurak | sevgi | erkak</annotation>
+		<annotation cp="👨‍❤‍👨" type="tts">juftlik bilan yurak, erkak, erkak</annotation>
+		<annotation cp="👩‍❤‍👩">juftlik | ayol | yurak | sevgi</annotation>
+		<annotation cp="👩‍❤‍👩" type="tts">juftlik bilan yurak, ayol, ayol</annotation>
+		<annotation cp="👪">farzand | ota | ona</annotation>
+		<annotation cp="👪" type="tts">oila</annotation>
+		<annotation cp="👨‍👩‍👦">o‘g‘il | farzand | ota | ona</annotation>
+		<annotation cp="👨‍👩‍👦" type="tts">oila, erkak, ayol, o‘g‘il</annotation>
+		<annotation cp="👨‍👩‍👧">farzand | ota | ona | burj</annotation>
+		<annotation cp="👨‍👩‍👧" type="tts">oila, erkak, ayol, qiz</annotation>
+		<annotation cp="👨‍👩‍👧‍👦">o‘g‘il | farzand | ota | ona</annotation>
+		<annotation cp="👨‍👩‍👧‍👦" type="tts">oila, erkak, ayol, qiz, o‘g‘il</annotation>
+		<annotation cp="👨‍👩‍👦‍👦">o‘g‘il | farzand | erkak | ayol</annotation>
+		<annotation cp="👨‍👩‍👦‍👦" type="tts">oila, erkak, ayol, o‘g‘il, o‘g‘il</annotation>
+		<annotation cp="👨‍👩‍👧‍👧">farzand | ota | ona | burj</annotation>
+		<annotation cp="👨‍👩‍👧‍👧" type="tts">oila, erkak, ayol, qiz, qiz</annotation>
+		<annotation cp="👨‍👨‍👦">o‘g‘il | farzand | ota | erkak</annotation>
+		<annotation cp="👨‍👨‍👦" type="tts">oila, erkak, erkak, o‘g‘il</annotation>
+		<annotation cp="👨‍👨‍👧">farzand | ota | ayol | bokira</annotation>
+		<annotation cp="👨‍👨‍👧" type="tts">oila, erkak, erkak, qiz</annotation>
+		<annotation cp="👨‍👨‍👧‍👦">o‘g‘il | farzand | ota | bokira</annotation>
+		<annotation cp="👨‍👨‍👧‍👦" type="tts">oila, erkak, erkak, qiz, o‘g‘il</annotation>
+		<annotation cp="👨‍👨‍👦‍👦">o‘g‘il | farzand | ota | erkak</annotation>
+		<annotation cp="👨‍👨‍👦‍👦" type="tts">oila, erkak, erkak, o‘g‘il, o‘g‘il</annotation>
+		<annotation cp="👨‍👨‍👧‍👧">farzand | ota | ayol | bokira</annotation>
+		<annotation cp="👨‍👨‍👧‍👧" type="tts">oila, erkak, erkak, qiz, qiz</annotation>
+		<annotation cp="👩‍👩‍👦">o‘g‘il | farzand | ona | ayol</annotation>
+		<annotation cp="👩‍👩‍👦" type="tts">oila, ayol, ayol, o‘g‘il</annotation>
+		<annotation cp="👩‍👩‍👧">farzand | ona | ayol | bokira</annotation>
+		<annotation cp="👩‍👩‍👧" type="tts">oila, ayol, ayol, qiz</annotation>
+		<annotation cp="👩‍👩‍👧‍👦">o‘g‘il | farzand | qiz bola | ona</annotation>
+		<annotation cp="👩‍👩‍👧‍👦" type="tts">oila, ayol, ayol, qiz, o‘g‘il</annotation>
+		<annotation cp="👩‍👩‍👦‍👦">o‘g‘il | ota | ayol | ona</annotation>
+		<annotation cp="👩‍👩‍👦‍👦" type="tts">oila, ayol, ayol, o‘g‘il, o‘g‘il</annotation>
+		<annotation cp="👩‍👩‍👧‍👧">qiz | ona | ayol | bokira</annotation>
+		<annotation cp="👩‍👩‍👧‍👧" type="tts">oila, ayol, ayol, qiz, qiz</annotation>
+		<annotation cp="👨‍👦">o‘g‘il | farzand | ota | erkak</annotation>
+		<annotation cp="👨‍👦" type="tts">oila, erkak, o‘g‘il</annotation>
+		<annotation cp="👨‍👦‍👦">o‘g‘il | farzand | ota | erkak</annotation>
+		<annotation cp="👨‍👦‍👦" type="tts">oila, erkak, o‘g‘il, o‘g‘il</annotation>
+		<annotation cp="👨‍👧">farzand | ota | qiz bola | bokira</annotation>
+		<annotation cp="👨‍👧" type="tts">oila, erkak, qiz</annotation>
+		<annotation cp="👨‍👧‍👦">o‘g‘il | farzand | ota | qiz bola</annotation>
+		<annotation cp="👨‍👧‍👦" type="tts">oila, erkak, qiz, o‘g‘il</annotation>
+		<annotation cp="👨‍👧‍👧">farzand | ota | erkak | qiz bola</annotation>
+		<annotation cp="👨‍👧‍👧" type="tts">oila, erkak, qiz, qiz</annotation>
+		<annotation cp="👩‍👦">o‘g‘il | farzand | ayol | ona</annotation>
+		<annotation cp="👩‍👦" type="tts">oila, ayol, o‘g‘il</annotation>
+		<annotation cp="👩‍👦‍👦">o‘g‘il | farzand | ayol | ona</annotation>
+		<annotation cp="👩‍👦‍👦" type="tts">oila, ayol, o‘g‘il, o‘g‘il</annotation>
+		<annotation cp="👩‍👧">farzand | ayol | ona | qiz bola</annotation>
+		<annotation cp="👩‍👧" type="tts">oila, ayol, qiz</annotation>
+		<annotation cp="👩‍👧‍👦">farzand | ona | o‘g‘il | qiz bola</annotation>
+		<annotation cp="👩‍👧‍👦" type="tts">oila, ayol, qiz, o‘g‘il</annotation>
+		<annotation cp="👩‍👧‍👧">farzand | ayol | ona | qiz</annotation>
+		<annotation cp="👩‍👧‍👧" type="tts">oila, ayol, qiz, qiz</annotation>
+		<annotation cp="🤳">selfi | surat | telefon</annotation>
+		<annotation cp="🤳" type="tts">selfi</annotation>
+		<annotation cp="💪">muskullar | tana | latifa | moslashuvchan | muskul</annotation>
+		<annotation cp="💪" type="tts">baquvvat muskullar</annotation>
+		<annotation cp="👈">qo‘l orqa tomoni | barmoq | qo‘l | ko‘rsatkich | yo‘naltirish</annotation>
+		<annotation cp="👈" type="tts">ko‘rsatkich barmog‘i orqa tomoni bilan chapga qarab turgan qo‘l</annotation>
+		<annotation cp="👉">barmoq orqa tomoni | barmoq | qo‘l | ko‘rsatkich | yo‘naltirish</annotation>
+		<annotation cp="👉" type="tts">ko‘rsatkich barmog‘i orqa tomoni bilan o‘ngga qarab turgan qo‘l</annotation>
+		<annotation cp="☝">tana | barmoq | qo‘l | ko‘rsatkich | yo‘naltirish | tepaga</annotation>
+		<annotation cp="☝" type="tts">ko‘rsatkich barmog‘i tepaga qarab turgan qo‘l</annotation>
+		<annotation cp="👆">qo‘l orqa tomoni | tana | barmoq | qo‘l | ko‘rsatkich | yo‘naltirish | tepaga</annotation>
+		<annotation cp="👆" type="tts">ko‘rsatkich barmog‘i orqa tomoni bilan tepaga qarab turgan qo‘l</annotation>
+		<annotation cp="🖕">tana | barmoq | qo‘l</annotation>
+		<annotation cp="🖕" type="tts">o‘rta barmoq</annotation>
+		<annotation cp="👇">qo‘l orqa tomoni | tana | pastga | barmoq | qo‘l | ko‘rsatkich | yo‘naltirish</annotation>
+		<annotation cp="👇" type="tts">ko‘rsatkich barmog‘i orqa tomoni bilan pastga qarab turgan qo‘l</annotation>
+		<annotation cp="✌">tana | qo‘l | v | g‘alaba</annotation>
+		<annotation cp="✌" type="tts">v harfini ko‘rsatib turgan qo‘l</annotation>
+		<annotation cp="🤞">omad | kesishgan barmoqlar</annotation>
+		<annotation cp="🤞" type="tts">kesishgan barmoqlar</annotation>
+		<annotation cp="🖖">tana | barmoq | qo‘l | spok | vulkan</annotation>
+		<annotation cp="🖖" type="tts">vulkan salyuti</annotation>
+		<annotation cp="🤘">tana | barmoq | qo‘l | shoxlar | rok</annotation>
+		<annotation cp="🤘" type="tts">shox belgisi</annotation>
+		<annotation cp="🤙">ishora | telefon qil | qo‘l</annotation>
+		<annotation cp="🤙" type="tts">menga telefon qil</annotation>
+		<annotation cp="🖐">tana | barmoq | qo‘l | yoyilgan</annotation>
+		<annotation cp="🖐" type="tts">barmoqlari yoyilgan holatda ko‘tarilgan qo‘l</annotation>
+		<annotation cp="✋">tana | qo‘l</annotation>
+		<annotation cp="✋" type="tts">ko‘tarilgan qo‘l</annotation>
+		<annotation cp="👌">tana | qo‘l | ok</annotation>
+		<annotation cp="👌" type="tts">qo‘lda qilingan ok</annotation>
+		<annotation cp="👍">tana | qo‘l | bosh barmoq | tepaga | +1</annotation>
+		<annotation cp="👍" type="tts">tepaga qaragan bosh barmoq</annotation>
+		<annotation cp="👎">tana | qo‘l | pastga | bosh barmoq | -1</annotation>
+		<annotation cp="👎" type="tts">pastga qaragan bosh barmoq</annotation>
+		<annotation cp="✊">tana | tugilgan | musht | qo‘l</annotation>
+		<annotation cp="✊" type="tts">ko‘tarilgan musht</annotation>
+		<annotation cp="👊">tana | tugilgan | musht</annotation>
+		<annotation cp="👊" type="tts">yaqinlashayotgan musht</annotation>
+		<annotation cp="🤛">musht | chap</annotation>
+		<annotation cp="🤛" type="tts">chapga qaragan musht</annotation>
+		<annotation cp="🤜">musht | o‘ng</annotation>
+		<annotation cp="🤜" type="tts">o‘ngga qaragan musht</annotation>
+		<annotation cp="🤚">ko‘tarilgan | kaft</annotation>
+		<annotation cp="🤚" type="tts">ko‘tarilgan kaft</annotation>
+		<annotation cp="👋">tana | qo‘l | silkitish</annotation>
+		<annotation cp="👋" type="tts">shapaloq</annotation>
+		<annotation cp="✍">tana | qo‘l | yozish</annotation>
+		<annotation cp="✍" type="tts">yozayotgan qo‘l</annotation>
+		<annotation cp="👏">tana | qo‘l</annotation>
+		<annotation cp="👏" type="tts">chapak</annotation>
+		<annotation cp="👐">tana | qo‘l | ochiq</annotation>
+		<annotation cp="👐" type="tts">ochiq qo‘llar</annotation>
+		<annotation cp="🙌">tan | nishonlash | imo-ishora | qo‘l | urra | ko‘tarilgan</annotation>
+		<annotation cp="🙌" type="tts">qo‘llarini ko‘targan odam</annotation>
+		<annotation cp="🙏">so‘rash | tana | ta’zim | qovushgan | imo-ishora | qo‘l | iltimos | ibodat | rahmat</annotation>
+		<annotation cp="🙏" type="tts">qovushtirilgan qo‘llar</annotation>
+		<annotation cp="🤝">qo‘l siqish | kelishuv | uchrashuv</annotation>
+		<annotation cp="🤝" type="tts">qo‘l siqish</annotation>
+		<annotation cp="💅">tana | parvarish | kosmetika | manikyur | tirnoq | lok</annotation>
+		<annotation cp="💅" type="tts">tirnoq uchun lok</annotation>
+		<annotation cp="👂">tana</annotation>
+		<annotation cp="👂" type="tts">quloq</annotation>
+		<annotation cp="👃">tana</annotation>
+		<annotation cp="👃" type="tts">burun</annotation>
+		<annotation cp="👣">tana | kiyim | oyoq izi | iz</annotation>
+		<annotation cp="👣" type="tts">oyoq izlari</annotation>
+		<annotation cp="👀">tana | ko‘z | yuz</annotation>
+		<annotation cp="👀" type="tts">ko‘zlar</annotation>
+		<annotation cp="👁">tana</annotation>
+		<annotation cp="👁" type="tts">ko‘z</annotation>
+		<annotation cp="👁‍🗨">ko‘z | nutq pufagi | guvoh</annotation>
+		<annotation cp="👁‍🗨" type="tts">nutq pufagida ko‘z</annotation>
+		<annotation cp="👅">tana</annotation>
+		<annotation cp="👅" type="tts">til</annotation>
+		<annotation cp="👄">tana | lablar</annotation>
+		<annotation cp="👄" type="tts">og‘iz</annotation>
+		<annotation cp="💋">yurak | bo‘sa | lablar | tamg‘a | romantika</annotation>
+		<annotation cp="💋" type="tts">bo‘sa tamg‘asi</annotation>
+		<annotation cp="💘">kamon o‘qi | kupidon | yurak | romantika</annotation>
+		<annotation cp="💘" type="tts">yurak va kamon o‘qi</annotation>
+		<annotation cp="❤">yurak</annotation>
+		<annotation cp="❤" type="tts">qizil yurak</annotation>
+		<annotation cp="💓">urayotgan | yurak | yurak urishi</annotation>
+		<annotation cp="💓" type="tts">urayotgan yurak</annotation>
+		<annotation cp="💔">sinish | singan | yurak</annotation>
+		<annotation cp="💔" type="tts">singan yurak</annotation>
+		<annotation cp="💕">yurak | sevgi</annotation>
+		<annotation cp="💕" type="tts">ikkita yurak</annotation>
+		<annotation cp="💖">hayajonli | yurak | chaqnash</annotation>
+		<annotation cp="💖" type="tts">chaqnayotgan yurak</annotation>
+		<annotation cp="💗">hayajonli | kattalashayotgan | yurak | yurak urishi | asab</annotation>
+		<annotation cp="💗" type="tts">kattalashayotgan yurak</annotation>
+		<annotation cp="💙">ko‘k | yurak</annotation>
+		<annotation cp="💙" type="tts">ko‘k yurak</annotation>
+		<annotation cp="💚">yashil | yurak</annotation>
+		<annotation cp="💚" type="tts">yashil yurak</annotation>
+		<annotation cp="💛">yurak | sariq</annotation>
+		<annotation cp="💛" type="tts">sariq yurak</annotation>
+		<annotation cp="💜">yurak | binafsharang</annotation>
+		<annotation cp="💜" type="tts">binafsharang yurak</annotation>
+		<annotation cp="🖤">qora | yurak | ichi qora</annotation>
+		<annotation cp="🖤" type="tts">ichi qora</annotation>
+		<annotation cp="💝">yurak | lenta</annotation>
+		<annotation cp="💝" type="tts">yurak va lenta</annotation>
+		<annotation cp="💞">yurak | aylanayotgan</annotation>
+		<annotation cp="💞" type="tts">aylanayotgan yuraklar</annotation>
+		<annotation cp="💟">yurak</annotation>
+		<annotation cp="💟" type="tts">yurak bezagi</annotation>
+		<annotation cp="❣">undov | yurak | belgi | tinish</annotation>
+		<annotation cp="❣" type="tts">qalin yurak shaklidagi undov belgisi</annotation>
+		<annotation cp="💌">yurak | xat | sevgi | pochta | romantika</annotation>
+		<annotation cp="💌" type="tts">sevgi xati</annotation>
+		<annotation cp="💤">latifa | uyqu</annotation>
+		<annotation cp="💤" type="tts">xurrak</annotation>
+		<annotation cp="💢">jaxl | latifa | telba</annotation>
+		<annotation cp="💢" type="tts">jahl belgisi</annotation>
+		<annotation cp="💣">latifa</annotation>
+		<annotation cp="💣" type="tts">bomba</annotation>
+		<annotation cp="💥">portlash | latifa</annotation>
+		<annotation cp="💥" type="tts">to‘qnashuv</annotation>
+		<annotation cp="💦">latifa | ko‘z yoshi | sachrash</annotation>
+		<annotation cp="💦" type="tts">ko‘z yoshi tomchilari</annotation>
+		<annotation cp="💨">latifa | shoshilish | yugurish</annotation>
+		<annotation cp="💨" type="tts">chaqqon</annotation>
+		<annotation cp="💫">latifa | yulduz</annotation>
+		<annotation cp="💫" type="tts">bosh aylanish</annotation>
+		<annotation cp="💬">shar | po‘fak | latifa | dialog | nutq</annotation>
+		<annotation cp="💬" type="tts">nutq buluti</annotation>
+		<annotation cp="🗨">dialog | nutq</annotation>
+		<annotation cp="🗨" type="tts">chap nutq pufakchasi</annotation>
+		<annotation cp="🗯">jaxl | shar | po‘fak | hafa</annotation>
+		<annotation cp="🗯" type="tts">o‘ng burchakli pufakcha</annotation>
+		<annotation cp="💭">shar | po‘fak | latifa | o‘y-hayol</annotation>
+		<annotation cp="💭" type="tts">o‘y-hayol buluti</annotation>
+		<annotation cp="🕳">tuynuk | kovak | darcha</annotation>
+		<annotation cp="🕳" type="tts">teshik</annotation>
+		<annotation cp="👓">kiyim | ko‘z</annotation>
+		<annotation cp="👓" type="tts">ko‘zoynak</annotation>
+		<annotation cp="🕶">qorong‘u | ko‘z | ko‘zoynak</annotation>
+		<annotation cp="🕶" type="tts">quyoshdan himoyalaydigan ko‘zoynak</annotation>
+		<annotation cp="👔">kiyim</annotation>
+		<annotation cp="👔" type="tts">bo‘yinbog‘</annotation>
+		<annotation cp="👕">kiyim | ko‘ylak</annotation>
+		<annotation cp="👕" type="tts">futbolka</annotation>
+		<annotation cp="👖">kiyim | shim</annotation>
+		<annotation cp="👖" type="tts">jinsi shim</annotation>
+		<annotation cp="👗">kiyim</annotation>
+		<annotation cp="👗" type="tts">libos</annotation>
+		<annotation cp="👘">kiyim</annotation>
+		<annotation cp="👘" type="tts">kimono</annotation>
+		<annotation cp="👙">kiyim | suzish</annotation>
+		<annotation cp="👙" type="tts">bikini</annotation>
+		<annotation cp="👚">kiyim | ayol</annotation>
+		<annotation cp="👚" type="tts">ayollar kiyimi</annotation>
+		<annotation cp="👛">kiyim | tanga</annotation>
+		<annotation cp="👛" type="tts">hamyon</annotation>
+		<annotation cp="👜">sumka | kiyim</annotation>
+		<annotation cp="👜" type="tts">ayollar qo‘l sumkasi</annotation>
+		<annotation cp="👝">sumka | kiyim</annotation>
+		<annotation cp="👝" type="tts">kichik sumka</annotation>
+		<annotation cp="🛍">sumka | mehmonxona | xarid</annotation>
+		<annotation cp="🛍" type="tts">xarid sumkalari</annotation>
+		<annotation cp="🎒">sumka | maktab | jild</annotation>
+		<annotation cp="🎒" type="tts">maktab sumkasi</annotation>
+		<annotation cp="👞">kiyim | erkak | tufli</annotation>
+		<annotation cp="👞" type="tts">erkaklar tuflisi</annotation>
+		<annotation cp="👟">atletika | kiyim | tufli</annotation>
+		<annotation cp="👟" type="tts">krossovka</annotation>
+		<annotation cp="👠">kiyim | poshna | tufli | ayol</annotation>
+		<annotation cp="👠" type="tts">baland poshnali tufli</annotation>
+		<annotation cp="👡">kiyim | shippak | tufli | ayol</annotation>
+		<annotation cp="👡" type="tts">ayollar shippagi</annotation>
+		<annotation cp="👢">etik | kiyim | tufli | oyoq kiyim | ayol</annotation>
+		<annotation cp="👢" type="tts">ayollar etigi</annotation>
+		<annotation cp="👑">kiyim | qirol | qirolicha</annotation>
+		<annotation cp="👑" type="tts">toj</annotation>
+		<annotation cp="👒">kiyim | shlyapa | ayol</annotation>
+		<annotation cp="👒" type="tts">ayollar shlyapasi</annotation>
+		<annotation cp="🎩">kiyim | shlyapa | bosh kiyim</annotation>
+		<annotation cp="🎩" type="tts">silindr shlyapa</annotation>
+		<annotation cp="🎓">bosh kiyim | nishonlash | kiyim | bitiruv | shlyapa</annotation>
+		<annotation cp="🎓" type="tts">akademik bosh kiyim</annotation>
+		<annotation cp="⛑">yordam | xoch | yuz | bosh kiyim | dubulg‘a</annotation>
+		<annotation cp="⛑" type="tts">oq xochli dubulg‘a</annotation>
+		<annotation cp="📿">kiyim | marjon | ibodat | din</annotation>
+		<annotation cp="📿" type="tts">tasbeh</annotation>
+		<annotation cp="💄">kosmetika | grim</annotation>
+		<annotation cp="💄" type="tts">lab bo‘yog‘i</annotation>
+		<annotation cp="💍">olmos | romantika</annotation>
+		<annotation cp="💍" type="tts">uzuk</annotation>
+		<annotation cp="💎">olmos | tosh | marvarid | romantika</annotation>
+		<annotation cp="💎" type="tts">qimmatbaho tosh</annotation>
+		<annotation cp="🐵">yuz | maymun</annotation>
+		<annotation cp="🐵" type="tts">maymun qiyofasi</annotation>
+		<annotation cp="🐒">maymun</annotation>
+		<annotation cp="🐒" type="tts">maymun</annotation>
+		<annotation cp="🦍">gorilla | hayvon | maymun</annotation>
+		<annotation cp="🦍" type="tts">gorilla</annotation>
+		<annotation cp="🐶">kuchuk | yuz | uy hayvoni</annotation>
+		<annotation cp="🐶" type="tts">kuchuk qiyofasi</annotation>
+		<annotation cp="🐕">uy hayvoni</annotation>
+		<annotation cp="🐕" type="tts">kuchuk</annotation>
+		<annotation cp="🐩">kuchuk</annotation>
+		<annotation cp="🐩" type="tts">pudel</annotation>
+		<annotation cp="🐺">yuz | bo‘ri</annotation>
+		<annotation cp="🐺" type="tts">bo‘ri qiyofasi</annotation>
+		<annotation cp="🦊">ayyor | tulki | fayvon</annotation>
+		<annotation cp="🦊" type="tts">ayyor tulki</annotation>
+		<annotation cp="🐱">mushuk | yuz | uy hayvoni</annotation>
+		<annotation cp="🐱" type="tts">mushuk qiyofasi</annotation>
+		<annotation cp="🐈">uy hayvoni</annotation>
+		<annotation cp="🐈" type="tts">mushuk</annotation>
+		<annotation cp="🦁">yuz | sher | burj</annotation>
+		<annotation cp="🦁" type="tts">sher qiyofasi</annotation>
+		<annotation cp="🐯">yuz | yo‘lbars</annotation>
+		<annotation cp="🐯" type="tts">yo‘lbars qiyofasi</annotation>
+		<annotation cp="🐅">yo‘lbars</annotation>
+		<annotation cp="🐅" type="tts">yo‘lbars</annotation>
+		<annotation cp="🐆">qoplon</annotation>
+		<annotation cp="🐆" type="tts">qoplon</annotation>
+		<annotation cp="🐴">yuz | ot</annotation>
+		<annotation cp="🐴" type="tts">ot qiyofasi</annotation>
+		<annotation cp="🐎">ot poygasi</annotation>
+		<annotation cp="🐎" type="tts">ot</annotation>
+		<annotation cp="🦄">yuz | bir shoxli ot</annotation>
+		<annotation cp="🦄" type="tts">bir shoxli ot qiyofasi</annotation>
+		<annotation cp="🦌">kiyik | hayvon</annotation>
+		<annotation cp="🦌" type="tts">kiyik</annotation>
+		<annotation cp="🐮">sigir | yuz</annotation>
+		<annotation cp="🐮" type="tts">sigir qiyofasi</annotation>
+		<annotation cp="🐂">burj</annotation>
+		<annotation cp="🐂" type="tts">ho‘kiz</annotation>
+		<annotation cp="🐃">suv</annotation>
+		<annotation cp="🐃" type="tts">buyvol</annotation>
+		<annotation cp="🐄">sigir</annotation>
+		<annotation cp="🐄" type="tts">sigir</annotation>
+		<annotation cp="🐷">yuz | cho‘chqa</annotation>
+		<annotation cp="🐷" type="tts">cho‘chqa qiyofasi</annotation>
+		<annotation cp="🐖">cho‘chqa</annotation>
+		<annotation cp="🐖" type="tts">cho‘chqa</annotation>
+		<annotation cp="🐗">cho‘chqa</annotation>
+		<annotation cp="🐗" type="tts">to‘ng‘iz</annotation>
+		<annotation cp="🐽">yuz | burun | cho‘chqa</annotation>
+		<annotation cp="🐽" type="tts">cho‘chqa burni</annotation>
+		<annotation cp="🐏">qo‘y | burj</annotation>
+		<annotation cp="🐏" type="tts">qo‘chqor</annotation>
+		<annotation cp="🐑">sovliq</annotation>
+		<annotation cp="🐑" type="tts">qo‘y</annotation>
+		<annotation cp="🐐">uloq | burj</annotation>
+		<annotation cp="🐐" type="tts">echki</annotation>
+		<annotation cp="🐪">nortuya | bukur</annotation>
+		<annotation cp="🐪" type="tts">tuya</annotation>
+		<annotation cp="🐫">baqtriya tuyasi | tuya | o‘rkach</annotation>
+		<annotation cp="🐫" type="tts">ikki o‘rkachli tuya</annotation>
+		<annotation cp="🐘">fil</annotation>
+		<annotation cp="🐘" type="tts">fil</annotation>
+		<annotation cp="🦏">karkidon | hayvon</annotation>
+		<annotation cp="🦏" type="tts">karkidon</annotation>
+		<annotation cp="🐭">yuz | sichqon</annotation>
+		<annotation cp="🐭" type="tts">sichqon qiyofasi</annotation>
+		<annotation cp="🐁">sichqon</annotation>
+		<annotation cp="🐁" type="tts">sichqon</annotation>
+		<annotation cp="🐀">kalamush</annotation>
+		<annotation cp="🐀" type="tts">kalamush</annotation>
+		<annotation cp="🐹">yuz | og‘maxon | uy hayvoni</annotation>
+		<annotation cp="🐹" type="tts">og‘maxon qiyofasi</annotation>
+		<annotation cp="🐰">quyon | yuz | uy hayvoni</annotation>
+		<annotation cp="🐰" type="tts">quyon qiyofasi</annotation>
+		<annotation cp="🐇">uy hayvobi</annotation>
+		<annotation cp="🐇" type="tts">quyon</annotation>
+		<annotation cp="🐿">burunduq</annotation>
+		<annotation cp="🐿" type="tts">burunduq</annotation>
+		<annotation cp="🦇">ko‘rshapalak | vampir | hayvon</annotation>
+		<annotation cp="🦇" type="tts">ko‘rshapalak</annotation>
+		<annotation cp="🐻">ayiq | yuz</annotation>
+		<annotation cp="🐻" type="tts">ayiq qiyofasi</annotation>
+		<annotation cp="🐨">ayiq</annotation>
+		<annotation cp="🐨" type="tts">koala</annotation>
+		<annotation cp="🐼">yuz | panda</annotation>
+		<annotation cp="🐼" type="tts">panda qiyofasi</annotation>
+		<annotation cp="🐾">oyoq | panja | bosma</annotation>
+		<annotation cp="🐾" type="tts">panja izlari</annotation>
+		<annotation cp="🦃">kurka</annotation>
+		<annotation cp="🦃" type="tts">kurka</annotation>
+		<annotation cp="🐔">jo‘ja</annotation>
+		<annotation cp="🐔" type="tts">tovuq</annotation>
+		<annotation cp="🐓">xo‘roz</annotation>
+		<annotation cp="🐓" type="tts">xo‘roz</annotation>
+		<annotation cp="🐣">chaqaloq | jo‘ja | tuxumdan yorib chiqish</annotation>
+		<annotation cp="🐣" type="tts">tuxumdan chiqayotgan jo‘ja</annotation>
+		<annotation cp="🐤">chaqaloq</annotation>
+		<annotation cp="🐤" type="tts">jo‘ja</annotation>
+		<annotation cp="🐥">chaqaloq | jo‘ja</annotation>
+		<annotation cp="🐥" type="tts">oldiga qarab turgan jo‘ja</annotation>
+		<annotation cp="🐦">qush</annotation>
+		<annotation cp="🐦" type="tts">qush</annotation>
+		<annotation cp="🐧">pingvin</annotation>
+		<annotation cp="🐧" type="tts">pingvin</annotation>
+		<annotation cp="🕊">qush | uchish | tinchlik</annotation>
+		<annotation cp="🕊" type="tts">kabutar</annotation>
+		<annotation cp="🦅">burgut | qush</annotation>
+		<annotation cp="🦅" type="tts">burgut</annotation>
+		<annotation cp="🦆">o‘rdak | qush</annotation>
+		<annotation cp="🦆" type="tts">o‘rdak</annotation>
+		<annotation cp="🦉">boyqush | donolik | parranda</annotation>
+		<annotation cp="🦉" type="tts">boyqush</annotation>
+		<annotation cp="🐸">yuz | qurbaqa | baqa</annotation>
+		<annotation cp="🐸" type="tts">qurbaqa qiyofasi</annotation>
+		<annotation cp="🐊">timsoh</annotation>
+		<annotation cp="🐊" type="tts">timsoh</annotation>
+		<annotation cp="🐢">toshbaqa</annotation>
+		<annotation cp="🐢" type="tts">toshbaqa</annotation>
+		<annotation cp="🦎">kaltakesak | sudralib yuruvchi</annotation>
+		<annotation cp="🦎" type="tts">kaltakesak</annotation>
+		<annotation cp="🐍">burj</annotation>
+		<annotation cp="🐍" type="tts">ilon</annotation>
+		<annotation cp="🐲">ajdar | ajdarho | yuz | ertak</annotation>
+		<annotation cp="🐲" type="tts">ajdar qiyofasi</annotation>
+		<annotation cp="🐉">ertak</annotation>
+		<annotation cp="🐉" type="tts">ajdar</annotation>
+		<annotation cp="🐳">yuz | sachratish | kit</annotation>
+		<annotation cp="🐳" type="tts">favvora hosil qilayotgan kit</annotation>
+		<annotation cp="🐋">kit</annotation>
+		<annotation cp="🐋" type="tts">kit</annotation>
+		<annotation cp="🐬">suzgich</annotation>
+		<annotation cp="🐬" type="tts">delfin</annotation>
+		<annotation cp="🐟">burj</annotation>
+		<annotation cp="🐟" type="tts">baliq</annotation>
+		<annotation cp="🐠">baliq | tropik</annotation>
+		<annotation cp="🐠" type="tts">tropik baliq</annotation>
+		<annotation cp="🐡">baliq</annotation>
+		<annotation cp="🐡" type="tts">qorni katta baliq</annotation>
+		<annotation cp="🦈">akula | baliq</annotation>
+		<annotation cp="🦈" type="tts">akula</annotation>
+		<annotation cp="🐙">sakkizoyoq</annotation>
+		<annotation cp="🐙" type="tts">sakkizoyoq</annotation>
+		<annotation cp="🐚">qobiq | spiral</annotation>
+		<annotation cp="🐚" type="tts">spiral qobiq</annotation>
+		<annotation cp="🦀">burj</annotation>
+		<annotation cp="🦀" type="tts">qisqichbaqa</annotation>
+		<annotation cp="🦐">qisqichbaqa | mayda | dengiz mahsulotlari | taom</annotation>
+		<annotation cp="🦐" type="tts">mayda qisqichbaqa</annotation>
+		<annotation cp="🦑">kalmar | mollyuska | taom</annotation>
+		<annotation cp="🦑" type="tts">kalmar</annotation>
+		<annotation cp="🐌">shilliqqurt</annotation>
+		<annotation cp="🐌" type="tts">shilliqqurt</annotation>
+		<annotation cp="🦋">kapalak | hasharot | go‘zallik</annotation>
+		<annotation cp="🦋" type="tts">kapalak</annotation>
+		<annotation cp="🐛">xasharot</annotation>
+		<annotation cp="🐛" type="tts">taxtakana</annotation>
+		<annotation cp="🐜">xasharot</annotation>
+		<annotation cp="🐜" type="tts">chumoli</annotation>
+		<annotation cp="🐝">ari | xasharot</annotation>
+		<annotation cp="🐝" type="tts">asalari</annotation>
+		<annotation cp="🐞">xasharot</annotation>
+		<annotation cp="🐞" type="tts">xonqizi</annotation>
+		<annotation cp="🕷">xasharot</annotation>
+		<annotation cp="🕷" type="tts">o‘rgimchak</annotation>
+		<annotation cp="🕸">o‘rgimchak | veb</annotation>
+		<annotation cp="🕸" type="tts">o‘rgimchak turi</annotation>
+		<annotation cp="🦂">burj</annotation>
+		<annotation cp="🦂" type="tts">chayon</annotation>
+		<annotation cp="💐">gul | o‘simlik | romantika</annotation>
+		<annotation cp="💐" type="tts">guldasta</annotation>
+		<annotation cp="🌸">gul | gilos | o‘simlik</annotation>
+		<annotation cp="🌸" type="tts">gilos guli</annotation>
+		<annotation cp="💮">gul</annotation>
+		<annotation cp="💮" type="tts">oq gul</annotation>
+		<annotation cp="🏵">o‘simlik</annotation>
+		<annotation cp="🏵" type="tts">to‘pbarggul</annotation>
+		<annotation cp="🌹">gul | o‘simlik</annotation>
+		<annotation cp="🌹" type="tts">atirgul</annotation>
+		<annotation cp="🥀">so‘nayotgan | quriyotgan | gul</annotation>
+		<annotation cp="🥀" type="tts">so‘nayotgan gul</annotation>
+		<annotation cp="🌺">gul | o‘simlik</annotation>
+		<annotation cp="🌺" type="tts">xitoy atirguli</annotation>
+		<annotation cp="🌻">gul | o‘simlik | quyosh</annotation>
+		<annotation cp="🌻" type="tts">kungaboqar</annotation>
+		<annotation cp="🌼">o‘simlik</annotation>
+		<annotation cp="🌼" type="tts">gul</annotation>
+		<annotation cp="🌷">gul | o‘simlik</annotation>
+		<annotation cp="🌷" type="tts">lola</annotation>
+		<annotation cp="🌱">o‘simlik | yosh</annotation>
+		<annotation cp="🌱" type="tts">ko‘chat</annotation>
+		<annotation cp="🌲">o‘simlik | daraxt</annotation>
+		<annotation cp="🌲" type="tts">archa</annotation>
+		<annotation cp="🌳">barg | o‘simlik | daraxt | to‘kilish</annotation>
+		<annotation cp="🌳" type="tts">bargli daraxt</annotation>
+		<annotation cp="🌴">palma | o‘simlik | daraxt</annotation>
+		<annotation cp="🌴" type="tts">palma daraxti</annotation>
+		<annotation cp="🌵">o‘simlik</annotation>
+		<annotation cp="🌵" type="tts">kaktus</annotation>
+		<annotation cp="🌾">boshoq | o‘simlik | guruch</annotation>
+		<annotation cp="🌾" type="tts">sholi poyasi</annotation>
+		<annotation cp="🌿">barg</annotation>
+		<annotation cp="🌿" type="tts">o‘simlik</annotation>
+		<annotation cp="☘">o‘simlik</annotation>
+		<annotation cp="☘" type="tts">sebarga</annotation>
+		<annotation cp="🍀">4 | to‘rt | yaproq | barg | o‘simlik</annotation>
+		<annotation cp="🍀" type="tts">to‘rt yaproqli beda bargi</annotation>
+		<annotation cp="🍁">xazon | barg | o‘simlik | zarang</annotation>
+		<annotation cp="🍁" type="tts">zarang bargi</annotation>
+		<annotation cp="🍂">xazon | barg | o‘simlik</annotation>
+		<annotation cp="🍂" type="tts">xazon bargi</annotation>
+		<annotation cp="🍃">barg | o‘simlik | shamol | uchish</annotation>
+		<annotation cp="🍃" type="tts">shamolda uchayotgan barg</annotation>
+		<annotation cp="🍇">meva | o‘simlik</annotation>
+		<annotation cp="🍇" type="tts">uzum</annotation>
+		<annotation cp="🍈">meva | o‘simlik</annotation>
+		<annotation cp="🍈" type="tts">qovun</annotation>
+		<annotation cp="🍉">meva | o‘simlik</annotation>
+		<annotation cp="🍉" type="tts">tarvuz</annotation>
+		<annotation cp="🍊">meva | apelsin | o‘simlik</annotation>
+		<annotation cp="🍊" type="tts">mandarin</annotation>
+		<annotation cp="🍋">sitrus | meva | nordon | o‘simlik</annotation>
+		<annotation cp="🍋" type="tts">limon</annotation>
+		<annotation cp="🍌">meva | o‘simlik</annotation>
+		<annotation cp="🍌" type="tts">banan</annotation>
+		<annotation cp="🍍">meva | o‘simlik</annotation>
+		<annotation cp="🍍" type="tts">ananas</annotation>
+		<annotation cp="🍎">olma | meva | o‘simlik | qizil</annotation>
+		<annotation cp="🍎" type="tts">qizil olma</annotation>
+		<annotation cp="🍏">olma | meva | yashil | o‘zimlik</annotation>
+		<annotation cp="🍏" type="tts">yashil olma</annotation>
+		<annotation cp="🍐">meva | o‘simlik</annotation>
+		<annotation cp="🍐" type="tts">nok</annotation>
+		<annotation cp="🍑">meva | o‘simlik</annotation>
+		<annotation cp="🍑" type="tts">shaftoli</annotation>
+		<annotation cp="🍒">olcha | meva | o‘simlik</annotation>
+		<annotation cp="🍒" type="tts">gilos</annotation>
+		<annotation cp="🍓">meva | o‘simlik</annotation>
+		<annotation cp="🍓" type="tts">qulupnay</annotation>
+		<annotation cp="🥝">kivi | meva | taom</annotation>
+		<annotation cp="🥝" type="tts">kivi</annotation>
+		<annotation cp="🍅">o‘simlik | sabzavot</annotation>
+		<annotation cp="🍅" type="tts">pomidor</annotation>
+		<annotation cp="🥑">avokado | meva | taom</annotation>
+		<annotation cp="🥑" type="tts">avokado</annotation>
+		<annotation cp="🍆">o‘simlik | sabzavot</annotation>
+		<annotation cp="🍆" type="tts">baqlajon</annotation>
+		<annotation cp="🥔">kartoshka | sabzavot | taom</annotation>
+		<annotation cp="🥔" type="tts">kartoshka</annotation>
+		<annotation cp="🥕">sabzi | sabzavot | taom</annotation>
+		<annotation cp="🥕" type="tts">sabzi</annotation>
+		<annotation cp="🌽">jo‘xori | boshoq | o‘simlik</annotation>
+		<annotation cp="🌽" type="tts">makkajo‘xori</annotation>
+		<annotation cp="🌶">achchiq | qalampir | o‘simlik</annotation>
+		<annotation cp="🌶" type="tts">achchiq qalampir</annotation>
+		<annotation cp="🥒">bodring | tuzlama | sabzavot | taom</annotation>
+		<annotation cp="🥒" type="tts">bodring</annotation>
+		<annotation cp="🍄">o‘simlik</annotation>
+		<annotation cp="🍄" type="tts">qo‘ziqorin</annotation>
+		<annotation cp="🥜">yeryong‘oq | yong‘oq | taom | sabzavot</annotation>
+		<annotation cp="🥜" type="tts">yeryong‘oq</annotation>
+		<annotation cp="🌰">o‘simlik</annotation>
+		<annotation cp="🌰" type="tts">kashtan yong‘oq</annotation>
+		<annotation cp="🍞">bulka non</annotation>
+		<annotation cp="🍞" type="tts">non</annotation>
+		<annotation cp="🥐">kruassan | fransuz | taom | non</annotation>
+		<annotation cp="🥐" type="tts">kruassan</annotation>
+		<annotation cp="🥖">baget | non | fransuz | taom</annotation>
+		<annotation cp="🥖" type="tts">baget</annotation>
+		<annotation cp="🥞">blinchik | taom</annotation>
+		<annotation cp="🥞" type="tts">blinchik</annotation>
+		<annotation cp="🧀">pishloq</annotation>
+		<annotation cp="🧀" type="tts">pishloq bo‘lagi</annotation>
+		<annotation cp="🍖">suyak | go‘sht</annotation>
+		<annotation cp="🍖" type="tts">suyakdagi go‘sht</annotation>
+		<annotation cp="🍗">suyak | tovuq | oyoq | parranda</annotation>
+		<annotation cp="🍗" type="tts">parranda oyog‘i</annotation>
+		<annotation cp="🥓">bekon | go‘sht | taom</annotation>
+		<annotation cp="🥓" type="tts">bekon</annotation>
+		<annotation cp="🍔">burger</annotation>
+		<annotation cp="🍔" type="tts">gamburger</annotation>
+		<annotation cp="🍟">qovurilgan | kartoshka | fri</annotation>
+		<annotation cp="🍟" type="tts">qovurilgan fri-kartoshka</annotation>
+		<annotation cp="🍕">pishloq | bo‘lak</annotation>
+		<annotation cp="🍕" type="tts">pitsa</annotation>
+		<annotation cp="🌭">kolbasa</annotation>
+		<annotation cp="🌭" type="tts">xot-dog</annotation>
+		<annotation cp="🌮">meksika taomi</annotation>
+		<annotation cp="🌮" type="tts">tako</annotation>
+		<annotation cp="🌯">meksika taomi</annotation>
+		<annotation cp="🌯" type="tts">burrito</annotation>
+		<annotation cp="🥙">shaurma | kabob | lavash | taom</annotation>
+		<annotation cp="🥙" type="tts">shaurma</annotation>
+		<annotation cp="🥚">tuxum | taom</annotation>
+		<annotation cp="🥚" type="tts">tuxum</annotation>
+		<annotation cp="🍳">tuxum | qovurish | tova</annotation>
+		<annotation cp="🍳" type="tts">taom tayyorlash</annotation>
+		<annotation cp="🥘">paelya | jarkop | tova | taom</annotation>
+		<annotation cp="🥘" type="tts">bir tova qovurdoq</annotation>
+		<annotation cp="🍲">qozon | go‘sht</annotation>
+		<annotation cp="🍲" type="tts">bir qozon ovqat</annotation>
+		<annotation cp="🥗">sabzavot | salat | taom</annotation>
+		<annotation cp="🥗" type="tts">sabzavotli salat</annotation>
+		<annotation cp="🍿">popkorn</annotation>
+		<annotation cp="🍿" type="tts">popkorn</annotation>
+		<annotation cp="🍱">xonachali | quti</annotation>
+		<annotation cp="🍱" type="tts">xonachali taom qutisi</annotation>
+		<annotation cp="🍘">kreker | guruch</annotation>
+		<annotation cp="🍘" type="tts">guruchli pishiriq</annotation>
+		<annotation cp="🍙">yumaloq | yapon | guruch</annotation>
+		<annotation cp="🍙" type="tts">yumaloqlangan guruch</annotation>
+		<annotation cp="🍚">pishirilgan | guruch</annotation>
+		<annotation cp="🍚" type="tts">pishirilgan guruch</annotation>
+		<annotation cp="🍛">karri | guruch</annotation>
+		<annotation cp="🍛" type="tts">guruchli karri</annotation>
+		<annotation cp="🍜">kosa | lag‘mon | ramyon | issiq</annotation>
+		<annotation cp="🍜" type="tts">issiq lag‘mon</annotation>
+		<annotation cp="🍝">pasta</annotation>
+		<annotation cp="🍝" type="tts">spagetti</annotation>
+		<annotation cp="🍠">kartoshka | shirin | qovurilgan</annotation>
+		<annotation cp="🍠" type="tts">jigarli batat</annotation>
+		<annotation cp="🍢">kabob | dengiz taomi | six</annotation>
+		<annotation cp="🍢" type="tts">sixdagi dengiz taomi</annotation>
+		<annotation cp="🍣">sushi</annotation>
+		<annotation cp="🍣" type="tts">sushi</annotation>
+		<annotation cp="🍤">qovurilgan | qisqichbaqa | tempura</annotation>
+		<annotation cp="🍤" type="tts">qovurilgan qisqichbaqa</annotation>
+		<annotation cp="🍥">tort | baliq | qandolat | girdob</annotation>
+		<annotation cp="🍥" type="tts">girdob ko‘rinishidagi baliqli tort</annotation>
+		<annotation cp="🍡">shirinlik | yapon | six | tayoq | shirin</annotation>
+		<annotation cp="🍡" type="tts">dango</annotation>
+		<annotation cp="🍦">krem | shirinlik | muz | muzqaymoq | shirin | yumshoq</annotation>
+		<annotation cp="🍦" type="tts">yumshoq muzqaymoq</annotation>
+		<annotation cp="🍧">shirinlik | muz | qirilgan | shirin</annotation>
+		<annotation cp="🍧" type="tts">qirilgan muz</annotation>
+		<annotation cp="🍨">krem | shirinlik | muz | shirin</annotation>
+		<annotation cp="🍨" type="tts">muzqaymoq</annotation>
+		<annotation cp="🍩">shirinlik | shirin</annotation>
+		<annotation cp="🍩" type="tts">kulcha</annotation>
+		<annotation cp="🍪">shirinlik | shirin</annotation>
+		<annotation cp="🍪" type="tts">pishiriq</annotation>
+		<annotation cp="🎂">tug‘ilgan kun | nishonlash | shirinlik | qandolat | shirin</annotation>
+		<annotation cp="🎂" type="tts">tort</annotation>
+		<annotation cp="🍰">tort | shirinlik | qandolat | bo‘lak | shirin</annotation>
+		<annotation cp="🍰" type="tts">tort bo‘lagi</annotation>
+		<annotation cp="🍫">bo‘lak | shokolad | shirinlik | shirin</annotation>
+		<annotation cp="🍫" type="tts">shokolad bo‘lagi</annotation>
+		<annotation cp="🍬">shirinlik | shirin</annotation>
+		<annotation cp="🍬" type="tts">konfet</annotation>
+		<annotation cp="🍭">konfet | shirinlik | shirin</annotation>
+		<annotation cp="🍭" type="tts">obakidandon</annotation>
+		<annotation cp="🍮">shirinlik | puding | shirin</annotation>
+		<annotation cp="🍮" type="tts">krem</annotation>
+		<annotation cp="🍯">asal | bochka | shirin</annotation>
+		<annotation cp="🍯" type="tts">asal idishi</annotation>
+		<annotation cp="🍼">chaqaloq | shisha idish | ichimlik | sut</annotation>
+		<annotation cp="🍼" type="tts">chaqaloqlar idishi</annotation>
+		<annotation cp="🥛">stakan | sut | ichimlik</annotation>
+		<annotation cp="🥛" type="tts">bir stakan sut</annotation>
+		<annotation cp="☕">kofe | ichimlik | issiq | bug‘lanib turgan | choy</annotation>
+		<annotation cp="☕" type="tts">issiq ichimlik</annotation>
+		<annotation cp="🍵">issiq ichimlik | ichimlik | choy</annotation>
+		<annotation cp="🍵" type="tts">piyola</annotation>
+		<annotation cp="🍶">bar | issiq ichimlik | shisha idish | piyola | ichimlik</annotation>
+		<annotation cp="🍶" type="tts">ko‘za va piyola</annotation>
+		<annotation cp="🍾">bar | shisha idish | ichimlik | otilayotgan</annotation>
+		<annotation cp="🍾" type="tts">tiqinli shisha idish</annotation>
+		<annotation cp="🍷">bar | issiq ichimlik | ichimlik | stakan | vino</annotation>
+		<annotation cp="🍷" type="tts">vino qadahi</annotation>
+		<annotation cp="🍸">bar | kokteyl | ichimlik | stakan</annotation>
+		<annotation cp="🍸" type="tts">kokteyl qadahi</annotation>
+		<annotation cp="🍹">bar | ichimlik | tropik</annotation>
+		<annotation cp="🍹" type="tts">tropik ichimlik</annotation>
+		<annotation cp="🍺">bar | pivo | ichimlik | krujka</annotation>
+		<annotation cp="🍺" type="tts">pivo stakani</annotation>
+		<annotation cp="🍻">bar | pivo | ichimlik | jaranglash | krujka</annotation>
+		<annotation cp="🍻" type="tts">to‘qnashtirilayotgan pivo stakanlari</annotation>
+		<annotation cp="🥂">jaranglash | qadah | ichimlik | bayram</annotation>
+		<annotation cp="🥂" type="tts">qadah urishtirish</annotation>
+		<annotation cp="🥃">stakan | vino | viski | liker | kokteyl</annotation>
+		<annotation cp="🥃" type="tts">vino uchun stakan</annotation>
+		<annotation cp="🍽">taom | sanchqi | pichoq | likopcha</annotation>
+		<annotation cp="🍽" type="tts">sanchqi, pichoq va likopcha</annotation>
+		<annotation cp="🍴">taom | sanchqi | pichoq</annotation>
+		<annotation cp="🍴" type="tts">sanchqi va pichoq</annotation>
+		<annotation cp="🥄">qoshiq | oshxona anjomi</annotation>
+		<annotation cp="🥄" type="tts">qoshiq</annotation>
+		<annotation cp="🔪">taom | asbob | qurol</annotation>
+		<annotation cp="🔪" type="tts">pichoq</annotation>
+		<annotation cp="🏺">qovg‘a | taom | ichimlik | burj</annotation>
+		<annotation cp="🏺" type="tts">ko‘za</annotation>
+		<annotation cp="🌍">afrika | yer | yevropa | globus | dunyo</annotation>
+		<annotation cp="🌍" type="tts">globusda yevropa va afrika qit’asi</annotation>
+		<annotation cp="🌎">amerika | yer | globus | dunyo</annotation>
+		<annotation cp="🌎" type="tts">globusda amerika qit’asi</annotation>
+		<annotation cp="🌏">osiyo | avstraliya | yer | globus | dunyo</annotation>
+		<annotation cp="🌏" type="tts">globusda osiyo va avstraliya qit’asi</annotation>
+		<annotation cp="🌐">yer | globus | meridian | dunyo</annotation>
+		<annotation cp="🌐" type="tts">meridian chiziqli globus</annotation>
+		<annotation cp="🗺">xarita | dunyo</annotation>
+		<annotation cp="🗺" type="tts">dunyo xaritasi</annotation>
+		<annotation cp="🗾">yapon | xarita</annotation>
+		<annotation cp="🗾" type="tts">yaponiya xaritasi</annotation>
+		<annotation cp="🏔">sovuq | tog‘ | qor</annotation>
+		<annotation cp="🏔" type="tts">qor qoplagan tog‘</annotation>
+		<annotation cp="⛰">tog‘</annotation>
+		<annotation cp="⛰" type="tts">tog‘</annotation>
+		<annotation cp="🌋">tog‘ | ob-havo</annotation>
+		<annotation cp="🌋" type="tts">vulqon</annotation>
+		<annotation cp="🗻">fuji | tog‘</annotation>
+		<annotation cp="🗻" type="tts">fuji tog‘i</annotation>
+		<annotation cp="🏕">tabiat qo‘ynida dam</annotation>
+		<annotation cp="🏕" type="tts">tabiat qo‘ynida dam</annotation>
+		<annotation cp="🏖">qirg‘oq | soyabon</annotation>
+		<annotation cp="🏖" type="tts">qirg‘oq va soyabon</annotation>
+		<annotation cp="🏜">sahro</annotation>
+		<annotation cp="🏜" type="tts">cho‘l</annotation>
+		<annotation cp="🏝">cho‘l | orol</annotation>
+		<annotation cp="🏝" type="tts">cho‘l orol</annotation>
+		<annotation cp="🏞">bog‘ | park</annotation>
+		<annotation cp="🏞" type="tts">istirohat bog‘i</annotation>
+		<annotation cp="🏟">stadion</annotation>
+		<annotation cp="🏟" type="tts">stadion</annotation>
+		<annotation cp="🏛">bino | qadimiy</annotation>
+		<annotation cp="🏛" type="tts">qadimiy bino</annotation>
+		<annotation cp="🏗">bino | qurilish</annotation>
+		<annotation cp="🏗" type="tts">bino qurilishi</annotation>
+		<annotation cp="🏘">bino | uy</annotation>
+		<annotation cp="🏘" type="tts">uylar</annotation>
+		<annotation cp="🏙">bino | shahar</annotation>
+		<annotation cp="🏙" type="tts">shahar manzarasi</annotation>
+		<annotation cp="🏚">bino | uy | tashlandiq</annotation>
+		<annotation cp="🏚" type="tts">tashlandiq uy</annotation>
+		<annotation cp="🏠">bino</annotation>
+		<annotation cp="🏠" type="tts">uy</annotation>
+		<annotation cp="🏡">bino | bog‘ | uy</annotation>
+		<annotation cp="🏡" type="tts">hovli</annotation>
+		<annotation cp="🏢">bino</annotation>
+		<annotation cp="🏢" type="tts">ofis binosi</annotation>
+		<annotation cp="🏣">bino | yapon | pochtampt</annotation>
+		<annotation cp="🏣" type="tts">yaponcha pochtampt</annotation>
+		<annotation cp="🏤">bino | yevropa | pochtamp</annotation>
+		<annotation cp="🏤" type="tts">pochtampt</annotation>
+		<annotation cp="🏥">bino | shifokor | tibbiyot</annotation>
+		<annotation cp="🏥" type="tts">shifoxona</annotation>
+		<annotation cp="🏦">bino</annotation>
+		<annotation cp="🏦" type="tts">bank</annotation>
+		<annotation cp="🏨">bino</annotation>
+		<annotation cp="🏨" type="tts">mehmonxona</annotation>
+		<annotation cp="🏩">bino | mehmonxona | sevgi</annotation>
+		<annotation cp="🏩" type="tts">sevgi mehmonxonasi</annotation>
+		<annotation cp="🏪">bino | qulaylik | do‘kon</annotation>
+		<annotation cp="🏪" type="tts">navbatchi do‘kon</annotation>
+		<annotation cp="🏫">bino</annotation>
+		<annotation cp="🏫" type="tts">maktab</annotation>
+		<annotation cp="🏬">bino | savdo | do‘kon</annotation>
+		<annotation cp="🏬" type="tts">univermag</annotation>
+		<annotation cp="🏭">bino</annotation>
+		<annotation cp="🏭" type="tts">zavod</annotation>
+		<annotation cp="🏯">bino | qasr | yapon</annotation>
+		<annotation cp="🏯" type="tts">yapon qasri</annotation>
+		<annotation cp="🏰">bino | yevropa</annotation>
+		<annotation cp="🏰" type="tts">qasr</annotation>
+		<annotation cp="💒">mehrob | ibodatxona | butxona | nikoh | romantika</annotation>
+		<annotation cp="💒" type="tts">nikoh to‘yi</annotation>
+		<annotation cp="🗼">tokyo | minora</annotation>
+		<annotation cp="🗼" type="tts">tokio teleminorasi</annotation>
+		<annotation cp="🗽">ozodlik | haykal</annotation>
+		<annotation cp="🗽" type="tts">ozodlik haykali</annotation>
+		<annotation cp="⛪">bino | nasroniylik | xoch | din</annotation>
+		<annotation cp="⛪" type="tts">cherkov</annotation>
+		<annotation cp="🕌">islom | muslim | din</annotation>
+		<annotation cp="🕌" type="tts">masjid</annotation>
+		<annotation cp="🕍">ibroniy | yahudiy | din | ibodatxona</annotation>
+		<annotation cp="🕍" type="tts">sinagog</annotation>
+		<annotation cp="⛩">din | shinto | shrin</annotation>
+		<annotation cp="⛩" type="tts">shinto shrin</annotation>
+		<annotation cp="🕋">islom | muslim | din</annotation>
+		<annotation cp="🕋" type="tts">kabatulloh</annotation>
+		<annotation cp="⛲">fontan</annotation>
+		<annotation cp="⛲" type="tts">fontan</annotation>
+		<annotation cp="⛺">lager</annotation>
+		<annotation cp="⛺" type="tts">chodir</annotation>
+		<annotation cp="🌁">tuman | ob-havo</annotation>
+		<annotation cp="🌁" type="tts">tumanli</annotation>
+		<annotation cp="🌃">tun | yulduz | ob-havo</annotation>
+		<annotation cp="🌃" type="tts">yulduzli tun</annotation>
+		<annotation cp="🌄">tong | tog‘ | quyosh | quyosh chiqishi | ob-havo</annotation>
+		<annotation cp="🌄" type="tts">tog‘lar ortidan quyosh chiqishi</annotation>
+		<annotation cp="🌅">tong | quyosh | ob-havo</annotation>
+		<annotation cp="🌅" type="tts">quyosh chiqishi</annotation>
+		<annotation cp="🌆">bino | shahar | shom | kechqurun | manzara | quyosh | quyosh botishi | ob-havo</annotation>
+		<annotation cp="🌆" type="tts">kunbotar mahaldagi shahar manzarasi</annotation>
+		<annotation cp="🌇">bino | quyosh | ob-havo</annotation>
+		<annotation cp="🌇" type="tts">quyosh botishi</annotation>
+		<annotation cp="🌉">ko‘prik | tun | ob-havo</annotation>
+		<annotation cp="🌉" type="tts">tundagi ko‘prik</annotation>
+		<annotation cp="♨">issiq | buloq | bug‘</annotation>
+		<annotation cp="♨" type="tts">issiq buloq</annotation>
+		<annotation cp="🌌">koinot | ob-havo</annotation>
+		<annotation cp="🌌" type="tts">somon yo‘li</annotation>
+		<annotation cp="🎠">karusel | ot</annotation>
+		<annotation cp="🎠" type="tts">karusel oti</annotation>
+		<annotation cp="🎡">ko‘ngilochar park</annotation>
+		<annotation cp="🎡" type="tts">charxpalak</annotation>
+		<annotation cp="🎢">ko‘ngilochar park | g‘ildiratma | hayinchak</annotation>
+		<annotation cp="🎢" type="tts">g‘ildiratma hayinchak</annotation>
+		<annotation cp="💈">sartarosh | soch kaltalatish | ustun</annotation>
+		<annotation cp="💈" type="tts">sartaroshlar ustuni</annotation>
+		<annotation cp="🎪">sirk | chodir</annotation>
+		<annotation cp="🎪" type="tts">sirk chodiri</annotation>
+		<annotation cp="🎭">san’at | niqob | teatr</annotation>
+		<annotation cp="🎭" type="tts">teatr niqoblari</annotation>
+		<annotation cp="🖼">san’at | hoshiya | ramka | muzey | rassomlik | rasm</annotation>
+		<annotation cp="🖼" type="tts">ramkali surat</annotation>
+		<annotation cp="🎨">san’at | muzey | rassomlik | paletra</annotation>
+		<annotation cp="🎨" type="tts">palitra</annotation>
+		<annotation cp="🎰">o‘yin | avtomat</annotation>
+		<annotation cp="🎰" type="tts">o‘yin avtomati</annotation>
+		<annotation cp="🚂">motor | temiryo‘l | bug‘ | poyezd | transport</annotation>
+		<annotation cp="🚂" type="tts">lokomotiv</annotation>
+		<annotation cp="🚃">mashina | elektr | temiryo‘l | poyezd | tramvay | trolleybus | transport</annotation>
+		<annotation cp="🚃" type="tts">temiryo‘l vagoni</annotation>
+		<annotation cp="🚄">temiryo‘l | shinkansen | tezyurar | poyezd | transport</annotation>
+		<annotation cp="🚄" type="tts">tezyurar poyezd</annotation>
+		<annotation cp="🚅">uchli | temiryo‘l | shinkansen | tezyurar | poyezd | transport</annotation>
+		<annotation cp="🚅" type="tts">oldi uchli tezyurar poyezd</annotation>
+		<annotation cp="🚆">temiryo‘l | transport</annotation>
+		<annotation cp="🚆" type="tts">poyezd</annotation>
+		<annotation cp="🚇">transport</annotation>
+		<annotation cp="🚇" type="tts">metro</annotation>
+		<annotation cp="🚈">temiryo‘l | transport</annotation>
+		<annotation cp="🚈" type="tts">tor izli temiryo‘l</annotation>
+		<annotation cp="🚉">temiryo‘l | poyezd | transport</annotation>
+		<annotation cp="🚉" type="tts">bekat</annotation>
+		<annotation cp="🚊">trolleybus | transport</annotation>
+		<annotation cp="🚊" type="tts">tramvay</annotation>
+		<annotation cp="🚝">transport</annotation>
+		<annotation cp="🚝" type="tts">bir izli temiryo‘l</annotation>
+		<annotation cp="🚞">mashina | tog‘ | temiryo‘l | transport</annotation>
+		<annotation cp="🚞" type="tts">to‘g‘ temiryo‘li</annotation>
+		<annotation cp="🚋">mashina | tramvay | trolleybus | transport</annotation>
+		<annotation cp="🚋" type="tts">tramvay vagoni</annotation>
+		<annotation cp="🚌">transport</annotation>
+		<annotation cp="🚌" type="tts">avtobus</annotation>
+		<annotation cp="🚍">avtobus | yaqinlashayotgan | kelayotgan | transport</annotation>
+		<annotation cp="🚍" type="tts">yaqinlashayotgan avtobus</annotation>
+		<annotation cp="🚎">avtobus | tramvay | transport</annotation>
+		<annotation cp="🚎" type="tts">trolleybus</annotation>
+		<annotation cp="🚐">avtobus | transport</annotation>
+		<annotation cp="🚐" type="tts">minibus</annotation>
+		<annotation cp="🚑">transport</annotation>
+		<annotation cp="🚑" type="tts">tez yordam mashinasi</annotation>
+		<annotation cp="🚒">motor | yong‘in | yuk mashinasi | transport</annotation>
+		<annotation cp="🚒" type="tts">o‘t o‘chirish mashinasi</annotation>
+		<annotation cp="🚓">mashina | patrul | politsiya | transport</annotation>
+		<annotation cp="🚓" type="tts">politsiya mashinasi</annotation>
+		<annotation cp="🚔">mashina | kelayotgan | yaqinlashayotgan | politsiya | transport</annotation>
+		<annotation cp="🚔" type="tts">yaqinlashayotgan politsiya mashinasi</annotation>
+		<annotation cp="🚕">transport</annotation>
+		<annotation cp="🚕" type="tts">taksi</annotation>
+		<annotation cp="🚖">yaqinlashayotgan | taksi | transport</annotation>
+		<annotation cp="🚖" type="tts">yaqinlashayotgan taksi</annotation>
+		<annotation cp="🚗">mashina | transport</annotation>
+		<annotation cp="🚗" type="tts">avtomobil</annotation>
+		<annotation cp="🚘">avtomobil | mashina | yaqinlashayotgan | transport</annotation>
+		<annotation cp="🚘" type="tts">yaqinlashayotgan avtomobil</annotation>
+		<annotation cp="🚙">hordiq | transport</annotation>
+		<annotation cp="🚙" type="tts">hordiq chiqarish avtomobili</annotation>
+		<annotation cp="🚚">yetkazib berish | yuk mashinasi | transport</annotation>
+		<annotation cp="🚚" type="tts">yetkazib beruvchi yuk mashinasi</annotation>
+		<annotation cp="🚛">yuk mashinasi | transport</annotation>
+		<annotation cp="🚛" type="tts">tirkamali yuk mashinasi</annotation>
+		<annotation cp="🚜">transport</annotation>
+		<annotation cp="🚜" type="tts">traktor</annotation>
+		<annotation cp="🚲">transport</annotation>
+		<annotation cp="🚲" type="tts">velosiped</annotation>
+		<annotation cp="🛴">samokat</annotation>
+		<annotation cp="🛴" type="tts">samokat</annotation>
+		<annotation cp="🛵">moped</annotation>
+		<annotation cp="🛵" type="tts">moped</annotation>
+		<annotation cp="🚏">avtobus | bekat</annotation>
+		<annotation cp="🚏" type="tts">avtobus bekati</annotation>
+		<annotation cp="🛣">trassa | yo‘l | ko‘cha</annotation>
+		<annotation cp="🛣" type="tts">avtomobil yo‘li</annotation>
+		<annotation cp="🛤">poyezd</annotation>
+		<annotation cp="🛤" type="tts">temiryo‘l</annotation>
+		<annotation cp="⛽">yonilg‘i | benzin | shahobcha | qo‘yish</annotation>
+		<annotation cp="⛽" type="tts">yonilg‘i nasosi</annotation>
+		<annotation cp="🚨">mashina | mayoq | politsiya | transport</annotation>
+		<annotation cp="🚨" type="tts">politsiya mashinasi mayog‘i</annotation>
+		<annotation cp="🚥">svetofor | signal | tirbandlik | yo‘l</annotation>
+		<annotation cp="🚥" type="tts">yotiq svetofor</annotation>
+		<annotation cp="🚦">svetofor | signal | tirbandlik | yo‘l</annotation>
+		<annotation cp="🚦" type="tts">tik svetofor</annotation>
+		<annotation cp="🚧">to‘siq</annotation>
+		<annotation cp="🚧" type="tts">qurilish</annotation>
+		<annotation cp="🛑">sakkizburchak | belgi | stop</annotation>
+		<annotation cp="🛑" type="tts">stop belgisi</annotation>
+		<annotation cp="⚓">kema | asbob</annotation>
+		<annotation cp="⚓" type="tts">langar</annotation>
+		<annotation cp="⛵">kema | dengiz | transport | yaxta</annotation>
+		<annotation cp="⛵" type="tts">yelkanli kema</annotation>
+		<annotation cp="🛶">kanoe | qayiq</annotation>
+		<annotation cp="🛶" type="tts">kanoe</annotation>
+		<annotation cp="🚤">qayiq | transport</annotation>
+		<annotation cp="🚤" type="tts">tezyurar qayiq</annotation>
+		<annotation cp="🛳">yo‘lovchi | kema | transport</annotation>
+		<annotation cp="🛳" type="tts">yo‘lovchi kemasi</annotation>
+		<annotation cp="⛴">qayiq</annotation>
+		<annotation cp="⛴" type="tts">parom</annotation>
+		<annotation cp="🛥">qayiq | transport</annotation>
+		<annotation cp="🛥" type="tts">motorli qayiq</annotation>
+		<annotation cp="🚢">transport</annotation>
+		<annotation cp="🚢" type="tts">kema</annotation>
+		<annotation cp="✈">transport</annotation>
+		<annotation cp="✈" type="tts">samolyot</annotation>
+		<annotation cp="🛩">samolyot | transport</annotation>
+		<annotation cp="🛩" type="tts">kichik samolyot</annotation>
+		<annotation cp="🛫">samolyot | jo‘nab ketish | aeroport | transport</annotation>
+		<annotation cp="🛫" type="tts">samolyot jo‘nab ketishi</annotation>
+		<annotation cp="🛬">samolyot | qo‘nish | aeroport | transport</annotation>
+		<annotation cp="🛬" type="tts">samolyot qo‘nishi</annotation>
+		<annotation cp="💺">stul | kreslo</annotation>
+		<annotation cp="💺" type="tts">o‘rindiq</annotation>
+		<annotation cp="🚁">transport</annotation>
+		<annotation cp="🚁" type="tts">vertolyot</annotation>
+		<annotation cp="🚟">temiryo‘l | osma | transport</annotation>
+		<annotation cp="🚟" type="tts">osma temiryo‘l</annotation>
+		<annotation cp="🚠">dor | tog‘ | transport</annotation>
+		<annotation cp="🚠" type="tts">tog‘ dor yo‘li</annotation>
+		<annotation cp="🚡">havo | sim | mashina | dor yo‘li | tramvay | transport</annotation>
+		<annotation cp="🚡" type="tts">havo tramvayi</annotation>
+		<annotation cp="🛰">koinot | transport</annotation>
+		<annotation cp="🛰" type="tts">sun’iy yo‘ldosh</annotation>
+		<annotation cp="🚀">koinot | transport</annotation>
+		<annotation cp="🚀" type="tts">raketa</annotation>
+		<annotation cp="🛎">qo‘ng‘iroqcha | pochtachi | mehmonxona | qabulxona</annotation>
+		<annotation cp="🛎" type="tts">pochtachi qo‘ng‘irog‘i</annotation>
+		<annotation cp="🚪">eshik</annotation>
+		<annotation cp="🚪" type="tts">eshik</annotation>
+		<annotation cp="🛏">mehmonxona | uyqu | uxlash</annotation>
+		<annotation cp="🛏" type="tts">karavot</annotation>
+		<annotation cp="🛋">divan | mehmonxona | lampa | chiroq</annotation>
+		<annotation cp="🛋" type="tts">divan va lampa</annotation>
+		<annotation cp="🚽">hojatxona</annotation>
+		<annotation cp="🚽" type="tts">tualet</annotation>
+		<annotation cp="🚿">suv</annotation>
+		<annotation cp="🚿" type="tts">dush</annotation>
+		<annotation cp="🛁">vanna</annotation>
+		<annotation cp="🛁" type="tts">vanna</annotation>
+		<annotation cp="⌛">qum | soat</annotation>
+		<annotation cp="⌛" type="tts">qumsoat</annotation>
+		<annotation cp="⏳">qumsoat | qum | soat</annotation>
+		<annotation cp="⏳" type="tts">qum tushayotgan qumsoat</annotation>
+		<annotation cp="⌚">soat</annotation>
+		<annotation cp="⌚" type="tts">qo‘l soati</annotation>
+		<annotation cp="⏰">uyg‘otkich | soat | budilnik</annotation>
+		<annotation cp="⏰" type="tts">uyg‘otadigan soat</annotation>
+		<annotation cp="⏱">soat</annotation>
+		<annotation cp="⏱" type="tts">sekundomer</annotation>
+		<annotation cp="⏲">soat | taymer</annotation>
+		<annotation cp="⏲" type="tts">taymer soat</annotation>
+		<annotation cp="🕰">soat</annotation>
+		<annotation cp="🕰" type="tts">tosh soat</annotation>
+		<annotation cp="🕛">00 | 12 | 12:00 | soat | o‘n ikki</annotation>
+		<annotation cp="🕛" type="tts">soat o‘n ikki</annotation>
+		<annotation cp="🕧">12 | 12:30 | 30 | soat | yarim | o‘n ikki | o‘ttiz</annotation>
+		<annotation cp="🕧" type="tts">soat o‘n ikki yarim</annotation>
+		<annotation cp="🕐">00 | 1 | 1:00 | soat | bir</annotation>
+		<annotation cp="🕐" type="tts">soat bir</annotation>
+		<annotation cp="🕜">1 | 1:30 | 30 | soat | bir | yarim | o‘ttiz</annotation>
+		<annotation cp="🕜" type="tts">bir yarim</annotation>
+		<annotation cp="🕑">00 | 2 | 2:00 | soat | ikki</annotation>
+		<annotation cp="🕑" type="tts">soat ikki</annotation>
+		<annotation cp="🕝">2 | 2:30 | 30 | soat | yarim | ikki | o‘ttiz</annotation>
+		<annotation cp="🕝" type="tts">ikki yarim</annotation>
+		<annotation cp="🕒">00 | 3 | 3:00 | soat | uch</annotation>
+		<annotation cp="🕒" type="tts">soat uch</annotation>
+		<annotation cp="🕞">3 | 3:30 | 30 | soat | uch | yarim | o‘ttiz</annotation>
+		<annotation cp="🕞" type="tts">uch yarim</annotation>
+		<annotation cp="🕓">00 | 4 | 4:00 | soat | to‘rt</annotation>
+		<annotation cp="🕓" type="tts">soat to‘rt</annotation>
+		<annotation cp="🕟">30 | 4 | 4:30 | soat | to‘rt | yarim | o‘ttiz</annotation>
+		<annotation cp="🕟" type="tts">to‘rt yarim</annotation>
+		<annotation cp="🕔">00 | 5 | 5:00 | soat | besh</annotation>
+		<annotation cp="🕔" type="tts">soat besh</annotation>
+		<annotation cp="🕠">30 | 5 | 5:30 | soat | besh | yarim | o‘ttiz</annotation>
+		<annotation cp="🕠" type="tts">besh yarim</annotation>
+		<annotation cp="🕕">00 | 6 | 6:00 | soat | olti</annotation>
+		<annotation cp="🕕" type="tts">soat olti</annotation>
+		<annotation cp="🕡">30 | 6 | 6:30 | soat | olti | yarim | o‘ttiz</annotation>
+		<annotation cp="🕡" type="tts">olti yarim</annotation>
+		<annotation cp="🕖">00 | 7 | 7:00 | soat | yetti</annotation>
+		<annotation cp="🕖" type="tts">soat yetti</annotation>
+		<annotation cp="🕢">30 | 7 | 7:30 | soat | yetti | yarim | o‘ttiz</annotation>
+		<annotation cp="🕢" type="tts">yetti yarim</annotation>
+		<annotation cp="🕗">00 | 8 | 8:00 | soat | sakkiz</annotation>
+		<annotation cp="🕗" type="tts">soat sakkiz</annotation>
+		<annotation cp="🕣">30 | 8 | 8:30 | soat | sakkiz | yarim | o‘ttiz</annotation>
+		<annotation cp="🕣" type="tts">sakkiz yarim</annotation>
+		<annotation cp="🕘">00 | 9 | 9:00 | soat | to‘qqiz</annotation>
+		<annotation cp="🕘" type="tts">soat to‘qqiz</annotation>
+		<annotation cp="🕤">30 | 9 | 9:30 | soat | to‘qqiz | yarim | o‘ttiz</annotation>
+		<annotation cp="🕤" type="tts">to‘qqiz yarim</annotation>
+		<annotation cp="🕙">00 | 10 | 10:00 | soat | o‘n</annotation>
+		<annotation cp="🕙" type="tts">soat o‘n</annotation>
+		<annotation cp="🕥">10 | 10:30 | 30 | soat | o‘n | yarim | o‘ttiz</annotation>
+		<annotation cp="🕥" type="tts">o‘n yarim</annotation>
+		<annotation cp="🕚">00 | 11 | 11:00 | soat | o‘n bir</annotation>
+		<annotation cp="🕚" type="tts">soat o‘n bir</annotation>
+		<annotation cp="🕦">11 | 11:30 | 30 | soat | o‘n bir | yarim | o‘ttiz</annotation>
+		<annotation cp="🕦" type="tts">o‘n bir yarim</annotation>
+		<annotation cp="🌑">qora | oy | koinot | ob-havo</annotation>
+		<annotation cp="🌑" type="tts">yangi oy</annotation>
+		<annotation cp="🌒">oy | koinot | kattalashib boruvchi | ob-havo</annotation>
+		<annotation cp="🌒" type="tts">kattalashib boruvchi yarim oy</annotation>
+		<annotation cp="🌓">oy | chorak | koinot | ob-havo</annotation>
+		<annotation cp="🌓" type="tts">birinchi chorakdagi oy</annotation>
+		<annotation cp="🌔">qavariq | oy | koinot | ob-havo</annotation>
+		<annotation cp="🌔" type="tts">kattalashib boruvchi qavariq oy</annotation>
+		<annotation cp="🌕">to‘liq | to‘lin | koinot | ob-havo</annotation>
+		<annotation cp="🌕" type="tts">to‘lin oy</annotation>
+		<annotation cp="🌖">qavariq | oy | koinot | kichrayib borayotgan | ob-havo</annotation>
+		<annotation cp="🌖" type="tts">kichiklashib borayotgan qavariq oy</annotation>
+		<annotation cp="🌗">oy | chorak | koinot | ob-havo</annotation>
+		<annotation cp="🌗" type="tts">oxirgi chorakdagi oy</annotation>
+		<annotation cp="🌘">oy | koinot | kichiklashib boruvchi | ob-havo</annotation>
+		<annotation cp="🌘" type="tts">kichiklashib borayotgan yarim oy</annotation>
+		<annotation cp="🌙">yarim oy | koinot | ob-havo</annotation>
+		<annotation cp="🌙" type="tts">oy</annotation>
+		<annotation cp="🌚">yuz | oy | oymomo | koinot | ob-havo</annotation>
+		<annotation cp="🌚" type="tts">yangi oy qiyofasi</annotation>
+		<annotation cp="🌛">yuz | oy | chorak | koinot | ob-havo</annotation>
+		<annotation cp="🌛" type="tts">birinchi chorakdagi oy qiyofasi</annotation>
+		<annotation cp="🌜">yuz | oy | chorak | koinot | ob-havo</annotation>
+		<annotation cp="🌜" type="tts">oxirgi chorakdagi oy qiyofasi</annotation>
+		<annotation cp="🌡">ob-havo</annotation>
+		<annotation cp="🌡" type="tts">termometr</annotation>
+		<annotation cp="☀">yorug‘lik | nurlar | koinot | quyoshli | ob-havo</annotation>
+		<annotation cp="☀" type="tts">quyosh</annotation>
+		<annotation cp="🌝">yorug‘lik | yuz | to‘lin | to‘liq | koinot | ob-havo | osmon</annotation>
+		<annotation cp="🌝" type="tts">to‘lin oy qiyofali</annotation>
+		<annotation cp="🌞">yorug‘ilik | yuz | osmon | quyosh | ob-havo</annotation>
+		<annotation cp="🌞" type="tts">quyosh qiyofasi</annotation>
+		<annotation cp="⭐">yulduz</annotation>
+		<annotation cp="⭐" type="tts">oq o‘rtacha yulduz</annotation>
+		<annotation cp="🌟">porloq | porlash | charaqlash | porlayotgan | yulduz</annotation>
+		<annotation cp="🌟" type="tts">porlayotgan yulduz</annotation>
+		<annotation cp="🌠">uchayotgan | koinot | osmon | yulduz</annotation>
+		<annotation cp="🌠" type="tts">uchayotgan yulduz</annotation>
+		<annotation cp="☁">ob-havo</annotation>
+		<annotation cp="☁" type="tts">bulut</annotation>
+		<annotation cp="⛅">bulut | quyosh | ob-havo</annotation>
+		<annotation cp="⛅" type="tts">bulut ortidagi quyosh</annotation>
+		<annotation cp="⛈">bulut | yomg‘ir | chaqmoq | ob-havo</annotation>
+		<annotation cp="⛈" type="tts">bulut, chaqmoq va yomg‘ir</annotation>
+		<annotation cp="🌤">bulut | quyosh | ob-havo</annotation>
+		<annotation cp="🌤" type="tts">kichik bulut ortidagi quyosh</annotation>
+		<annotation cp="🌥">bulut | quyosh | ob-havo</annotation>
+		<annotation cp="🌥" type="tts">bulutlar ortidagi quyosh</annotation>
+		<annotation cp="🌦">bulut | yomg‘ir | quyosh | ob-havo</annotation>
+		<annotation cp="🌦" type="tts">yomg‘irli bulutlar ortidagi quyosh</annotation>
+		<annotation cp="🌧">bulut | yomg‘ir | ob-havo</annotation>
+		<annotation cp="🌧" type="tts">yomg‘irli bulut</annotation>
+		<annotation cp="🌨">bulut | sovuq | qor | ob-havo</annotation>
+		<annotation cp="🌨" type="tts">qor yog‘ayotgan bulut</annotation>
+		<annotation cp="🌩">bulut | chaqmoq | yashin | ob-havo</annotation>
+		<annotation cp="🌩" type="tts">chaqmoq chaqayotgan bulut</annotation>
+		<annotation cp="🌪">bulut | ob-havo | dovul | shamol</annotation>
+		<annotation cp="🌪" type="tts">quyun</annotation>
+		<annotation cp="🌫">bulut | ob-havo</annotation>
+		<annotation cp="🌫" type="tts">tuman</annotation>
+		<annotation cp="🌬">esish | puflash | bulut | yuz | ob-havo | shamol</annotation>
+		<annotation cp="🌬" type="tts">shamol qiyofasi</annotation>
+		<annotation cp="🌀">aylanuvchan | bo‘ron | tayfun | ob-havo</annotation>
+		<annotation cp="🌀" type="tts">siklon</annotation>
+		<annotation cp="🌈">yomg‘ir | ob-havo</annotation>
+		<annotation cp="🌈" type="tts">kamalak</annotation>
+		<annotation cp="🌂">kiyim | yomg‘ir | soyabon | ob-havo</annotation>
+		<annotation cp="🌂" type="tts">yopiq soyabon</annotation>
+		<annotation cp="☂">kiyim | yomg‘ir | ob-havo</annotation>
+		<annotation cp="☂" type="tts">soyabon</annotation>
+		<annotation cp="☔">kiyim | tomchi | yomg‘ir | soyabon | ob-havo</annotation>
+		<annotation cp="☔" type="tts">yomg‘ir tomchilari va soyabon</annotation>
+		<annotation cp="⛱">yomg‘ir | quyosh | soyabon | ob-havo</annotation>
+		<annotation cp="⛱" type="tts">qumga qadalgan soyabon</annotation>
+		<annotation cp="⚡">xavfli | elektr toki | elektr | chaqmoq | kuchlanish</annotation>
+		<annotation cp="⚡" type="tts">yuqori kuchlanish</annotation>
+		<annotation cp="❄">sovuq | qor | ob-havo</annotation>
+		<annotation cp="❄" type="tts">qor parchasi</annotation>
+		<annotation cp="☃">sovuq | qor | ob-havo</annotation>
+		<annotation cp="☃" type="tts">qorbobo va qor</annotation>
+		<annotation cp="⛄">sovuq | qor | qor odami | ob-havo</annotation>
+		<annotation cp="⛄" type="tts">qorbobo</annotation>
+		<annotation cp="☄">koinot | osmon | samo</annotation>
+		<annotation cp="☄" type="tts">kometa</annotation>
+		<annotation cp="🔥">alanga | asbob</annotation>
+		<annotation cp="🔥" type="tts">olov</annotation>
+		<annotation cp="💧">sovuq | latifa | ko‘z yoshi | ob-havo</annotation>
+		<annotation cp="💧" type="tts">tomchi</annotation>
+		<annotation cp="🌊">okean | ummon | suv | to‘lqin | ob-havo</annotation>
+		<annotation cp="🌊" type="tts">suv to‘lqini</annotation>
+		<annotation cp="🎃">bayram | nishonlash | halloween | oshqovoq</annotation>
+		<annotation cp="🎃" type="tts">shamchiroqli oshqovoq</annotation>
+		<annotation cp="🎄">nishonlash | bayram | yangi yil | daraxt</annotation>
+		<annotation cp="🎄" type="tts">yangi yil archasi</annotation>
+		<annotation cp="🎆">bayram | nishonlash</annotation>
+		<annotation cp="🎆" type="tts">mushakbozlik</annotation>
+		<annotation cp="🎇">bayram | mushakbozlik | charaqlash</annotation>
+		<annotation cp="🎇" type="tts">bengal olovi</annotation>
+		<annotation cp="✨">uchqun | yulduz</annotation>
+		<annotation cp="✨" type="tts">uchqunlar</annotation>
+		<annotation cp="🎈">bayram</annotation>
+		<annotation cp="🎈" type="tts">shar</annotation>
+		<annotation cp="🎉">bayram | nishonlash | popildoq</annotation>
+		<annotation cp="🎉" type="tts">paqildoq</annotation>
+		<annotation cp="🎊">shar | bayram</annotation>
+		<annotation cp="🎊" type="tts">konfetti</annotation>
+		<annotation cp="🎋">banner | bayram | yapon | daraxt</annotation>
+		<annotation cp="🎋" type="tts">tanabata daraxti</annotation>
+		<annotation cp="🎍">bambuk | bayram | yapon | qarag‘ay | o‘simlik</annotation>
+		<annotation cp="🎍" type="tts">qarag‘ay bezagi</annotation>
+		<annotation cp="🎎">bayram | qo‘g‘irchoq | festival | yapon</annotation>
+		<annotation cp="🎎" type="tts">yapon qo‘g‘irchoqlari</annotation>
+		<annotation cp="🎏">zog‘orabaliq | bayram | vimpel</annotation>
+		<annotation cp="🎏" type="tts">zog‘orabaliq shaklidagi vimpel</annotation>
+		<annotation cp="🎐">qo‘ng‘iroqcha | bayram | jarangi | shamol</annotation>
+		<annotation cp="🎐" type="tts">shamol qo‘ng‘irog‘i</annotation>
+		<annotation cp="🎑">bayram | tadbir | oy | marosim</annotation>
+		<annotation cp="🎑" type="tts">oy marosimi</annotation>
+		<annotation cp="🎀">bayram</annotation>
+		<annotation cp="🎀" type="tts">lenta</annotation>
+		<annotation cp="🎁">quri | bayram | sovg‘a | o‘ralgan</annotation>
+		<annotation cp="🎁" type="tts">o‘ralgan sovg‘a</annotation>
+		<annotation cp="🎗">bayram | eslatma | lenta</annotation>
+		<annotation cp="🎗" type="tts">eslatma lentasi</annotation>
+		<annotation cp="🎟">kirish | chipta</annotation>
+		<annotation cp="🎟" type="tts">kirish chiptalari</annotation>
+		<annotation cp="🎫">kirish</annotation>
+		<annotation cp="🎫" type="tts">chipta</annotation>
+		<annotation cp="🎖">bayram | medal | harbiy</annotation>
+		<annotation cp="🎖" type="tts">harbiy medal</annotation>
+		<annotation cp="🏆">sovrin</annotation>
+		<annotation cp="🏆" type="tts">kubok</annotation>
+		<annotation cp="🏅">medal</annotation>
+		<annotation cp="🏅" type="tts">sport medali</annotation>
+		<annotation cp="🥇">birinchi o‘rin | oltin | medal</annotation>
+		<annotation cp="🥇" type="tts">oltin medal</annotation>
+		<annotation cp="🥈">ikkinchi o‘rin | kumush | medal</annotation>
+		<annotation cp="🥈" type="tts">kumush medal</annotation>
+		<annotation cp="🥉">uchinchi o‘rin | bronza | medal</annotation>
+		<annotation cp="🥉" type="tts">bronza medal</annotation>
+		<annotation cp="⚽">to‘p | futbol</annotation>
+		<annotation cp="⚽" type="tts">futbol to‘pi</annotation>
+		<annotation cp="⚾">to‘p</annotation>
+		<annotation cp="⚾" type="tts">beysbol</annotation>
+		<annotation cp="🏀">to‘p | chambarak | gardish</annotation>
+		<annotation cp="🏀" type="tts">basketbol</annotation>
+		<annotation cp="🏐">to‘p | o‘yin</annotation>
+		<annotation cp="🏐" type="tts">voleybol</annotation>
+		<annotation cp="🏈">amerikacha | to‘p | futbol</annotation>
+		<annotation cp="🏈" type="tts">amerikancha futbol</annotation>
+		<annotation cp="🏉">to‘p | futbol</annotation>
+		<annotation cp="🏉" type="tts">regbi</annotation>
+		<annotation cp="🎾">to‘p | raketka</annotation>
+		<annotation cp="🎾" type="tts">tennis</annotation>
+		<annotation cp="🎱">8 | 8 ta shar | shar | sakkiz | o‘yin</annotation>
+		<annotation cp="🎱" type="tts">billiard</annotation>
+		<annotation cp="🎳">to‘p | o‘yin</annotation>
+		<annotation cp="🎳" type="tts">bouling</annotation>
+		<annotation cp="🏏">to‘p | cho‘p | o‘yin</annotation>
+		<annotation cp="🏏" type="tts">kriket</annotation>
+		<annotation cp="🏑">to‘p | maydon | o‘yin | xokkey</annotation>
+		<annotation cp="🏑" type="tts">xokkey maydoni</annotation>
+		<annotation cp="🏒">o‘yin | xokkey | muz</annotation>
+		<annotation cp="🏒" type="tts">xokkey tayog‘i va diski</annotation>
+		<annotation cp="🏓">to‘p | o‘yin</annotation>
+		<annotation cp="🏓" type="tts">stol tennisi</annotation>
+		<annotation cp="🏸">qushcha | o‘yin | raketka</annotation>
+		<annotation cp="🏸" type="tts">badminton</annotation>
+		<annotation cp="🥊">boks | qo‘lqop | sport</annotation>
+		<annotation cp="🥊" type="tts">boks qo‘lqopi</annotation>
+		<annotation cp="🥋">dzyudo | karate | taekvondo | jang san’ati | sport formasi | sport</annotation>
+		<annotation cp="🥋" type="tts">sport kimonosi</annotation>
+		<annotation cp="🥅">gol | darvoza | sport</annotation>
+		<annotation cp="🥅" type="tts">sportga oid darvoza</annotation>
+		<annotation cp="🎯">buqa | buqa ko‘z | dart | ko‘z | o‘yin | mo‘ljal | taget</annotation>
+		<annotation cp="🎯" type="tts">mo‘ljalni urish</annotation>
+		<annotation cp="⛳">golf | teshik</annotation>
+		<annotation cp="⛳" type="tts">teshikka o‘rnatilgan bayroq</annotation>
+		<annotation cp="⛸">muz</annotation>
+		<annotation cp="⛸" type="tts">konki</annotation>
+		<annotation cp="🎣">baliq</annotation>
+		<annotation cp="🎣" type="tts">qarmoq</annotation>
+		<annotation cp="🎽">yugurish | futbolka</annotation>
+		<annotation cp="🎽" type="tts">yugurish futbolkasi</annotation>
+		<annotation cp="🎿">qor</annotation>
+		<annotation cp="🎿" type="tts">chang‘i</annotation>
+		<annotation cp="🎮">kontroller | o‘yin</annotation>
+		<annotation cp="🎮" type="tts">video o‘yin</annotation>
+		<annotation cp="🕹">o‘yin | video o‘yin</annotation>
+		<annotation cp="🕹" type="tts">joystik</annotation>
+		<annotation cp="🎲">shoshqol | tosh | o‘yin</annotation>
+		<annotation cp="🎲" type="tts">shoshqol toshi</annotation>
+		<annotation cp="♠">karta | o‘yin | qarg‘a</annotation>
+		<annotation cp="♠" type="tts">qarg‘a kartasi</annotation>
+		<annotation cp="♥">karta | yurak | yuraklar | o‘yin</annotation>
+		<annotation cp="♥" type="tts">tappon kartasi</annotation>
+		<annotation cp="♦">karta | qarta | q‘ishtin | romb | o‘yin</annotation>
+		<annotation cp="♦" type="tts">g‘ishtin kartasi</annotation>
+		<annotation cp="♣">karta | chillik | o‘yin</annotation>
+		<annotation cp="♣" type="tts">chillik kartasi</annotation>
+		<annotation cp="🃏">karta | o‘yin | o‘ynash</annotation>
+		<annotation cp="🃏" type="tts">o‘yin kartasidagi joker</annotation>
+		<annotation cp="🀄">o‘yin | majong | qizil</annotation>
+		<annotation cp="🀄" type="tts">majong toshidagi qizil ajdar</annotation>
+		<annotation cp="🎴">karta | gul | o‘yin | yapon | o‘ynash</annotation>
+		<annotation cp="🎴" type="tts">gulli o‘yin kartalari</annotation>
+		<annotation cp="🔇">sassis | tinch | shovqinsiz | karnay | ovoz balandligi</annotation>
+		<annotation cp="🔇" type="tts">ovozsiz</annotation>
+		<annotation cp="🔈">ovoz balandligi</annotation>
+		<annotation cp="🔈" type="tts">karnay</annotation>
+		<annotation cp="🔉">past | karnay | ovoz balandligi | to‘lqin</annotation>
+		<annotation cp="🔉" type="tts">ovozli</annotation>
+		<annotation cp="🔊">3 | yuqori | baland | karnay | uch | ovoz balandligi</annotation>
+		<annotation cp="🔊" type="tts">baland ovoz</annotation>
+		<annotation cp="📢">baland | ommaviy</annotation>
+		<annotation cp="📢" type="tts">e’lon qiluvchi karnay</annotation>
+		<annotation cp="📣">olqish</annotation>
+		<annotation cp="📣" type="tts">megafon</annotation>
+		<annotation cp="📯">shox | pochta | pochtampt</annotation>
+		<annotation cp="📯" type="tts">shoxsimon nay</annotation>
+		<annotation cp="🔔">qo‘ng‘iroqcha</annotation>
+		<annotation cp="🔔" type="tts">qo‘ng‘iroq</annotation>
+		<annotation cp="🔕">qo‘ng‘iroqcha | taqiqlangan | ovozsiz | yo‘q | mumkin emas | man etilgan | tinch | shovqinsiz</annotation>
+		<annotation cp="🔕" type="tts">taqiqlovchi chizig‘i bor qo‘ng‘iroq</annotation>
+		<annotation cp="🎼">musiqa | kalit</annotation>
+		<annotation cp="🎼" type="tts">musiqa kaliti</annotation>
+		<annotation cp="🎵">musiqa | nota</annotation>
+		<annotation cp="🎵" type="tts">musiqiy nota</annotation>
+		<annotation cp="🎶">musiqa | nota | notalar</annotation>
+		<annotation cp="🎶" type="tts">musiqiy notalar</annotation>
+		<annotation cp="🎙">mikrofon | musiqa | studiya</annotation>
+		<annotation cp="🎙" type="tts">studiya mikrofoni</annotation>
+		<annotation cp="🎚">daraja | musiqa | slayder</annotation>
+		<annotation cp="🎚" type="tts">daraja slayderi</annotation>
+		<annotation cp="🎛">boshqarish | panel | burama | musiqa</annotation>
+		<annotation cp="🎛" type="tts">ovoz boshqarish paneli</annotation>
+		<annotation cp="🎤">karaoke</annotation>
+		<annotation cp="🎤" type="tts">mikrofon</annotation>
+		<annotation cp="🎧">quloqqa tiqiladigan</annotation>
+		<annotation cp="🎧" type="tts">quloqlik</annotation>
+		<annotation cp="📻">video</annotation>
+		<annotation cp="📻" type="tts">radio</annotation>
+		<annotation cp="🎷">asbob | musiqa | saksafon</annotation>
+		<annotation cp="🎷" type="tts">saksofon</annotation>
+		<annotation cp="🎸">asbob | musiqa</annotation>
+		<annotation cp="🎸" type="tts">gitara</annotation>
+		<annotation cp="🎹">asbob | klaviatura | musiqa | pianino</annotation>
+		<annotation cp="🎹" type="tts">musiqiy klaviatura</annotation>
+		<annotation cp="🎺">asbob | musiqa</annotation>
+		<annotation cp="🎺" type="tts">truba</annotation>
+		<annotation cp="🎻">asbob | musiqa</annotation>
+		<annotation cp="🎻" type="tts">skripka</annotation>
+		<annotation cp="🥁">baraban | tayoqchalar | musiqa</annotation>
+		<annotation cp="🥁" type="tts">baraban</annotation>
+		<annotation cp="📱">mobil | uyali | telefon | aloqa</annotation>
+		<annotation cp="📱" type="tts">mobil telefon</annotation>
+		<annotation cp="📲">chiziq | qo‘ng‘iroq | uyali | aloqa | mobil | telefon | qabul qilish</annotation>
+		<annotation cp="📲" type="tts">mobil telefon va strelka</annotation>
+		<annotation cp="☎">telefon</annotation>
+		<annotation cp="☎" type="tts">telefon</annotation>
+		<annotation cp="📞">telefon | qabul qiluvchi</annotation>
+		<annotation cp="📞" type="tts">telefon go‘shagi</annotation>
+		<annotation cp="📟">peyjer</annotation>
+		<annotation cp="📟" type="tts">peyjer</annotation>
+		<annotation cp="📠">faks</annotation>
+		<annotation cp="📠" type="tts">faks apparati</annotation>
+		<annotation cp="🔋">batareya</annotation>
+		<annotation cp="🔋" type="tts">batareya</annotation>
+		<annotation cp="🔌">elektr | elektr energiyasi | sanchqi</annotation>
+		<annotation cp="🔌" type="tts">elektr kabel sanchqisi</annotation>
+		<annotation cp="💻">kompyuter | shaxsiy kompyuter | shaxsiy</annotation>
+		<annotation cp="💻" type="tts">noutbuk</annotation>
+		<annotation cp="🖥">kompyuter</annotation>
+		<annotation cp="🖥" type="tts">ish stoli kompyuteri</annotation>
+		<annotation cp="🖨">kompyuter</annotation>
+		<annotation cp="🖨" type="tts">printer</annotation>
+		<annotation cp="⌨">kompyuter</annotation>
+		<annotation cp="⌨" type="tts">klaviatura</annotation>
+		<annotation cp="🖱">3 | tugma | kompyuter | sichqoncha | uch</annotation>
+		<annotation cp="🖱" type="tts">kompyuter sichqonchasi</annotation>
+		<annotation cp="🖲">kompyuter</annotation>
+		<annotation cp="🖲" type="tts">trekbol</annotation>
+		<annotation cp="💽">kompyuter | disk | optikali</annotation>
+		<annotation cp="💽" type="tts">mini-disk</annotation>
+		<annotation cp="💾">kompyuter | disk</annotation>
+		<annotation cp="💾" type="tts">disketa</annotation>
+		<annotation cp="💿">dvd | blu-ray | cd | kompyuter | disk | optik</annotation>
+		<annotation cp="💿" type="tts">optik disk</annotation>
+		<annotation cp="📀">blu-ray | cd | kompyuter | disk | optik</annotation>
+		<annotation cp="📀" type="tts">dvd</annotation>
+		<annotation cp="🎥">kamera | kino | film</annotation>
+		<annotation cp="🎥" type="tts">kinokamera</annotation>
+		<annotation cp="🎞">kino | film | kadrlar</annotation>
+		<annotation cp="🎞" type="tts">film kadri</annotation>
+		<annotation cp="📽">kino | film | proyektor | video</annotation>
+		<annotation cp="📽" type="tts">film proyektori</annotation>
+		<annotation cp="🎬">klaper | kino | film</annotation>
+		<annotation cp="🎬" type="tts">klaper taxtasi</annotation>
+		<annotation cp="📺">tv | video</annotation>
+		<annotation cp="📺" type="tts">televizor</annotation>
+		<annotation cp="📷">video</annotation>
+		<annotation cp="📷" type="tts">kamera</annotation>
+		<annotation cp="📸">kamera | video</annotation>
+		<annotation cp="📸" type="tts">chaqmoqli kamera</annotation>
+		<annotation cp="📹">kamera | video</annotation>
+		<annotation cp="📹" type="tts">videokamera</annotation>
+		<annotation cp="📼">vhs | videol videokasseta</annotation>
+		<annotation cp="📼" type="tts">videokasseta</annotation>
+		<annotation cp="🔍">shisha | kattalashtirish | qidirish | asbob</annotation>
+		<annotation cp="🔍" type="tts">chapga qaragan lupa</annotation>
+		<annotation cp="🔎">shisha | kattalashtirish | qidirish | asbob</annotation>
+		<annotation cp="🔎" type="tts">o‘ngga qaragan lupa</annotation>
+		<annotation cp="🔬">asbob</annotation>
+		<annotation cp="🔬" type="tts">mikroskop</annotation>
+		<annotation cp="🔭">asbob</annotation>
+		<annotation cp="🔭" type="tts">teleskop</annotation>
+		<annotation cp="📡">antenna | sun’iy yo‘ldosh | tarelka</annotation>
+		<annotation cp="📡" type="tts">sun’iy yo‘ldoshli antenna</annotation>
+		<annotation cp="🕯">yorug‘lik</annotation>
+		<annotation cp="🕯" type="tts">sham</annotation>
+		<annotation cp="💡">elektr lampa | latifa | elektr | fikr | yorug‘lik</annotation>
+		<annotation cp="💡" type="tts">elektr lampasi</annotation>
+		<annotation cp="🔦">elektr | chiroq | asbob | mash’al</annotation>
+		<annotation cp="🔦" type="tts">fonar</annotation>
+		<annotation cp="🏮">bar | yapon | yorug‘lik | qizil | lampa</annotation>
+		<annotation cp="🏮" type="tts">qizil qog‘ozli lampa</annotation>
+		<annotation cp="📔">kitob | muqova | bezak | daftar</annotation>
+		<annotation cp="📔" type="tts">bezakli muqovali daftar</annotation>
+		<annotation cp="📕">kitob | yopiq</annotation>
+		<annotation cp="📕" type="tts">yopiq kitob</annotation>
+		<annotation cp="📖">kitob | ochiq</annotation>
+		<annotation cp="📖" type="tts">ochiq kitob</annotation>
+		<annotation cp="📗">kitob | yashil</annotation>
+		<annotation cp="📗" type="tts">yashil kitob</annotation>
+		<annotation cp="📘">ko‘k | havorang | kitob</annotation>
+		<annotation cp="📘" type="tts">ko‘k kitob</annotation>
+		<annotation cp="📙">to‘q sariq | kitob</annotation>
+		<annotation cp="📙" type="tts">to‘q sariq kitob</annotation>
+		<annotation cp="📚">kitob</annotation>
+		<annotation cp="📚" type="tts">kitoblar</annotation>
+		<annotation cp="📓">noutbook</annotation>
+		<annotation cp="📓" type="tts">noutbook</annotation>
+		<annotation cp="📒">daftar</annotation>
+		<annotation cp="📒" type="tts">ro‘yxatga olish kitobi</annotation>
+		<annotation cp="📃">gajakli | hujjat | sahifa</annotation>
+		<annotation cp="📃" type="tts">gajakli sahifa</annotation>
+		<annotation cp="📜">qog‘oz</annotation>
+		<annotation cp="📜" type="tts">o‘ralgan xat</annotation>
+		<annotation cp="📄">hujjat | sahifa</annotation>
+		<annotation cp="📄" type="tts">oldiga qarab turgan sahifa</annotation>
+		<annotation cp="📰">yangiliklar | qog‘oz</annotation>
+		<annotation cp="📰" type="tts">gazeta</annotation>
+		<annotation cp="🗞">yangiliklar | qog‘oz | gazeta | o‘ralgan</annotation>
+		<annotation cp="🗞" type="tts">o‘ralgan gazeta</annotation>
+		<annotation cp="📑">xatcho‘p | belgi | marker | sahifalar</annotation>
+		<annotation cp="📑" type="tts">sahifalardagi xatcho‘p</annotation>
+		<annotation cp="🔖">belgi</annotation>
+		<annotation cp="🔖" type="tts">xatcho‘p</annotation>
+		<annotation cp="🏷">yorliq</annotation>
+		<annotation cp="🏷" type="tts">yorliq</annotation>
+		<annotation cp="💰">xalta | dollar | pul</annotation>
+		<annotation cp="💰" type="tts">pul xalta</annotation>
+		<annotation cp="💴">bank | banknot | pul | pul birligi | valyuta | qog‘oz pul | yen</annotation>
+		<annotation cp="💴" type="tts">iyena banknotasi</annotation>
+		<annotation cp="💵">bank | banknot | pul | pul birligi | valyuta | qog‘oz pul | dollar</annotation>
+		<annotation cp="💵" type="tts">dollar banknotasi</annotation>
+		<annotation cp="💶">bank | banknot | pul | pul birligi | valyuta | qog‘oz pul | yevro</annotation>
+		<annotation cp="💶" type="tts">yevro banknotasi</annotation>
+		<annotation cp="💷">bank | banknot | pul | pul birligi | valyuta | qog‘oz pul | funt sterling</annotation>
+		<annotation cp="💷" type="tts">funt sterling banknotasi</annotation>
+		<annotation cp="💸">bank | banknot | chek | pul | qanot | qanotlar | qog‘oz pul</annotation>
+		<annotation cp="💸" type="tts">qanoti bor pul dastasi</annotation>
+		<annotation cp="💳">bank | kartochka | kredit | pul</annotation>
+		<annotation cp="💳" type="tts">kredit karta</annotation>
+		<annotation cp="💹">bank | diagramma | valyuta | grafa | o‘sish | bozor | pul | ko‘tarilish | trend | tepaga | yen</annotation>
+		<annotation cp="💹" type="tts">o‘sayotgan iyena diagrammasi</annotation>
+		<annotation cp="💱">bank | valyuta | almashtirish | pul</annotation>
+		<annotation cp="💱" type="tts">pul birligini almashtirish</annotation>
+		<annotation cp="💲">valyuta | dollar | pul</annotation>
+		<annotation cp="💲" type="tts">katta dollar belgisi</annotation>
+		<annotation cp="✉">e-pochta | elektron xat</annotation>
+		<annotation cp="✉" type="tts">konvert</annotation>
+		<annotation cp="📧">xat</annotation>
+		<annotation cp="📧" type="tts">e-pochta</annotation>
+		<annotation cp="📨">e-pochta | xat | konvert | kiruvchi | pochta | qabul qilish</annotation>
+		<annotation cp="📨" type="tts">kiruvchi konvert</annotation>
+		<annotation cp="📩">chiziq | pastga | e-pochta | xat | konvert | pochta | xabar | chiquvchi | yuboriluvchi | yuborilgan</annotation>
+		<annotation cp="📩" type="tts">strelkali konvert</annotation>
+		<annotation cp="📤">quti | xat | pochta | xat qutisi | yuborilgan</annotation>
+		<annotation cp="📤" type="tts">chiquvchi xat qutisi</annotation>
+		<annotation cp="📥">quti | kiruvchi | xat | pochta | qabul qilish</annotation>
+		<annotation cp="📥" type="tts">kiruvchi xat qutisi</annotation>
+		<annotation cp="📦">quti</annotation>
+		<annotation cp="📦" type="tts">qadoq</annotation>
+		<annotation cp="📫">yopiq | pochta | pochta qutisi</annotation>
+		<annotation cp="📫" type="tts">bayroqchasi ko‘tarilgan yopiq pochta qutisi</annotation>
+		<annotation cp="📪">yopiq | pochta | pochta qutisi | pastga qaragan</annotation>
+		<annotation cp="📪" type="tts">pastga qaragan bayroqli yopiq pochta qutisi</annotation>
+		<annotation cp="📬">pochta | pochta qutisi | ochiq</annotation>
+		<annotation cp="📬" type="tts">yuqoriga ko‘tarilgan bayroqli ochiq pochta qutisi</annotation>
+		<annotation cp="📭">pochta | pochta qutisi | ochiq</annotation>
+		<annotation cp="📭" type="tts">pastga qaragan bayroqli ochiq pochta qutisi</annotation>
+		<annotation cp="📮">pochta</annotation>
+		<annotation cp="📮" type="tts">pochta qutisi</annotation>
+		<annotation cp="🗳">saylov qutisi | quti</annotation>
+		<annotation cp="🗳" type="tts">quti va saylov byulleteni</annotation>
+		<annotation cp="✏">qalam</annotation>
+		<annotation cp="✏" type="tts">qalam</annotation>
+		<annotation cp="✒">pero | ruchka</annotation>
+		<annotation cp="✒" type="tts">qora pero</annotation>
+		<annotation cp="🖋">pero | ruchka</annotation>
+		<annotation cp="🖋" type="tts">peroli ruchka</annotation>
+		<annotation cp="🖊">sharikli ruchka</annotation>
+		<annotation cp="🖊" type="tts">ruchka</annotation>
+		<annotation cp="🖌">rassom</annotation>
+		<annotation cp="🖌" type="tts">mo‘yqalam</annotation>
+		<annotation cp="🖍">rangli qalam</annotation>
+		<annotation cp="🖍" type="tts">rangli qalam</annotation>
+		<annotation cp="📝">qalam</annotation>
+		<annotation cp="📝" type="tts">qayd</annotation>
+		<annotation cp="💼">sumka</annotation>
+		<annotation cp="💼" type="tts">portfel</annotation>
+		<annotation cp="📁">fayl | jild</annotation>
+		<annotation cp="📁" type="tts">fayl jildi</annotation>
+		<annotation cp="📂">fayl | jild | ochiq</annotation>
+		<annotation cp="📂" type="tts">ochiq fayl jildi</annotation>
+		<annotation cp="🗂">karta | ajratuvchi | indeks</annotation>
+		<annotation cp="🗂" type="tts">fayllarni ajratuvchi</annotation>
+		<annotation cp="📅">sana</annotation>
+		<annotation cp="📅" type="tts">taqvim</annotation>
+		<annotation cp="📆">taqvim</annotation>
+		<annotation cp="📆" type="tts">yirtiladigan taqvim</annotation>
+		<annotation cp="🗒">spiral | yon daftarcha</annotation>
+		<annotation cp="🗒" type="tts">spiralli yon daftarcha</annotation>
+		<annotation cp="🗓">taqvim | ilma | spiral</annotation>
+		<annotation cp="🗓" type="tts">ilma taqvim</annotation>
+		<annotation cp="📇">karta | indeks</annotation>
+		<annotation cp="📇" type="tts">kartoteka</annotation>
+		<annotation cp="📈">diagramma | grafa | o‘sish | trend | yuqoriga</annotation>
+		<annotation cp="📈" type="tts">o‘sish trendi diagrammasi</annotation>
+		<annotation cp="📉">diagramma | pastga | grafa | trend</annotation>
+		<annotation cp="📉" type="tts">pasayish trendi diagrammasi</annotation>
+		<annotation cp="📊">ustunli | diagramma | grafa</annotation>
+		<annotation cp="📊" type="tts">ustunli diagramma</annotation>
+		<annotation cp="📋">qisqichli doska</annotation>
+		<annotation cp="📋" type="tts">qisqichli doska</annotation>
+		<annotation cp="📌">bosma mixcha</annotation>
+		<annotation cp="📌" type="tts">bosma mix</annotation>
+		<annotation cp="📍">bosma mixcha</annotation>
+		<annotation cp="📍" type="tts">yumaloq bosma mix</annotation>
+		<annotation cp="📎">qog‘oz qistirgich</annotation>
+		<annotation cp="📎" type="tts">qistirgich</annotation>
+		<annotation cp="🖇">bog‘langan | qog‘oz qistirgich</annotation>
+		<annotation cp="🖇" type="tts">ulangan qistirgichlar</annotation>
+		<annotation cp="📏">to‘g‘ri | burchak | qirra</annotation>
+		<annotation cp="📏" type="tts">chizg‘ich</annotation>
+		<annotation cp="📐">chizg‘ich | to‘plam | uchburchak</annotation>
+		<annotation cp="📐" type="tts">uchburchak chizg‘ich</annotation>
+		<annotation cp="✂">asbob</annotation>
+		<annotation cp="✂" type="tts">qaychi</annotation>
+		<annotation cp="🗃">quti | karta | fayl</annotation>
+		<annotation cp="🗃" type="tts">fayl qutisi</annotation>
+		<annotation cp="🗄">javon | fayl</annotation>
+		<annotation cp="🗄" type="tts">fayllar javoni</annotation>
+		<annotation cp="🗑">qog‘oz chiqitdoni</annotation>
+		<annotation cp="🗑" type="tts">qog‘oz chiqitdoni</annotation>
+		<annotation cp="🔒">yopiq</annotation>
+		<annotation cp="🔒" type="tts">qulflangan</annotation>
+		<annotation cp="🔓">qulf | ochiq | qulflanmagan</annotation>
+		<annotation cp="🔓" type="tts">ochiq qulf</annotation>
+		<annotation cp="🔏">bo‘yoq | qulf | pero | ruchka | maxfiylik</annotation>
+		<annotation cp="🔏" type="tts">qulf va ruchka</annotation>
+		<annotation cp="🔐">yopiq | kalit | qulf | xavfsiz</annotation>
+		<annotation cp="🔐" type="tts">qulf va kalit</annotation>
+		<annotation cp="🔑">qulf | parol</annotation>
+		<annotation cp="🔑" type="tts">kalit</annotation>
+		<annotation cp="🗝">kalit | qulf | eski | qadimiy</annotation>
+		<annotation cp="🗝" type="tts">qadimiy kalit</annotation>
+		<annotation cp="🔨">asbob</annotation>
+		<annotation cp="🔨" type="tts">bolg‘a</annotation>
+		<annotation cp="⛏">kon | asbob</annotation>
+		<annotation cp="⛏" type="tts">uchli bolg‘a</annotation>
+		<annotation cp="⚒">bolg‘a | asbob</annotation>
+		<annotation cp="⚒" type="tts">bolg‘a va uchli bolg‘a</annotation>
+		<annotation cp="🛠">bolg‘a | asbob | gayka kaliti</annotation>
+		<annotation cp="🛠" type="tts">bolg‘a va gayka kaliti</annotation>
+		<annotation cp="🗡">pichoq | qurol</annotation>
+		<annotation cp="🗡" type="tts">xanjar</annotation>
+		<annotation cp="⚔">kesishgan | qilichlar | qurol</annotation>
+		<annotation cp="⚔" type="tts">kesishgan qilichlar</annotation>
+		<annotation cp="🔫">revolver | asbob | qurol</annotation>
+		<annotation cp="🔫" type="tts">to‘pponcha</annotation>
+		<annotation cp="🏹">kamon | o‘q | o‘qchi | o‘qotar | qurol | burj</annotation>
+		<annotation cp="🏹" type="tts">kamon va o‘q</annotation>
+		<annotation cp="🛡">qurol</annotation>
+		<annotation cp="🛡" type="tts">qalqon</annotation>
+		<annotation cp="🔧">asbob</annotation>
+		<annotation cp="🔧" type="tts">gayka kaliti</annotation>
+		<annotation cp="🔩">gayka | murvat | asbob</annotation>
+		<annotation cp="🔩" type="tts">gayka va murvat</annotation>
+		<annotation cp="⚙">asbob</annotation>
+		<annotation cp="⚙" type="tts">tishli g‘ildirak</annotation>
+		<annotation cp="🗜">asbob</annotation>
+		<annotation cp="🗜" type="tts">kompressor</annotation>
+		<annotation cp="⚗">kimyo | asbob</annotation>
+		<annotation cp="⚗" type="tts">haydash kimyoviy shishasi</annotation>
+		<annotation cp="⚖">balans | adolat | palla | asbob | og‘irlik | burj</annotation>
+		<annotation cp="⚖" type="tts">tarozi</annotation>
+		<annotation cp="🔗">havol</annotation>
+		<annotation cp="🔗" type="tts">havola</annotation>
+		<annotation cp="⛓">zanjir</annotation>
+		<annotation cp="⛓" type="tts">zanjirlar</annotation>
+		<annotation cp="💉">shifokor | tibbiyot | igna | kasal | emlash | ukol | asbob</annotation>
+		<annotation cp="💉" type="tts">shprits</annotation>
+		<annotation cp="💊">shifokor | doktor | tibbiyot | kasal | bemor</annotation>
+		<annotation cp="💊" type="tts">hapdori</annotation>
+		<annotation cp="🚬">chekish</annotation>
+		<annotation cp="🚬" type="tts">chekish</annotation>
+		<annotation cp="⚰">o‘lim</annotation>
+		<annotation cp="⚰" type="tts">tobut</annotation>
+		<annotation cp="⚱">o‘lim | dafn | ko‘za</annotation>
+		<annotation cp="⚱" type="tts">dafn ko‘zasi</annotation>
+		<annotation cp="🗿">yuz | moyai | haykal</annotation>
+		<annotation cp="🗿" type="tts">moai</annotation>
+		<annotation cp="🛢">bochka | neft</annotation>
+		<annotation cp="🛢" type="tts">neft bochkasi</annotation>
+		<annotation cp="🔮">shar | kristall | ertak | fantaziya | taqdir | asbob</annotation>
+		<annotation cp="🔮" type="tts">kristall shar</annotation>
+		<annotation cp="🛒">xarid | aravacha</annotation>
+		<annotation cp="🛒" type="tts">xarid savatchasi</annotation>
+		<annotation cp="🏧">atm | bank</annotation>
+		<annotation cp="🏧" type="tts">bankomat</annotation>
+		<annotation cp="🚮">axlat | axlat qutisi</annotation>
+		<annotation cp="🚮" type="tts">axlatni o‘z joyiga tashlash</annotation>
+		<annotation cp="🚰">ichish | suv | ichishga yaroqli</annotation>
+		<annotation cp="🚰" type="tts">ichimlik suvi</annotation>
+		<annotation cp="♿">maxsus imkoniyat</annotation>
+		<annotation cp="♿" type="tts">nogironlar aravachasi</annotation>
+		<annotation cp="🚹">hojatxona | erkak</annotation>
+		<annotation cp="🚹" type="tts">erkaklar xonasi</annotation>
+		<annotation cp="🚺">hojatxona | ayol</annotation>
+		<annotation cp="🚺" type="tts">ayollar xonasi</annotation>
+		<annotation cp="🚻">hojatxona</annotation>
+		<annotation cp="🚻" type="tts">pardoz-andoz xonasi</annotation>
+		<annotation cp="🚼">chaqaloq</annotation>
+		<annotation cp="🚼" type="tts">chaqaloq belgisi</annotation>
+		<annotation cp="🚾">suv</annotation>
+		<annotation cp="🚾" type="tts">hojatxona</annotation>
+		<annotation cp="🛂">nazorat | pasport</annotation>
+		<annotation cp="🛂" type="tts">pasport nazorati</annotation>
+		<annotation cp="🛃">bojxona</annotation>
+		<annotation cp="🛃" type="tts">bojxona</annotation>
+		<annotation cp="🛄">yuk | da’vo</annotation>
+		<annotation cp="🛄" type="tts">yuklarni olish joyi</annotation>
+		<annotation cp="🛅">bagaj | yuk | saqlash xonasi</annotation>
+		<annotation cp="🛅" type="tts">saqlash xonasida qoldirilgan yuk</annotation>
+		<annotation cp="⚠">ogohlantirish</annotation>
+		<annotation cp="⚠" type="tts">ogohlantirish</annotation>
+		<annotation cp="🚸">bolalar | o‘tish joyi | tirbandlik | yo‘l</annotation>
+		<annotation cp="🚸" type="tts">bolalar o‘tish joyi</annotation>
+		<annotation cp="⛔">kirish | taqiqlangan | yo‘q | mumkin emas | man qilingan | yo‘l</annotation>
+		<annotation cp="⛔" type="tts">kirish mumkin emas</annotation>
+		<annotation cp="🚫">kirish | taqiqlangan | yo‘q | mumkin emas | man qilingan | yo‘l</annotation>
+		<annotation cp="🚫" type="tts">to‘xtab turish taqiqlanadi</annotation>
+		<annotation cp="🚳">velosiped | taqiqlangan | mumkin emas | transport</annotation>
+		<annotation cp="🚳" type="tts">velosipedlar harakatlanishi taqiqlanadi</annotation>
+		<annotation cp="🚭">taqiqlangan | mumkin emas | chekish</annotation>
+		<annotation cp="🚭" type="tts">chekish taqiqlanadi</annotation>
+		<annotation cp="🚯">taqiqlangan | axlat qutisi | mumkin emas</annotation>
+		<annotation cp="🚯" type="tts">axlat tashlash taqiqlanadi</annotation>
+		<annotation cp="🚱">ichish | suv | ichishga yaroqli | mumkin emas | yo‘q | taqiqlangan</annotation>
+		<annotation cp="🚱" type="tts">ichib bo‘lmaydigan suv</annotation>
+		<annotation cp="🚷">taqiqlangan | mumkin emas</annotation>
+		<annotation cp="🚷" type="tts">piyodalar mumkin emas</annotation>
+		<annotation cp="📵">mobil | aloqa | uyali | telefon | yo‘q | mumkin emas | taqiqlangan | man qilingan</annotation>
+		<annotation cp="📵" type="tts">telefon mumkin emas</annotation>
+		<annotation cp="🔞">18 | yosh cheklovi | o‘n sakkiz | taqiqlangan | man | yo‘q | mumkin emas</annotation>
+		<annotation cp="🔞" type="tts">18 yoshdan kichiklarga taqiqlangan</annotation>
+		<annotation cp="☢">radioaktiv | belgi</annotation>
+		<annotation cp="☢" type="tts">radioaktiv</annotation>
+		<annotation cp="☣">biologik xavf | belgi</annotation>
+		<annotation cp="☣" type="tts">biologik xavf</annotation>
+		<annotation cp="⬆">chiziq | yo‘nalish | shimol</annotation>
+		<annotation cp="⬆" type="tts">yuqoriga yo‘nalish</annotation>
+		<annotation cp="↗">chiziq | yo‘nalish | shimoli sharq</annotation>
+		<annotation cp="↗" type="tts">o‘ng-yuqoriga yo‘nalish</annotation>
+		<annotation cp="➡">chiziq | yo‘nalish | sharq</annotation>
+		<annotation cp="➡" type="tts">o‘ngga yo‘nalish</annotation>
+		<annotation cp="↘">chiziq | yo‘nalish | janubi sharq</annotation>
+		<annotation cp="↘" type="tts">o‘ng-pastga yo‘nalish</annotation>
+		<annotation cp="⬇">chiziq | yo‘nalish | pastga | janub</annotation>
+		<annotation cp="⬇" type="tts">pastga yo‘nalish</annotation>
+		<annotation cp="↙">chiziq | yo‘nalish | janubi g‘arb</annotation>
+		<annotation cp="↙" type="tts">past-chapga yo‘nalish</annotation>
+		<annotation cp="⬅">chiziq | yo‘nalish | g‘arb</annotation>
+		<annotation cp="⬅" type="tts">chapga yo‘nalish</annotation>
+		<annotation cp="↖">chiziq | yo‘nalish | shimoli g‘arb</annotation>
+		<annotation cp="↖" type="tts">chap yuqoriga yo‘nalish</annotation>
+		<annotation cp="↕">chiziq</annotation>
+		<annotation cp="↕" type="tts">tepa-pastga yo‘nalish</annotation>
+		<annotation cp="↔">chiziq</annotation>
+		<annotation cp="↔" type="tts">chapga-o‘ngga yo‘nalish</annotation>
+		<annotation cp="↩">chiziq</annotation>
+		<annotation cp="↩" type="tts">o‘ngdan chapga qayrilish</annotation>
+		<annotation cp="↪">chiziq</annotation>
+		<annotation cp="↪" type="tts">chapdan o‘ngga qayrilish</annotation>
+		<annotation cp="⤴">chiziq</annotation>
+		<annotation cp="⤴" type="tts">o‘ngdan yuqoriga qayrilish</annotation>
+		<annotation cp="⤵">chiziq | pastga</annotation>
+		<annotation cp="⤵" type="tts">o‘ngdan pastga qayrilish</annotation>
+		<annotation cp="🔃">chiziq | qayta yuklash</annotation>
+		<annotation cp="🔃" type="tts">soat millari bo‘yicha</annotation>
+		<annotation cp="🔄">soat millariga qarshi | chiziq</annotation>
+		<annotation cp="🔄" type="tts">soat millariga qarshi yo‘nalish</annotation>
+		<annotation cp="🔙">chiziq | orqaga</annotation>
+		<annotation cp="🔙" type="tts">orqaga yo‘nalish</annotation>
+		<annotation cp="🔚">chiziq | berk</annotation>
+		<annotation cp="🔚" type="tts">berk chizig‘i</annotation>
+		<annotation cp="🔛">chiziq | belgi | efirda</annotation>
+		<annotation cp="🔛" type="tts">efirda chizig‘i</annotation>
+		<annotation cp="🔜">chiziq | tezda</annotation>
+		<annotation cp="🔜" type="tts">tez orada chizig‘i</annotation>
+		<annotation cp="🔝">chiziq | tepaga | yuqoriga</annotation>
+		<annotation cp="🔝" type="tts">tepaga chizig‘i</annotation>
+		<annotation cp="🛐">din</annotation>
+		<annotation cp="🛐" type="tts">ibodatxona</annotation>
+		<annotation cp="⚛">ateist | atom</annotation>
+		<annotation cp="⚛" type="tts">atom belgisi</annotation>
+		<annotation cp="🕉">hind | din</annotation>
+		<annotation cp="🕉" type="tts">om</annotation>
+		<annotation cp="✡">dovud | yahudiy | ibroniy | din | yulduz</annotation>
+		<annotation cp="✡" type="tts">dovud yulduzi</annotation>
+		<annotation cp="☸">budda | buddist | din | g‘ildirak</annotation>
+		<annotation cp="☸" type="tts">dharma g‘ildiragi</annotation>
+		<annotation cp="☯">din | tao | taoist | yang | yin</annotation>
+		<annotation cp="☯" type="tts">yin yang</annotation>
+		<annotation cp="✝">nasroniylik | xoch | din</annotation>
+		<annotation cp="✝" type="tts">lotin xoch</annotation>
+		<annotation cp="☦">nasroniylik | xoch | din</annotation>
+		<annotation cp="☦" type="tts">pravoslav xoch</annotation>
+		<annotation cp="☪">islom | muslim | din</annotation>
+		<annotation cp="☪" type="tts">yulduz va yarim oy</annotation>
+		<annotation cp="☮">tinchlik</annotation>
+		<annotation cp="☮" type="tts">tinchlik ramzi</annotation>
+		<annotation cp="🕎">din</annotation>
+		<annotation cp="🕎" type="tts">yadaim</annotation>
+		<annotation cp="🔯">taqdir | yulduz</annotation>
+		<annotation cp="🔯" type="tts">nuqtali olti qirrali yulduz</annotation>
+		<annotation cp="♈">qo‘y | burj</annotation>
+		<annotation cp="♈" type="tts">qo‘y burji</annotation>
+		<annotation cp="♉">burj | buzoq</annotation>
+		<annotation cp="♉" type="tts">buzoq burji</annotation>
+		<annotation cp="♊">burj | egizaklar</annotation>
+		<annotation cp="♊" type="tts">egizaklar burji</annotation>
+		<annotation cp="♋">burj | qisqichbaqa</annotation>
+		<annotation cp="♋" type="tts">qisqichbaqa burji</annotation>
+		<annotation cp="♌">burj | asrlon</annotation>
+		<annotation cp="♌" type="tts">arslon burji</annotation>
+		<annotation cp="♍">burj | parizod</annotation>
+		<annotation cp="♍" type="tts">parizod burji</annotation>
+		<annotation cp="♎">burj | tarozi | adolat</annotation>
+		<annotation cp="♎" type="tts">tarozi burji</annotation>
+		<annotation cp="♏">burj | chayon</annotation>
+		<annotation cp="♏" type="tts">chayon burji</annotation>
+		<annotation cp="♐">burj | o‘qotar</annotation>
+		<annotation cp="♐" type="tts">o‘qotar burji</annotation>
+		<annotation cp="♑">burj | echki</annotation>
+		<annotation cp="♑" type="tts">tog‘ echkisi burji</annotation>
+		<annotation cp="♒">burj | qovg‘a</annotation>
+		<annotation cp="♒" type="tts">qovg‘a burji</annotation>
+		<annotation cp="♓">burj | baliq</annotation>
+		<annotation cp="♓" type="tts">baliq burji</annotation>
+		<annotation cp="⛎">burj | ilon</annotation>
+		<annotation cp="⛎" type="tts">ilon tashuvchi</annotation>
+		<annotation cp="🔀">chiziq | kesishgan</annotation>
+		<annotation cp="🔀" type="tts">tasodifiy tartibda belgisi</annotation>
+		<annotation cp="🔁">chiziq | takror | soat mili bo‘yicha</annotation>
+		<annotation cp="🔁" type="tts">takrorlash tugmasi</annotation>
+		<annotation cp="🔂">chiziq | takror | soat mili bo‘yicha | bir marta</annotation>
+		<annotation cp="🔂" type="tts">bittasini takrorlash tugmasi</annotation>
+		<annotation cp="▶">chiziq | ijro | o‘ng | uchburchak</annotation>
+		<annotation cp="▶" type="tts">ijro tugmasi</annotation>
+		<annotation cp="⏩">chiziq | ikki marta | tez | oldinga</annotation>
+		<annotation cp="⏩" type="tts">oldinga o‘tkazish tugmasi</annotation>
+		<annotation cp="⏭">chiziq | keyingi sahna | keyingi qo‘shiq | uchburchak</annotation>
+		<annotation cp="⏭" type="tts">keyingi qo‘shiq tugmasi</annotation>
+		<annotation cp="⏯">chiziq | pauza | ijro | o‘ng | uchburchak</annotation>
+		<annotation cp="⏯" type="tts">ijro yoki pauza tugmasi</annotation>
+		<annotation cp="◀">chiziq | chap | orqaga | uchburchak</annotation>
+		<annotation cp="◀" type="tts">orqaga o‘tkazish tugmasi</annotation>
+		<annotation cp="⏪">chiziq | ikkita | orqaga aylantirish</annotation>
+		<annotation cp="⏪" type="tts">tez orqaga o‘tkazish tugmasi</annotation>
+		<annotation cp="⏮">chiziq | oldingi sahna | oldingi qo‘shiq | uchburchak</annotation>
+		<annotation cp="⏮" type="tts">oldingi qo‘shiq tugmasi</annotation>
+		<annotation cp="🔼">chiziq | tugma | qizil</annotation>
+		<annotation cp="🔼" type="tts">yuqoriga tugmasi</annotation>
+		<annotation cp="⏫">chiziq | ikkita</annotation>
+		<annotation cp="⏫" type="tts">tez yuqoriga tugmasi</annotation>
+		<annotation cp="🔽">chiziq | tugma | pastga | qizil</annotation>
+		<annotation cp="🔽" type="tts">pastga tugmasi</annotation>
+		<annotation cp="⏬">chiziq | ikkita | pastga</annotation>
+		<annotation cp="⏬" type="tts">tez pastga tugmasi</annotation>
+		<annotation cp="⏸">ustun | ikkita | pauza | tik</annotation>
+		<annotation cp="⏸" type="tts">pauza tugmasi</annotation>
+		<annotation cp="⏹">kvadrat | to‘xtatish</annotation>
+		<annotation cp="⏹" type="tts">to‘xtatish tugmasi</annotation>
+		<annotation cp="⏺">aylana | doira | yozish</annotation>
+		<annotation cp="⏺" type="tts">ovoz yozish tugmasi</annotation>
+		<annotation cp="⏏">chiqarish</annotation>
+		<annotation cp="⏏" type="tts">chiqarish tugmasi</annotation>
+		<annotation cp="🎦">kamera | kino | film</annotation>
+		<annotation cp="🎦" type="tts">kinoteatr</annotation>
+		<annotation cp="🔅">yorqinlik | xira | past</annotation>
+		<annotation cp="🔅" type="tts">xiralik tugmasi</annotation>
+		<annotation cp="🔆">yorug‘ | yorqinlik</annotation>
+		<annotation cp="🔆" type="tts">yorqinlik tugmasi</annotation>
+		<annotation cp="📶">antenna | ustun | mobil | telefon | aloqa | signal</annotation>
+		<annotation cp="📶" type="tts">antenna ko‘rsatkichlari</annotation>
+		<annotation cp="📳">mobil | uyali | aloqa | telefon | rejim | tebranish</annotation>
+		<annotation cp="📳" type="tts">tebranish rejimi</annotation>
+		<annotation cp="📴">aloqa | mobil | o‘chiq | telefon</annotation>
+		<annotation cp="📴" type="tts">telefon o‘chiq beligisi</annotation>
+		<annotation cp="♀">ayol</annotation>
+		<annotation cp="♀" type="tts">ayol belgisi</annotation>
+		<annotation cp="♂">erkak</annotation>
+		<annotation cp="♂" type="tts">erkak belgisi</annotation>
+		<annotation cp="⚕">eskulap | tibbiyot | xodimlar</annotation>
+		<annotation cp="⚕" type="tts">tibbiy ramz</annotation>
+		<annotation cp="♻">qayta ishlash</annotation>
+		<annotation cp="♻" type="tts">qayta ishlash belgisi</annotation>
+		<annotation cp="⚜">gulsapsar</annotation>
+		<annotation cp="⚜" type="tts">gulsapsar</annotation>
+		<annotation cp="🔱">langar | emblema | kema | asbob</annotation>
+		<annotation cp="🔱" type="tts">uch shoxli nayza</annotation>
+		<annotation cp="📛">ism | nishon</annotation>
+		<annotation cp="📛" type="tts">ism yoziladigan nishon</annotation>
+		<annotation cp="🔰">boshlovchi | yashil | yaponcha | barg | asbob | sariq</annotation>
+		<annotation cp="🔰" type="tts">boshlovchi darajasini bildiruvchi yaponcha belgi</annotation>
+		<annotation cp="⭕">aylana | o</annotation>
+		<annotation cp="⭕" type="tts">juda katta aylana</annotation>
+		<annotation cp="✅">belgi | belgilash</annotation>
+		<annotation cp="✅" type="tts">belgilash uchun oq katta belgi</annotation>
+		<annotation cp="☑">katakcha | belgilash</annotation>
+		<annotation cp="☑" type="tts">ichi belgilangan belgilash katakchasi</annotation>
+		<annotation cp="✔">belgilash | belgi</annotation>
+		<annotation cp="✔" type="tts">belgilash uchun to‘q belgi</annotation>
+		<annotation cp="✖">bekor | ko‘paytirish | x</annotation>
+		<annotation cp="✖" type="tts">to‘q ko‘paytiruv belgisi</annotation>
+		<annotation cp="❌">bekor | belgi | ko‘paytirish | x</annotation>
+		<annotation cp="❌" type="tts">xoch belgisi</annotation>
+		<annotation cp="❎">belgi | kvadrat</annotation>
+		<annotation cp="❎" type="tts">xoch belgisi tugmasi</annotation>
+		<annotation cp="➕">matematika | plyus | musbat</annotation>
+		<annotation cp="➕" type="tts">to‘q qo‘shuv belgisi</annotation>
+		<annotation cp="➖">matematika | minus | manfiy</annotation>
+		<annotation cp="➖" type="tts">to‘q ayiruv belgisi</annotation>
+		<annotation cp="➗">bo‘lish | matematika</annotation>
+		<annotation cp="➗" type="tts">to‘q bo‘luv belgisi</annotation>
+		<annotation cp="➰">jingalak | davr | takror</annotation>
+		<annotation cp="➰" type="tts">jingalak halqa</annotation>
+		<annotation cp="➿">jingalak | ikki marta | davr | takror</annotation>
+		<annotation cp="➿" type="tts">qo‘sh jingalak halqa</annotation>
+		<annotation cp="〽">belgi | qism</annotation>
+		<annotation cp="〽" type="tts">ovoz almashinuvi belgisi</annotation>
+		<annotation cp="✳">yulduzcha</annotation>
+		<annotation cp="✳" type="tts">sakkiz kegayli yulduzcha</annotation>
+		<annotation cp="✴">yulduz</annotation>
+		<annotation cp="✴" type="tts">sakkiz qirrali yulduz</annotation>
+		<annotation cp="❇">uchqun</annotation>
+		<annotation cp="❇" type="tts">uchqun</annotation>
+		<annotation cp="‼">undov | belgi | tinish</annotation>
+		<annotation cp="‼" type="tts">ikkita undov belgisi</annotation>
+		<annotation cp="⁉">undov | so‘roq | belgi | tinish</annotation>
+		<annotation cp="⁉" type="tts">undov so‘roq belgisi</annotation>
+		<annotation cp="❓">belgi | tinish | so‘roq</annotation>
+		<annotation cp="❓" type="tts">so‘roq belgisi</annotation>
+		<annotation cp="❔">belgi | chizilgan | tinish | so‘roq</annotation>
+		<annotation cp="❔" type="tts">oq so‘roq belgisi</annotation>
+		<annotation cp="❕">undov | belgi | tinish | chizilgan</annotation>
+		<annotation cp="❕" type="tts">oq undov belgisi</annotation>
+		<annotation cp="❗">undov | belgi | tinish</annotation>
+		<annotation cp="❗" type="tts">undov belgisi</annotation>
+		<annotation cp="〰">defis | to‘lqinli | tinish</annotation>
+		<annotation cp="〰" type="tts">to‘lqinli chiziq</annotation>
+		<annotation cp="©">mualliflik huquqi</annotation>
+		<annotation cp="©" type="tts">mualliflik huquqi</annotation>
+		<annotation cp="®">ro‘yxatdan o‘tgan</annotation>
+		<annotation cp="®" type="tts">ro‘yxatga olingan</annotation>
+		<annotation cp="™">belgi | tm</annotation>
+		<annotation cp="™" type="tts">savdo belgisi</annotation>
+		<annotation cp="#⃣">panjara | tugma | funt</annotation>
+		<annotation cp="#⃣" type="tts">panjara tugmasi</annotation>
+		<annotation cp="*⃣">yulduzcha | tugma | yulduz</annotation>
+		<annotation cp="*⃣" type="tts">yulduzcha tugmasi</annotation>
+		<annotation cp="🔟">10 | tugma | o‘n</annotation>
+		<annotation cp="🔟" type="tts">o‘n soni tugmasi</annotation>
+		<annotation cp="💯">100 | to‘liq | yuz | ball</annotation>
+		<annotation cp="💯" type="tts">yuz ball</annotation>
+		<annotation cp="🔠">kiritish | lotin | harflar | bosh</annotation>
+		<annotation cp="🔠" type="tts">katta lotin harflarini kiritish</annotation>
+		<annotation cp="🔡">abcd | kiritish | lotin | harflar | kichik</annotation>
+		<annotation cp="🔡" type="tts">kichik lotin harflarini kiritish</annotation>
+		<annotation cp="🔢">1234 | raqamlar | sonlar</annotation>
+		<annotation cp="🔢" type="tts">raqam kiritish</annotation>
+		<annotation cp="🔣">kiritish</annotation>
+		<annotation cp="🔣" type="tts">belgi kiritish</annotation>
+		<annotation cp="🔤">alifbo | matn | lotin | harflar | abc</annotation>
+		<annotation cp="🔤" type="tts">lotin harflarini kiritish</annotation>
+		<annotation cp="🅰">a | qon</annotation>
+		<annotation cp="🅰" type="tts">a tugmasi</annotation>
+		<annotation cp="🆎">ab | qon</annotation>
+		<annotation cp="🆎" type="tts">ab tugmasi</annotation>
+		<annotation cp="🅱">b | qon</annotation>
+		<annotation cp="🅱" type="tts">b tugmasi</annotation>
+		<annotation cp="🆑">cl</annotation>
+		<annotation cp="🆑" type="tts">kvadrat ichidagi cl harflari</annotation>
+		<annotation cp="🆒">salqinlik | zo‘r</annotation>
+		<annotation cp="🆒" type="tts">kvadrat ichidagi salqinlik, gap yo‘q so‘zi</annotation>
+		<annotation cp="🆓">bepul</annotation>
+		<annotation cp="🆓" type="tts">kvadrat ichidagi bo‘sh, tekin so‘zi</annotation>
+		<annotation cp="ℹ">ma’lumot | axborot</annotation>
+		<annotation cp="ℹ" type="tts">axborot manbasi</annotation>
+		<annotation cp="🆔">id</annotation>
+		<annotation cp="🆔" type="tts">kvadrat ichidagi id harflari</annotation>
+		<annotation cp="Ⓜ">aylana | m</annotation>
+		<annotation cp="Ⓜ" type="tts">aylana ichidagi m harfi</annotation>
+		<annotation cp="🆕">yangi</annotation>
+		<annotation cp="🆕" type="tts">kvadrat ichidagi yangi so‘zi</annotation>
+		<annotation cp="🆖">ng</annotation>
+		<annotation cp="🆖" type="tts">kvadrat ichidagi ng harflari</annotation>
+		<annotation cp="🅾">qon | o</annotation>
+		<annotation cp="🅾" type="tts">o tugmasi</annotation>
+		<annotation cp="🆗">ok</annotation>
+		<annotation cp="🆗" type="tts">kvadrat ichidagi ok tugmasi</annotation>
+		<annotation cp="🅿">avtoto‘xtash</annotation>
+		<annotation cp="🅿" type="tts">p tugmasi</annotation>
+		<annotation cp="🆘">yordam | sos</annotation>
+		<annotation cp="🆘" type="tts">kvadrat ichidagi sos so‘zi</annotation>
+		<annotation cp="🆙">belgi | tepaga</annotation>
+		<annotation cp="🆙" type="tts">tepaga tugmasi</annotation>
+		<annotation cp="🆚">qarshi | raqib</annotation>
+		<annotation cp="🆚" type="tts">kvadrat ichidagi raqib sifatida so‘zi</annotation>
+		<annotation cp="🈁">yaponcha</annotation>
+		<annotation cp="🈁" type="tts">kvadrat ichidagi katakanadagi koko so‘zi</annotation>
+		<annotation cp="🈂">yaponcha</annotation>
+		<annotation cp="🈂" type="tts">kvadrat ichidagi katakana sa morasi</annotation>
+		<annotation cp="🈷">yaponcha</annotation>
+		<annotation cp="🈷" type="tts">kvadrat ichidagi oy iyeroglifi</annotation>
+		<annotation cp="🈶">yaponcha</annotation>
+		<annotation cp="🈶" type="tts">kvadrat ichidagi mavjudlik iyeroglifi</annotation>
+		<annotation cp="🈯">yaponcha</annotation>
+		<annotation cp="🈯" type="tts">kvadrat ichidagi barmoq iyeroglifi</annotation>
+		<annotation cp="🉐">yaponcha</annotation>
+		<annotation cp="🉐" type="tts">aylana ichidagi afzallik iyeroglifi</annotation>
+		<annotation cp="🈹">yaponcha</annotation>
+		<annotation cp="🈹" type="tts">kvadrat ichidagi bo‘lish iyeroglifi</annotation>
+		<annotation cp="🈚">yaponcha</annotation>
+		<annotation cp="🈚" type="tts">kvadrat ichidagi inkor iyeroglifi</annotation>
+		<annotation cp="🈲">yaponcha</annotation>
+		<annotation cp="🈲" type="tts">kvadrat ichidagi taqiqlash iyeroglifi</annotation>
+		<annotation cp="🉑">xitoycha</annotation>
+		<annotation cp="🉑" type="tts">aylana ichidagi qabul qilish iyeroglifi</annotation>
+		<annotation cp="🈸">xitoycha</annotation>
+		<annotation cp="🈸" type="tts">kvadrat ichidagi tatbiq qilish iyeroglifi</annotation>
+		<annotation cp="🈴">xitoycha</annotation>
+		<annotation cp="🈴" type="tts">kvadrat ichidagi birgalik iyeroglifi</annotation>
+		<annotation cp="🈳">xitoycha</annotation>
+		<annotation cp="🈳" type="tts">kvadrat ichidagi bo‘shliq iyeroglifi</annotation>
+		<annotation cp="㊗">xitoycha | tabrik | tabriklash | qutlash | iyeroglif</annotation>
+		<annotation cp="㊗" type="tts">aylana ichidagi bayram iyeroglifi</annotation>
+		<annotation cp="㊙">xitoycha | iyeroglif | sir | maxfiy</annotation>
+		<annotation cp="㊙" type="tts">aylana ichida iyeroglif yozuvidagi maxfiy belgisi</annotation>
+		<annotation cp="🈺">xitoycha</annotation>
+		<annotation cp="🈺" type="tts">kvadrat ichida iyeroglif yozuvidagi amaliyot belgisi</annotation>
+		<annotation cp="🈵">xitoycha</annotation>
+		<annotation cp="🈵" type="tts">kvadrat ichida iyeroglif yozuvidagi to‘liq belgisi</annotation>
+		<annotation cp="▪">geometrik | kvadrat</annotation>
+		<annotation cp="▪" type="tts">kichik qora kvadrat</annotation>
+		<annotation cp="▫">geometrik | kvadrat</annotation>
+		<annotation cp="▫" type="tts">kichik oq kvadrat</annotation>
+		<annotation cp="◻">geometrik | kvadrat</annotation>
+		<annotation cp="◻" type="tts">o‘rtacha oq kvadrat</annotation>
+		<annotation cp="◼">geometrik | kvadrat</annotation>
+		<annotation cp="◼" type="tts">o‘rtacha qora kvadrat</annotation>
+		<annotation cp="◽">geometrik | kvadrat</annotation>
+		<annotation cp="◽" type="tts">kichikroq oq kvadrat</annotation>
+		<annotation cp="◾">geometrik | kvadrat</annotation>
+		<annotation cp="◾" type="tts">kichikroq qora kvadrat</annotation>
+		<annotation cp="⬛">geometrik | kvadrat</annotation>
+		<annotation cp="⬛" type="tts">katta qora kvadrat</annotation>
+		<annotation cp="⬜">geometrik | kvadrat</annotation>
+		<annotation cp="⬜" type="tts">katta oq kvadrat</annotation>
+		<annotation cp="🔶">romb | geometrik | to‘q sariq</annotation>
+		<annotation cp="🔶" type="tts">katta to‘q sariq romb</annotation>
+		<annotation cp="🔷">ko‘k | romb | geometrik</annotation>
+		<annotation cp="🔷" type="tts">katta ko‘k romb</annotation>
+		<annotation cp="🔸">romb | geometrik | to‘q sariq</annotation>
+		<annotation cp="🔸" type="tts">kichik to‘q sariq romb</annotation>
+		<annotation cp="🔹">ko‘k | romb | geometrik</annotation>
+		<annotation cp="🔹" type="tts">kichik ko‘k romb</annotation>
+		<annotation cp="🔺">geometrik | qizil</annotation>
+		<annotation cp="🔺" type="tts">tepaga qaragan qizil uchburchak</annotation>
+		<annotation cp="🔻">pastga | geometrik | qizil</annotation>
+		<annotation cp="🔻" type="tts">pastga qaragan qizil uchburchak</annotation>
+		<annotation cp="💠">latifa | romb | geometrik | ichki</annotation>
+		<annotation cp="💠" type="tts">nuqtali romb</annotation>
+		<annotation cp="🔘">tugma | geometrik | radio</annotation>
+		<annotation cp="🔘" type="tts">radio tugma</annotation>
+		<annotation cp="🔲">katak | geometriya | kvadrat</annotation>
+		<annotation cp="🔲" type="tts">qora kvadrat katak</annotation>
+		<annotation cp="🔳">katak | geometriya | chizilgan | kvadrat</annotation>
+		<annotation cp="🔳" type="tts">oq kvadrat katak</annotation>
+		<annotation cp="⚪">doira | geometriya</annotation>
+		<annotation cp="⚪" type="tts">oq doira</annotation>
+		<annotation cp="⚫">doira | geometriya</annotation>
+		<annotation cp="⚫" type="tts">qora doira</annotation>
+		<annotation cp="🔴">aylana | geometriya | qizil</annotation>
+		<annotation cp="🔴" type="tts">qizil doira</annotation>
+		<annotation cp="🔵">ko‘k | aylana | geometriya</annotation>
+		<annotation cp="🔵" type="tts">ko‘k doira</annotation>
+		<annotation cp="🏁">katak-katak | poyga | musobaqa</annotation>
+		<annotation cp="🏁" type="tts">katak-katak bayroq</annotation>
+		<annotation cp="🚩">post</annotation>
+		<annotation cp="🚩" type="tts">uchburchak bayroq</annotation>
+		<annotation cp="🎌">nishonlash | bayram | kesishgan | yapon</annotation>
+		<annotation cp="🎌" type="tts">bir-birini kesib o‘tgan bayroqlar</annotation>
+		<annotation cp="🏴">hilpirab turgan</annotation>
+		<annotation cp="🏴" type="tts">hilpiragan qora bayroq</annotation>
+		<annotation cp="🏳">hilpirab turgan</annotation>
+		<annotation cp="🏳" type="tts">hilpiragan oq bayroq</annotation>
+		<annotation cp="🏳‍🌈">bayroq | kamalak</annotation>
+		<annotation cp="🏳‍🌈" type="tts">kamalak bayroq</annotation>
+	</annotations>
+</ldml>
