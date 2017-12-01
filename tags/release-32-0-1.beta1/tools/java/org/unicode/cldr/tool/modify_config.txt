@@ -1,0 +1,2 @@
+locale=/.*/;	action=delete;	path=//ldml/annotations/annotation[@cp="🔟"]; 
+locale=/.*/;	action=delete;	path=//ldml/annotations/annotation[@cp="🔟"][@type="tts"]; 
