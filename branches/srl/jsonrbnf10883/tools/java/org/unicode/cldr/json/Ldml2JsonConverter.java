@@ -509,24 +509,17 @@ public class Ldml2JsonConverter {
                     String leadingArrayItemPath = "";
                     int valueCount = 0;
                     String previousIdentityPath = null;
+                    XPathParts xpp = new XPathParts();
                     for (CldrItem item : theItems) {
-
+                        xpp.set(item.getFullPath());
                         if(type == RunType.rbnf){
-                            item.setValue(item.getValue().replace('→', '>'));
-                            item.setValue(item.getValue().replace('←', '<'));
-                            if(item.getFullPath().contains("@value")){
-                                int indexStart = item.getFullPath().indexOf("@value") + 8;
-                                int indexEnd = item.getFullPath().indexOf("]", indexStart) - 1;
-                                if(indexStart >= 0 && indexEnd >= 0 && indexEnd > indexStart){
-                                    String sub = item.getFullPath().substring(indexStart, indexEnd);
-                                    /* System.out.println("sub: " + sub);
-                                    System.out.println("full: " + item.getFullPath());
-                                    System.out.println("val: " + item.getValue());*/
-                                    item.setFullPath(item.getFullPath().replace(sub, item.getValue()));
-                                    item.setFullPath(item.getFullPath().replaceAll("@value", "@" + sub));
-                                    //System.out.println("modifyfull: " + item.getFullPath());
-                                    item.setValue("");
-                                }
+                            final String sub = xpp.findAttributeValue("rbnfrule", "value");
+                            if(sub != null){
+                                final String value = item.getValue();
+                                xpp.removeAttribute(-1, "value");
+                                xpp.addAttribute(sub, value);
+                                item.setFullPath(xpp.toString());
+                                item.setValue("");
                             }
 
                         }
@@ -575,7 +568,6 @@ public class Ldml2JsonConverter {
                         // resolving source, so if we have duplicates ( caused by attributes used as a value ) then suppress
                         // them here.
                         if (item.getPath().contains("/identity/")) {
-                            XPathParts xpp = new XPathParts();
                             String[] parts = item.getPath().split("\\[");
                             if (parts[0].equals(previousIdentityPath)) {
                                 continue;
