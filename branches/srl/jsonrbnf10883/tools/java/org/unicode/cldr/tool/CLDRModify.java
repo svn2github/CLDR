@@ -35,7 +35,6 @@ import org.unicode.cldr.util.CLDRFile;
 import org.unicode.cldr.util.CLDRFile.DraftStatus;
 import org.unicode.cldr.util.CLDRFile.ExemplarType;
 import org.unicode.cldr.util.CLDRFile.NumberingSystem;
-import org.unicode.cldr.util.CLDRFile.Status;
 import org.unicode.cldr.util.CLDRFile.WinningChoice;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CLDRPaths;
@@ -611,11 +610,13 @@ public class CLDRModify {
     static class RetainWhenMinimizing implements CLDRFile.RetentionTest {
         private CLDRFile file;
         private CLDRLocale c;
-        Status status = new Status();
+        private boolean isArabicSublocale;
+        // Status status = new Status(); // no need to have, was unused
 
         public RetainWhenMinimizing setParentFile(CLDRFile file) {
             this.file = file;
             this.c = CLDRLocale.getInstance(file.getLocaleIDFromIdentity());
+            isArabicSublocale = "ar".equals(c.getLanguage()) && !"001".equals(c.getCountry());
             return this;
         }
 
@@ -624,7 +625,11 @@ public class CLDRModify {
             if (path.startsWith("//ldml/identity/")) {
                 return Retention.RETAIN;
             }
-            String localeId = file.getSourceLocaleID(path, status);
+            // special case for Arabic
+            if (isArabicSublocale && path.startsWith("//ldml/numbers/defaultNumberingSystem")) {
+                return Retention.RETAIN;
+            }
+            String localeId = file.getSourceLocaleID(path, null);
             if ((c.isLanguageLocale() || c.equals(CLDRLocale.getInstance("pt_PT")))
                 && (XMLSource.ROOT_ID.equals(localeId) || XMLSource.CODE_FALLBACK_ID.equals(localeId))) {
                 return Retention.RETAIN;
@@ -1327,16 +1332,16 @@ public class CLDRModify {
 
         fixList.add('c', "Fix transiton from an old currency code to a new one", new CLDRFilter() {
             public void handlePath(String xpath) {
-                String oldCurrencyCode = "ZMK";
-                String newCurrencyCode = "ZMW";
-                int fromDate = 1968;
-                int toDate = 2012;
+                String oldCurrencyCode = "MRO";
+                String newCurrencyCode = "MRU";
+                int fromDate = 1973;
+                int toDate = 2017;
                 String leadingParenString = " (";
                 String trailingParenString = ")";
-                String separator = "-";
+                String separator = "\u2013";
                 String languageTag = "root";
 
-                if (xpath.indexOf("/currency[@type=\"" + oldCurrencyCode + "\"]") < 0) {
+                if (xpath.indexOf("/currency[@type=\"" + oldCurrencyCode + "\"]/displayName") < 0) {
                     return;
                 }
                 String value = cldrFileToFilter.getStringValue(xpath);
@@ -2084,7 +2089,7 @@ public class CLDRModify {
                 XPathParts parts = XPathParts.getFrozenInstance(fullpath);
                 String type = parts.getAttributeValue(2, "type");
                 if (type == null) {
-                    return; // keywords, skip
+                    return; // no TTS, so keywords, skip
                 }
                 String name = cldrFileToFilter.getStringValue(xpath);
                 XPathParts keywordParts = parts.cloneAsThawed().removeAttribute(2, "type");
@@ -2093,14 +2098,18 @@ public class CLDRModify {
                 String sourceLocaleId = resolved.getSourceLocaleID(keywordPath, null);
                 sorted.clear();
                 sorted.add(name);
+                List<String> items;
                 if (!sourceLocaleId.equals(XMLSource.ROOT_ID) && !sourceLocaleId.equals(XMLSource.CODE_FALLBACK_ID)) {
-                    List<String> items = Annotations.splitter.splitToList(keywordValue);
+                    items = Annotations.splitter.splitToList(keywordValue);
                     sorted.addAll(items);
                 } else {
                     int debug = 0;
                 }
+                DisplayAndInputProcessor.filterCoveredKeywords(sorted);
                 String newKeywordValue = CollectionUtilities.join(sorted, " | ");
-                replace(keywordPath, keywordPath, newKeywordValue);
+                if (!newKeywordValue.equals(keywordValue)) {
+                    replace(keywordPath, keywordPath, newKeywordValue);
+                }
             }
         });
 
