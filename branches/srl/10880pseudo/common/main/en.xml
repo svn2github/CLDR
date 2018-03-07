@@ -43,6 +43,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="anp">Angika</language>
 			<language type="ar">Arabic</language>
 			<language type="ar_001">Modern Standard Arabic</language>
+			<language type="ar_XB">Pseudo-RTL Arabic</language>
 			<language type="arc">Aramaic</language>
 			<language type="arn">Mapuche</language>
 			<language type="aro">Araona</language>
@@ -170,6 +171,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="en_GB" alt="short">UK English</language>
 			<language type="en_US">American English</language>
 			<language type="en_US" alt="short">US English</language>
+			<language type="en_XA">Pseudo-Accented English</language>
 			<language type="enm">Middle English</language>
 			<language type="eo">Esperanto</language>
 			<language type="es">Spanish</language>
@@ -1134,6 +1136,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="VU">Vanuatu</territory>
 			<territory type="WF">Wallis &amp; Futuna</territory>
 			<territory type="WS">Samoa</territory>
+			<territory type="XA">Pseudo-Accented</territory>
+			<territory type="XB">Pseudo-RTL</territory>
 			<territory type="XK">Kosovo</territory>
 			<territory type="YE">Yemen</territory>
 			<territory type="YT">Mayotte</territory>
