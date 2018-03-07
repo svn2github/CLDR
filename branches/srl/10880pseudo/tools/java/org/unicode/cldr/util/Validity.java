@@ -53,8 +53,13 @@ public class Validity {
         Map<LstrType, Map<Status, Set<String>>> data = new EnumMap<>(LstrType.class);
         Map<LstrType, Map<String, Status>> codeToStatus = new EnumMap<>(LstrType.class);
         final String basePath = commonDirectory + "validity/";
-        for (String file : new File(basePath).list()) {
-            if (!file.endsWith(".xml")) {
+        final File validityDir = new File(basePath);
+        if (!validityDir.isDirectory()) {
+            throw new RuntimeException("Could not load validity data (not a directory: " + basePath + ")");
+        }
+        for (File f : validityDir.listFiles()) {
+            final String file = f.getName();
+            if (!f.isFile() || !f.getName().endsWith(".xml")) {
                 continue;
             }
             LstrType type = null;
