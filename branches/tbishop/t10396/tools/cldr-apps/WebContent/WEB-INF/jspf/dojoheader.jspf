@@ -1,3 +1,20 @@
-    <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/themes/claro/claro.css' />
-    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"
-        djConfig="parseOnLoad: true"></script>
+<script>
+	dojoConfig = {
+		async: false,
+		parseOnLoad: true,
+		isDebug: true,
+		has: {
+			"dojo-firebug": true,
+			"dojo-debug-messages": true
+		},
+	};
+</script>
+<script src='//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js'></script>
+<!-- TODO: src='<%= request.getContextPath() %>/js/dojo-release-1.13.0-src/dojo/dojo.js'
+	Compare js_include.jsp
+	
+	Also TODO: encapsulate stylesheets like the one for claro.css in ajax_status.jsp
+	href="//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dijit/themes/claro/claro.css"
+ -->
+ 
+ 

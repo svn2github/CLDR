@@ -2,8 +2,10 @@
 <%@ page import="org.unicode.cldr.web.*" %>
 <%@ page import="org.unicode.cldr.util.*" %>
 <!--  begin ajax_status.jsp -->
-<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css" />
 
+<!-- TODO: include a header instead for this claro.css; compare dojoheader.jspf included below -->
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dijit/themes/claro/claro.css" />
+ 
 <!-- Bootstrap core test CSS -->
 <link href="<%= request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 
@@ -11,15 +13,10 @@
 <link href="<%= request.getContextPath() %>/css/redesign.css" rel="stylesheet">
 <%= VettingViewer.getHeaderStyles() %>
 
-<script type='text/javascript'>
-dojoConfig = {
-		parseOnLoad: true,
-		};</script>
-<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js'></script>
-<script type='text/javascript'>
+<script>
+<%@ include file="/WEB-INF/jspf/dojoheader.jspf" %>
 require(["dojo/parser", "dijit/layout/ContentPane", "dijit/layout/BorderContainer"]);
-</script>
-<script type="text/javascript">
+
 // just things that must be JSP generated
 var surveyRunningStamp = '<%= SurveyMain.surveyRunningStamp.current() %>';
 var contextPath = '<%= request.getContextPath() %>';
