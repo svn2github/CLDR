@@ -7,10 +7,20 @@
  * @module survey.js - SurveyTool main JavaScript stuff
  */
  
+// "dojo.require" triggers error if dojoConfig.async is true (see dojoheader.jspf)
+// dojo.require("dojo.i18n");
+// dojo.require("dojo.string");
+// The modern way should work with async true or false.
+// TODO: use require with dependent function as second param.
+require(["dojo/i18n", "dojo/string"]);
+ 
+const surveyDebug = true;
+if (surveyDebug) {
+	console.log("surveyDebug: survey.js loading with dojo " + dojo.version + " and jquery " + $.fn.jquery);
+	console.log("surveyDebug: dojoConfig.async = " + dojoConfig.async);
+	console.log("surveyDebug: dojoConfig.parseOnLoad = " + dojoConfig.parseOnLoad);
+}
 
-// TODO: replace with AMD [?] loading
-dojo.require("dojo.i18n");
-dojo.require("dojo.string");
 window.haveDialog = false;
 
 /**
@@ -1528,6 +1538,9 @@ function updateStatusBox(json) {
 			json.timeTillKick = 0;
 		} else if(window.kickMeSoon) {
 			json.timeTillKick = 5000;
+			if (surveyDebug) {
+				json.timeTillKick = 5000000;
+			}
 		}
 		
 		// really don't care if guest user gets 'kicked'. Doesn't matter.
@@ -3505,6 +3518,9 @@ function updateRow(tr, theRow) {
 		copyEnglish.innerHTML = '<span class="glyphicon glyphicon-arrow-right"></span> English';
 		copyEnglish.onclick = function(e) {
 		    input.value = theRow.displayName || null;
+		    if (surveyDebug) {
+			    console.log("surveyDebug: in copyEnglish.onclick; input.value = " + input.value); // e.g., "latn"
+		    }
 		    input.focus();
 		}
 		btn.onclick = function(e) {
@@ -4562,7 +4578,13 @@ function showV() {
 			var theLocale = window.surveyCurrentLocale;
 			if(theLocale==null) theLocale = '';
 			var newHash =  '#' + theSpecial + '/' + theLocale + '/' + thePage + '/' + theId;
+			if (surveyDebug) {
+				console.log("surveyDebug: in replaceHash, newHash = " + newHash);
+			}
 			if(newHash != dojoHash()) {
+				if (surveyDebug) {
+					console.log("surveyDebug: in replaceHash, calling dojoHash");
+				}
 				dojoHash(newHash , !doPush);
 			}
 //			itemBox  = dojo.byId("title-item");
@@ -5349,6 +5371,11 @@ function showV() {
 		 * @method reloadV
 		 */
 		window.reloadV = function reloadV() {
+			if (surveyDebug) {
+				console.log("surveyDebug: reloadV starting trace");
+				console.trace();
+				console.log("surveyDebug: reloadV ending trace");
+			}
 			if(disconnected) {
 				unbust();
 			}
@@ -6332,9 +6359,10 @@ function showV() {
 				// watch for hashchange to make other changes.. 
 				dojoTopic.subscribe("/dojo/hashchange", function(changedHash){
 					//alert("hashChange…" + changedHash);
+					if (surveyDebug) {
+						console.log("surveyDebug: /dojo/hashchange called with " + changedHash);						
+					}
 					if(true) {
-						
-						
 						var oldLocale = trimNull(surveyCurrentLocale);
 						var oldSpecial = trimNull(surveyCurrentSpecial);
 						var oldPage = trimNull(surveyCurrentPage);

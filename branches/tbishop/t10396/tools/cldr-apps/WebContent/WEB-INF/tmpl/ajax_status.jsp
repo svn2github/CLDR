@@ -13,8 +13,9 @@
 <link href="<%= request.getContextPath() %>/css/redesign.css" rel="stylesheet">
 <%= VettingViewer.getHeaderStyles() %>
 
-<script>
 <%@ include file="/WEB-INF/jspf/dojoheader.jspf" %>
+
+<script>
 require(["dojo/parser", "dijit/layout/ContentPane", "dijit/layout/BorderContainer"]);
 
 // just things that must be JSP generated
