@@ -9,12 +9,14 @@
 		},
 	};
 </script>
-<script src='//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js'></script>
-<!-- TODO: src='<%= request.getContextPath() %>/js/dojo-release-1.13.0-src/dojo/dojo.js'
-	Compare js_include.jsp
-	
-	Also TODO: encapsulate stylesheets like the one for claro.css in ajax_status.jsp
+<script src='<%= request.getContextPath() %>/js/dojo/dojo/dojo.js'></script>
+<!-- Was: src='//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js'
+	Compare js_include.jsp about getContextPath.
+	Minified version on ajax.googleapis.com may be best for deployment.
+	Human-readable source stored locally may be best for development, debugging.
+
+	TODO: also use a header (this one?) to encapsulate dojo stylesheets like
+	the one for claro.css in ajax_status.jsp,
 	href="//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dijit/themes/claro/claro.css"
  -->
- 
  
