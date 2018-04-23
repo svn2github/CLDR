@@ -12,8 +12,11 @@
 // dojo.require("dojo.string");
 // The modern way should work with async true or false.
 // TODO: use require with dependent function as second param.
-require(["dojo/i18n", "dojo/string"]);
- 
+// require(["dojo/i18n", "dojo/string"]);
+dojo.require("dojo.i18n");
+dojo.require("dojo.string");
+
+// TODO: use stdebug, stdebug_enabled instead...
 const surveyDebug = true;
 if (surveyDebug) {
 	console.log("surveyDebug: survey.js loading with dojo " + dojo.version + " and jquery " + $.fn.jquery);
@@ -915,7 +918,15 @@ var disconnected = false;
  * Is debugging enabled?
  * @property stdebug_enabled
  */
-var stdebug_enabled=(window.location.search.indexOf('&stdebug=')>-1);
+var stdebug_enabled=surveyDebug || (window.location.search.indexOf('&stdebug=')>-1);
+
+if (stdebug_enabled) {
+	console.log("stdebug_enabled is true!");
+	stdebug("Your hair is on fire");
+}
+else {
+	console.log("stdebug_enabled is false!")
+}
 
 /**
  * Queue of XHR requests waiting to go out
@@ -945,8 +956,14 @@ var processXhrQueue = function() {
 		
 		top.load2 = top.load;
 		top.err2 = top.err;
-		top.load=function(){return myLoad0(top,arguments); };
-		top.err=function(){return myErr0(top,arguments); };
+		top.load=function(){
+			stdebug("surveyDebug: processXhrQueue top.load")
+			return myLoad0(top,arguments);
+		};
+		top.err=function(){
+			stdebug("surveyDebug: processXhrQueue top.err");
+			return myErr0(top,arguments);
+		};
 		top.startTime = new Date().getTime();
 		if(top.postData || top.content) {
 			stdebug("PXQ("+queueOfXhr.length+"): dispatch POST " + top.url);
@@ -1138,12 +1155,17 @@ function doDeferredUpdates() {
 	if(deferUpdateFn==null || deferUpdates>0 || isInputBusy()) {
 		return;
 	}
-
+	if (surveyDebug) {
+		console.log("surveyDebug: in doDeferredUpdates")
+	}
 	for(i in deferUpdateFn) {
 		if(deferUpdateFn[i]) {
 			var fn = deferUpdateFn[i];
 			deferUpdateFn[i]=null;
 			stdebug(".. calling deferred update fn ..");			
+			if (surveyDebug) {
+				console.log("surveyDebug: doDeferredUpdates calling fn")
+			}
 			fn();
 		}
 	}
@@ -3498,7 +3520,7 @@ function updateRow(tr, theRow) {
 		var copyWinning = document.createElement("button");
 		copyWinning.className = "copyWinning btn btn-info btn-xs";
 		copyWinning.title = "Copy Winning";
-		copyWinning.type = "submit";
+		copyWinning.type = "button";
 		copyWinning.innerHTML = '<span class="glyphicon glyphicon-arrow-right"></span> Winning';
 		copyWinning.onclick = function(e) {
 			var theValue = null;
@@ -3514,7 +3536,12 @@ function updateRow(tr, theRow) {
 		var copyEnglish = document.createElement("button");
 		copyEnglish.className = "copyEnglish btn btn-info btn-xs";
 		copyEnglish.title = "Copy English";
-		copyEnglish.type = "submit";
+		if (surveyDebug) {
+			copyEnglish.type = "button";
+		}
+		else {
+			copyEnglish.type = "submit";
+		}
 		copyEnglish.innerHTML = '<span class="glyphicon glyphicon-arrow-right"></span> English';
 		copyEnglish.onclick = function(e) {
 		    input.value = theRow.displayName || null;

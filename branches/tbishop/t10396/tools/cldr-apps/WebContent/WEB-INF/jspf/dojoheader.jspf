@@ -9,11 +9,13 @@
 		},
 	};
 </script>
-<script src='<%= request.getContextPath() %>/js/dojo/dojo/dojo.js'></script>
-<!-- Was: src='//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js'
-	Compare js_include.jsp about getContextPath.
+<script src='//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js'></script>
+<!-- For debugging can switch to
+	src='//localhost:8081/DojoDynamicWeb/dojo-release-1.13.0-src/dojo/dojo.js'
+
 	Minified version on ajax.googleapis.com may be best for deployment.
 	Human-readable source stored locally may be best for development, debugging.
+	Note that DojoDynamicWeb is a project added to Eclipse, and it uses a customized Tomcat on port 8081.
 
 	TODO: also use a header (this one?) to encapsulate dojo stylesheets like
 	the one for claro.css in ajax_status.jsp,

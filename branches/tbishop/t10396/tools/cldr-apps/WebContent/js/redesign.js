@@ -1,7 +1,8 @@
+redesignDebug = true;
+
 //startup fonction
 $(function() {
 
-    
     //for locale search
     $('body').on('click','#show-locked', {type:"lock"}, toggleLockedRead);
     $('body').on('click','#show-read', {type:"read"}, toggleLockedRead);
@@ -37,7 +38,10 @@ $(function() {
             //the 'is' for buttons that trigger popups
             //the 'has' for icons within a button that triggers a popup
             if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-                $(this).popover('hide');
+            	if (redesignDebug) {
+            		console.log("redesignDebug: calling popover hide")
+            	}
+            	$(this).popover('hide');
             }
         });
     });
@@ -285,6 +289,9 @@ function unpackMenuSideBar(json) {
 	$('.sidebar-chooser').click(function(){
 		window.surveyCurrentPage = $(this).attr('id');
 		window.surveyCurrentSpecial = '';
+		if (redesignDebug) {
+			console.log("redesignDebug: redesign.js calling reloadV for .sidebar-chooser");
+		}
 		reloadV();
 		$('#left-sidebar').removeClass('active');
 		toggleOverlay();
