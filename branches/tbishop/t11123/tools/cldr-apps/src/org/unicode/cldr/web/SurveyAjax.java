@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1125,6 +1126,13 @@ public class SurveyAjax extends HttpServlet {
                         }
                             break;
                         case WHAT_USER_OLDVOTES: {
+                            /* We get here when the user presses button "View Old Vote Stats" in the Users page
+                             * which may be reached by a URL such as .../cldr-apps/v#users///
+                             * 
+                             * users.js uses "user_oldvotes" as follows:
+                             * 
+                             * var xurl2 = contextPath + "/SurveyAjax?&s="+surveySessionId+"&what=user_oldvotes&old_user_id="+u.data.id;
+                             */
                             String u = request.getParameter("old_user_id");
                             if (u == null) throw new SurveyException(ErrorCode.E_INTERNAL, "Missing parameter 'u'");
                             Integer userid = Integer.parseInt(u);
@@ -1144,7 +1152,18 @@ public class SurveyAjax extends HttpServlet {
                         }
                             break;
                         case WHAT_USER_XFEROLDVOTES: {
-                            // // what=user_xferoldvotes&from_user_id=182&from_locale=de&to_user_id=105&to_locale=de_CH"
+                            /* We get here when the user presses button "Transfer Old Votes" in the Users page
+                             * which may be reached by a URL such as .../cldr-apps/v#users///
+                             * 
+                             * users.js uses "user_xferoldvotes" as follows:
+                             * 
+                             * var xurl3 = contextPath + "/SurveyAjax?&s="+surveySessionId+"&what=user_xferoldvotes&from_user_id="+oldUser.data.id+"&from_locale="+oldLocale+"&to_user_id="+u.data.id+"&to_locale="+newLocale;
+                             * 
+                             * Message displayed in dialog in response to button press:
+                             * "First, pardon the modality.
+                             * Next, do you want to import votes to '#1921 u_1921@adlam.example.com' FROM another user's old votes? Enter their email address below:"
+                             */
+                           // // what=user_xferoldvotes&from_user_id=182&from_locale=de&to_user_id=105&to_locale=de_CH"
                             Integer from_user_id = getIntParameter(request, "from_user_id");
                             Integer to_user_id = getIntParameter(request, "to_user_id");
                             String from_locale = request.getParameter("from_locale");
@@ -1747,37 +1766,60 @@ public class SurveyAjax extends HttpServlet {
                final String newVotesTable, JSONObject oldvotes)
                throws ServletException, IOException, JSONException, SQLException {
 
-        /* Loop thru multiple old votes tables in reverse chronological order.
-         * Use "union" to combine into a single sql query.
-         */
+        /* Loop thru multiple old votes tables in reverse chronological order. */
         int ver = Integer.parseInt(SurveyMain.getNewVersion());
-        String sql = "";
-        int tableCount = 0;
+        Map<String, Long> localeCount = new HashMap<String, Long>();
+        Map<String, String> localeName = new HashMap<String, String>();
         while (--ver >= oldestVersionForImportingVotes) {
             String oldVotesTable = DBUtils.Table.VOTE_VALUE.forVersion(new Integer(ver).toString(), false).toString();
             if (DBUtils.hasTable(oldVotesTable)) {
-                if (!sql.isEmpty()) {
-                    sql += " UNION ALL ";
-                }
-                sql += "(select locale,count(*) as count from " + oldVotesTable
+                String sql = "select locale,count(*) as count from " + oldVotesTable
                     + " where submitter=? " +
                     " and value is not null " +
                     " and not exists (select * from " + newVotesTable + " where " + oldVotesTable + ".locale=" + newVotesTable + ".locale "
                     +
                     " and " + oldVotesTable + ".xpath=" + newVotesTable + ".xpath and " + newVotesTable + ".submitter=" + oldVotesTable
                     + ".submitter )" +
-                    "group by locale order by locale)";
-                ++tableCount;
+                    "group by locale order by locale";
+                // JSONObject j = DBUtils.queryToJSON(sql, user.id);
+                /* DBUtils.queryToJSON returns something like this:
+                 * {"data":[["aa",2,"Afar"],["af",2,"Afrikaans"]],"header":{"LOCALE":0,"COUNT":1,"LOCALE_NAME":2}}
+                 * We're no longer using queryToJSON here, due to the use of multiple tables.
+                 * Assemble that same structure using multiple queries and queryToArrayAssoc.
+                 */
+                Map<String, Object> rows[] = DBUtils.queryToArrayAssoc(sql, user.id);
+                for (Map<String, Object> m : rows) {
+                    String locale = m.get("locale").toString(); // like "pt" or "pt_PT"
+                    Long count = (Long) m.get("count"); // like 1616
+                    if (localeCount.containsKey(locale)) {
+                        localeCount.put(locale, count + localeCount.get(locale));
+                    }
+                    else {
+                        localeCount.put(locale, count);
+                        /* Complication: the rows do not include the unabbreviated locale name.
+                         * In queryToJSON it's added specially:
+                         * locale_name = CLDRLocale.getInstance(v).getDisplayName();
+                         * Here we can do the same.
+                         */
+                        localeName.put(locale, CLDRLocale.getInstance(locale).getDisplayName());
+                    }
+                } 
             }
         }
-        Object args[] = new Object[tableCount];
-        for (int i = 0; i < tableCount; i++) {
-            args[i] = user.id; // one for each question mark in the query
-        }
-        /* DBUtils.queryToJSON returns something like this:
-         * {"data":[["aa",2,"Afar"],["af",2,"Afrikaans"]],"header":{"LOCALE":0,"COUNT":1,"LOCALE_NAME":2}}
+        /*
+         * In survey.js the json is used like this:
+         *  var data = json.oldvotes.locales.data;
+         *  var header = json.oldvotes.locales.header;
+         *  header is then used for header.LOCALE_NAME, header.LOCALE, and header.COUNT
+         *  It seems header is always simply {"LOCALE":0,"COUNT":1,"LOCALE_NAME":2} here.
          */
-        oldvotes.put("locales", DBUtils.queryToJSON(sql, args));
+        JSONObject header = new JSONObject().put("LOCALE", 0).put("COUNT", 1).put("LOCALE_NAME", 2);
+        JSONArray data = new JSONArray();
+        localeCount.forEach((key, value) -> {
+             data.put(new JSONArray().put(key).put(value).put(localeName.get(key)));
+        });
+        JSONObject j = new JSONObject().put("header", header).put("data",  data);
+        oldvotes.put("locales", j);
     }
 
     /**
