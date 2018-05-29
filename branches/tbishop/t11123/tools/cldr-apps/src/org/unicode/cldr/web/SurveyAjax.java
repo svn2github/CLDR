@@ -1825,8 +1825,8 @@ public class SurveyAjax extends HttpServlet {
     /**
      * View old votes available to be imported for the given locale.
      *
-     * @param user the User (this function only uses user.id)
-     * @param sm the SurveyMain instance
+     * @param user the User, for user.id and userIsTC
+     * @param sm the SurveyMain instance, used for sm.xpt, sm.getBaselineFile, and sm.getOldFile
      * @param loc the non-empty String for the locale like "aa"
      * @param locale the CLDRLocale matching loc
      * @param newVotesTable the String for the table name like "cldr_vote_value_34"
@@ -1857,8 +1857,17 @@ public class SurveyAjax extends HttpServlet {
             }
         });
 
-        JSONArray uncontested = new JSONArray();
-        JSONArray contested = new JSONArray();
+        /* In general, both winning (uncontested) and losing (contested) votes may be present.
+         * Normally, for non-TC users, winning votes are imported automatically. Therefore, only list
+         * winning votes if user is TC, per https://unicode.org/cldr/trac/ticket/11135
+         * 
+         * TODO: don't create or put "uncontested" array (even an empty array) unless TC; but
+         * first make sure survey.js won't complain if uncontested is undefined/null.
+         */
+        boolean shouldListWinningVotes = UserRegistry.userIsTC(user);
+        
+        JSONArray uncontested = new JSONArray(); // uncontested = winning; will stay empty unless shouldListWinningVotes
+        JSONArray contested = new JSONArray(); // contested = losing
 
         int bad = 0;
 
@@ -1897,13 +1906,20 @@ public class SurveyAjax extends HttpServlet {
                 .put("baseValue", baseF.getStringValue(xpathString))
                 .put("pathHeader", pathHeader.toString());
             if (value.equals(curValue)) {
-                uncontested.put(aRow);
+                if (shouldListWinningVotes) {
+                    uncontested.put(aRow); // uncontested = winning                 
+                }
             } else {
-                contested.put(aRow);
+                contested.put(aRow); // contested = losing
             }
         }
-        oldvotes.put("contested", contested);
-        oldvotes.put("uncontested", uncontested);
+        oldvotes.put("contested", contested); // contested = losing
+        oldvotes.put("uncontested", uncontested); // uncontested = winning
+        /* "bad" here is for reporting the number of "ignored items" to the user:
+         *  v_oldvotes_bad_msg: "You have ${bad} ignored items. These have been removed from or restructured in CLDR, and may not be imported."
+         *  However, per https://unicode.org/cldr/trac/ticket/11135 that message will no longer be shown,
+         *  so this may be superfluous. TODO: remove put of "bad" here, after confirming survey.js won't complain.
+         *  Could simply set bad = 0 here to suppress error reporting without changing survey.js */
         oldvotes.put("bad", bad);
     }
 
