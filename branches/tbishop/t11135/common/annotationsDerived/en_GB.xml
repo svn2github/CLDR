@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "../../common/dtd/ldml.dtd">
+<!-- Copyright © 1991-2018 Unicode, Inc.
+For terms of use, see http://www.unicode.org/copyright.html
+Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
+CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
+
+Derived short names and annotations, using GenerateDerivedAnnotations.java. See warnings in /annotations/ file.
+-->
+<ldml>
+	<identity>
+		<version number="$Revision$"/>
+		<language type="en"/>
+		<territory type="GB"/>
+	</identity>
+	<annotations>
+		<annotation cp="🧒🏻">gender-neutral | toddler | young | light skin tone</annotation>
+		<annotation cp="🧒🏼">gender-neutral | toddler | young | medium-light skin tone</annotation>
+		<annotation cp="🧒🏽">gender-neutral | toddler | young | medium skin tone</annotation>
+		<annotation cp="🧒🏾">gender-neutral | toddler | young | medium-dark skin tone</annotation>
+		<annotation cp="🧒🏿">gender-neutral | toddler | young | dark skin tone</annotation>
+		<annotation cp="👨🏻‍🚒">fire engine | firefighter | man | light skin tone</annotation>
+		<annotation cp="👨🏼‍🚒">fire engine | firefighter | man | medium-light skin tone</annotation>
+		<annotation cp="👨🏽‍🚒">fire engine | firefighter | man | medium skin tone</annotation>
+		<annotation cp="👨🏾‍🚒">fire engine | firefighter | man | medium-dark skin tone</annotation>
+		<annotation cp="👨🏿‍🚒">fire engine | firefighter | man | dark skin tone</annotation>
+		<annotation cp="👩🏻‍🚒">fire engine | firefighter | woman | light skin tone</annotation>
+		<annotation cp="👩🏼‍🚒">fire engine | firefighter | woman | medium-light skin tone</annotation>
+		<annotation cp="👩🏽‍🚒">fire engine | firefighter | woman | medium skin tone</annotation>
+		<annotation cp="👩🏾‍🚒">fire engine | firefighter | woman | medium-dark skin tone</annotation>
+		<annotation cp="👩🏿‍🚒">fire engine | firefighter | woman | dark skin tone</annotation>
+		<annotation cp="🎅🏻">Christmas | Santa Claus | celebration | claus | father | santa | light skin tone</annotation>
+		<annotation cp="🎅🏼">Christmas | Santa Claus | celebration | claus | father | santa | medium-light skin tone</annotation>
+		<annotation cp="🎅🏽">Christmas | Santa Claus | celebration | claus | father | santa | medium skin tone</annotation>
+		<annotation cp="🎅🏾">Christmas | Santa Claus | celebration | claus | father | santa | medium-dark skin tone</annotation>
+		<annotation cp="🎅🏿">Christmas | Santa Claus | celebration | claus | father | santa | dark skin tone</annotation>
+		<annotation cp="🤶🏻">Christmas | Mrs | celebration | claus | mother | light skin tone</annotation>
+		<annotation cp="🤶🏻" type="tts">Mrs. Claus: light skin tone</annotation>
+		<annotation cp="🤶🏼">Christmas | Mrs | celebration | claus | mother | medium-light skin tone</annotation>
+		<annotation cp="🤶🏼" type="tts">Mrs. Claus: medium-light skin tone</annotation>
+		<annotation cp="🤶🏽">Christmas | Mrs | celebration | claus | mother | medium skin tone</annotation>
+		<annotation cp="🤶🏽" type="tts">Mrs. Claus: medium skin tone</annotation>
+		<annotation cp="🤶🏾">Christmas | Mrs | celebration | claus | mother | medium-dark skin tone</annotation>
+		<annotation cp="🤶🏾" type="tts">Mrs. Claus: medium-dark skin tone</annotation>
+		<annotation cp="🤶🏿">Christmas | Mrs | celebration | claus | mother | dark skin tone</annotation>
+		<annotation cp="🤶🏿" type="tts">Mrs. Claus: dark skin tone</annotation>
+		<annotation cp="🚴🏻‍♂">bicycle | biking | cyclist | man | man biking | light skin tone</annotation>
+		<annotation cp="🚴🏼‍♂">bicycle | biking | cyclist | man | man biking | medium-light skin tone</annotation>
+		<annotation cp="🚴🏽‍♂">bicycle | biking | cyclist | man | man biking | medium skin tone</annotation>
+		<annotation cp="🚴🏾‍♂">bicycle | biking | cyclist | man | man biking | medium-dark skin tone</annotation>
+		<annotation cp="🚴🏿‍♂">bicycle | biking | cyclist | man | man biking | dark skin tone</annotation>
+		<annotation cp="🚴🏻‍♀">bicycle | biking | cyclist | woman | woman biking | light skin tone</annotation>
+		<annotation cp="🚴🏼‍♀">bicycle | biking | cyclist | woman | woman biking | medium-light skin tone</annotation>
+		<annotation cp="🚴🏽‍♀">bicycle | biking | cyclist | woman | woman biking | medium skin tone</annotation>
+		<annotation cp="🚴🏾‍♀">bicycle | biking | cyclist | woman | woman biking | medium-dark skin tone</annotation>
+		<annotation cp="🚴🏿‍♀">bicycle | biking | cyclist | woman | woman biking | dark skin tone</annotation>
+		<annotation cp="🇧🇱" type="tts">St Barthélemy</annotation>
+		<annotation cp="🇰🇳" type="tts">St Kitts &amp; Nevis</annotation>
+		<annotation cp="🇱🇨" type="tts">St Lucia</annotation>
+		<annotation cp="🇲🇫" type="tts">St Martin</annotation>
+		<annotation cp="🇵🇲" type="tts">St Pierre &amp; Miquelon</annotation>
+		<annotation cp="🇸🇭" type="tts">St Helena</annotation>
+		<annotation cp="🇺🇲" type="tts">US Outlying Islands</annotation>
+		<annotation cp="🇻🇨" type="tts">St Vincent &amp; Grenadines</annotation>
+		<annotation cp="🇻🇮" type="tts">US Virgin Islands</annotation>
+	</annotations>
+</ldml>
