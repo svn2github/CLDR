@@ -41,6 +41,7 @@ import org.unicode.cldr.util.CLDRInfo.UserInfo;
 import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.CldrUtility;
 import org.unicode.cldr.util.CoverageInfo;
+import org.unicode.cldr.util.DtdData.IllegalByDtdException;
 import org.unicode.cldr.util.Factory;
 import org.unicode.cldr.util.Level;
 import org.unicode.cldr.util.Organization;
@@ -1781,8 +1782,7 @@ public class SurveyAjax extends HttpServlet {
                     " and " + oldVotesTable + ".xpath=" + newVotesTable + ".xpath and " + newVotesTable + ".submitter=" + oldVotesTable
                     + ".submitter )" +
                     "group by locale order by locale";
-                // JSONObject j = DBUtils.queryToJSON(sql, user.id);
-                /* DBUtils.queryToJSON returns something like this:
+                /* DBUtils.queryToJSON was formerly used here and would return something like this:
                  * {"data":[["aa",2,"Afar"],["af",2,"Afrikaans"]],"header":{"LOCALE":0,"COUNT":1,"LOCALE_NAME":2}}
                  * We're no longer using queryToJSON here, due to the use of multiple tables.
                  * Assemble that same structure using multiple queries and queryToArrayAssoc.
@@ -1799,7 +1799,7 @@ public class SurveyAjax extends HttpServlet {
                         /* Complication: the rows do not include the unabbreviated locale name.
                          * In queryToJSON it's added specially:
                          * locale_name = CLDRLocale.getInstance(v).getDisplayName();
-                         * Here we can do the same.
+                         * Here we do the same.
                          */
                         localeName.put(locale, CLDRLocale.getInstance(locale).getDisplayName());
                     }
@@ -1810,8 +1810,9 @@ public class SurveyAjax extends HttpServlet {
          * In survey.js the json is used like this:
          *  var data = json.oldvotes.locales.data;
          *  var header = json.oldvotes.locales.header;
-         *  header is then used for header.LOCALE_NAME, header.LOCALE, and header.COUNT
-         *  It seems header is always simply {"LOCALE":0,"COUNT":1,"LOCALE_NAME":2} here.
+         *  The header is then used for header.LOCALE_NAME, header.LOCALE, and header.COUNT.
+         *  The header is always {"LOCALE":0,"COUNT":1,"LOCALE_NAME":2} here, since
+         *  0, 1, and 2 are the indexes of the three elements in each array like ["aa",2,"Afar"].
          */
         JSONObject header = new JSONObject().put("LOCALE", 0).put("COUNT", 1).put("LOCALE_NAME", 2);
         JSONArray data = new JSONArray();
@@ -2178,6 +2179,8 @@ public class SurveyAjax extends HttpServlet {
                 SurveyLog.logException(ix, "Bad XPath: Trying to vote for " + xpathString);
             } catch (VoteNotAcceptedException ix) {
                 SurveyLog.logException(ix, "Vote not accepted: Trying to vote for " + xpathString);
+            } catch (IllegalByDtdException ix) {
+                SurveyLog.logException(ix, "Illegal by DTD: Trying to vote for " + xpathString);
             }
         }
         // System.out.println("importAllOldWinningVotes: imported " + confirmations + " votes in " + oldVotesTable);
