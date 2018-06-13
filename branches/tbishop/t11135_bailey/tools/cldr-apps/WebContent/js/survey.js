@@ -2952,18 +2952,37 @@ function updateRow(tr, theRow) {
 	tr.theRow = theRow;
 	tr.valueToItem = {}; // hash:  string value to item (which has a div)
 	tr.rawValueToItem = {}; // hash:  string value to item (which has a div)
+
+	var len = Object.keys(theRow.items).length;
+	console.log("Debugging survey.js updateRow, Object.keys(theRow.items).length = " + len);
+	if (len == 1) {
+		console.log("Debugging survey.js updateRow, 1 is the loneliest number!");
+	}
 	for(var k in theRow.items) {
 		var item = theRow.items[k];
+		console.log("Debugging survey.js updateRow in loop k = " + k);
 		if(item.value) {
 			tr.valueToItem[item.value] = item; // back link by value
 			tr.rawValueToItem[item.rawValue] = item; // back link by value
 			if(item.rawValue === '↑↑↑') { // This is a vote for Bailey.
+				console.log("Debugging survey.js updateRow in loop k = " + k + " and vote is for bailey");
 				item.isVoteForBailey = true;
 				tr.voteForBaileyItem = item;
+				console.log("Debugging survey.js setting isVoteForBailey true, voteForBaileyItem = " + item)
 			}
+			else {
+				console.log("Debugging survey.js updateRow in loop k = " + k + " and vote is not for bailey");
+			}
+		}
+		else {
+			console.log("Debugging survey.js item.value = null");
 		}
 		if(item.isBailey) {
 			tr.baileyItem = item; // This is the actual Bailey item (target of the votes)
+			console.log("Debugging survey.js updateRow: isBailey");
+			if (theRow.xpstrid === "5749e2dd826ed29b") { // "//ldml/localeDisplayNames/languages/language[@type=\"ar\"]"
+                console.log("Debugging survey.js updateRow: THIS IS out rendezvous with destiny");
+    		}
 		}
 	}
 	
@@ -2971,12 +2990,17 @@ function updateRow(tr, theRow) {
 		// Some people voted for Bailey. Move those votes over to the actual target.
 		if(!tr.baileyItem) {
 			console.error('For ' + theRow.xpstrid + ' - there is no Bailey Target item!');
+			if (theRow.xpstrid === "5749e2dd826ed29b") { // "//ldml/localeDisplayNames/languages/language[@type=\"ar\"]"
+                console.log("Debugging survey.js updateRow: THIS IS THE PATH OF INTEREST"); // strid = 5749e2dd826ed29b
+    		}
 			// don't delete the item
 		} else {
 			tr.baileyItem.votes = tr.baileyItem.votes || {};
 			for(var k in tr.voteForBaileyItem.votes) {
 				tr.baileyItem.votes[k] = tr.voteForBaileyItem.votes[k]; //  move vote from ↑↑↑ to explicit item
 				tr.baileyItem.votes[k].isVoteForBailey = true;
+				console.log("Debugging survey.js setting isVoteForBailey true, k = " + k + " tr.baileyItem.votes[k].item = " + tr.baileyItem.votes[k].item)
+
 				// no need to remove - will be handled specially below.
 			}
 		}
@@ -3676,6 +3700,7 @@ function findPartition(partitions,partitionList,curPartition,i) {
 function insertRowsIntoTbody(theTable,tbody) {
 	theTable.hitCount++;
 	var theRows = theTable.json.section.rows;
+	
 	var toAdd = theTable.toAdd;
 	var parRow = dojo.byId('proto-parrow');
 	removeAllChildNodes(tbody);
@@ -3690,6 +3715,13 @@ function insertRowsIntoTbody(theTable,tbody) {
 		
 		var k = rowList[i];
 		var theRow = theRows[k];
+
+		var len = Object.keys(theRow.items).length;
+		console.log("Debugging survey.js insertRowsIntoTbody, Object.keys(theRow.items).length = " + len);
+		if (len == 1) {
+			console.log("Debugging survey.js insertRowsIntoTbody, 1 really is the loneliest number!");
+		}		
+		
 		var dir = theRow.dir;
 		overridedir = (dir != null ? dir : null);
 		//no partition in the dashboard

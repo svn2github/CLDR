@@ -552,9 +552,16 @@ public class DataSection implements JSONString {
 
             @Override
             public String toString() {
+                // TEMPORARY DEBUGGING
+                return "{Item v='" + value + "', altProposed='" + altProposed + "', inheritFrom='" + inheritFrom + "'"
+                    + (isWinner() ? ",winner" : "") + (isFallback ? ",isFallback" : "")
+                    + (isParentFallback ? ",isParentFallback" : "") + (isBailey ? ",isBailey=true" : ",isBailey=false") + "}";
+
+                /*
                 return "{Item v='" + value + "', altProposed='" + altProposed + "', inheritFrom='" + inheritFrom + "'"
                     + (isWinner() ? ",winner" : "") + (isFallback ? ",isFallback" : "")
                     + (isParentFallback ? ",isParentFallback" : "") + "}";
+                    */
             }
 
             /**
@@ -664,7 +671,7 @@ public class DataSection implements JSONString {
          * Calculated coverage level for this row.
          */
         public int coverageValue;
-        List<CandidateItem> candidateItems = null;
+        List<CandidateItem> candidateItems = null; // TODO: unused??
 
         private String displayName = null;
         // these apply to the 'winning' item, if applicable
@@ -1578,7 +1585,17 @@ public class DataSection implements JSONString {
 
         @Override
         public String toString() {
+                        
+            // TEMPORARY DEBUGGING
+            String s = "{DataRow n='" + getDisplayName() + "', x='" + xpath + "', item#='" + items.size() + "'}";
+            for (CandidateItem i : items.values()) {
+                s += "\n  (** " + i.toString() + " **)";
+            }
+            return s;
+
+            /*
             return "{DataRow n='" + getDisplayName() + "', x='" + xpath + "', item#='" + items.size() + "'}";
+            */
         }
 
         /**
@@ -1619,6 +1636,7 @@ public class DataSection implements JSONString {
 
                 if (value == null) {
                     // no inherited value
+                    System.out.println("updateInheritedValue: no inheritedValue for " + xpath);
                 } else if (!items.containsKey(value)) {
                     inheritedValue = addItem(value);
                     if (TRACE_TIME)
@@ -1647,6 +1665,10 @@ public class DataSection implements JSONString {
                             System.err.println("@@6:" + (System.currentTimeMillis() - lastTime));
                     }
 
+                    System.out.println("updateInheritedValue: setting inheritedValue.isBailey = true for " + xpath);
+                    if (xpath.equals("//ldml/localeDisplayNames/languages/language[@type=\"ar\"]")) { // strid = 5749e2dd826ed29b
+                        System.out.println("updateInheritedValue: THIS IS THE PATH OF INTEREST");
+                    }
                     inheritedValue.isBailey = true;
                     inheritedValue.isFallback = true;
                 } else { // item already contained
@@ -1737,6 +1759,11 @@ public class DataSection implements JSONString {
                 jo.put("xpid", xpathId);
                 jo.put("rowFlagged", sm.getSTFactory().getFlag(locale, xpathId));
                 jo.put("xpstrid", XPathTable.getStringIDString(xpath));
+                
+                if (XPathTable.getStringIDString(xpath) == "5749e2dd826ed29b") {
+                    System.out.println("XPathTable.getStringIDString(" + xpath + ") == 5749e2dd826ed29b");
+                }
+                
                 jo.put("winningValue", winningValue != null ? winningValue : "");
                 jo.put("displayName", displayName);
                 jo.put("displayExample", displayExample);
@@ -2929,6 +2956,10 @@ public class DataSection implements JSONString {
             if (xpath == null) {
                 throw new InternalError("null xpath in allXpaths");
             }
+            
+            String debugxpstrid = XPathTable.getStringIDString(xpath);
+            System.out.println("Looping in populateFrom, xpath = " + xpath + "; strid = " + debugxpstrid);
+            
             int xpid = sm.xpt.getByXpath(xpath);
             if (pageId == null) {
                 if (matcher != null && !matcher.matches(xpath, xpid)) {
@@ -3092,10 +3123,14 @@ public class DataSection implements JSONString {
                 // This is an 'extra' item- it doesn't exist in xml (including root).
                 // Set up 'shim' tests, to display coverage
                 p.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr, options);
-                // System.err.println("Shimmed! "+xpath);
+                System.err.println("Shimmed! "+xpath);
             } else if (p.inheritedValue == null) {
                 // This item fell back from root. Make sure it has an Item, and that tests are run.
+                System.out.println("populateFrom calling updateInheritedValue for " + xpath);
                 p.updateInheritedValue(ourSrc, checkCldr, options);
+            }
+            else {
+                System.out.println("populateFrom NOT calling updateInheritedValue for " + xpath);
             }
 
             if (TRACE_TIME)
@@ -3507,8 +3542,22 @@ public class DataSection implements JSONString {
 
     @Override
     public String toString() {
+
+        // TEMPORARY DEBUGGING
+        String s = "{" + getClass().getSimpleName() + " " + locale + ":" + xpathPrefix + " #" + super.toString() + ", "
+        + getAll().size() + " items, pageid " + this.pageId + " } ";
+
+        Collection<DataRow> coll = getAll();
+        for (DataRow d : coll) {
+            s += "\n(* " + d.toString() + " *)";
+        }
+        return s;
+
+        /*
         return "{" + getClass().getSimpleName() + " " + locale + ":" + xpathPrefix + " #" + super.toString() + ", "
             + getAll().size() + " items, pageid " + this.pageId + " } ";
+            
+            */
     }
 
     public void touch() {

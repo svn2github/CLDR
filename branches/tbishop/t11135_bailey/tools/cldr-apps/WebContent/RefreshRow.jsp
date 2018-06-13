@@ -12,7 +12,9 @@
 			loc = (loc == null) ? null : loc.replace("-", "_");
 			
 			CLDRLocale l = SurveyAjax.validateLocale(new PrintWriter(out), loc);
-			if(l==null) return;
+			if(l==null) {
+				return;
+			}
 			ctx.setLocale(l);
             String xpath = WebContext.decodeFieldString(request.getParameter(SurveyForum.F_XPATH));
             String strid = WebContext.decodeFieldString(request.getParameter("strid"));
@@ -191,6 +193,18 @@
 					}
 					
 					try {
+
+						/// TEMPORARY DEBUGGING
+						System.out.println(section);
+
+						/*
+						for (DataSection.DataRow d : section.rowsHash.values()) { 
+							for (DataSection.DataRow.CandidateItem item : d.items) {
+								
+							}
+						}
+						*/
+						
 						JSONWriter r = new JSONWriter(out).object()
 								.key("stro").value(STFactory.isReadOnlyLocale(ctx.getLocale()))
 								.key("baseXpath").value(baseXp)
