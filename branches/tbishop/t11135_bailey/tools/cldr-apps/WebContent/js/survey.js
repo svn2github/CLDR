@@ -4480,6 +4480,7 @@ function showV() {
 				var msg_fmt = stui.sub("v_bad_special_msg",
 						{special: name });
 				params.flipper.flipTo(params.pages.loading, loadingChunk = createChunk(msg_fmt,"p","errCodeMsg"));
+				console.log("onFailure: setting isLoading = false");
 				isLoading=false;
 			});
 		};
@@ -5396,6 +5397,7 @@ function showV() {
 			
 			document.getElementById('DynamicDataSection').innerHTML = '';//reset the data
 			$('#nav-page').hide();
+			console.log("reloadV: setting isLoading = false");
 			isLoading = false;
 			showers[flipper.get(pages.data).id]=function(){ console.log("reloadV()'s shower - ignoring reload request, we are in the middle of a load!"); };
 			
@@ -5461,6 +5463,7 @@ function showV() {
 					console.log("reloadV inner shower: already isLoading, exitting.");
 					return;
 				}
+				console.log("reloadV inner shower: setting isLoading = true");
 				isLoading = true;
 				var theDiv = flipper.get(pages.data);
 				var theTable = theDiv.theTable;
@@ -5481,6 +5484,7 @@ function showV() {
 						itemLoadInfo.appendChild(document.createTextNode(locmap.getLocaleName(surveyCurrentLocale)));
 						showPossibleProblems(flipper, pages.other, surveyCurrentLocale, surveySessionId, covName(effectiveCoverage()), covName(effectiveCoverage()));
 						showInPop2(stui.str("generalPageInitialGuidance"), null, null, null, true); /* show the box the first time */
+						console.log("surveyCurrentPage...: setting isLoading = false");
 						isLoading=false;
 					} else if(surveyCurrentId=='!') {
 						var frag = document.createDocumentFragment();
@@ -5491,6 +5495,7 @@ function showV() {
 						frag.appendChild(infoChunk);
 						flipper.flipTo(pages.other, frag);
 						hideLoader(null);
+						console.log("surveyCurrentId==!: setting isLoading = false");
 						isLoading=false;
 
 					} else {
@@ -5499,6 +5504,7 @@ function showV() {
 						var url = contextPath + "/RefreshRow.jsp?json=t&_="+surveyCurrentLocale+"&s="+surveySessionId+"&x="+surveyCurrentPage+"&strid="+surveyCurrentId+cacheKill();
 						$('#nav-page').show();
 						myLoad(url, "section", function(json) {
+							console.log("section, setting isLoading = false");
 							isLoading=false;
 							showLoader(theDiv.loader,stui.loading2);
 							if(!verifyJson(json, 'section')) {
@@ -5550,9 +5556,11 @@ function showV() {
 				} else if(surveyCurrentSpecial =='oldvotes') {
 					var url = contextPath + "/SurveyAjax?what=oldvotes&_="+surveyCurrentLocale+"&s="+surveySessionId+"&"+cacheKill();
 					myLoad(url, "(loading oldvotes " + surveyCurrentLocale + ")", function(json) {
+						console.log("loading oldvotes, setting isLoading = false");
 						isLoading=false;
 						showLoader(null,stui.loading2);
 						if(!verifyJson(json, 'oldvotes')) {
+							console.log("loading oldvotes, verifyJson failed!");
 							return;
 						} else {
 							showLoader(null, "loading..");
@@ -5875,6 +5883,7 @@ function showV() {
 					var url = contextPath + "/SurveyAjax?what=mail&s="+surveySessionId+"&fetchAll=true&"+cacheKill();
 					myLoad(url, "(loading mail " + surveyCurrentLocale + ")", function(json) {
 						hideLoader(null,stui.loading2);
+						console.log("loading mail, setting isLoading = false");
 						isLoading=false;
 						if(!verifyJson(json, 'mail')) {
 							return;
@@ -5975,6 +5984,7 @@ function showV() {
 								var errFunction = function errFunction(err) {
 									console.log("Error: loading " + url + " -> " + err);
 									hideLoader(null,stui.loading2);
+									console.log("errFunction: setting isLoading = false");
 									isLoading=false;
 									flipper.flipTo(pages.other, domConstruct.toDom("<div style='padding-top: 4em; font-size: x-large !important;' class='ferrorbox warning'><span class='icon i-stop'> &nbsp; &nbsp;</span>Error: could not load: " + err + "</div>"));
 								};
@@ -5984,6 +5994,7 @@ function showV() {
 						    			.get(url, {handleAs: 'json'})
 						    			.then(function(json) {
 											hideLoader(null,stui.loading2);
+											console.log("isDashboard...: setting isLoading = false");
 											isLoading=false;
 											// further errors are handled in JSON
 											showReviewPage(json, function() {
@@ -6008,6 +6019,7 @@ function showV() {
 					    			.then(function(html) {
 					    				// errors are handled as HTML.
 										hideLoader(null,stui.loading2);
+										console.log("after hideLoader...: setting isLoading = false");
 										isLoading=false;
 										flipper.flipTo(pages.other, domConstruct.toDom(html));
 									})
@@ -6019,10 +6031,12 @@ function showV() {
 				} else if(surveyCurrentSpecial == 'none') {
 					//for now - redurect
 					hideLoader(null);
+					console.log("surveyCurrentSpecial == none: setting isLoading = false");
 					isLoading=false;
 					window.location = survURL; // redirect home
 				} else if(surveyCurrentSpecial == 'locales') {
 					hideLoader(null);
+					console.log("surveyCurrentSpecial == locales: setting isLoading = false");
 					isLoading=false;					
 					var theDiv = document.createElement("div");
 					theDiv.className = 'localeList';

@@ -147,12 +147,25 @@ public class DataSection implements JSONString {
             }
 
             public String getValueHash() {
+                if (value != null && value.equals("árabe")) {
+                    System.out.println("Good morning from getValueHash!");
+                }
                 if (valueHash == null) {
                     if (isFallback && !locale.isLanguageLocale()) {
                         valueHash = DataSection.getValueHash(CldrUtility.INHERITANCE_MARKER);
                     } else {
                         valueHash = DataSection.getValueHash(value);
                     }
+                }
+                return valueHash;
+            }
+
+            public String getValueHashWithoutStrangeness() {
+                if (value != null && value.equals("árabe")) {
+                    System.out.println("Good morning from getValueHashWithoutStrangeness!");
+                }
+                if (valueHash == null) {
+                    valueHash = DataSection.getValueHash(value);
                 }
                 return valueHash;
             }
@@ -272,8 +285,8 @@ public class DataSection implements JSONString {
                             // voting due to errors?
                             if (ctx.getCanModify()) {
                                 ctx.print("<button class='ichoice' title='#" + "x" + "' name='" + fieldHash + "'  value='"
-                                    + getValueHash() + "' " + " onclick=\"do_change('" + fullFieldHash() + "','','"
-                                    + getValueHash() + "'," + getXpathId() + ",'" + getLocale() + "', '" + ctx.session
+                                    + getValueHashWithoutStrangeness() + "' " + " onclick=\"do_change('" + fullFieldHash() + "','','"
+                                    + getValueHashWithoutStrangeness() + "'," + getXpathId() + ",'" + getLocale() + "', '" + ctx.session
                                     + "')\"" + "  type='button'>"
                                     + ctx.iconHtml(checkThis(ourVote) ? "radx" : "rado", "Vote") + "</button>");
                             } // else, can't vote- no radio buttons.
@@ -586,7 +599,7 @@ public class DataSection implements JSONString {
                 // we may wish to use them in the future.  We don't pass them along in order to save resources.
                 // JCE: 2013-05-29
                 JSONObject j = new JSONObject()
-                    .put("valueHash", getValueHash())
+                    .put("valueHash", getValueHashWithoutStrangeness())
                     .put("rawValue", value)
                     .put("value", getProcessedValue())
                     .put("example", getExample())
@@ -773,6 +786,10 @@ public class DataSection implements JSONString {
             if (myFieldHash == null) {
                 String ret = "";
                 ret = ret + "_x" + CookieSession.cheapEncode(getXpathId());
+                
+                if (ret.equals("_xpk")) {
+                    System.out.println("fieldHash returning _xpk for xpathId = " + xpathId); // debugging, fieldHash returning _xpk for xpathId = 275
+                }
                 myFieldHash = ret;
             }
             return myFieldHash;
@@ -1721,7 +1738,7 @@ public class DataSection implements JSONString {
                 String winningVhash = "";
                 CandidateItem winningItem = getWinningItem();
                 if (winningItem != null) {
-                    winningVhash = winningItem.getValueHash();
+                    winningVhash = winningItem.getValueHashWithoutStrangeness();
                 }
                 String voteVhash = "";
                 String ourVote = null;
@@ -1730,14 +1747,17 @@ public class DataSection implements JSONString {
                     if (ourVote != null) {
                         CandidateItem voteItem = items.get(ourVote);
                         if (voteItem != null) {
-                            voteVhash = voteItem.getValueHash();
+                            voteVhash = voteItem.getValueHashWithoutStrangeness();
                         }
                     }
                 }
-
+                if (xpath.equals("//ldml/localeDisplayNames/languages/language[@type=\"ar\"]")) {
+                    System.out.println("Hash for árabe should be:" + DataSection.getValueHash("árabe"));
+                    System.out.println("Hash for CldrUtility.INHERITANCE_MARKER should be:" + DataSection.getValueHash(CldrUtility.INHERITANCE_MARKER));
+                }
                 JSONObject itemsJson = new JSONObject();
                 for (CandidateItem i : items.values()) {
-                    itemsJson.put(i.getValueHash(), i);
+                    itemsJson.put(i.getValueHashWithoutStrangeness(), i);
                 }
 
                 String displayExample = null;
@@ -1760,7 +1780,7 @@ public class DataSection implements JSONString {
                 jo.put("rowFlagged", sm.getSTFactory().getFlag(locale, xpathId));
                 jo.put("xpstrid", XPathTable.getStringIDString(xpath));
                 
-                if (XPathTable.getStringIDString(xpath) == "5749e2dd826ed29b") {
+                if (XPathTable.getStringIDString(xpath).equals("5749e2dd826ed29b")) {
                     System.out.println("XPathTable.getStringIDString(" + xpath + ") == 5749e2dd826ed29b");
                 }
                 
@@ -3676,6 +3696,9 @@ public class DataSection implements JSONString {
 //            }
             for (DataRow d : rowsHash.values()) {
                 try {
+                    if (d.xpathId == 275) {
+                        System.out.println("Hello my id is 275"); // debugging
+                    }
                     String str = d.toJSONString();
                     JSONObject obj = new JSONObject(str);
                     itemList.put(d.fieldHash(), obj);

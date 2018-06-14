@@ -774,7 +774,7 @@ public class XPathTable {
     public static final String getStringIDString(String xpath) {
         
         if ( Long.toHexString(getStringID(xpath)) == "5749e2dd826ed29b") {
-            System.out.println("getStringIDString(" + xpath + ") == 5749e2dd826ed29b");
+            System.out.println("getStringIDString(" + xpath + ") == 5749e2dd826ed29b"); // TEMPORARY DEBUGGING
         }
 
         return Long.toHexString(getStringID(xpath));
