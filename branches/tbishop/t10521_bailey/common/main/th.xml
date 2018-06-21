@@ -932,7 +932,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="FR">ฝรั่งเศส</territory>
 			<territory type="GA">กาบอง</territory>
 			<territory type="GB">สหราชอาณาจักร</territory>
-			<territory type="GB" alt="short">อังกฤษ</territory>
 			<territory type="GD">เกรเนดา</territory>
 			<territory type="GE">จอร์เจีย</territory>
 			<territory type="GF">เฟรนช์เกียนา</territory>
@@ -1119,6 +1118,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">ซิมบับเว</territory>
 			<territory type="ZZ">ภูมิภาคที่ไม่รู้จัก</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">อังกฤษ</subdivision>
+			<subdivision type="gbsct">สกอตแลนด์</subdivision>
+			<subdivision type="gbwls">เวลส์</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="1901">เยอรมันออร์โธกราฟีดั้งเดิม</variant>
 			<variant type="1994" draft="contributed">อักขระเรเซียนมาตราฐาน</variant>
