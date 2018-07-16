@@ -1001,6 +1001,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">സിംബാബ്‌വേ</territory>
 			<territory type="ZZ">അജ്ഞാത പ്രദേശം</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">ഇംഗ്ലണ്ട്</subdivision>
+			<subdivision type="gbsct">സ്‌കോട്ട്‌ലന്റ്</subdivision>
+			<subdivision type="gbwls">വെയിൽസ്</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="1996">1996-ലെ ജർമൻ ലിപി</variant>
 			<variant type="1606NICT">1606 വരെയുള്ള ആധുനികമദ്ധ്യകാല ഫ്രഞ്ച്</variant>
@@ -7141,11 +7146,16 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<displayName count="other">വെനസ്വേലൻ ബോലിവർസ് (1871–2008)</displayName>
 			</currency>
 			<currency type="VEF">
+				<displayName>വെനിസ്വേലൻ ബൊളീവർ (2008–2018)</displayName>
+				<displayName count="one">വെനിസ്വേലൻ ബൊളീവർ (2008–2018)</displayName>
+				<displayName count="other">വെനിസ്വേലൻ ബൊളീവർ (2008–2018)</displayName>
+				<symbol>VEF</symbol>
+				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>വെനിസ്വേലൻ ബൊളീവർ</displayName>
 				<displayName count="one">വെനിസ്വേലൻ ബൊളീവർ</displayName>
 				<displayName count="other">വെനിസ്വേലൻ ബൊളീവർ</displayName>
-				<symbol>VEF</symbol>
-				<symbol alt="narrow" draft="contributed">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>വിയറ്റ്നാമീസ് ഡോങ്</displayName>

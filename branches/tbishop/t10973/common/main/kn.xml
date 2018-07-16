@@ -985,6 +985,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">ಜಿಂಬಾಬ್ವೆ</territory>
 			<territory type="ZZ">ಅಜ್ಞಾತ ಪ್ರದೇಶ</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">ಇಂಗ್ಲೆಂಡ್‌</subdivision>
+			<subdivision type="gbsct">ಸ್ಕಾಟ್ಲೆಂಡ್</subdivision>
+			<subdivision type="gbwls">ವೇಲ್ಸ್‌</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="PINYIN" draft="unconfirmed">ಪಿನ್‌ಯಿನ್ ರೋಮನೈಸೇಶನ್</variant>
 			<variant type="WADEGILE" draft="unconfirmed">ವೇಡ್-ಗೈಲ್ಸ್ ರೋಮನೈಸೇಶನ್</variant>
@@ -6623,11 +6628,16 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<symbol>UZS</symbol>
 			</currency>
 			<currency type="VEF">
+				<displayName>ವೆನಿಜುಲಿಯನ್ ಬೊಲಿವರ್ (2008–2018)</displayName>
+				<displayName count="one">ವೆನಿಜುಲಿಯನ್ ಬೊಲಿವರ್ (2008–2018)</displayName>
+				<displayName count="other">ವೆನಿಜುಲಿಯನ್ ಬೊಲಿವರ್‌ಗಳು (2008–2018)</displayName>
+				<symbol>VEF</symbol>
+				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>ವೆನಿಜುಲಿಯನ್ ಬೊಲಿವರ್</displayName>
 				<displayName count="one">ವೆನಿಜುಲಿಯನ್ ಬೊಲಿವರ್</displayName>
 				<displayName count="other">ವೆನಿಜುಲಿಯನ್ ಬೊಲಿವರ್‌ಗಳು</displayName>
-				<symbol>VEF</symbol>
-				<symbol alt="narrow" draft="contributed">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>ವಿಯೆಟ್ನಾಮೀಸ್ ಡಾಂಗ್</displayName>

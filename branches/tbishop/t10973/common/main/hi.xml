@@ -985,6 +985,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">ज़िम्बाब्वे</territory>
 			<territory type="ZZ">अज्ञात क्षेत्र</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">इंग्लैंड</subdivision>
+			<subdivision type="gbsct">स्कॉटलैंड</subdivision>
+			<subdivision type="gbwls">वेल्स</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="1901">पारम्पारिक जर्मन वर्तनी</variant>
 			<variant type="1996">जर्मेनी की 1996 वर्तनी</variant>
@@ -6329,11 +6334,16 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<displayName draft="contributed">वेनेज़ुएला बोलिवर (1871–2008)</displayName>
 			</currency>
 			<currency type="VEF">
+				<displayName>वेनेज़ुएला बोलिवर (2008–2018)</displayName>
+				<displayName count="one">वेनेज़ुएला बोलिवर (2008–2018)</displayName>
+				<displayName count="other">वेनेज़ुएला बोलिवर (2008–2018)</displayName>
+				<symbol>VEF</symbol>
+				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>वेनेज़ुएला बोलिवर</displayName>
 				<displayName count="one">वेनेज़ुएला बोलिवर</displayName>
 				<displayName count="other">वेनेज़ुएला बोलिवर</displayName>
-				<symbol>VEF</symbol>
-				<symbol alt="narrow" draft="contributed">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>वियतनामी डोंग</displayName>

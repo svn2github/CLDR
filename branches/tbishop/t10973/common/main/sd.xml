@@ -761,6 +761,10 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="ZW">زمبابوي</territory>
 			<territory type="ZZ">اڻڄاتل خطو</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">انگلينڊ</subdivision>
+			<subdivision type="gbwls">ويلز</subdivision>
+		</subdivisions>
 		<keys>
 			<key type="calendar">ڪئلينڊر</key>
 			<key type="cf">سڪي جو فارميٽ</key>
@@ -856,6 +860,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 		<exemplarCharacters type="auxiliary">[ئ]</exemplarCharacters>
 		<exemplarCharacters type="index">[ا ب ٻ پ ڀ ت ث ٺ ٽ ٿ ج {جھ} ڃ ڄ چ ڇ ح خ د ذ ڊ ڌ ڍ ڏ ر ز ڙ س ش ص ض ط ظ ع غ ف ڦ ق ک ڪ گ {گھ} ڱ ڳ ل م ن ڻ ه ھ و ي]</exemplarCharacters>
 		<exemplarCharacters type="numbers">[\- , . % ‰ + 0 1 2 3 4 5 6 7 8 9]</exemplarCharacters>
+		<exemplarCharacters type="punctuation">[⹁ ⁏ \: ! ۔ ‘ ( ) \[ \] \{ \} /]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
 		<ellipsis type="initial">…{0}</ellipsis>
 		<ellipsis type="medial">{0}…{1}</ellipsis>
@@ -5411,11 +5416,16 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<symbol draft="contributed">UZS</symbol>
 			</currency>
 			<currency type="VEF">
+				<displayName>وینزویلا بولیور (2008–2018)</displayName>
+				<displayName count="one">وینزویلا بولیور (2008–2018)</displayName>
+				<displayName count="other">وینزویلا بولیور (2008–2018)</displayName>
+				<symbol draft="contributed">VEF</symbol>
+				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>وینزویلا بولیور</displayName>
 				<displayName count="one">وینزویلا بولیور</displayName>
 				<displayName count="other">وینزویلا بولیور</displayName>
-				<symbol draft="contributed">VEF</symbol>
-				<symbol alt="narrow" draft="contributed">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>ويٽنامي ڊونگ</displayName>

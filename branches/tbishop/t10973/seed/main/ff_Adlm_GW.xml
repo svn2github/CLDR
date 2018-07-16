@@ -7,8 +7,16 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 -->
 <ldml>
 	<identity>
-		<version number="$Revision$"/>
+		<version number="$Revision: 13869 $"/>
 		<language type="ff"/>
-		<territory type="CM"/>
+		<script type="Adlm"/>
+		<territory type="GW"/>
 	</identity>
+	<numbers>
+		<currencies>
+			<currency type="GNF">
+				<symbol>GNF</symbol>
+			</currency>
+		</currencies>
+	</numbers>
 </ldml>

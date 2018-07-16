@@ -976,6 +976,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="ZW">𑄎𑄨𑄟𑄴𑄝𑄝𑄪𑄠𑄬</territory>
 			<territory type="ZZ">𑄃𑄨𑄌𑄨𑄚𑄴 𑄎𑄉</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">𑄃𑄨𑄁𑄣𑄳𑄠𑄚𑄳𑄓𑄴</subdivision>
+			<subdivision type="gbsct">𑄌𑄳𑄇𑄧𑄖𑄴𑄣𑄳𑄠𑄚𑄳𑄓𑄴</subdivision>
+			<subdivision type="gbwls">𑄃𑄮𑄠𑄬𑄣𑄴</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="PINYIN" draft="provisional">𑄛𑄨𑄚𑄴𑄃𑄨𑄚𑄴 𑄟𑄮𑄟𑄚𑄭𑄎𑄬𑄥𑄧𑄚𑄴</variant>
 			<variant type="WADEGILE" draft="provisional">𑄤𑄘𑄬-𑄉𑄨𑄣𑄬𑄌𑄴 𑄢𑄮𑄟𑄚𑄭𑄎𑄬𑄥𑄧𑄚𑄴</variant>
@@ -6074,11 +6079,16 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<displayName>𑄞𑄬𑄚𑄨𑄎𑄪𑄔𑄮𑄣𑄚𑄴 𑄝𑄧𑄣𑄨𑄞𑄢𑄴(𑄷𑄾𑄽𑄷-𑄸𑄶𑄶𑄾)</displayName>
 			</currency>
 			<currency type="VEF">
+				<displayName>𑄞𑄬𑄚𑄨𑄎𑄪𑄔𑄮𑄣𑄚𑄴 𑄝𑄧𑄣𑄨𑄞𑄢𑄴 (2008–2018)</displayName>
+				<displayName count="one">𑄞𑄬𑄚𑄨𑄎𑄪𑄔𑄮𑄣𑄚𑄴 𑄝𑄧𑄣𑄨𑄞𑄢𑄴 (2008–2018)</displayName>
+				<displayName count="other">𑄞𑄬𑄚𑄨𑄎𑄪𑄔𑄮𑄣𑄚𑄴 𑄝𑄧𑄣𑄨𑄞𑄢𑄴 (2008–2018)</displayName>
+				<symbol>VEF</symbol>
+				<symbol alt="narrow">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>𑄞𑄬𑄚𑄨𑄎𑄪𑄔𑄮𑄣𑄚𑄴 𑄝𑄧𑄣𑄨𑄞𑄢𑄴</displayName>
 				<displayName count="one">𑄞𑄬𑄚𑄨𑄎𑄪𑄔𑄮𑄣𑄚𑄴 𑄝𑄧𑄣𑄨𑄞𑄢𑄴</displayName>
 				<displayName count="other">𑄞𑄬𑄚𑄨𑄎𑄪𑄔𑄮𑄣𑄚𑄴 𑄝𑄧𑄣𑄨𑄞𑄢𑄴</displayName>
-				<symbol>VEF</symbol>
-				<symbol alt="narrow">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>𑄞𑄨𑄠𑄬𑄖𑄴𑄚𑄟𑄨 𑄓𑄧𑄋𑄴𑄉𑄧</displayName>

@@ -951,6 +951,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Simbabve</territory>
 			<territory type="ZZ">Óþekkt svæði</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">England</subdivision>
+			<subdivision type="gbsct">Skotland</subdivision>
+			<subdivision type="gbwls">Wales</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="MONOTON" draft="unconfirmed">monotonísk</variant>
 			<variant type="PINYIN" draft="unconfirmed">pinyin</variant>
@@ -8044,11 +8049,16 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<displayName>Bolívar í Venesúela (1871–2008)</displayName>
 			</currency>
 			<currency type="VEF">
+				<displayName>venesúelskur bólívari (2008–2018)</displayName>
+				<displayName count="one">venesúelskur bólívari (2008–2018)</displayName>
+				<displayName count="other">venesúelskir bólívarar (2008–2018)</displayName>
+				<symbol>VEF</symbol>
+				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>venesúelskur bólívari</displayName>
 				<displayName count="one">venesúelskur bólívari</displayName>
 				<displayName count="other">venesúelskir bólívarar</displayName>
-				<symbol>VEF</symbol>
-				<symbol alt="narrow" draft="contributed">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>víetnamskt dong</displayName>

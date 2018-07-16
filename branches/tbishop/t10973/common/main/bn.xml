@@ -986,6 +986,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">জিম্বাবোয়ে</territory>
 			<territory type="ZZ">অজানা অঞ্চল</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">ইংল্যাণ্ড</subdivision>
+			<subdivision type="gbsct">স্কটল্যান্ড</subdivision>
+			<subdivision type="gbwls">ওয়েল্স</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="PINYIN" draft="provisional">পিনইন রোমানাইজেশন</variant>
 			<variant type="WADEGILE" draft="provisional">ওয়াদে-গিলেস রোমানাইজেশন</variant>
@@ -7066,11 +7071,16 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<displayName>ভেনিজুয়েলান বলিভার (১৮৭১–২০০৮)</displayName>
 			</currency>
 			<currency type="VEF">
+				<displayName>ভেনিজুয়েলীয় বলিভার (২০০৮–২০১৮)</displayName>
+				<displayName count="one">ভেনিজুয়েলীয় বলিভার (২০০৮–২০১৮)</displayName>
+				<displayName count="other">ভেনিজুয়েলীয় বলিভার (২০০৮–২০১৮)</displayName>
+				<symbol>VEF</symbol>
+				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>ভেনিজুয়েলীয় বলিভার</displayName>
 				<displayName count="one">ভেনিজুয়েলীয় বলিভার</displayName>
 				<displayName count="other">ভেনিজুয়েলীয় বলিভার</displayName>
-				<symbol>VEF</symbol>
-				<symbol alt="narrow" draft="contributed">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>ভিয়েতনামি ডঙ্গ</displayName>

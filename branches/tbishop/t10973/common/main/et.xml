@@ -1117,6 +1117,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabwe</territory>
 			<territory type="ZZ">Tundmatu piirkond</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">Inglismaa</subdivision>
+			<subdivision type="gbsct">Šotimaa</subdivision>
+			<subdivision type="gbwls">Wales</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="1901">saksa traditsiooniline kirjaviis</variant>
 			<variant type="1994">normitud Resia kirjaviis</variant>
@@ -6556,10 +6561,15 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<displayName count="other">Venezuela boliivarit (1871–2008)</displayName>
 			</currency>
 			<currency type="VEF">
+				<displayName>Venezuela boliivar (2008–2018)</displayName>
+				<displayName count="one">Venezuela boliivar (2008–2018)</displayName>
+				<displayName count="other">Venezuela boliivarit (2008–2018)</displayName>
+				<symbol>VEF</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>Venezuela boliivar</displayName>
 				<displayName count="one">Venezuela boliivar</displayName>
 				<displayName count="other">Venezuela boliivarit</displayName>
-				<symbol>VEF</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>Vietnami dong</displayName>

@@ -999,6 +999,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">ઝિમ્બાબ્વે</territory>
 			<territory type="ZZ">અજ્ઞાત પ્રદેશ</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">ઈંગ્લેન્ડ</subdivision>
+			<subdivision type="gbsct">સ્કોટલેન્ડ</subdivision>
+			<subdivision type="gbwls">વોલ્સ</subdivision>
+		</subdivisions>
 		<variants>
 			<variant type="PINYIN">પિનયિન રોમનાઇઝેશન</variant>
 			<variant type="WADEGILE">વેડ-ગિલ્સ રોમનાઇઝેશન</variant>
@@ -6650,11 +6655,16 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<symbol>UZS</symbol>
 			</currency>
 			<currency type="VEF">
+				<displayName>વેનેઝુએલન બોલિવર (2008–2018)</displayName>
+				<displayName count="one">વેનેઝુએલન બોલિવર (2008–2018)</displayName>
+				<displayName count="other">વેનેઝુએલન બોલિવર (2008–2018)</displayName>
+				<symbol>VEF</symbol>
+				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>વેનેઝુએલન બોલિવર</displayName>
 				<displayName count="one">વેનેઝુએલન બોલિવર</displayName>
 				<displayName count="other">વેનેઝુએલન બોલિવર</displayName>
-				<symbol>VEF</symbol>
-				<symbol alt="narrow" draft="contributed">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>વિયેતનામીસ ડોંગ</displayName>

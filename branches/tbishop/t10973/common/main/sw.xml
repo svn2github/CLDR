@@ -615,8 +615,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="FO">Visiwa vya Faroe</territory>
 			<territory type="FR">Ufaransa</territory>
 			<territory type="GA">Gabon</territory>
-			<territory type="GB">Uingereza</territory>
-			<territory type="GB" alt="short">Uingereza</territory>
 			<territory type="GD">Grenada</territory>
 			<territory type="GE">Jojia</territory>
 			<territory type="GF">Guiana ya Ufaransa</territory>
@@ -803,6 +801,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabwe</territory>
 			<territory type="ZZ">Eneo lisilojulikana</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">Uingereza</subdivision>
+			<subdivision type="gbsct">Uskoti</subdivision>
+			<subdivision type="gbwls">Wales</subdivision>
+		</subdivisions>
 		<keys>
 			<key type="calendar">Kalenda</key>
 			<key type="cf">Mpangilio wa Sarafu</key>
@@ -5652,11 +5655,16 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<symbol>UZS</symbol>
 			</currency>
 			<currency type="VEF">
+				<displayName>Bolivar ya Venezuela (2008–2018)</displayName>
+				<displayName count="one">Bolivar ya Venezuela (2008–2018)</displayName>
+				<displayName count="other">Bolivar za Venezuela (2008–2018)</displayName>
+				<symbol>VEF</symbol>
+				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
 				<displayName>Bolivar ya Venezuela</displayName>
 				<displayName count="one">Bolivar ya Venezuela</displayName>
 				<displayName count="other">Bolivar za Venezuela</displayName>
-				<symbol>VEF</symbol>
-				<symbol alt="narrow" draft="contributed">Bs</symbol>
 			</currency>
 			<currency type="VND">
 				<displayName>Dong ya Vietnam</displayName>

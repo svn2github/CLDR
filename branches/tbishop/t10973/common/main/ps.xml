@@ -769,6 +769,9 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="ZW">زیمبابوی</territory>
 			<territory type="ZZ">ناپېژندلې سيمه</territory>
 		</territories>
+		<subdivisions>
+			<subdivision type="gbeng">انګلېنډ</subdivision>
+		</subdivisions>
 		<keys>
 			<key type="calendar">جنتري</key>
 			<key type="cf">اسعارو بڼه</key>
@@ -865,6 +868,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 		<exemplarCharacters type="auxiliary">[\u200C \u200D \u200E\u200F]</exemplarCharacters>
 		<exemplarCharacters type="index" draft="unconfirmed">[آ ا ء ب پ ت ټ ث ج ځ چ څ ح خ د ډ ذ ر ړ ز ژ ږ س ش ښ ص ض ط ظ ع غ ف ق ک ګ ل م ن ڼ ه و ی]</exemplarCharacters>
 		<exemplarCharacters type="numbers">[\u200E \- , ٫ ٬ . % ٪ ‰ ؉ + − 0۰ 1۱ 2۲ 3۳ 4۴ 5۵ 6۶ 7۷ 8۸ 9۹]</exemplarCharacters>
+		<exemplarCharacters type="punctuation">[، ; \: ! ۔ ' ‘ ( ) \[ \] \{ \} /]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
 		<ellipsis type="initial">…{0}</ellipsis>
 		<ellipsis type="medial">{0}…{1}</ellipsis>
@@ -5820,11 +5824,16 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<symbol draft="contributed">UZS</symbol>
 			</currency>
 			<currency type="VEF">
-				<displayName>VEF</displayName>
-				<displayName count="one">VEF</displayName>
-				<displayName count="other">VEF</displayName>
+				<displayName>VEF (2008–2018)</displayName>
+				<displayName count="one">VEF (2008–2018)</displayName>
+				<displayName count="other">VEF (2008–2018)</displayName>
 				<symbol draft="contributed">VEF</symbol>
 				<symbol alt="narrow" draft="contributed">Bs</symbol>
+			</currency>
+			<currency type="VES">
+				<displayName>VES</displayName>
+				<displayName count="one">VES</displayName>
+				<displayName count="other">VES</displayName>
 			</currency>
 			<currency type="VND">
 				<displayName>VND</displayName>
