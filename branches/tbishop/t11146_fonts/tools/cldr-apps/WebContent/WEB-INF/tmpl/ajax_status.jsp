@@ -4,7 +4,7 @@
 <!--  begin ajax_status.jsp -->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css" />
 
-<!-- Bootstrap core test CSS -->
+<!-- Bootstrap core CSS -->
 <% // TODO: when v.jsp includes ajax_status.js, avoid redundant links for bootstrap, surveytool.css, redesign.css  %>
 <%@include file="/WEB-INF/jspf/bootstrap_css.jspf" %>
 

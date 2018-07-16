@@ -60,7 +60,7 @@ if(SurveyMain.isBusted!=null || request.getParameter("_BUSTED")!=null) {
                   },1000);
                   </script>
 	    <script src="<%= request.getContextPath() %>/js/jquery.autosize.min.js"></script>
-	    <%@include file="/WEB-INF/jspf/bootstrap_css.jspf" %>
+	    <script src="<%= request.getContextPath() %>/js/bootstrap.min.js"></script>
     </head>
     <body>
 		<div class="navbar navbar-fixed-top" role="navigation">
