@@ -457,9 +457,6 @@ public class DataSection implements JSONString {
                     }
                 }
                 if (weHaveTests) {
-                    /* row */hasTests = true;
-                    parentRow.hasTests = true;
-
                     if (errorCount > 0) /* row */
                         hasErrors = true;
                     if (warningCount > 0) /* row */
@@ -635,7 +632,11 @@ public class DataSection implements JSONString {
          * Calculated coverage level for this DataRow.
          */
         public int coverageValue;
-        List<CandidateItem> candidateItems = null;
+        
+        /**
+         * The list of candidate items for this DataRow.
+         */
+        private List<CandidateItem> candidateItems = null;
 
         private String displayName = null;
         // these apply to the 'winning' item, if applicable
@@ -643,11 +644,9 @@ public class DataSection implements JSONString {
         boolean hasInherited = false; // True if has inherited value
         boolean hasMultipleProposals = false; // true if more than 1 proposal is available
 
-        boolean hasProps = false; // true if has some proposed items
-
-        // true even if only the non-winning subitems have tests.
-        boolean hasTests = false;
-
+        /**
+         * Does this DataRow have warnings?
+         */
         boolean hasWarnings = false;
 
         /*
@@ -1338,7 +1337,6 @@ public class DataSection implements JSONString {
                 jo.put("extraAttributes", getNonDistinguishingAttributes());
                 jo.put("coverageValue", coverageValue);
                 jo.put("hasErrors", hasErrors);
-                jo.put("hasWarnings", hasWarnings);
                 jo.put("confirmStatus", confirmStatus);
                 jo.put("hasVoted", userForVotelist != null ? userHasVoted(userForVotelist.id) : false);
                 jo.put("winningVhash", winningVhash);
@@ -2489,7 +2487,6 @@ public class DataSection implements JSONString {
      */
     private void populateFrom(CLDRFile ourSrc, TestResultBundle checkCldr, String workingCoverageLevel) {
         XPathParts xpp = new XPathParts(null, null);
-        CLDRFile aFile = ourSrc; // TODO: why not just use ourSrc directly? Having two variables ourSrc and aFile seems to serve no purpose.
         STFactory stf = sm.getSTFactory();
         CLDRFile oldFile = stf.getOldFile(locale);
         diskFile = stf.getDiskFile(locale);
@@ -2547,10 +2544,10 @@ public class DataSection implements JSONString {
             Set<String> baseXpaths = stf.getPathsForFile(locale, xpathPrefix);
 
             allXpaths.addAll(baseXpaths);
-            if (aFile.getSupplementalDirectory() == null) {
-                throw new InternalError("?!! aFile hsa no supplemental dir!");
+            if (ourSrc.getSupplementalDirectory() == null) {
+                throw new InternalError("?!! ourSrc hsa no supplemental dir!");
             }
-            aFile.getExtraPaths(workPrefix, extraXpaths);
+            ourSrc.getExtraPaths(workPrefix, extraXpaths);
             extraXpaths.removeAll(baseXpaths);
             allXpaths.addAll(extraXpaths);
 
@@ -2574,7 +2571,7 @@ public class DataSection implements JSONString {
                     if (DEBUG && SurveyMain.isUnofficial())
                         System.err.println("@@ BAD XPATH " + xpath);
                     continue;
-                } else if (aFile.isPathExcludedForSurvey(xpath)) {
+                } else if (ourSrc.isPathExcludedForSurvey(xpath)) {
                     if (DEBUG && SurveyMain.isUnofficial())
                         System.err.println("@@ excluded:" + xpath);
                     continue;
@@ -2606,7 +2603,7 @@ public class DataSection implements JSONString {
                 continue;
             }
 
-            String fullPath = aFile.getFullXPath(xpath);
+            String fullPath = ourSrc.getFullXPath(xpath);
             int base_xpath = sm.xpt.xpathToBaseXpathId(xpath);
             String baseXpath = sm.xpt.getById(base_xpath);
 
@@ -2623,7 +2620,7 @@ public class DataSection implements JSONString {
 
             if (TRACE_TIME)
                 System.err.println("ns0  " + (System.currentTimeMillis() - nextTime));
-            String value = isExtraPath ? null : aFile.getStringValue(xpath);
+            String value = isExtraPath ? null : ourSrc.getStringValue(xpath);
             if (value == null) {
                 if (DEBUG) {
                     System.err.println("warning: populatefrom " + this + ": " + locale + ":" + xpath + " = NULL! wasExtraPath="
@@ -2655,12 +2652,12 @@ public class DataSection implements JSONString {
 
             // Load the 'data row' which represents one user visible row.
             // (may be nested in the case of alt types) (nested??)
-            DataRow p = getDataRow(xpath);
+            DataRow row = getDataRow(xpath);
 
             if (oldFile != null) {
-                p.oldValue = oldFile.getStringValueWithBailey(xpath);
+                row.oldValue = oldFile.getStringValueWithBailey(xpath);
             } else {
-                p.oldValue = null;
+                row.oldValue = null;
             }
             Set<String> v = ballotBox.getValues(xpath);
             if (v != null) {
@@ -2668,7 +2665,7 @@ public class DataSection implements JSONString {
                     if (DEBUG)
                         System.err.println(" //val='" + avalue + "' vs " + value + " in " + xpath);
                     if (!avalue.equals(value)) {
-                        CandidateItem item2 = p.addItem(avalue);
+                        CandidateItem item2 = row.addItem(avalue);
                         if (avalue != null && (checkCldr != null)) {
                             List<CheckStatus> item2Result = new ArrayList<CheckStatus>();
                             checkCldr.check(xpath, item2Result, avalue);
@@ -2679,17 +2676,17 @@ public class DataSection implements JSONString {
                     }
                 }
             }
-            if (p.oldValue != null && !p.oldValue.equals(value) && (v == null || !v.contains(p.oldValue))) {
+            if (row.oldValue != null && !row.oldValue.equals(value) && (v == null || !v.contains(row.oldValue))) {
                 // if "oldValue" isn't already represented as an item, add it.
-                CandidateItem oldItem = p.addItem(p.oldValue);
+                CandidateItem oldItem = row.addItem(row.oldValue);
                 oldItem.isOldValue = true;
             }
             if ((locale.getCountry() != null && locale.getCountry().length() > 0) && (v == null || !v.contains(CldrUtility.INHERITANCE_MARKER))) {
                 // if "vote for inherited" isn't already represented as an item, add it (child locales only)
-                p.addItem(CldrUtility.INHERITANCE_MARKER);
+                row.addItem(CldrUtility.INHERITANCE_MARKER);
             }
 
-            p.coverageValue = coverageValue;
+            row.coverageValue = coverageValue;
 
             if (isExtraPath) {
                 // This is an 'extra' item- it doesn't exist in xml (including root).
@@ -2697,16 +2694,16 @@ public class DataSection implements JSONString {
                 // '//ldml/dates/timeZoneNames/metazone[@type="Mexico_Northwest"]/short/standard'
                 // and the URL ends with "v#/aa/NAmerica/".
                 // Set up 'shim' tests, to display coverage.
-                p.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr, null);
-            } else if (p.inheritedItem == null) {
+                row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr, null);
+            } else if (row.inheritedItem == null) {
                 // This item fell back from root. Make sure it has an Item, and that tests are run.
-                p.updateInheritedValue(ourSrc, checkCldr);
+                row.updateInheritedValue(ourSrc, checkCldr);
             }
 
             if (TRACE_TIME)
                 System.err.println("n05  " + (System.currentTimeMillis() - nextTime));
 
-            if ((p.getDisplayName() == null)) {
+            if ((row.getDisplayName() == null)) {
                 canName = false; // disable 'view by name' if not all have names.
             }
             if (TRACE_TIME)
@@ -2721,11 +2718,15 @@ public class DataSection implements JSONString {
                 System.err.println("n06a  " + (System.currentTimeMillis() - nextTime));
 
             CLDRFile.Status sourceLocaleStatus = new CLDRFile.Status();
+
             if (TRACE_TIME)
                 System.err.println("n06b  " + (System.currentTimeMillis() - nextTime));
-            String sourceLocale = aFile.getSourceLocaleID(xpath, sourceLocaleStatus);
+
+            String sourceLocale = ourSrc.getSourceLocaleID(xpath, sourceLocaleStatus);
+
             if (TRACE_TIME)
                 System.err.println("n06c  " + (System.currentTimeMillis() - nextTime));
+
             boolean isInherited = !(sourceLocale.equals(locale.toString()));
             if (TRACE_TIME)
                 System.err.println("n06d  " + (System.currentTimeMillis() - nextTime));
@@ -2748,16 +2749,15 @@ public class DataSection implements JSONString {
             // ?? simplify this.
             if (altProp == null) {
                 if (isInherited) {
-                    p.hasInherited = true;
+                    row.hasInherited = true;
                 }
             } else {
                 if (!isInherited) {
-                    p.hasProps = true;
                     if (altProp != SurveyMain.PROPOSED_DRAFT) { // 'draft=true'
-                        p.hasMultipleProposals = true;
+                        row.hasMultipleProposals = true;
                     }
                 } else {
-                    p.hasInherited = true;
+                    row.hasInherited = true;
                 }
             }
 
@@ -2780,10 +2780,11 @@ public class DataSection implements JSONString {
 
                 if (TRACE_TIME)
                     System.err.println("n08  (check) " + (System.currentTimeMillis() - nextTime));
-                myItem = p.addItem(value);
+
+                myItem = row.addItem(value);
 
                 if (DEBUG) {
-                    System.err.println("Added item " + value + " - now items=" + p.items.size());
+                    System.err.println("Added item " + value + " - now items=" + row.items.size());
                 }
 
                 if (!checkCldrResult.isEmpty()) {
@@ -2800,22 +2801,22 @@ public class DataSection implements JSONString {
                      * TODO: temporary debugging code: check if DataRow.pathWhereFound is already set...
                      * Shouldn't replace a valid pathWhereFound with null. 
                      */
-                    if (p.pathWhereFound != null) {
-                        System.out.println("Warning: p.pathWhereFound was already set in populateFrom, and sourceLocaleStatus != null");
+                    if (row.pathWhereFound != null) {
+                        System.out.println("Warning: row.pathWhereFound was already set in populateFrom, and sourceLocaleStatus != null");
                     }
-                    p.pathWhereFound = sourceLocaleStatus.pathWhereFound;
+                    row.pathWhereFound = sourceLocaleStatus.pathWhereFound;
                 }
                 if (setInheritFrom != null) {
                     /*
                      * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set...
-                     * It does happen that (p.inheritedLocale != null && setInheritFrom == null) here.
+                     * It does happen that (row.inheritedLocale != null && setInheritFrom == null) here.
                      * Don't replace a valid inheritedLocale with null. 
                      */
-                    if (p.inheritedLocale != null) {
+                    if (row.inheritedLocale != null) {
                         // This does not seem to happen so far
-                        System.out.println("Warning: p.inheritedLocale was already set in populateFrom, and setInheritFrom is not null");
+                        System.out.println("Warning: row.inheritedLocale was already set in populateFrom, and setInheritFrom is not null");
                     }
-                    p.inheritedLocale = setInheritFrom;
+                    row.inheritedLocale = setInheritFrom;
                 }
                 if (setInheritFrom == null) {
                     myItem.isFallback = false; // TODO: redundant?
@@ -2836,7 +2837,7 @@ public class DataSection implements JSONString {
                     }
                     for (Iterator<CheckStatus> it3 = examplesResult.iterator(); it3.hasNext();) {
                         CheckCLDR.CheckStatus status = it3.next();
-                        myItem.examples.add(addExampleEntry(new ExampleEntry(this, p, myItem, status)));
+                        myItem.examples.add(addExampleEntry(new ExampleEntry(this, row, myItem, status)));
                     }
                 }
             }
@@ -2940,8 +2941,8 @@ public class DataSection implements JSONString {
                 // see if we can find this base_xpath somewhere..
                 int pn = 0;
                 for (int i = 0; i < dSet.rows.length && (moveSkip == -1); i++) {
-                    DataRow p = dSet.rows[i];
-                    if (p.getXpathId() == xfind) {
+                    DataRow row = dSet.rows[i];
+                    if (row.getXpathId() == xfind) {
                         moveSkip = pn;
                     }
                     pn++;
