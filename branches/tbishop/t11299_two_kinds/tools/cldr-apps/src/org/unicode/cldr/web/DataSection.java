@@ -174,21 +174,6 @@ public class DataSection implements JSONString {
             private Vector<ExampleEntry> examples = null;
 
             /**
-             * pathWhereFound, if not null, may be, for example:
-             * //ldml/numbers/currencies/currency[@type="AUD"]/displayName[@count="one"]
-             *
-             * If not null it may cause getPClass to return "alias".
-             *
-             * inheritedItem.pathWhereFound may be assigned a non-null value.
-             *
-             * TODO: pathWhereFound should be a field of DataRow, not CandidateItem; on client it's theRow.pathWhereFound.
-             * Complication: style "alias" may be returned by getPClass if pathWhereFound != null; that condition
-             * might be replaced by value == INHERITANCE_MARKER, however, that may not be equivalent, see where
-             * sourceLocaleStatus.pathWhereFound gets assigned to myItem.pathWhereFound...
-             */
-            private String pathWhereFound = null;
-
-            /**
              * tests is included in json data sent to client
              *
              * See setTests and getCheckStatusList
@@ -400,7 +385,7 @@ public class DataSection implements JSONString {
                      * .value-div .winner, .value-div .value {font-size:16px;}
                      */
                     pClass = "winner";
-                } else if (pathWhereFound != null) {
+                } else if (isFallback && pathWhereFound != null) {
                     /*
                      * surveytool.css has:
                      *  .alias {background-color: #ddf;}
@@ -411,9 +396,10 @@ public class DataSection implements JSONString {
                      *  It can also happen when called from CandidateItem.toJSONString (for item.pClass). Either way,
                      *  Typically isBailey = true, isFallback = true, isParentFallback = true; try http://localhost:8080/cldr-apps/v#/aa/Fields/
                      *
-                     * TODO: if pathWhereFound becomes a field of DataRow instead of CandidateItem, what will be
-                     * the appropriate condition for "alias"?
-                     * How about (rawValue == INHERITANCE_MARKER && pathWhereFound != null)? That's if we set inheritedItem.rawValue = INHERITANCE_MARKER
+                     * TODO: now that pathWhereFound is a field of DataRow instead of CandidateItem, what will be
+                     * the appropriate condition for "alias"? Temporarily we check (isFallback && pathWhereFound != null),
+                     * but if as planned we remove isFallback and set inheritedItem.rawValue = INHERITANCE_MARKER then it
+                     * should change to (rawValue == INHERITANCE_MARKER && pathWhereFound != null)
                      */
                     pClass = "alias";
                 } else if (isFallback || (inheritedLocale != null)) {
@@ -618,6 +604,16 @@ public class DataSection implements JSONString {
          * inheritedLocale is accessed from InterestSort.java for Partition.Membership("Missing"), otherwise it could be private.
          */
         CLDRLocale inheritedLocale = null;
+
+        /**
+         * pathWhereFound, if not null, may be, for example:
+         * //ldml/numbers/currencies/currency[@type="AUD"]/displayName[@count="one"]
+         * 
+         * It is the inheritance path for "sideways" inheritance.
+         *
+         * If not null it may cause getPClass to return "alias".
+         */
+        private String pathWhereFound = null;
 
         /*
          * TODO: altType is referenced by row.jsp but appears to be null always, could be removed?
@@ -1180,7 +1176,15 @@ public class DataSection implements JSONString {
                     inheritedLocale = CLDRLocale.getInstance(sourceLocale);
 
                     if (inheritancePathWhereFound.value != null && !inheritancePathWhereFound.value.equals(xpath)) {
-                        inheritedItem.pathWhereFound = inheritancePathWhereFound.value;
+                        /*
+                         * TODO: temporary debugging code: check if DataRow.pathWhereFound is already set...
+                         * Shouldn't replace a valid pathWhereFound with null. 
+                         */
+                        if (pathWhereFound != null) {
+                            // This doesn't seem to happen, so far...
+                            System.out.println("Warning: pathWhereFound was already set in updateInheritedValue, and inheritancePathWhereFound.value != null");
+                        }
+                        pathWhereFound = inheritancePathWhereFound.value;
                         if (TRACE_TIME)
                             System.err.println("@@5:" + (System.currentTimeMillis() - lastTime));
 
@@ -1348,13 +1352,7 @@ public class DataSection implements JSONString {
                  * (for https://unicode.org/cldr/trac/ticket/11299)
                  * and what we send to the client here as theRow.inheritedItem should be a member of DataRow, not
                  * CandidateItem.
-                 * 
-                 * Likewise inheritedItem.pathWhereFound which we send to the client here as theRow.pathWhereFound
-                 * should be a member of DataRow, not CandidateItem.
-                 * 
-                 * Likewise inheritedItem.inheritedLocale which we send to the client here as theRow.inheritedLocale
-                 * should be a member of DataRow, not CandidateItem.
-                 * 
+                 *
                  * Likewise inheritedItem.getPClass() which we send to the client here as theRow.inheritedPClass
                  * only depends on DataRow, not CandidateItem... Also, inheritedPClass is currently only used once
                  * on the client, in a strange way, maybe should be on server not client, if anywhere:
@@ -1369,9 +1367,7 @@ public class DataSection implements JSONString {
                  * in DataRow as well, not to be confused with inheritedItem which was formerly named inheritedValue.
                  */
                 jo.put("inheritedValue", inheritedItem != null ? inheritedItem.rawValue : null);
-                jo.put("inheritedXPath", inheritedItem != null ? inheritedItem.pathWhereFound : null);
-                jo.put("inheritedXpid",
-                    (inheritedItem != null && inheritedItem.pathWhereFound != null) ? XPathTable.getStringIDString(inheritedItem.pathWhereFound) : null);
+                jo.put("inheritedXpid", pathWhereFound != null ? XPathTable.getStringIDString(pathWhereFound) : null);
                 jo.put("inheritedLocale", inheritedLocale);
                 jo.put("inheritedPClass", inheritedItem != null ? inheritedItem.getPClass() : "fallback");
                 jo.put("canFlagOnLosing", resolver.getRequiredVotes() == VoteResolver.HIGH_BAR);
@@ -2800,14 +2796,21 @@ public class DataSection implements JSONString {
 
                 if (sourceLocaleStatus != null && sourceLocaleStatus.pathWhereFound != null
                     && !sourceLocaleStatus.pathWhereFound.equals(xpath)) {
-                    myItem.pathWhereFound = sourceLocaleStatus.pathWhereFound;
+                    /*
+                     * TODO: temporary debugging code: check if DataRow.pathWhereFound is already set...
+                     * Shouldn't replace a valid pathWhereFound with null. 
+                     */
+                    if (p.pathWhereFound != null) {
+                        System.out.println("Warning: p.pathWhereFound was already set in populateFrom, and sourceLocaleStatus != null");
+                    }
+                    p.pathWhereFound = sourceLocaleStatus.pathWhereFound;
                 }
-                /*
-                 * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set...
-                 * It does happen that (p.inheritedLocale != null && setInheritFrom == null) here.
-                 * Don't replace a valid inheritedLocale with null. 
-                 */
                 if (setInheritFrom != null) {
+                    /*
+                     * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set...
+                     * It does happen that (p.inheritedLocale != null && setInheritFrom == null) here.
+                     * Don't replace a valid inheritedLocale with null. 
+                     */
                     if (p.inheritedLocale != null) {
                         // This does not seem to happen so far
                         System.out.println("Warning: p.inheritedLocale was already set in populateFrom, and setInheritFrom is not null");
