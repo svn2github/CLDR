@@ -174,26 +174,6 @@ public class DataSection implements JSONString {
             private Vector<ExampleEntry> examples = null;
 
             /**
-             * inheritedLocale is the locale from which this CandidateItem is inherited.
-             *
-             * null except for inheritedItem = the item with isFallback true?
-             * That is, inheritedItem.inheritedLocale = true, and item.inheritedLocale = false unless item = inheritedItem?
-             *
-             * CandidateItem.inheritedLocale on the server corresponds to theRow.inheritedLocale on the client.
-             *
-             * Renamed 2018-8-13 from inheritFrom to inheritedLocale, for consistency with the name on the client which was
-             * already inheritedLocale.
-             * 
-             * TODO: move inheritedLocale from CandidateItem to DataRow.
-             * On the client, this locale is a per-row thing; but currently on the server, it's a per-item thing
-             * (since inheritedItem is a CandidateItem).
-             * Since there's only one such locale per row, it shouldn't be treated as a per-item thing.
-             *
-             * inheritedLocale is accessed from InterestSort.java for Partition.Membership("Missing"), otherwise it could be private.
-             */
-            CLDRLocale inheritedLocale = null;
-
-            /**
              * pathWhereFound, if not null, may be, for example:
              * //ldml/numbers/currencies/currency[@type="AUD"]/displayName[@count="one"]
              *
@@ -629,6 +609,15 @@ public class DataSection implements JSONString {
         /*
          * Class DataRow continues here.
          */
+
+        /**
+         * inheritedLocale is the locale from which this DataRow inherits.
+         *
+         * DataRow.inheritedLocale on the server corresponds to theRow.inheritedLocale on the client.
+         *
+         * inheritedLocale is accessed from InterestSort.java for Partition.Membership("Missing"), otherwise it could be private.
+         */
+        CLDRLocale inheritedLocale = null;
 
         /*
          * TODO: altType is referenced by row.jsp but appears to be null always, could be removed?
@@ -1161,7 +1150,7 @@ public class DataSection implements JSONString {
                 
                 /*
                  * TODO: instead of local variable constructedBaileyValue, maybe assign directly to a String field of DataRow,
-                 * named getConstructedBaileyValue or inheritedValue.
+                 * named constructedBaileyValue or inheritedValue.
                  */
                 String constructedBaileyValue = vettedParent.getConstructedBaileyValue(xpath, inheritancePathWhereFound, localeWhereFound);
                 if (TRACE_TIME)
@@ -1181,7 +1170,14 @@ public class DataSection implements JSONString {
                     if (TRACE_TIME)
                         System.err.println("@@4:" + (System.currentTimeMillis() - lastTime));
 
-                    inheritedItem.inheritedLocale = CLDRLocale.getInstance(sourceLocale);
+                    /*
+                     * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set
+                     */
+                    if (inheritedLocale != null) {
+                        // This does not seem to happen so far
+                        System.out.println("Warning: inheritedLocale was already set in updateInheritedValue");
+                    }
+                    inheritedLocale = CLDRLocale.getInstance(sourceLocale);
 
                     if (inheritancePathWhereFound.value != null && !inheritancePathWhereFound.value.equals(xpath)) {
                         inheritedItem.pathWhereFound = inheritancePathWhereFound.value;
@@ -1376,7 +1372,7 @@ public class DataSection implements JSONString {
                 jo.put("inheritedXPath", inheritedItem != null ? inheritedItem.pathWhereFound : null);
                 jo.put("inheritedXpid",
                     (inheritedItem != null && inheritedItem.pathWhereFound != null) ? XPathTable.getStringIDString(inheritedItem.pathWhereFound) : null);
-                jo.put("inheritedLocale", inheritedItem != null ? inheritedItem.inheritedLocale : null);
+                jo.put("inheritedLocale", inheritedLocale);
                 jo.put("inheritedPClass", inheritedItem != null ? inheritedItem.getPClass() : "fallback");
                 jo.put("canFlagOnLosing", resolver.getRequiredVotes() == VoteResolver.HIGH_BAR);
                 if (ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS) {
@@ -2806,7 +2802,18 @@ public class DataSection implements JSONString {
                     && !sourceLocaleStatus.pathWhereFound.equals(xpath)) {
                     myItem.pathWhereFound = sourceLocaleStatus.pathWhereFound;
                 }
-                myItem.inheritedLocale = setInheritFrom;
+                /*
+                 * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set...
+                 * It does happen that (p.inheritedLocale != null && setInheritFrom == null) here.
+                 * Don't replace a valid inheritedLocale with null. 
+                 */
+                if (setInheritFrom != null) {
+                    if (p.inheritedLocale != null) {
+                        // This does not seem to happen so far
+                        System.out.println("Warning: p.inheritedLocale was already set in populateFrom, and setInheritFrom is not null");
+                    }
+                    p.inheritedLocale = setInheritFrom;
+                }
                 if (setInheritFrom == null) {
                     myItem.isFallback = false; // TODO: redundant?
                     myItem.isParentFallback = false;
