@@ -632,11 +632,6 @@ public class DataSection implements JSONString {
          * Calculated coverage level for this DataRow.
          */
         public int coverageValue;
-        
-        /**
-         * The list of candidate items for this DataRow.
-         */
-        private List<CandidateItem> candidateItems = null;
 
         private String displayName = null;
         // these apply to the 'winning' item, if applicable
@@ -652,33 +647,44 @@ public class DataSection implements JSONString {
         /*
          * inheritedItem is a CandidateItem representing the vetted value inherited from parent
          */
-        public CandidateItem inheritedItem = null;
+        private CandidateItem inheritedItem = null;
 
         private CandidateItem winningItem = null;
+        
+        /**
+         * The candidate items for this DataRow, stored in a Map whose keys are CandidateItem.rawValue
+         * and whose values are CandidateItem objects.
+         * 
+         * Public for access by RefreshRow.jsp.
+         */
         public Map<String, CandidateItem> items = new TreeMap<String, CandidateItem>();
 
-        String myFieldHash = null;
         /** Cache of field hash **/
+        String myFieldHash = null;
 
         /* parentRow - defaults to self if it is a "super" (i.e. parent without any
          * alternate)
          */
         public DataRow parentRow = this;
 
+        /**
+         * Used only in the function getPrettyPath
+         */
         private String pp = null;
+        
+        /**
+         * The pretty path for this DataRow, set by the constructor.
+         * 
+         *  Accessed by NameSort.java, SortMode.java, datarow_short_code.jsp
+         */
         public String prettyPath = null;
-
-        CandidateItem previousItem = null;
 
         /*
          * Ordering for use in collator
+         * 
+         * Referenced by SortMode.java
          */
         public int reservedForSort[] = SortMode.reserveForSort();
-        public String uri = null; // URI for the type
-
-        String[] valuesList = null; // if non null - list of acceptable values.
-
-        public int voteType = 0; // status of THIS item
         
         /**
          * The winning value for this DataRow
@@ -697,14 +703,27 @@ public class DataSection implements JSONString {
         @Deprecated
         int winningXpathId = -1;
 
+        /**
+         * The xpath for this DataRow, assigned in the constructor.
+         */
         private String xpath;
 
+        /**
+         * The xpathId for this DataRow, assigned in the constructor based on xpath.
+         * 
+         * Accessed by SortMode.java
+         */
         int xpathId = -1;
-        public boolean zoomOnly = false; // if true - don't show any editing in
-        public String oldValue;
+        
+        /**
+         * The value for this DataRow in the previous release version.
+         */
+        private String oldValue;
+        
+        /**
+         * The PathHeader for this DataRow, assigned in the constructor based on xpath.
+         */
         private PathHeader pathHeader;
-
-        // the zoomout view, they must zoom in. TODO: explain "zoom(out)"
 
         /**
          * Create a new DataRow for the given xpath.
@@ -726,24 +745,57 @@ public class DataSection implements JSONString {
              * null/empty winningValue should not be sent to the client!
              * Also fix the bug where client receives non-empty winningValue but empty winningVhash.
              * See https://unicode.org/cldr/trac/ticket/11299 "Example C".
+             * 
+             * Why not simply set winningVHash = DataSection.getValueHash((winningValue) immediately
+             * after setting winningValue?
              */
+            /*
+             * TODO: temporary debugging code:
+             * URL: http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/
+             * xpath = "//ldml/dates/timeZoneNames/metazone[@type=\"Qyzylorda\"]/short/daylight"
+             * We get winningValue = null
+             */
+            if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Qyzylorda\"]/short/daylight")) {
+                System.out.println("In DataRow constructor, xpath = " + xpath);
+            }
+
             winningValue = resolver.getWinningValue();
+
             confirmStatus = resolver.getWinningStatus();
+            /*
+             * TODO: Temporary debugging code:
+             */
+            if (winningValue == null) {
+                System.out.println("Warning: winningValue is null, status is " + confirmStatus + " in DataRow constructor, xpath = " + xpath);
+            }
             this.displayName = baselineFile.getStringValue(xpath);
         }
 
+        /**
+         * Add a new CandidateItem to this DataRow, with the given value; or, if this DataRow already
+         * has an item with this value, return it.
+         *
+         * If the item is new, then:
+         *  check whether the item is winning, and if so make winningItem point to it;
+         *  check whether the item matches oldValue, and if so set isOldValue = true.
+         * 
+         * @param value
+         * @return the new or existing item with the given value
+         * 
+         * TODO: is this really ever called with value = null or empty string, and if so, why?
+         */
         public CandidateItem addItem(String value) {
             final String kValue = (value == null) ? "" : value;
             CandidateItem pi = items.get(kValue);
-            if (pi != null)
+            if (pi != null) {
                 return pi;
+            }
             pi = new CandidateItem(value);
             items.put(kValue, pi);
             if (pi.isWinner()) {
                 winningItem = pi;
             }
             if (oldValue != null && oldValue.equals(value)) {
-                previousItem = pi;
                 pi.isOldValue = true;
             }
             return pi;
@@ -765,6 +817,8 @@ public class DataSection implements JSONString {
          * Return the winning (current) item for this DataRow.
          *
          * @return winningItem
+         * 
+         * Called from row.jsp and RefreshRow.jsp
          */
         public CandidateItem getCurrentItem() {
             return winningItem;
@@ -791,17 +845,6 @@ public class DataSection implements JSONString {
 
         public PathHeader getPathHeader() {
             return pathHeader;
-        }
-
-        /**
-         * Get a list of proposed items, if any.
-         *
-         * @deprecated use getValues() instead
-         * @see #getValues()
-         */
-        @SuppressWarnings("unchecked")
-        public Collection<CandidateItem> getItems() {
-            return ((Collection<CandidateItem>) getValues());
         }
 
         /**
@@ -833,6 +876,29 @@ public class DataSection implements JSONString {
             return items.get(value);
         }
 
+        /**
+         * Get a list of proposed items, for this DataRow.
+         *
+         * @deprecated use getValues() instead
+         * @see #getValues()
+         * 
+         * Called by getVotesForUser.
+         * 
+         * Also called from row.jsp -- how to replace getItems() there with getValues()? Confusion over return type,
+         *    Collection<? extends CandidateInfo>
+         *       versus
+         *    Collection<CandidateItem>
+         *    
+         * Also called from r_txt.jsp whose usage isn't clear.
+         */
+        @SuppressWarnings("unchecked")
+        public Collection<CandidateItem> getItems() {
+            return ((Collection<CandidateItem>) getValues());
+        }
+
+        /**
+         * Get a list of proposed items, if any, for this DataRow.
+         */
         @Override
         public Collection<? extends CandidateInfo> getValues() {
             return items.values();
@@ -852,7 +918,6 @@ public class DataSection implements JSONString {
                 return ctx.base() + "?" + "_=" + ctx.getLocale() + "&amp;x=timezones&amp;zone=" + zone;
             }
             return null;
-
         }
 
         /**
@@ -866,8 +931,9 @@ public class DataSection implements JSONString {
             /* see gatherVotes - getVotes() is populated with a
              * set drawn from the getInfo() singletons.
              */
-            if (infoForUser == null)
+            if (infoForUser == null) {
                 return null;
+            }
             for (CandidateItem item : getItems()) {
                 Set<User> votes = item.getVotes();
                 if (votes != null && votes.contains(infoForUser)) {
