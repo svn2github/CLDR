@@ -22,6 +22,11 @@ const INHERITANCE_MARKER = "↑↑↑";
  * TODO: delete the following fixes for Object.keys, Array.isArray, and String.trim,
  * which are probably not needed anymore with the current system requirements of SurveyTool,
  * namely, versions of Chrome, Firefox, Safari, Edge not more than six months old.
+ * 
+ * References indicating full support in current browsers:
+ *  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+ *  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
+ *  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim
  */
 
 /**
@@ -2879,8 +2884,6 @@ function appendExtraAttributes(container, theRow) {
  * Dashboard columns are:
  * Code    English    CLDR 33    Winning 34    Action
  * 
- * TODO: even after moving most of its code to about six new subroutines, this function still has 194 lines. Shorten it.
- * 
  * Called by insertRowsIntoTbody and loadHandler (in refreshRow2).
  */
 function updateRow(tr, theRow) {
@@ -2890,7 +2893,7 @@ function updateRow(tr, theRow) {
 	 * For convenience, set up two hashes, for reverse mapping from value or rawValue to item.
 	 * 
 	 * At the same time, find the item with rawValue === INHERITANCE_MARKER and if found mark it with
-	 * "item.isVoteForBailey = true" and point to it with "tr.voteForBaileyItem = item".
+	 * "item.isVoteForBailey = true".
 	 */	
 	tr.valueToItem = {}; // hash:  string value to item (which has a div)
 	tr.rawValueToItem = {}; // hash:  string value to item (which has a div)
@@ -2901,44 +2904,6 @@ function updateRow(tr, theRow) {
 			tr.rawValueToItem[item.rawValue] = item; // back link by value
 			if(item.rawValue === INHERITANCE_MARKER) { // This is a vote for Bailey.
 				item.isVoteForBailey = true;
-				tr.voteForBaileyItem = item;
-			}
-		}
-		/*
-		 * TODO: get rid of "isBailey". Instead, distinguish two kinds of votes for inherited value in Survey Tool
-		 * https://unicode.org/cldr/trac/ticket/11299
-		 * "Soft" item will have item.rawValue === INHERITANCE_MARKER
-		 * "Hard" item (if any) will have item.rawValue === theRow.inheritedValue
-		 * Usage will not be same as for old tr.voteForBaileyItem and tr.baileyItem; info that pertains
-		 * to the whole row will be in theRow rather than in either the soft or hard item.
-		 */
-		if(item.isBailey) {
-			tr.baileyItem = item; // This is the actual Bailey item (target of the votes)
-		}
-	}
-
-	/*
-	 * If there's a "soft" item, move/copy votes from "soft" to "hard" item.
-	 * Report error "there is no Bailey Target item" if there's a "soft" item without a corresponding "hard" item.
-	 * TODO: don't move votes here! See https://unicode.org/cldr/trac/ticket/11299
-	 * The server should set up the data we need. Here on the client isn't the place for it.
-	 * Also, it should be normal to have "soft" item but no "hard" item. There should only be a "hard" item
-	 * if a user voted for it by entering the value manually.
-	 * Currently updateInheritedValue adds isBailey item that looks "hard" but contains essential inheritance info.
-	 * That inheritance info belongs in the "soft" item or, better, in the DataRow (theRow) instead of any CandidateItem (theRow.items).
-	 * A hard item for Bailey should be like any other non-inheritance item.
-	 */
-	if(tr.voteForBaileyItem) {
-		// Some people voted for Bailey. Move those votes over to the actual target.
-		if(!tr.baileyItem) {
-			console.error('For ' + theRow.xpstrid + ' - there is no Bailey Target item!');
-			// don't delete the item
-		} else {
-			tr.baileyItem.votes = tr.baileyItem.votes || {};
-			for(var k in tr.voteForBaileyItem.votes) {
-				tr.baileyItem.votes[k] = tr.voteForBaileyItem.votes[k]; //  move vote from ↑↑↑ INHERITANCE_MARKER to explicit item
-				tr.baileyItem.votes[k].isVoteForBailey = true;
-				// no need to remove - will be handled specially below.
 			}
 		}
 	}
@@ -2957,10 +2922,7 @@ function updateRow(tr, theRow) {
 	tr.ticketOnly = (tr.theTable.json.canModify && tr.statusAction.ticket);
 	tr.canChange = (tr.canModify && tr.statusAction.change);
 
-    /*
-     * TODO: if theRow could be null or undefined here, shouldn't that have been checked far earlier??
-     */
-    if(!theRow || !theRow.xpid) {
+	if(!theRow || !theRow.xpid) {
 		tr.innerHTML="<td><i>ERROR: missing row</i></td>";
 		return;
 	}
@@ -3149,6 +3111,12 @@ function updateRowVoteInfo(tr, theRow) {
 		}
 		// heading row
 		var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_tr_heading");
+
+		/*
+		 * TODO: this looks suspicious, for https://unicode.org/cldr/trac/ticket/11299
+		 * In general we should NOT skip "soft" vote for inheritance... but really this
+		 * says NOT to skip if isVoteForBailey so is it OK?
+		 */
 		if (!item.isVoteForBailey && (!item.votes || Object.keys(item.votes).length == 0)) {
 		} else {
 			vrow.appendChild(createChunk(stui.str("voteInfo_orgColumn"), "td", "voteInfo_orgColumn voteInfo_td"));
@@ -3199,7 +3167,10 @@ function updateRowVoteInfo(tr, theRow) {
 			vrow.appendChild(createChunk(stui.str("voteInfo_noVotes"), "td", "voteInfo_noVotes voteInfo_td"));
 			vrow.appendChild(createChunk(null, "td", "voteInfo_noVotes voteInfo_td"));
 			vdiv.appendChild(vrow);
-		} else if (item.isVoteForBailey) {
+		} else if (item.isVoteForBailey && false) {
+			/*
+			 * TODO: why this special handling of isVoteForBailey? is value == INHERITANCE_MARKER?
+			 */
 			// show the raw votes.
 			for (var kk in item.votes) {
 				var thevote = item.votes[kk];
@@ -3212,6 +3183,11 @@ function updateRowVoteInfo(tr, theRow) {
 			for (org in theRow.voteResolver.orgs) {
 				var theOrg = vr.orgs[org];
 				var vrRaw = {};
+				/*
+				 * bug here when value = INHERITANCE_MARKER
+				 * theOrg.orgVote = INHERITANCE_MARKER, so far so good, but theOrg.votes has one member, and it is for "latn" not INHERITANCE_MARKER
+				 * bug is probably on server, doing problematic substitutions of "soft" votes with "hard" votes...
+				 */
 				var orgVoteValue = theOrg.votes[value];
 				if (orgVoteValue !== undefined && orgVoteValue > 0) { // someone in the org actually voted for it
 					var topVoter = null; // top voter for this item
@@ -3247,6 +3223,9 @@ function updateRowVoteInfo(tr, theRow) {
 						}
 					}
 					// ORG SUBHEADING row
+					/*
+					 * TODO: check value == INHERITANCE_MARKER instead of isVoteForBailey?
+					 */
 					var baileyClass = (item.votes[topVoter] && item.votes[topVoter].isVoteForBailey) ? " fallback" : "";
 					var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_orgHeading");
 					vrow.appendChild(createChunk(org, "td", "voteInfo_orgColumn voteInfo_td"));
@@ -3269,6 +3248,9 @@ function updateRowVoteInfo(tr, theRow) {
 							continue; // skip
 						}
 						// OTHER VOTER row
+						/*
+						 * TODO: check value == INHERITANCE_MARKER instead of isVoteForBailey?
+						 */
 						var baileyClass = (item.votes[voter].isVoteForBailey) ? " fallback" : "";
 						var vrow = createChunk(null, "tr", "voteInfo_tr");
 						vrow.appendChild(createChunk("", "td", "voteInfo_orgColumn voteInfo_td")); // spacer
@@ -3434,39 +3416,7 @@ function updateRowProposedWinningCell(tr, theRow, config, children, protoButton)
 	}
 	setLang(children[config.proposedcell]);
 	tr.proposedcell = children[config.proposedcell];
-	/*
-	 * TODO: fix bug in the following block.
-	 * See https://unicode.org/cldr/trac/ticket/11299#comment:10
-	 *
-	 * When do we have theRow.winningVhash == "" and/or theRow.winningValue == ""?
-	 * When both those conditions are true (and they often are), then regardless of whether isFallback is true or false,
-	 * theFallbackValue gets set to the LAST element of theRow.items ... and which element is the LAST
-	 * element is probably browser-dependent, see
-	 * https://stackoverflow.com/questions/280713/elements-order-in-a-for-in-loop
-	 * 
-	 * Typically we'd expect winningVhash and winningValue both to be empty, or both to be non-empty, but
-	 * there are strange exceptions, see example C in ticket 11299.
-	 *
-	 * There seems to be no reason for theFallbackValue; might as well directly
-	 * assign theRow.winningVhash = k -- but that's a relatively minor issue.
-	 * 
-	 * Aside from having this bug, this block shouldn't exist since the server should
-	 * be responsible for making sure winningVhash and winningValue are never empty.
-	 */
-	if (theRow.items && theRow.winningVhash == "") {
-		// find the fallback value
-		var theFallbackValue = null;
-		for (var k in theRow.items) {
-			// console.log("DEBUG: k = [" + k + "], value = [" + value + "], isFallback = " + theRow.items[k].isFallback);			
-			if (theRow.items[k].isFallback || theRow.winningValue == "") {
-				theFallbackValue = k;
-			}
-		}
-		if (theFallbackValue !== null) {
-			// console.log("DEBUG: changing winningVhash to theFallbackValue = [" + theFallbackValue + "]");
-			theRow.winningVhash = theFallbackValue;
-		}
-	}
+
 	if (theRow.items && theRow.winningVhash) {
 		addVitem(children[config.proposedcell], tr, theRow, theRow.items[theRow.winningVhash], cloneAnon(protoButton));
 	} else {
@@ -3593,13 +3543,7 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 	/* Add the other vote info -- that is, vote info for the "Others" column.
 	 */
 	for (k in theRow.items) {
-		if ((k === theRow.winningVhash) // skip vote for winner
-			/*
-			 * TODO: the following "skip vote for ↑↑↑" (INHERITANCE_MARKER) is dubious,
-			 *  see https://unicode.org/cldr/trac/ticket/11299
-			 */
-			||
-			(theRow.items[k].isVoteForBailey)) { // skip vote for ↑↑↑
+		if (k === theRow.winningVhash) { // skip vote for winner
 			continue;
 		}
 		hadOtherItems = true;
@@ -4611,6 +4555,7 @@ function showV() {
 				console.log("!json.oldvotes");
 				showLoader(null,"Error while  loading "+subkey+": <br><div style='border: 1px solid red;'>" + "no data" + "</div>");
 				handleDisconnect("while loading- no "+subkey+"",json);
+				return false;
 			} else {
 				return true;
 			}
@@ -4679,7 +4624,6 @@ function showV() {
 		};
 
 		function updateCoverageMenuTitle() {
-			var cov = '';
 			if(surveyUserCov) {
 				$('#coverage-info').text(stui.str('coverage_' + surveyUserCov));
 			}
@@ -4715,6 +4659,7 @@ function showV() {
             }
             menubuttons.set(menubuttons.locale, surveyCurrentLocaleName);
 		}
+
 		/**
 		 * Update the #hash and menus to the current settings.
 		 * @method updateHashAndMenus

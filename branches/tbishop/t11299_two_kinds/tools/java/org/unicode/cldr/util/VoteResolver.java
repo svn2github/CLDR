@@ -385,12 +385,23 @@ public class VoteResolver<T> {
                 hasExplicitBailey = true;
             } else if (CldrUtility.INHERITANCE_MARKER.equals(value)) {
                 hasExplicitInheritanceMarker = true;
+
+                /*
+                 * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
+                 * comment it out for now -- TEMPORARY DEBUGGING
+                 * 
+                 * Commenting out the following block fixes a bug where a "soft" vote for
+                 * inheritance had no votes shown in the info panel.
+                 */
+
+                /***
                 if (baileyValue != null) {
                     value = baileyValue; // For now, we just remap to the bailey value
                     // TODO 
                     // Later, we might have a more complicated algorithm, but right now, if there is any explicit value,
                     // we count CldrUtility.INHERITANCE_MARKERs as that value 
                 }
+                ***/
             }
             //long time = new Date().getTime();
             totalVotes.add(value, votes, time.getTime());
@@ -566,10 +577,19 @@ public class VoteResolver<T> {
             // return orgToAdd.get(org);
 
             // NEW CODE
+            /*
+             * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
+             * 
+             * commenting out for debugging...
+             */
             T value = orgToAdd.get(org);
+            
+            /***
             if (hasExplicitInheritanceMarker && Objects.equal(value, baileyValue)) {
                 return (T) CldrUtility.INHERITANCE_MARKER;
             }
+            ***/
+            
             return value;
         }
 
@@ -859,12 +879,23 @@ public class VoteResolver<T> {
 
         long weights[] = setBestNextAndSameVoteValues(sortedValues, voteCount);
         
+        /*
+         * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
+         * 
+         * TEMPORARY DEBUGGING comment it out
+         * 
+         * Commenting out this block fixes a bug where a "hard" vote seemed to disappear
+         * if there was already a "soft" vote by a different user
+         */
+        /***
         if (organizationToValueAndVote.hasExplicitInheritanceMarker
             && !organizationToValueAndVote.hasExplicitBailey
             && winningValue.equals(organizationToValueAndVote.baileyValue)
             && winningValue instanceof CharSequence) {
             winningValue = (T) CldrUtility.INHERITANCE_MARKER;
         }
+        ***/
+
         oValue = winningValue;
 
         winningStatus = computeStatus(weights[0], weights[1], trunkStatus);
@@ -1715,6 +1746,9 @@ public class VoteResolver<T> {
     }
 
     private boolean equalsOrgVote(T value, T orgVote) {
+        /*
+         * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
+         */
         return orgVote == null
             || orgVote.equals(value)
             || CldrUtility.INHERITANCE_MARKER.equals(value)

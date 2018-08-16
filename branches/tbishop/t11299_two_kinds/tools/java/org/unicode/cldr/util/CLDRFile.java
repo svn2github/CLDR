@@ -3121,6 +3121,9 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         Output<String> localeWhereFound = new Output<String>();
         Output<String> pathWhereFound = new Output<String>();
         String winningValue = getWinningValue(path);
+        /*
+         * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
+         */
         if (CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
             winningValue = getBaileyValue(path, pathWhereFound, localeWhereFound);
         }
@@ -3139,6 +3142,9 @@ public class CLDRFile implements Freezable<CLDRFile>, Iterable<String> {
         Output<String> localeWhereFound = new Output<String>();
         Output<String> pathWhereFound = new Output<String>();
         String value = getStringValue(path);
+        /*
+         * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
+         */
         if (CldrUtility.INHERITANCE_MARKER.equals(value)) {
             value = getBaileyValue(path, pathWhereFound, localeWhereFound);
         }

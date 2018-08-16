@@ -583,7 +583,13 @@ public class SurveyAjax extends HttpServlet {
                                     String checkval = val;
                                     if (CldrUtility.INHERITANCE_MARKER.equals(val)) {
                                         Output<String> localeWhereFound = new Output<String>();
-                                        checkval = file.getBaileyValue(xp, null, localeWhereFound);
+                                        /*
+                                         * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
+                                         * temporarily for debugging, don't change checkval, but do call
+                                         * getBaileyValue in order to get localeWhereFound
+                                         */
+                                        // checkval = file.getBaileyValue(xp, null, localeWhereFound);
+                                        file.getBaileyValue(xp, null, localeWhereFound);
                                     }
                                     cc.check(xp, result, checkval);
                                     dataEmpty = file.isEmpty();
