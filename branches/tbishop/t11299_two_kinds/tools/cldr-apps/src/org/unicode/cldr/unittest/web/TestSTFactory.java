@@ -365,6 +365,15 @@ public class TestSTFactory extends TestFmwk {
     }
 
     public void TestVettingDataDriven() throws SQLException, IOException {
+        /*
+         * TODO: Error: (TestSTFactory.java:368) 41c Expected: Status=approved got provisional
+         *  und_ZZ://ldml/localeDisplayNames/languages/language[@type="ko"]
+         *  Resolver={test: {randomTest }, lastRelease: {ko, approved}, bailey: “AAA” trunk: {null, missing},
+         *  {orgToVotes: afrigen={↑↑↑=4}, breton={AAA=4}, cherokee={CCC=4}, totals: {AAA=4, CCC=4, ↑↑↑=4}, conflicted: []},
+         *  sameVotes: [], O: ↑↑↑, N: AAA, totals: {AAA=4, CCC=4, ↑↑↑=4}, winning: {↑↑↑, provisional}}
+         *  
+         *  See https://unicode.org/cldr/trac/ticket/11299 in progress
+         */
         runDataDrivenTest(TestSTFactory.class.getSimpleName());
     }
 

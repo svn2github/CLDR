@@ -3170,6 +3170,8 @@ function updateRowVoteInfo(tr, theRow) {
 		} else if (item.isVoteForBailey && false) {
 			/*
 			 * TODO: why this special handling of isVoteForBailey? is value == INHERITANCE_MARKER?
+			 * 
+			 * DEBUGGING temporary added "&& false" above
 			 */
 			// show the raw votes.
 			for (var kk in item.votes) {
