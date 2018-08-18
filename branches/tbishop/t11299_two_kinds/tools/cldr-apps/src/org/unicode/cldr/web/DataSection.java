@@ -280,7 +280,7 @@ public class DataSection implements JSONString {
              * TODO: trigger a warning if winningValue == null?
              * 
              * Called by getPClass, CandidateItem.toString, and addItem.
-             * TODO: move this function below its three callers, or just inline the code. Note that winningValue is a field of DataRow.
+             * TODO: move this function below its callers, or just inline the code. Note that winningValue is a field of DataRow.
              */
             private boolean isWinner() {
                 if (winningValue != null) {
@@ -1088,7 +1088,7 @@ public class DataSection implements JSONString {
          * vote for inheritance, which would have value equal to INHERITANCE_MARKER. Horrible confusion
          * was the result. This function has been changed to set the value to INHERITANCE_MARKER, and to store
          * the actual Bailey value in the inheritedValue field of DataRow.
-         * TOD: Get rid of, or merge with, the code that currently does "p.addItem(CldrUtility.INHERITANCE_MARKER)" in populateFrom.
+         * TODO: Get rid of, or merge with, the code that currently does "p.addItem(CldrUtility.INHERITANCE_MARKER)" in populateFrom.
          */
         private void updateInheritedValue(CLDRFile vettedParent, TestResultBundle checkCldr) {
             long lastTime = System.currentTimeMillis();
@@ -1271,7 +1271,7 @@ public class DataSection implements JSONString {
                 /*
                  * TODO: completeness+consistency checking for items, see https://unicode.org/cldr/trac/ticket/11299
                  * and commented-out gotBailey debugging code below.
-                 * If we get rid of isBailey, could test for one item with INHERITANCE_MARKER
+                 * Could test for one item with INHERITANCE_MARKER
                  * 
                  * JSON sent from server to client must be COMPLETE and CONSISTENT
                  * Establish and test rules like:
@@ -1338,23 +1338,13 @@ public class DataSection implements JSONString {
                 jo.put("items", itemsJson);
 
                 /*
-                 * TODO: inheritedItem.rawValue is currently the Bailey value, but may be changed to INHERITANCE_MARKER
-                 * (for https://unicode.org/cldr/trac/ticket/11299)
-                 * and what we send to the client here as theRow.inheritedItem should be a member of DataRow, not
-                 * CandidateItem.
-                 *
-                 * Likewise inheritedItem.getPClass() which we send to the client here as theRow.inheritedPClass
-                 * only depends on DataRow, not CandidateItem... Also, inheritedPClass is currently only used once
+                 * TODO: inheritedItem.getPClass() which we send to the client here as theRow.inheritedPClass
+                 * should be a field of DataRow, not CandidateItem... Also, inheritedPClass is currently only used once
                  * on the client, in a strange way, maybe should be on server not client, if anywhere:
                  * if (item.value == INHERITANCE_MARKER) {
                  *   item.pClass = theRow.inheritedPClass == "winner" ? "fallback" : theRow.inheritedPClass;
                  *   displayValue = theRow.inheritedItem;
                  * }
-                 * 
-                 * The inherited value, currently stored as inheritedItem.rawValue, should be a field of DataRow,
-                 * not stored in a CandidateItem (except when there is a "hard" vote for the Bailey value).
-                 * It corresponds to theRow.inheritedValue on the client, so it should named inheritedValue
-                 * in DataRow as well, not to be confused with inheritedItem which was formerly named inheritedValue.
                  */
                 jo.put("inheritedValue", inheritedValue);
                 jo.put("inheritedXpid", pathWhereFound != null ? XPathTable.getStringIDString(pathWhereFound) : null);
@@ -2458,7 +2448,7 @@ public class DataSection implements JSONString {
     /**
      * Get the number of things that were skipped due to coverage
      *
-     * TODO: clarify what kind of things, and why it means for them to be "skipped due to coverage"
+     * TODO: clarify what kind of things, and what it means for them to be "skipped due to coverage"
      *
      * @return the number of things that were skipped
      */
@@ -2475,7 +2465,8 @@ public class DataSection implements JSONString {
      *
      * Called only by DataSection.make, as section.populateFrom(ourSrc, checkCldr, workingCoverageLevel);
      * 
-     * TODO: shorten this function, over 300 lines
+     * TODO: shorten this function, over 300 lines -- or make it into a new object, that could have xpp, stf,
+     * etc., as fields, instead of local variables...
      */
     private void populateFrom(CLDRFile ourSrc, TestResultBundle checkCldr, String workingCoverageLevel) {
         XPathParts xpp = new XPathParts(null, null);
@@ -2612,6 +2603,19 @@ public class DataSection implements JSONString {
 
             if (TRACE_TIME)
                 System.err.println("ns0  " + (System.currentTimeMillis() - nextTime));
+            
+            /*
+             * TODO: rename and clarify the significance and usage of the local variable
+             * declared here with the name "value".
+             *
+             * If not null, it's ourSrc.getStringValue(xpath); not possible (confirm?) for that
+             * to be CldrUtility.INHERITANCE_MARKER. getStringValue effectively resolves that to
+             * the Bailey value -- could that possibly be causing a "hard" vote to be treated as
+             * winning when in reality it may have been a "soft" vote that was winning?
+             *
+             * Does value reflect the current votes? How does it relate to the currently winning value,
+             * the old value, etc.? ourSrc contrasts with oldFile (both are type CLDRFile).
+             */
             String value = isExtraPath ? null : ourSrc.getStringValue(xpath);
             if (value == null) {
                 if (DEBUG) {
@@ -2768,6 +2772,9 @@ public class DataSection implements JSONString {
             }
 
             if (value != null && value.length() > 0) {
+                /*
+                 * TODO: move this block to a subroutine
+                 */
                 DataSection.DataRow.CandidateItem myItem = null;
 
                 if (TRACE_TIME)

@@ -2733,7 +2733,15 @@ function showItemInfoFn(theRow, item, vHash, newButton, div) {
 			isInherited = true;
 		}
 
+		/*
+		 * TODO: it is probably a bug if isInherited is true but theRow.inheritedLocale and
+		 *  theRow.inheritedXpid are both undefined. This happens with "example C" in
+		 *  https://unicode.org/cldr/trac/ticket/11299#comment:15
+		 */
 		if ( isInherited && (theRow.inheritedLocale || theRow.inheritedXpid )) {
+			/*
+			 * Add a link in the Info Panel for "Jump to Original" (stui.str('followAlias')).
+			 */
 			var clickyLink = createChunk(stui.str('followAlias'), "a", 'followAlias');
 			clickyLink.href = '#/'+ ( theRow.inheritedLocale || surveyCurrentLocale )+
 				'//'+ ( theRow.inheritedXpid || theRow.xpstrid ); //linkToLocale(subLoc);

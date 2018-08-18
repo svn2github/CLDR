@@ -739,7 +739,6 @@ public class VoteResolver<T> {
      * Call this method first, for a new base path. You'll then call add for each value
      * associated with that base path.
      */
-
     public void clear() {
         this.lastReleaseValue = null;
         this.lastReleaseStatus = Status.missing;
@@ -870,13 +869,33 @@ public class VoteResolver<T> {
         if (values.size() == 0) {
             throw new IllegalArgumentException("No values added to resolver");
         }
-        
-        HashMap<T, Long> voteCount = null;
+       
+        /*
+         * Copy what is in the the totals field of this VoteResolver for all the
+         * values in sortedValues. This local variable voteCount may be used
+         * subsequently to make adjustments for vote resolution. Those adjustment
+         * may affect the winners in vote resolution, while still preserving the original
+         * voting data including the totals field.
+         */
+        HashMap<T, Long> voteCount = makeVoteCountMap(sortedValues);
+
+        /*
+         * Adjust sortedValues and voteCount as needed to combine "soft" votes for inheritance
+         * with "hard" votes for the Bailey value. Note that sortedValues and voteCount are
+         * both local variables.
+         */
+        combineInheritanceWithBaileyForVoting(sortedValues, voteCount);
+
+        /*
+         * Adjust sortedValues and voteCount as needed for annotation keywords.
+         */
         if (useKeywordAnnotationVoting) {
-            voteCount = makeVoteCountMap(sortedValues, totals);
             adjustAnnotationVoteCounts(sortedValues, voteCount);
         }
 
+        /*
+         * Perform the actual resolution.
+         */
         long weights[] = setBestNextAndSameVoteValues(sortedValues, voteCount);
         
         /*
@@ -910,20 +929,85 @@ public class VoteResolver<T> {
     }
 
     /**
-     * Make a hash for the vote count of each value in the given sorted list.
-     * 
-     * This enables subsequent adjustment of the effective votes for bar-joined annotations.
-     * 
-     * @param sortedValues the set of sorted values
-     * @param totals the Counter to get the count for each value.
-     * @return the HashMap.
+     * Make a hash for the vote count of each value in the given sorted list, using
+     * the totals field of this VoteResolver.
+     *
+     * This enables subsequent local adjustment of the effective votes, without change
+     * to the totals field. Purposes include inheritance and annotation voting.
+     *
+     * @param sortedValues the sorted list of values (really a LinkedHashSet, "with predictable iteration order")
+     * @return the HashMap
      */
-    private HashMap<T, Long> makeVoteCountMap(Set<T> sortedValues, Counter<T> totals) {
+    private HashMap<T, Long> makeVoteCountMap(Set<T> sortedValues) {
         HashMap<T, Long> map = new HashMap<T, Long>();
         for (T value : sortedValues) {
             map.put(value, totals.getCount(value));
         }
         return map;
+    }
+
+    /**
+     * Adjust the given sortedValues and voteCount, if necessary, to combine "hard" and "soft" votes.
+     * Do nothing unless both hard and soft votes are present.
+     *
+     * For voting resolution in which inheritance plays a role, "soft" votes for inheritance
+     * are distinct from "hard" (explicit) votes for the Bailey value. For resolution, these two kinds
+     * of votes are treated in combination. If that combination is winning, then the final winner will
+     * be the hard item or the soft item, whichever has more votes, the soft item winning if they're tied.
+     * Except for the soft item being favored as a tie-breaker, this function should be symmetrical in its
+     * handling of hard and soft votes.
+     *
+     * Note: now that "↑↑↑" is permitted to participate directly in voting resolution, it becomes significant
+     * that with Collator.getInstance(ULocale.ENGLISH), "↑↑↑" sorts before "AAA" just as "AAA" sorts before "BBB".
+     *
+     * @param sortedValues the set of sorted values, possibly to be modified
+     * @param voteCount the hash giving the vote count for each value, possibly to be modified
+     * 
+     * Reference: https://unicode.org/cldr/trac/ticket/11299
+     */
+    private void combineInheritanceWithBaileyForVoting(Set<T> sortedValues, HashMap<T, Long> voteCount) {
+        if (organizationToValueAndVote == null
+                || organizationToValueAndVote.baileySet == false
+                || organizationToValueAndVote.baileyValue == null) {
+            return;
+        }
+        T hardValue = organizationToValueAndVote.baileyValue;
+        T softValue = (T) CldrUtility.INHERITANCE_MARKER;
+        /*
+         * Check containsKey before get, to avoid NullPointerException.
+         */
+        if (!voteCount.containsKey(hardValue) || !voteCount.containsKey(softValue)) {
+            return;
+        }
+        long hardCount = voteCount.get(hardValue);
+        long softCount = voteCount.get(softValue);
+        if (hardCount == 0 || softCount == 0) {
+            return;
+        }
+        T combValue = (hardCount > softCount) ? hardValue : softValue;
+        T skipValue = (hardCount > softCount) ? softValue : hardValue;
+        long combinedCount = hardCount + softCount;
+        voteCount.put(combValue, combinedCount);
+        voteCount.put(skipValue, 0L);
+        /*
+         * Sort again, and omit skipValue
+         */
+        List<T> list = new ArrayList<T>(sortedValues);
+        Collator col = Collator.getInstance(ULocale.ENGLISH);
+        Collections.sort(list, (v1, v2) -> {
+            long c1 = (voteCount != null) ? voteCount.get(v1) : totals.getCount(v1);
+            long c2 = (voteCount != null) ? voteCount.get(v2) : totals.getCount(v2);
+            if (c1 != c2) {
+                return (c1 < c2) ? 1 : -1; // decreasing numeric order (most votes wins)
+            }
+            return col.compare(String.valueOf(v1), String.valueOf(v2));
+        });
+        sortedValues.clear();
+        for (T value : list) {
+            if (!value.equals(skipValue)) {
+                sortedValues.add(value);
+            }
+        }     
     }
 
     /**
@@ -1051,7 +1135,6 @@ public class VoteResolver<T> {
      * 
      * @param sortedValues the set of sorted values, maybe no longer sorted the way we want
      * @param voteCount the hash giving the adjusted vote count for each value in sortedValues
-     * @param compMap the hash that maps individual components to cumulative vote counts
      */
     private void resortValuesBasedOnAdjustedVoteCounts(Set<T> sortedValues, HashMap<T, Long> voteCount) {
         List<T> list = new ArrayList<T>(sortedValues);
@@ -1140,29 +1223,32 @@ public class VoteResolver<T> {
     }
 
     /**
-     * Given a nonempty list of sorted values, set these members of this VoteResolver:
+     * Given a nonempty list of sorted values, and a hash with their vote counts, set these members
+     * of this VoteResolver:
      *  winningValue, nValue, valuesWithSameVotes (which is empty when this function is called).
      * 
      * @param sortedValues the set of sorted values
-     * @param voteCount the hash giving the vote count for each value; if null, use the totals member of this VoteResolver instead
+     * @param voteCount the hash giving the vote count for each value
      * @return an array of two longs, the weights for the best and next-best values.
      */
     private long[] setBestNextAndSameVoteValues(Set<T> sortedValues, HashMap<T, Long> voteCount) {
+
         long weightArray[] = new long[2];
         weightArray[0] = 0;
         weightArray[1] = 0;
         nValue = null;
 
-        /* Loop through the sorted values, at least the first (best) for winningValue,
-         *  and the second (if any) for nValue (else nValue stays null),
-         *  and subsequent values that have as many votes as the first,
-         *  to add to valuesWithSameVotes.
+        /*
+         * Loop through the sorted values, at least the first (best) for winningValue,
+         * and the second (if any) for nValue (else nValue stays null),
+         * and subsequent values that have as many votes as the first,
+         * to add to valuesWithSameVotes.
          */
         int i = -1;
         Iterator<T> iterator = sortedValues.iterator();
         for (T value : sortedValues) {
             ++i;
-            long valueWeight = (voteCount != null) ? voteCount.get(value) : totals.getCount(value);
+            long valueWeight = voteCount.get(value);
             if (i == 0) {
                 winningValue = value;
                 weightArray[0] = valueWeight;

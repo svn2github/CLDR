@@ -365,16 +365,7 @@ public class TestSTFactory extends TestFmwk {
     }
 
     public void TestVettingDataDriven() throws SQLException, IOException {
-        /*
-         * TODO: Error: (TestSTFactory.java:368) 41c Expected: Status=approved got provisional
-         *  und_ZZ://ldml/localeDisplayNames/languages/language[@type="ko"]
-         *  Resolver={test: {randomTest }, lastRelease: {ko, approved}, bailey: “AAA” trunk: {null, missing},
-         *  {orgToVotes: afrigen={↑↑↑=4}, breton={AAA=4}, cherokee={CCC=4}, totals: {AAA=4, CCC=4, ↑↑↑=4}, conflicted: []},
-         *  sameVotes: [], O: ↑↑↑, N: AAA, totals: {AAA=4, CCC=4, ↑↑↑=4}, winning: {↑↑↑, provisional}}
-         *  
-         *  See https://unicode.org/cldr/trac/ticket/11299 in progress
-         */
-        runDataDrivenTest(TestSTFactory.class.getSimpleName());
+        runDataDrivenTest(TestSTFactory.class.getSimpleName()); // TestSTFactory.xml
     }
 
     public void TestUserRegistry() throws SQLException, IOException {
@@ -491,6 +482,15 @@ public class TestSTFactory extends TestFmwk {
                     CLDRLocale locale = CLDRLocale.getInstance(attrs.get("locale"));
                     BallotBox<User> box = fac.ballotBoxForLocale(locale);
                     CLDRFile cf = fac.make(locale, true);
+                    
+                    /*
+                     * TODO: ideally it should be possible, when there are both "soft" votes for inheritance
+                     * and "hard" votes for the Bailey value, to distinguish between the hard or the soft vote
+                     * as the winner here. Currently we call cf.getStringValue here which always resolves
+                     * "↑↑↑" (INHERITANCE_MARKER) to the Bailey value, making a soft vote look the same as a hard vote.
+                     * See TestSTFactory.xml which (as of 2018-8-18) has tests with "↑↑↑" but none yet to distinguish
+                     * when a hard vote should win over a soft vote, or vice-versa.
+                     */
                     String stringValue = cf.getStringValue(xpath);
                     String fullXpath = cf.getFullXPath(xpath);
                     // logln("V"+ xpath + " = " + stringValue + ", " +
