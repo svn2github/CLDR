@@ -75,10 +75,23 @@ import com.ibm.icu.util.Output;
  * sortable, as well, and has some level of persistence.
  *
  * This class was formerly named DataPod
- **/
-
+ */
 public class DataSection implements JSONString {
+    
+    /*
+     * TODO: order classes consistently; inner classes should all be at top or all be at bottom.
+     * Default for Eclipse "Sort Members" is to Types, including inner classes, before all
+     * other members; however, it also alphabetizes methods, which may not be helpful.
+     */
+    
+    /**
+     * The baseline CLDRFile for this DataSection
+     */
     public CLDRFile baselineFile;
+    
+    /**
+     * The DisplayAndInputProcessor for this DataSection
+     */
     private DisplayAndInputProcessor processor = null;
 
     /**
@@ -87,12 +100,11 @@ public class DataSection implements JSONString {
      * This class was formerly named "Pea"
      *
      * @author srl
-     *
      */
     public class DataRow implements JSONString, PathValueInfo {
 
         /**
-         * The CandidateItem is a particular alternative item which could be chosen or voted for.
+         * A CandidateItem represents a particular alternative item which could be chosen or voted for.
          *
          * Each DataRow has, in general, any number of these items in DataRow.items.
          */
@@ -1071,23 +1083,24 @@ public class DataSection implements JSONString {
 
         /**
          * Calculate the inherited item for this DataRow from the vetted parent locale,
-         * possibly including tests
+         * possibly including tests; possibly set some fields in the DataRow, which may
+         * include inheritedValue, inheritedItem, inheritedLocale, pathWhereFound
          *
          * @param vettedParent
          *            CLDRFile for the parent locale, resolved with vetting on ( really just the current )
          * @param checkCldr
          *            The tests to use
          *
-         * Called only by populateFrom.
-         * TODO: move this function below its only caller, populateFrom.
+         * Called only by populateFrom, which is a method of DataSection.
          * 
-         * TODO: Distinguish two kinds of votes for inherited value in Survey Tool
+         * Reference: Distinguish two kinds of votes for inherited value in Survey Tool
          *     https://unicode.org/cldr/trac/ticket/11299
          * This function formerly created a CandidateItem with value equal to the Bailey value,
          * which made it look like a "hard/explicit" vote for the Bailey value, NOT a "soft/implicit"
          * vote for inheritance, which would have value equal to INHERITANCE_MARKER. Horrible confusion
          * was the result. This function has been changed to set the value to INHERITANCE_MARKER, and to store
          * the actual Bailey value in the inheritedValue field of DataRow.
+         *
          * TODO: Get rid of, or merge with, the code that currently does "p.addItem(CldrUtility.INHERITANCE_MARKER)" in populateFrom.
          */
         private void updateInheritedValue(CLDRFile vettedParent, TestResultBundle checkCldr) {
@@ -1098,42 +1111,54 @@ public class DataSection implements JSONString {
             if (xpathId == -1) {
                 return;
             }
-
             String xpath = sm.xpt.getById(xpathId);
-            if (TRACE_TIME)
+            if (TRACE_TIME) {
                 System.err.println("@@0:" + (System.currentTimeMillis() - lastTime));
+            }
             if (xpath == null) {
                 return;
             }
-
             if ((vettedParent != null) && (inheritedItem == null)) {
-                Output<String> inheritancePathWhereFound = new Output<String>();
-                Output<String> localeWhereFound = new Output<String>();
-                
+                /*
+                 * Set the inheritedValue field of the DataRow containing this CandidateItem.
+                 * Also possibly set the inheritedLocale and pathWhereFound fields of the DataRow.
+                 */
+                Output<String> inheritancePathWhereFound = new Output<String>(); // may become pathWhereFound
+                Output<String> localeWhereFound = new Output<String>(); // may be used to construct inheritedLocale
                 inheritedValue = vettedParent.getConstructedBaileyValue(xpath, inheritancePathWhereFound, localeWhereFound);
-
-                if (TRACE_TIME)
+                
+                if (TRACE_TIME) {
                     System.err.println("@@1:" + (System.currentTimeMillis() - lastTime));
-
+                }
                 if (inheritedValue == null) {
-                    // no inherited value
                     /*
-                     * TODO: temporary debugging code
+                     * No inherited value.
+                     * 
+                     * TODO: what are the implications when vettedParent.getConstructedBaileyValue has returned null?
+                     * Unless we're at root, shouldn't there always be a non-null inheritedValue here?
+                     * See https://unicode.org/cldr/trac/ticket/11299
                      */
                     System.out.println("Warning: no inherited value in updateInheritedValue");
-                } else if (!items.containsKey(CldrUtility.INHERITANCE_MARKER)) {
+                } else if (items.containsKey(CldrUtility.INHERITANCE_MARKER)) {
+                    /*
+                     * This DataRow already has an item with value INHERITANCE_MARKER.
+                     * Set inheritedItem = that item.
+                     */
+                    inheritedItem = items.get(CldrUtility.INHERITANCE_MARKER);
+                    /*
+                     * TODO: should any of the code after "else ... addItem" below also be called in this case?
+                     * When would the existing item have been added, and would it already have
+                     * taken care of inheritedLocale, pathWhereFound, ...?
+                     */
+                } else {
+                    /*
+                     * Add a new item, to be the inheritedItem of this DataRow, with value INHERITANCE_MARKER.
+                     */                    
                     inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER);
 
-                    if (TRACE_TIME)
+                    if (TRACE_TIME) {
                         System.err.println("@@2:" + (System.currentTimeMillis() - lastTime));
-
-                    if (TRACE_TIME)
-                        System.err.println("@@3:" + (System.currentTimeMillis() - lastTime));
-
-                    String sourceLocale = localeWhereFound.value; // WAS: vettedParent.getSourceLocaleID(xpath, sourceLocaleStatus);
-
-                    if (TRACE_TIME)
-                        System.err.println("@@4:" + (System.currentTimeMillis() - lastTime));
+                    }
 
                     /*
                      * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set
@@ -1142,7 +1167,7 @@ public class DataSection implements JSONString {
                         // This does not seem to happen so far
                         System.out.println("Warning: inheritedLocale was already set in updateInheritedValue");
                     }
-                    inheritedLocale = CLDRLocale.getInstance(sourceLocale);
+                    inheritedLocale = CLDRLocale.getInstance(localeWhereFound.value);
 
                     if (inheritancePathWhereFound.value != null && !inheritancePathWhereFound.value.equals(xpath)) {
                         /*
@@ -1154,8 +1179,10 @@ public class DataSection implements JSONString {
                             System.out.println("Warning: pathWhereFound was already set in updateInheritedValue, and inheritancePathWhereFound.value != null");
                         }
                         pathWhereFound = inheritancePathWhereFound.value;
-                        if (TRACE_TIME)
-                            System.err.println("@@5:" + (System.currentTimeMillis() - lastTime));
+
+                        if (TRACE_TIME) {
+                            System.err.println("@@3:" + (System.currentTimeMillis() - lastTime));
+                        }
 
                         /*
                          * TODO: does xpathToBaseXpathId have any useful side-effect here? If not,
@@ -1163,29 +1190,33 @@ public class DataSection implements JSONString {
                          * aliasFromXpath, whose value was unused.
                          */
                         sm.xpt.xpathToBaseXpathId(inheritancePathWhereFound.value);
-                        if (TRACE_TIME)
-                            System.err.println("@@6:" + (System.currentTimeMillis() - lastTime));
+
+                        if (TRACE_TIME) {
+                            System.err.println("@@4:" + (System.currentTimeMillis() - lastTime));
+                        }
                     }
-                } else { // item already contained
-                    inheritedItem = items.get(CldrUtility.INHERITANCE_MARKER);
                 }
             }
 
             if ((checkCldr != null) && (inheritedItem != null) && (inheritedItem.tests == null)) {
-                if (TRACE_TIME)
-                    System.err.println("@@7:" + (System.currentTimeMillis() - lastTime));
+                if (TRACE_TIME) {
+                    System.err.println("@@5:" + (System.currentTimeMillis() - lastTime));
+                }
+
                 List<CheckStatus> iTests = new ArrayList<CheckStatus>();
                 checkCldr.check(xpath, iTests, inheritedItem.rawValue);
-                if (TRACE_TIME)
-                    System.err.println("@@8:" + (System.currentTimeMillis() - lastTime));
+
+                if (TRACE_TIME) {
+                    System.err.println("@@6:" + (System.currentTimeMillis() - lastTime));
+                }
+                
                 if (!iTests.isEmpty()) {
                     inheritedItem.setTests(iTests);
-                    if (TRACE_TIME)
-                        System.err.println("@@9:" + (System.currentTimeMillis() - lastTime));
                 }
             }
-            if (TRACE_TIME)
-                System.err.println("@@10:" + (System.currentTimeMillis() - lastTime));
+            if (TRACE_TIME) {
+                System.err.println("@@7:" + (System.currentTimeMillis() - lastTime));
+            }
         }
 
         /**
@@ -1270,9 +1301,6 @@ public class DataSection implements JSONString {
                 JSONObject itemsJson = new JSONObject();
                 /*
                  * TODO: completeness+consistency checking for items, see https://unicode.org/cldr/trac/ticket/11299
-                 * and commented-out gotBailey debugging code below.
-                 * Could test for one item with INHERITANCE_MARKER
-                 * 
                  * JSON sent from server to client must be COMPLETE and CONSISTENT
                  * Establish and test rules like:
                  *   Neither winningValue nor winningVHash can be empty;
@@ -1280,29 +1308,13 @@ public class DataSection implements JSONString {
                  *   There must be an item with INHERITANCE_MARKER;
                  *   ...
                  */
-                /// Boolean gotBailey = false;
                 for (CandidateItem i : items.values()) {
-                    /* getValueHash, not getAdjustedValueHash, is required here.
-                     * items.values() may include an item with value ↑↑↑ INHERITANCE_MARKER and isBailey = false, and an item
-                     * with an inherited value and isBailey = true, isFallback = true, locale.isLanguageLocale() = false.
-                     * If getAdjustedValueHash were called here (as it was, under the old name getValueHash), both items would
-                     * get the same key DataSection.getValueHash(CldrUtility.INHERITANCE_MARKER) = 4oaR4oaR4oaR, and only the
-                     * last one would remain in itemsJson, leading to the browser console error "there is no Bailey Target item".
-                     * See https://unicode.org/cldr/trac/ticket/10521
-                     * See http://www.ietf.org/rfc/rfc4627.txt - "the names within an object SHOULD be unique".
-                     */
                     String key = i.getValueHash();
                     if (itemsJson.has(key)) {
-                        System.out.println("Warning: value hash key " + key + " is duplicate");
+                        System.out.println("Error: value hash key " + key + " is duplicate");
                     }
                     itemsJson.put(key, i);
-                    /// if (i.isBailey) {
-                    ///     gotBailey = true;
-                    /// }
                 }
-                /// if (!gotBailey) {
-                ///    System.out.println("Warning: no isBailey value in DataSection.java!");
-                /// }
 
                 String displayExample = null;
                 ExampleBuilder b = getExampleBuilder();
@@ -1316,6 +1328,18 @@ public class DataSection implements JSONString {
                 }
 
                 VoteResolver<String> resolver = ballotBox.getResolver(xpath);
+                
+                /*
+                 * When the second argument to JSONObject.put is null, then the key is removed if present.
+                 * Here that means that the client will not receive anything for that key!
+                 * 
+                 * TODO: do any of the values for jo.put below depend on order of evaluation?
+                 * It would be cleaner, and might be more testable and less bug-prone, if conditionals
+                 * and method calls weren't done inline in these jo.put() calls. In fact it might be best
+                 * to put them all into the fields of a new object, and then we could do consistency
+                 * checking on that object. The DataRow object itself is complex; the proposed object
+                 * would be simpler and specifically for representing what will become "theRow" on the client.
+                 */
                 JSONObject jo = new JSONObject();
                 jo.put("xpath", xpath);
                 jo.put("xpid", xpathId);
@@ -1336,6 +1360,9 @@ public class DataSection implements JSONString {
                 jo.put("voteVhash", voteVhash);
                 jo.put("voteResolver", SurveyAjax.JSONWriter.wrap(resolver));
                 jo.put("items", itemsJson);
+                jo.put("inheritedValue", inheritedValue);
+                jo.put("inheritedXpid", pathWhereFound != null ? XPathTable.getStringIDString(pathWhereFound) : null);
+                jo.put("inheritedLocale", inheritedLocale);
 
                 /*
                  * TODO: inheritedItem.getPClass() which we send to the client here as theRow.inheritedPClass
@@ -1345,10 +1372,10 @@ public class DataSection implements JSONString {
                  *   item.pClass = theRow.inheritedPClass == "winner" ? "fallback" : theRow.inheritedPClass;
                  *   displayValue = theRow.inheritedItem;
                  * }
+                 * With current getPClass, item.pClass will never be "winner" (could confirm that with a
+                 * consistency check just prior to sending json). There should be no reason for the client
+                 * to change item.pClass, so we should get rid of inheritedPClass.
                  */
-                jo.put("inheritedValue", inheritedValue);
-                jo.put("inheritedXpid", pathWhereFound != null ? XPathTable.getStringIDString(pathWhereFound) : null);
-                jo.put("inheritedLocale", inheritedLocale);
                 jo.put("inheritedPClass", inheritedItem != null ? inheritedItem.getPClass() : "fallback");
                 jo.put("canFlagOnLosing", resolver.getRequiredVotes() == VoteResolver.HIGH_BAR);
                 if (ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS) {
