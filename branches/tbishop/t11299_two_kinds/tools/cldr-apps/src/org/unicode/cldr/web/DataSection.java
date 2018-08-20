@@ -544,7 +544,7 @@ public class DataSection implements JSONString {
         private String displayName = null;
         // these apply to the 'winning' item, if applicable
         boolean hasErrors = false;
-        boolean hasInherited = false; // True if has inherited value
+
         boolean hasMultipleProposals = false; // true if more than 1 proposal is available
 
         /**
@@ -2599,9 +2599,9 @@ public class DataSection implements JSONString {
                 System.err.println("ns0  " + (System.currentTimeMillis() - nextTime));
             
             /*
-             * TODO: rename and clarify the significance and usage of the local variable
-             * declared here with the name "ourValue". Formerly it was named "value"; the
-             * new name "ourValue" reflects that it is gotten as ourSrc.getStringValue(xpath).
+             * TODO: clarify the significance and usage of the local variable ourValue.
+             * Formerly it was named "value"; the new name "ourValue" reflects that it is
+             * gotten as ourSrc.getStringValue(xpath).
              *
              * If not null, it's ourSrc.getStringValue(xpath); not possible (confirm?) for that
              * to be CldrUtility.INHERITANCE_MARKER. getStringValue effectively resolves that to
@@ -2716,37 +2716,24 @@ public class DataSection implements JSONString {
                 System.err.println("n06c  " + (System.currentTimeMillis() - nextTime));
 
             boolean isInherited = !(sourceLocale.equals(locale.toString()));
-            if (TRACE_TIME)
+
+            if (TRACE_TIME) {
                 System.err.println("n06d  " + (System.currentTimeMillis() - nextTime));
+            }
 
             // ** IF it is inherited, do NOT add any Items.
             if (isInherited && !isExtraPath) {
                 if (TRACE_TIME)
                     System.err.println("n06da  [src:" + sourceLocale + " vs " + locale + ", sttus:" + sourceLocaleStatus + "] "
                         + (System.currentTimeMillis() - nextTime));
-                if (TRACE_TIME)
-                    System.err.println("n06dc  " + (System.currentTimeMillis() - nextTime));
-                continue;
+                 continue;
             }
-            if (TRACE_TIME)
+            if (TRACE_TIME) {
                 System.err.println("n06e  " + (System.currentTimeMillis() - nextTime));
+            }
 
-            if (TRACE_TIME)
-                System.err.println("n07  " + (System.currentTimeMillis() - nextTime));
-
-            // ?? simplify this.
-            if (altProp == null) {
-                if (isInherited) {
-                    row.hasInherited = true;
-                }
-            } else {
-                if (!isInherited) {
-                    if (altProp != SurveyMain.PROPOSED_DRAFT) { // 'draft=true'
-                        row.hasMultipleProposals = true;
-                    }
-                } else {
-                    row.hasInherited = true;
-                }
+            if (altProp != null && !isInherited && altProp != SurveyMain.PROPOSED_DRAFT) { // 'draft=true'
+                row.hasMultipleProposals = true;
             }
 
             CLDRLocale setInheritFrom = (isInherited) ? CLDRLocale.getInstance(sourceLocale) : null;
@@ -2766,72 +2753,72 @@ public class DataSection implements JSONString {
             }
 
             if (ourValue != null && ourValue.length() > 0) {
-                /*
-                 * TODO: move this block to a subroutine
-                 */
-                DataSection.DataRow.CandidateItem myItem = null;
-
-                if (TRACE_TIME) {
-                    System.err.println("n08  (check) " + (System.currentTimeMillis() - nextTime));
-                }
-
-                myItem = row.addItem(ourValue);
-
-                if (DEBUG) {
-                    System.err.println("Added item " + ourValue + " - now items=" + row.items.size());
-                }
-
-                if (!checkCldrResult.isEmpty()) {
-                    myItem.setTests(checkCldrResult);
-                    /*
-                     * set the parent, can't reuse it if nonempty
-                     */
-                    checkCldrResult = new ArrayList<CheckStatus>();
-                }
-
-                if (sourceLocaleStatus != null && sourceLocaleStatus.pathWhereFound != null
-                    && !sourceLocaleStatus.pathWhereFound.equals(xpath)) {
-                    /*
-                     * TODO: temporary debugging code: check if DataRow.pathWhereFound is already set...
-                     * Shouldn't replace a valid pathWhereFound with null. 
-                     */
-                    if (row.pathWhereFound != null) {
-                        System.out.println("Warning: row.pathWhereFound was already set in populateFrom, and sourceLocaleStatus != null");
-                    }
-                    row.pathWhereFound = sourceLocaleStatus.pathWhereFound;
-                }
-                if (setInheritFrom != null) {
-                    /*
-                     * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set...
-                     * It does happen that (row.inheritedLocale != null && setInheritFrom == null) here.
-                     * Don't replace a valid inheritedLocale with null. 
-                     */
-                    if (row.inheritedLocale != null) {
-                        // This does not seem to happen so far
-                        System.out.println("Warning: row.inheritedLocale was already set in populateFrom, and setInheritFrom is not null");
-                    }
-                    row.inheritedLocale = setInheritFrom;
-                }
-                /*
-                 * Store who voted for what. [ this could be loaded at displaytime..]
-                 * 
-                 * TODO: explain the following block.
-                 * myItem.examples is assigned to here, but not referenced anywhere else,
-                 * so what is this block for, and does examples need to be a member of
-                 * CandidateItem rather than just a local variable here?
-                 */
-                if (!examplesResult.isEmpty()) {
-                    // reuse the same ArrayList unless it contains something
-                    if (myItem.examples == null) {
-                        myItem.examples = new Vector<ExampleEntry>();
-                    }
-                    for (Iterator<CheckStatus> it3 = examplesResult.iterator(); it3.hasNext();) {
-                        CheckCLDR.CheckStatus status = it3.next();
-                        myItem.examples.add(addExampleEntry(new ExampleEntry(this, row, myItem, status)));
-                    }
-                }
+                addOurValue(ourValue, row, checkCldrResult, sourceLocaleStatus, xpath, setInheritFrom, examplesResult);
             }
         }
+    }
+
+    private void addOurValue(String ourValue, DataRow row, List<CheckStatus> checkCldrResult,
+            org.unicode.cldr.util.CLDRFile.Status sourceLocaleStatus, String xpath, CLDRLocale setInheritFrom,
+            List<CheckStatus> examplesResult) {
+        
+        DataSection.DataRow.CandidateItem myItem = row.addItem(ourValue);
+
+        if (DEBUG) {
+            System.err.println("Added item " + ourValue + " - now items=" + row.items.size());
+        }
+
+        if (!checkCldrResult.isEmpty()) {
+            myItem.setTests(checkCldrResult);
+            /*
+             * set the parent, can't reuse it if nonempty
+             */
+            checkCldrResult = new ArrayList<CheckStatus>();
+        }
+
+        if (sourceLocaleStatus != null && sourceLocaleStatus.pathWhereFound != null
+            && !sourceLocaleStatus.pathWhereFound.equals(xpath)) {
+            /*
+             * TODO: temporary debugging code: check if DataRow.pathWhereFound is already set...
+             * Shouldn't replace a valid pathWhereFound with null. 
+             */
+            if (row.pathWhereFound != null) {
+                System.out.println("Warning: row.pathWhereFound was already set in populateFrom, and sourceLocaleStatus != null");
+            }
+            row.pathWhereFound = sourceLocaleStatus.pathWhereFound;
+        }
+        if (setInheritFrom != null) {
+            /*
+             * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set...
+             * It does happen that (row.inheritedLocale != null && setInheritFrom == null) here.
+             * Don't replace a valid inheritedLocale with null. 
+             */
+            if (row.inheritedLocale != null) {
+                // This does not seem to happen so far
+                System.out.println("Warning: row.inheritedLocale was already set in populateFrom, and setInheritFrom is not null");
+            }
+            row.inheritedLocale = setInheritFrom;
+        }        
+
+        /*
+         * Store who voted for what. [ this could be loaded at displaytime..]
+         * 
+         * TODO: explain the following block.
+         * myItem.examples is assigned to here, but not referenced anywhere else,
+         * so what is this block for, and does examples need to be a member of
+         * CandidateItem rather than just a local variable here?
+         */
+        if (!examplesResult.isEmpty()) {
+            // reuse the same ArrayList unless it contains something
+            if (myItem.examples == null) {
+                myItem.examples = new Vector<ExampleEntry>();
+            }
+            for (Iterator<CheckStatus> it3 = examplesResult.iterator(); it3.hasNext();) {
+                CheckCLDR.CheckStatus status = it3.next();
+                myItem.examples.add(addExampleEntry(new ExampleEntry(this, row, myItem, status)));
+            }
+        }
+
     }
 
     /**
