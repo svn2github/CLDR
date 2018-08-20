@@ -844,6 +844,16 @@ public class DataSection implements JSONString {
             return NAME_TYPE_PATTERN.matcher(prettyPath).matches();
         }
 
+        /**
+         * 
+         * @param ctx
+         * @param canModify
+         * @param zoomedIn
+         * @param specialUrl
+         * @return
+         * 
+         * Called only by row.jsp
+         */
         public String itemTypeName(WebContext ctx, boolean canModify, boolean zoomedIn, String specialUrl) {
             StringBuilder sb = new StringBuilder();
             String disputeIcon = "";
@@ -1200,10 +1210,10 @@ public class DataSection implements JSONString {
          *   There must be an item with INHERITANCE_MARKER;
          *   ...
          * 
-         * TODO: do any of the values for jo.put below depend on order of evaluation?
-         * It would be cleaner, and might be more testable and less bug-prone, if conditionals
-         * and method calls weren't done inline in these jo.put() calls. In fact it might be best
-         * to put them all into the fields of the DataRow, or of a new object, and then we could do
+         * TODO: It would be cleaner, and might be more testable and less bug-prone, to separate
+         * the construction of the JSON from the completion and validation of the DataRow.
+         * It might be best to make all the values needed by client into fields of the DataRow,
+         * if they aren't already; or make them fields of a new object, and then we could do
          * consistency checking on that object. The DataRow object itself is complex; the test
          * would be specifically for the data representing what becomes "theRow" on the client,
          * AFTER that data has all been prepared/derived.
@@ -1249,9 +1259,14 @@ public class DataSection implements JSONString {
                  * TODO: Temporary hack...:
                  */
                 if (winningValue != null && getItem(winningValue) == null) {
-                    System.out.println("Warning: creating new item for winningValue DataRow.toJSONString");
+                    System.out.println("Warning: creating new item for winningValue in DataRow.toJSONString");
                     winningItem = addItem(winningValue);
                 }
+                /*
+                 * TODO: winningValueOrEmpty is temporary hack, should guarantee
+                 * earlier that winningValue is not null.
+                 */
+                String winningValueOrEmpty = winningValue != null ? winningValue : "";
                     
                 String voteVhash = "";
                 String ourVote = null;
@@ -1279,48 +1294,70 @@ public class DataSection implements JSONString {
                 if (b != null) {
                     displayExample = b.getExampleHtml(xpath, displayName, ExampleType.ENGLISH);
                 }
-                String pathCode = "?";
+
+                String code = "?";
                 PathHeader ph = getPathHeader();
                 if (ph != null) {
-                    pathCode = ph.getCode();
+                    code = ph.getCode();
                 }
 
                 VoteResolver<String> resolver = ballotBox.getResolver(xpath);
+                JSONObject voteResolver = SurveyAjax.JSONWriter.wrap(resolver);
                 
+                /*
+                 * TODO: resolve pointless difference in names, xpathId on server, xpid on client
+                 */
+                int xpid = xpathId;
+                
+                boolean rowFlagged = sm.getSTFactory().getFlag(locale, xpathId);
+
+                String xpstrid = XPathTable.getStringIDString(xpath);
+
+                StatusAction statusAction = getStatusAction();
+                
+                Map<String, String> extraAttributes = getNonDistinguishingAttributes();
+
+                boolean hasVoted = (userForVotelist != null) ? userHasVoted(userForVotelist.id) : false;
+
+                String inheritedXpid = (pathWhereFound != null) ? XPathTable.getStringIDString(pathWhereFound) : null;
+                    
+                boolean canFlagOnLosing = (resolver.getRequiredVotes() == VoteResolver.HIGH_BAR);
+
+                String dir = (ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS) ? "ltr" : null;
+
                 /*
                  * When the second argument to JSONObject.put is null, then the key is removed if present.
                  * Here that means that the client will not receive anything for that key!
                  */
                 JSONObject jo = new JSONObject();
+                // TODO: alphabetize
                 jo.put("xpath", xpath);
-                jo.put("xpid", xpathId);
-                jo.put("rowFlagged", sm.getSTFactory().getFlag(locale, xpathId));
-                jo.put("xpstrid", XPathTable.getStringIDString(xpath));
-                jo.put("winningValue", winningValue != null ? winningValue : "");
+                jo.put("xpid", xpid);
+                jo.put("rowFlagged", rowFlagged);
+                jo.put("xpstrid", xpstrid);
+                jo.put("winningValue", winningValueOrEmpty);
                 jo.put("displayName", displayName);
                 jo.put("displayExample", displayExample);
-                jo.put("statusAction", getStatusAction());
-                jo.put("code", pathCode);
-                jo.put("extraAttributes", getNonDistinguishingAttributes());
+                jo.put("statusAction", statusAction);
+                jo.put("code", code);
+                jo.put("extraAttributes", extraAttributes);
                 jo.put("coverageValue", coverageValue);
                 jo.put("hasErrors", hasErrors);
                 jo.put("confirmStatus", confirmStatus);
-                jo.put("hasVoted", userForVotelist != null ? userHasVoted(userForVotelist.id) : false);
+                jo.put("hasVoted", hasVoted);
                 jo.put("winningVhash", winningVhash);
                 jo.put("ourVote", ourVote);
                 jo.put("voteVhash", voteVhash);
-                jo.put("voteResolver", SurveyAjax.JSONWriter.wrap(resolver));
+                jo.put("voteResolver", voteResolver);
                 jo.put("items", itemsJson);
                 jo.put("inheritedValue", inheritedValue);
-                jo.put("inheritedXpid", pathWhereFound != null ? XPathTable.getStringIDString(pathWhereFound) : null);
+                jo.put("inheritedXpid", inheritedXpid);
                 jo.put("inheritedLocale", inheritedLocale);
-                jo.put("canFlagOnLosing", resolver.getRequiredVotes() == VoteResolver.HIGH_BAR);
-                if (ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS) {
-                    jo.put("dir", "ltr");
-                }
+                jo.put("canFlagOnLosing", canFlagOnLosing);
+                jo.put("dir", dir);
                 return jo.toString();
             } catch (Throwable t) {
-                SurveyLog.logException(t, "Exception in toJSONString of " + this);
+                SurveyLog.logException(t, "Exception in DataRow.toJSONString of " + this);
                 throw new JSONException(t);
             }
         }
@@ -2156,18 +2193,14 @@ public class DataSection implements JSONString {
     }
 
     /**
-     * TODO: never called? Compare functions with same name in PathHeader, WebContext
-     * @return
+     * Get the page id
+     * 
+     * @return pageId
+     * 
+     * Called from RefreshRow.jsp
      */
     public PageId getPageId() {
         return pageId;
-    }
-
-    /**
-     * TODO: never called?
-     */
-    public long age() {
-        return System.currentTimeMillis() - touchTime;
     }
 
     /**
@@ -2176,6 +2209,8 @@ public class DataSection implements JSONString {
      * @param sortMode
      * @param matcher
      * @return the DisplaySet
+     * 
+     * Called from RefreshRow.jsp
      */
     public DisplaySet createDisplaySet(SortMode sortMode, XPathMatcher matcher) {
         DisplaySet aDisplaySet = sortMode.createDisplaySet(matcher, rowsHash.values());
@@ -2347,21 +2382,14 @@ public class DataSection implements JSONString {
     }
 
     /**
-     * Get the BallotBox for this DataSection
-     *
-     * @return the BallotBox
-     */
-    public BallotBox<User> getBallotBox() {
-        return ballotBox;
-    }
-
-    /**
      * Get the row for the given xpath in this DataSection
      *
      * Linear search for matching item.
      *
      * @param xpath the integer...
      * @return the matching DataRow
+     * 
+     * Called from r_rxt.jsp
      */
     public DataRow getDataRow(int xpath) {
         return getDataRow(sm.xpt.getById(xpath));
@@ -2382,12 +2410,12 @@ public class DataSection implements JSONString {
         if (rowsHash == null) {
             throw new InternalError("rowsHash is null");
         }
-        DataRow p = rowsHash.get(xpath);
-        if (p == null) {
-            p = new DataRow(xpath);
-            addDataRow(p);
+        DataRow row = rowsHash.get(xpath);
+        if (row == null) {
+            row = new DataRow(xpath);
+            addDataRow(row);
         }
-        return p;
+        return row;
     }
 
     /**
@@ -2427,7 +2455,7 @@ public class DataSection implements JSONString {
      * @param checkCldr the TestResultBundle
      * @param workingCoverageLevel
      *
-     * Called only by DataSection.make, as section.populateFrom(ourSrc, checkCldr, workingCoverageLevel);
+     * Called only by DataSection.make, as section.populateFrom(ourSrc, checkCldr, workingCoverageLevel).
      */
     private void populateFrom(CLDRFile ourSrc, TestResultBundle checkCldr, String workingCoverageLevel) {
         XPathParts xpp = new XPathParts(null, null);
@@ -2441,7 +2469,6 @@ public class DataSection implements JSONString {
 
         Set<String> allXpaths;
 
-        String continent = null;
         Set<String> extraXpaths = null;
         List<CheckStatus> checkCldrResult = new ArrayList<CheckStatus>();
 
@@ -2454,11 +2481,10 @@ public class DataSection implements JSONString {
             extraXpaths = new HashSet<String>();
 
             /* Determine which xpaths to show */
-            if (xpathPrefix.startsWith("//ldml/units")) {
-                canName = false;
-            } else if (xpathPrefix.startsWith("//ldml/numbers")) {
+            if (xpathPrefix.startsWith("//ldml/units") || xpathPrefix.startsWith("//ldml/numbers")) {
                 canName = false;
             } else if (xpathPrefix.startsWith("//ldml/dates/timeZoneNames/metazone")) {
+                String continent = null;
                 int continentStart = xpathPrefix.indexOf(DataSection.CONTINENT_DIVIDER);
                 if (continentStart > 0) {
                     continent = xpathPrefix.substring(xpathPrefix.indexOf(DataSection.CONTINENT_DIVIDER) + 1);
@@ -2500,7 +2526,7 @@ public class DataSection implements JSONString {
     /**
      * Populate this DataSection with a row for each of the given xpaths
      *
-     * @param allXpaths
+     * @param allXpaths the set of xpaths
      * @param workPrefix
      * @param ourSrc
      * @param oldFile
@@ -2575,7 +2601,7 @@ public class DataSection implements JSONString {
     }
 
     /**
-     * Add data to this DataSection including a new DataRow for the given xpath
+     * Add data to this DataSection including a possibly new DataRow for the given xpath
      *
      * @param xpath
      * @param isExtraPath
@@ -2699,7 +2725,7 @@ public class DataSection implements JSONString {
         if (altProp != null && !isInherited && altProp != SurveyMain.PROPOSED_DRAFT) { // 'draft=true'
             row.hasMultipleProposals = true;
         }
-        CLDRLocale setInheritFrom = (isInherited) ? CLDRLocale.getInstance(sourceLocale) : null;
+        CLDRLocale setInheritFrom = isInherited ? CLDRLocale.getInstance(sourceLocale) : null;
         if (checkCldr != null) {
             checkCldr.check(xpath, checkCldrResult, isExtraPath ? null : ourValue);
             checkCldr.getExamples(xpath, isExtraPath ? null : ourValue, examplesResult);
@@ -2755,7 +2781,7 @@ public class DataSection implements JSONString {
             org.unicode.cldr.util.CLDRFile.Status sourceLocaleStatus, String xpath, CLDRLocale setInheritFrom,
             List<CheckStatus> examplesResult) {
         
-        DataSection.DataRow.CandidateItem myItem = row.addItem(ourValue);
+        CandidateItem myItem = row.addItem(ourValue);
 
         if (DEBUG) {
             System.err.println("Added item " + ourValue + " - now items=" + row.items.size());
@@ -2811,7 +2837,6 @@ public class DataSection implements JSONString {
                 myItem.examples.add(addExampleEntry(new ExampleEntry(this, row, myItem, status)));
             }
         }
-
     }
 
     /**
@@ -2836,26 +2861,6 @@ public class DataSection implements JSONString {
 
         // Call the method below that has the same name, different parameters
         showSection(ctx, canModify, matcher, zoomedIn);
-    }
-
-    /**
-     * Show a single item, in a very limited view.
-     *
-     * @param ctx
-     * @param item_xpath
-     *            xpath of the one item to show
-     *
-     *  Called only by showXpathShort in SurveyForum.java
-     */
-    public void showPeasShort(WebContext ctx, int item_xpath) {
-        DataRow row = getDataRow(item_xpath);
-        if (row != null) {
-            row.showDataRowShort(ctx);
-        } else {
-            ctx.println("<tr><td colspan='2'>" + ctx.iconHtml("stop", "internal error")
-                + "<i>internal error: nothing to show for xpath " + item_xpath + "," + " " + sm.xpt.getById(item_xpath)
-                + "</i></td></tr>");
-        }
     }
 
     /**
@@ -2992,6 +2997,29 @@ public class DataSection implements JSONString {
     }
 
     /**
+     * Show a single item, in a very limited view.
+     *
+     * @param ctx
+     * @param item_xpath
+     *            xpath of the one item to show
+     *
+     *  Called only by showXpathShort in SurveyForum.java
+     *  
+     *  Changed name from showPeasShort to showDataRowsShort, and moved from between the two methods
+     *  named showSection, 2018-8-19
+     */
+    public void showDataRowsShort(WebContext ctx, int item_xpath) {
+        DataRow row = getDataRow(item_xpath);
+        if (row != null) {
+            row.showDataRowShort(ctx);
+        } else {
+            ctx.println("<tr><td colspan='2'>" + ctx.iconHtml("stop", "internal error")
+                + "<i>internal error: nothing to show for xpath " + item_xpath + "," + " " + sm.xpt.getById(item_xpath)
+                + "</i></td></tr>");
+        }
+    }
+
+    /**
      * @param ctx
      * @param matcher
      * @return
@@ -3035,7 +3063,16 @@ public class DataSection implements JSONString {
         touchTime = System.currentTimeMillis();
     }
 
-    /** width, in columns, of the typical data table **/
+
+    /**
+     * 
+     * @param ctx
+     * @param section
+     * @param zoomedIn
+     * @param canModify
+     * 
+     * Called by showXpath in SurveyForum.java, and by showSection
+     */
     static void printSectionTableOpen(WebContext ctx, DataSection section, boolean zoomedIn, boolean canModify) {
         ctx.println("<a name='st_data'></a>");
         ctx.println("<table summary='Data Items for " + ctx.getLocale().toString() + " " + section.xpathPrefix

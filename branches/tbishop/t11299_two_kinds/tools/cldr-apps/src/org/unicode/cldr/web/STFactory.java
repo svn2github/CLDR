@@ -2034,10 +2034,11 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
     }
 
     /**
-     * Returns userid of flagger, or null if not flagged
+     * Does the list of flags contain one for this locale and xpath?
+     *
      * @param locale
      * @param xpath
-     * @return user or null
+     * @return true or false
      */
     public boolean getFlag(CLDRLocale locale, int xpath) {
         synchronized (STFactory.class) {
