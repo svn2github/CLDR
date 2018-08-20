@@ -111,23 +111,6 @@ public class DataSection implements JSONString {
         public class CandidateItem implements Comparable<CandidateItem>, JSONString, CandidateInfo {
 
             /**
-             * altProposed is the proposed part of the name (or NULL for nondraft)
-             *
-             * TODO: there appears to be confusion between this final (constant) string, and
-             * a local variable formerly also named "altProposed" (now altProp) declared in populateFrom.
-             *
-             * In versions of this code prior to https://unicode.org/cldr/trac/changeset/6566
-             * this string was not declared as final; it was initialized to null and sometimes
-             * later set to different values.
-             *
-             * This string is public since it is referenced by DefaultDataSubmissionResultHandler.java,
-             * but that referencing probably no longer serves any purpose.
-             * 
-             * Can this be removed?
-             */
-            public static final String altProposed = "n/a";
-
-            /**
              * rawValue is the actual value of this CandidateItem, that is, the string for which
              * a user might vote.
              *
@@ -2645,13 +2628,9 @@ public class DataSection implements JSONString {
             String lelement = xpp.getElement(-1);
             xpp.findAttributeValue(lelement, LDMLConstants.ALT);
             String eDraft = xpp.findAttributeValue(lelement, LDMLConstants.DRAFT);
-            if (TRACE_TIME)
+            if (TRACE_TIME) {
                 System.err.println("n04  " + (System.currentTimeMillis() - nextTime));
-
-            /*
-             * This local variable named "altProp" was formerly named "altProposed" and shouldn't be
-             * confused with the constant string CandidateItem.altProposed ("n/a").
-             */
+            }
             String typeAndProposed[] = LDMLUtilities.parseAlt(alt);
             String altProp = typeAndProposed[1];
 
