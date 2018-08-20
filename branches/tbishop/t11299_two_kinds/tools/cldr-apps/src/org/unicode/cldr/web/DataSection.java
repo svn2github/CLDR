@@ -2600,18 +2600,19 @@ public class DataSection implements JSONString {
             
             /*
              * TODO: rename and clarify the significance and usage of the local variable
-             * declared here with the name "value".
+             * declared here with the name "ourValue". Formerly it was named "value"; the
+             * new name "ourValue" reflects that it is gotten as ourSrc.getStringValue(xpath).
              *
              * If not null, it's ourSrc.getStringValue(xpath); not possible (confirm?) for that
              * to be CldrUtility.INHERITANCE_MARKER. getStringValue effectively resolves that to
              * the Bailey value -- could that possibly be causing a "hard" vote to be treated as
              * winning when in reality it may have been a "soft" vote that was winning?
              *
-             * Does value reflect the current votes? How does it relate to the currently winning value,
-             * the old value, etc.? ourSrc contrasts with oldFile (both are type CLDRFile).
+             * Does ourValue reflect the current votes? How does it relate to winningValue
+             * the oldValue, etc.? ourSrc contrasts with oldFile (both are type CLDRFile).
              */
-            String value = isExtraPath ? null : ourSrc.getStringValue(xpath);
-            if (value == null) {
+            String ourValue = isExtraPath ? null : ourSrc.getStringValue(xpath);
+            if (ourValue == null) {
                 if (DEBUG) {
                     System.err.println("warning: populatefrom " + this + ": " + locale + ":" + xpath + " = NULL! wasExtraPath="
                         + isExtraPath);
@@ -2648,9 +2649,10 @@ public class DataSection implements JSONString {
             Set<String> v = ballotBox.getValues(xpath);
             if (v != null) {
                 for (String avalue : v) {
-                    if (DEBUG)
-                        System.err.println(" //val='" + avalue + "' vs " + value + " in " + xpath);
-                    if (!avalue.equals(value)) {
+                    if (DEBUG) {
+                        System.err.println(" //val='" + avalue + "' vs " + ourValue + " in " + xpath);
+                    }
+                    if (!avalue.equals(ourValue)) {
                         CandidateItem item2 = row.addItem(avalue);
                         if (avalue != null && (checkCldr != null)) {
                             List<CheckStatus> item2Result = new ArrayList<CheckStatus>();
@@ -2662,7 +2664,7 @@ public class DataSection implements JSONString {
                     }
                 }
             }
-            if (row.oldValue != null && !row.oldValue.equals(value) && (v == null || !v.contains(row.oldValue))) {
+            if (row.oldValue != null && !row.oldValue.equals(ourValue) && (v == null || !v.contains(row.oldValue))) {
                 // if "oldValue" isn't already represented as an item, add it.
                 CandidateItem oldItem = row.addItem(row.oldValue);
                 oldItem.isOldValue = true;
@@ -2753,27 +2755,30 @@ public class DataSection implements JSONString {
             // These are the items users may choose between
             //
             if (checkCldr != null) {
-                if (TRACE_TIME)
+                if (TRACE_TIME) {
                     System.err.println("n07.1  (check) " + (System.currentTimeMillis() - nextTime));
-                checkCldr.check(xpath, checkCldrResult, isExtraPath ? null : value);
-                if (TRACE_TIME)
+                }
+                checkCldr.check(xpath, checkCldrResult, isExtraPath ? null : ourValue);
+                if (TRACE_TIME) {
                     System.err.println("n07.2  (check) " + (System.currentTimeMillis() - nextTime));
-                checkCldr.getExamples(xpath, isExtraPath ? null : value, examplesResult);
+                }
+                checkCldr.getExamples(xpath, isExtraPath ? null : ourValue, examplesResult);
             }
 
-            if (value != null && value.length() > 0) {
+            if (ourValue != null && ourValue.length() > 0) {
                 /*
                  * TODO: move this block to a subroutine
                  */
                 DataSection.DataRow.CandidateItem myItem = null;
 
-                if (TRACE_TIME)
+                if (TRACE_TIME) {
                     System.err.println("n08  (check) " + (System.currentTimeMillis() - nextTime));
+                }
 
-                myItem = row.addItem(value);
+                myItem = row.addItem(ourValue);
 
                 if (DEBUG) {
-                    System.err.println("Added item " + value + " - now items=" + row.items.size());
+                    System.err.println("Added item " + ourValue + " - now items=" + row.items.size());
                 }
 
                 if (!checkCldrResult.isEmpty()) {
