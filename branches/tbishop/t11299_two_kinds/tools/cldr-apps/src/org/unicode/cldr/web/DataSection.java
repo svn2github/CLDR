@@ -309,7 +309,7 @@ public class DataSection implements JSONString {
              * 
              * All return values: "winner", "alias", "fallback", "fallback_code", "fallback_root", "loser".
              * 
-             * Called by CandidateItem.toJSONString (for item.pClass) and also by DataRow.toJSONString (for theRow.inheritedPClass)
+             * Called by CandidateItem.toJSONString (for item.pClass)
              * 
              * Relationships between class, color, and inheritance (http://cldr.unicode.org/index/survey-tool/guide#TOC-Inheritance):
              * "The inherited values are color coded:
@@ -328,10 +328,7 @@ public class DataSection implements JSONString {
                          * surveytool.css has:
                          *  .alias {background-color: #ddf;}
                          *  
-                         *  This can happen when called from here by DataRow.toJSONString (for theRow.inheritedPClass):
-                         *  jo.put("inheritedPClass", inheritedItem != null ? inheritedItem.getPClass() : "fallback");
-                         *  
-                         *  It can also happen when called from CandidateItem.toJSONString (for item.pClass).
+                         *  This can happen when called from CandidateItem.toJSONString (for item.pClass).
                          *  Try http://localhost:8080/cldr-apps/v#/aa/Fields/
                          */
                         return "alias";
@@ -449,8 +446,9 @@ public class DataSection implements JSONString {
                 if (theVotes != null && !theVotes.isEmpty()) {
                     JSONObject voteList = new JSONObject();
                     for (UserRegistry.User u : theVotes) {
-                        if (u.getLevel() == VoteResolver.Level.locked)
-                            continue; // dont care
+                        if (u.getLevel() == VoteResolver.Level.locked) {
+                            continue; // don't care
+                        }
                         JSONObject uu = new JSONObject();
                         uu.put("org", u.getOrganization());
                         uu.put("level", u.getLevel());
@@ -1240,6 +1238,22 @@ public class DataSection implements JSONString {
          * DataSection.toJSONString calls DataSection.DataRow.toJSONString repeatedly for each DataRow.
          * DataSection.DataRow.toJSONString calls DataSection.DataRow.CandidateItem.toJSONString
          * repeatedly for each CandidateItem.
+         *
+         * TODO: completeness+consistency checking, see https://unicode.org/cldr/trac/ticket/11299
+         * JSON sent from server to client must be COMPLETE and CONSISTENT
+         * Establish and test rules like:
+         *   Neither winningValue nor winningVHash can be empty;
+         *   There must be an item that corresponds to the winningValue;
+         *   There must be an item with INHERITANCE_MARKER;
+         *   ...
+         * 
+         * TODO: do any of the values for jo.put below depend on order of evaluation?
+         * It would be cleaner, and might be more testable and less bug-prone, if conditionals
+         * and method calls weren't done inline in these jo.put() calls. In fact it might be best
+         * to put them all into the fields of the DataRow, or of a new object, and then we could do
+         * consistency checking on that object. The DataRow object itself is complex; the test
+         * would be specifically for the data representing what becomes "theRow" on the client,
+         * AFTER that data has all been prepared/derived.
          */
         @Override
         public String toJSONString() throws JSONException {
@@ -1279,9 +1293,9 @@ public class DataSection implements JSONString {
                  * But wait, if there's only one item, with INHERITANCE_MARKER, then that's also the winning item,
                  * and so indeed we should NOT have any item with rawValue == winningValue.
                  * 
-                 * Temporary hack...:
+                 * TODO: Temporary hack...:
                  */
-                if (getItem(winningValue) == null) {
+                if (winningValue != null && getItem(winningValue) == null) {
                     System.out.println("Warning: creating new item for winningValue DataRow.toJSONString");
                     winningItem = addItem(winningValue);
                 }
@@ -1299,15 +1313,6 @@ public class DataSection implements JSONString {
                 }
 
                 JSONObject itemsJson = new JSONObject();
-                /*
-                 * TODO: completeness+consistency checking for items, see https://unicode.org/cldr/trac/ticket/11299
-                 * JSON sent from server to client must be COMPLETE and CONSISTENT
-                 * Establish and test rules like:
-                 *   Neither winningValue nor winningVHash can be empty;
-                 *   There must be an item that corresponds to the winningValue;
-                 *   There must be an item with INHERITANCE_MARKER;
-                 *   ...
-                 */
                 for (CandidateItem i : items.values()) {
                     String key = i.getValueHash();
                     if (itemsJson.has(key)) {
@@ -1332,13 +1337,6 @@ public class DataSection implements JSONString {
                 /*
                  * When the second argument to JSONObject.put is null, then the key is removed if present.
                  * Here that means that the client will not receive anything for that key!
-                 * 
-                 * TODO: do any of the values for jo.put below depend on order of evaluation?
-                 * It would be cleaner, and might be more testable and less bug-prone, if conditionals
-                 * and method calls weren't done inline in these jo.put() calls. In fact it might be best
-                 * to put them all into the fields of a new object, and then we could do consistency
-                 * checking on that object. The DataRow object itself is complex; the proposed object
-                 * would be simpler and specifically for representing what will become "theRow" on the client.
                  */
                 JSONObject jo = new JSONObject();
                 jo.put("xpath", xpath);
@@ -1363,20 +1361,6 @@ public class DataSection implements JSONString {
                 jo.put("inheritedValue", inheritedValue);
                 jo.put("inheritedXpid", pathWhereFound != null ? XPathTable.getStringIDString(pathWhereFound) : null);
                 jo.put("inheritedLocale", inheritedLocale);
-
-                /*
-                 * TODO: inheritedItem.getPClass() which we send to the client here as theRow.inheritedPClass
-                 * should be a field of DataRow, not CandidateItem... Also, inheritedPClass is currently only used once
-                 * on the client, in a strange way, maybe should be on server not client, if anywhere:
-                 * if (item.value == INHERITANCE_MARKER) {
-                 *   item.pClass = theRow.inheritedPClass == "winner" ? "fallback" : theRow.inheritedPClass;
-                 *   displayValue = theRow.inheritedItem;
-                 * }
-                 * With current getPClass, item.pClass will never be "winner" (could confirm that with a
-                 * consistency check just prior to sending json). There should be no reason for the client
-                 * to change item.pClass, so we should get rid of inheritedPClass.
-                 */
-                jo.put("inheritedPClass", inheritedItem != null ? inheritedItem.getPClass() : "fallback");
                 jo.put("canFlagOnLosing", resolver.getRequiredVotes() == VoteResolver.HIGH_BAR);
                 if (ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS) {
                     jo.put("dir", "ltr");

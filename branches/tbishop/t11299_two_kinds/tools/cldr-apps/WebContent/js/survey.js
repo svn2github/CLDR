@@ -2796,7 +2796,6 @@ function addVitem(td, tr, theRow, item, newButton) {
 	}
 	var displayValue = item.value;
 	if (item.value == INHERITANCE_MARKER) {
-		item.pClass = theRow.inheritedPClass == "winner" ? "fallback" : theRow.inheritedPClass;
 		displayValue = theRow.inheritedValue;
 	}
 	var choiceField = document.createElement("div");
