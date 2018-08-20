@@ -211,8 +211,6 @@ public class DataSection implements JSONString {
             /**
              * Get the hash of the raw value of this candidate item.
              *
-             * This item's raw value is assumed to have been set already.
-             *
              * @return the hash of the raw value
              */
             private String getValueHash() {
@@ -264,25 +262,6 @@ public class DataSection implements JSONString {
                     checkedVotes = true;
                 }
                 return votes;
-            }
-
-            /**
-             * Is this a winning (non fallback) CandidateItem?
-             * 
-             * TODO: why any restriction to "(non fallback)"? The code in this function doesn't seem to impose
-             * such a restriction anyway, in spite of the comment.
-             * 
-             * TODO: trigger a warning if winningValue == null?
-             * 
-             * Called by getPClass, CandidateItem.toString, and addItem.
-             * TODO: move this function below its callers, or just inline the code. Note that winningValue is a field of DataRow.
-             */
-            private boolean isWinner() {
-                if (winningValue != null) {
-                    return winningValue.equals(rawValue);
-                } else {
-                    return false;
-                }
             }
 
             /**
@@ -466,7 +445,8 @@ public class DataSection implements JSONString {
              */
             @Override
             public String toString() {
-                return "{Item v='" + rawValue + "'" + (isWinner() ? ",winner" : "") + "}";
+                String winner = (winningValue != null && winningValue.equals(rawValue)) ? ",winner" : "";
+                return "{Item v='" + rawValue + "'" + winner + "}";
             }
 
             /**
@@ -519,17 +499,6 @@ public class DataSection implements JSONString {
          * If not null it may cause getPClass to return "alias".
          */
         private String pathWhereFound = null;
-
-        /*
-         * TODO: altType is referenced by row.jsp but appears to be null always, could be removed?
-         *
-         * The code in row.jsp is:
-         *
-         *  <% if (p.altType !=null) { %>
-         *  <br> (<%= p.altType %> alternative)
-         *  <% } %>
-         */
-        public String altType = null; // alt type (NOT to be confused with -proposedn)
 
         /*
          * TODO: document confirmStatus and other members of DataRow
@@ -674,11 +643,12 @@ public class DataSection implements JSONString {
              * TODO: temporary debugging code:
              * URL: http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/
              * xpath = "//ldml/dates/timeZoneNames/metazone[@type=\"Qyzylorda\"]/short/daylight"
-             * We get winningValue = null
+             * We get winningValue = null, confirmStatus = "missing", displayName = null
+             * Later we get isExtraPath = true ...
              */
-            if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Qyzylorda\"]/short/daylight")) {
-                System.out.println("In DataRow constructor, xpath = " + xpath);
-            }
+            // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Qyzylorda\"]/short/daylight")) {
+            //    System.out.println("In DataRow constructor, xpath = " + xpath);
+            // }
 
             winningValue = resolver.getWinningValue();
 
@@ -686,9 +656,9 @@ public class DataSection implements JSONString {
             /*
              * TODO: Temporary debugging code:
              */
-            if (winningValue == null) {
-                System.out.println("Warning: winningValue is null, status is " + confirmStatus + " in DataRow constructor, xpath = " + xpath);
-            }
+            // if (winningValue == null) {
+            //    System.out.println("Warning: winningValue is null, status is " + confirmStatus + " in DataRow constructor, xpath = " + xpath);
+            // }
             this.displayName = baselineFile.getStringValue(xpath);
         }
 
@@ -713,7 +683,7 @@ public class DataSection implements JSONString {
             }
             pi = new CandidateItem(value);
             items.put(kValue, pi);
-            if (pi.isWinner()) {
+            if (winningValue != null && winningValue.equals(value)) {
                 winningItem = pi;
             }
             if (oldValue != null && oldValue.equals(value)) {
@@ -1072,7 +1042,7 @@ public class DataSection implements JSONString {
          * @param checkCldr
          *            The tests to use
          *
-         * Called only by populateFrom, which is a method of DataSection.
+         * Called only by populateFromThisXpath, which is a method of DataSection.
          * 
          * Reference: Distinguish two kinds of votes for inherited value in Survey Tool
          *     https://unicode.org/cldr/trac/ticket/11299
@@ -1082,7 +1052,7 @@ public class DataSection implements JSONString {
          * was the result. This function has been changed to set the value to INHERITANCE_MARKER, and to store
          * the actual Bailey value in the inheritedValue field of DataRow.
          *
-         * TODO: Get rid of, or merge with, the code that currently does "p.addItem(CldrUtility.INHERITANCE_MARKER)" in populateFrom.
+         * TODO: Get rid of, or merge with, the code that currently does "row.addItem(CldrUtility.INHERITANCE_MARKER)" in populateFromThisXpath.
          */
         private void updateInheritedValue(CLDRFile vettedParent, TestResultBundle checkCldr) {
             long lastTime = System.currentTimeMillis();
@@ -2458,9 +2428,6 @@ public class DataSection implements JSONString {
      * @param workingCoverageLevel
      *
      * Called only by DataSection.make, as section.populateFrom(ourSrc, checkCldr, workingCoverageLevel);
-     * 
-     * TODO: shorten this function, over 300 lines -- or make it into a new object, that could have xpp, stf,
-     * etc., as fields, instead of local variables...
      */
     private void populateFrom(CLDRFile ourSrc, TestResultBundle checkCldr, String workingCoverageLevel) {
         XPathParts xpp = new XPathParts(null, null);
@@ -2468,14 +2435,7 @@ public class DataSection implements JSONString {
         CLDRFile oldFile = stf.getOldFile(locale);
         diskFile = stf.getDiskFile(locale);
         List<CheckStatus> examplesResult = new ArrayList<CheckStatus>();
-        long lastTime = -1;
         String workPrefix = xpathPrefix;
-        long nextTime = -1;
-        int count = 0;
-        long countStart = 0;
-        if (SHOW_TIME) {
-            lastTime = countStart = System.currentTimeMillis();
-        }
 
         int workingCoverageValue = Level.fromString(workingCoverageLevel).getLevel();
 
@@ -2493,7 +2453,7 @@ public class DataSection implements JSONString {
             allXpaths = new HashSet<String>();
             extraXpaths = new HashSet<String>();
 
-            /* ** Determine which xpaths to show */
+            /* Determine which xpaths to show */
             if (xpathPrefix.startsWith("//ldml/units")) {
                 canName = false;
             } else if (xpathPrefix.startsWith("//ldml/numbers")) {
@@ -2503,8 +2463,9 @@ public class DataSection implements JSONString {
                 if (continentStart > 0) {
                     continent = xpathPrefix.substring(xpathPrefix.indexOf(DataSection.CONTINENT_DIVIDER) + 1);
                 }
-                if (DEBUG)
+                if (DEBUG) {
                     System.err.println(xpathPrefix + ": -> continent " + continent);
+                }
                 if (!xpathPrefix.contains("@type")) {
                     // if it's not a zoom-in..
                     workPrefix = "//ldml/dates/timeZoneNames/metazone";
@@ -2516,7 +2477,7 @@ public class DataSection implements JSONString {
             isCalendar = xpathPrefix.startsWith("//ldml/dates/calendars");
             isMetazones = xpathPrefix.startsWith("//ldml/dates/timeZoneNames/metazone");
 
-            /* ** Build the set of xpaths */
+            /* Build the set of xpaths */
             // iterate over everything in this prefix ..
             Set<String> baseXpaths = stf.getPathsForFile(locale, xpathPrefix);
 
@@ -2529,12 +2490,34 @@ public class DataSection implements JSONString {
             allXpaths.addAll(extraXpaths);
 
             // Process extra paths.
-            if (DEBUG)
+            if (DEBUG) {
                 System.err.println("@@X@ base[" + workPrefix + "]: " + baseXpaths.size() + ", extra: " + extraXpaths.size());
-
+            }
         }
+        populateFromAllXpaths(allXpaths, workPrefix, ourSrc, oldFile, extraXpaths, stf, workingCoverageValue, xpp, checkCldr, examplesResult, checkCldrResult);
+    }
+    
+    /**
+     * Populate this DataSection with a row for each of the given xpaths
+     *
+     * @param allXpaths
+     * @param workPrefix
+     * @param ourSrc
+     * @param oldFile
+     * @param extraXpaths
+     * @param stf
+     * @param workingCoverageValue
+     * @param xpp
+     * @param checkCldr
+     * @param examplesResult
+     * @param checkCldrResult
+     * 
+     * TODO: resurrect SHOW_TIME and TRACE_TIME code, deleted in revision 14327, if and when needed for debugging.
+     * It was deleted when this code was moved from populateFrom to new subroutine populateFromAllXpaths.
+     */
+    private void populateFromAllXpaths(Set<String> allXpaths, String workPrefix, CLDRFile ourSrc, CLDRFile oldFile, Set<String> extraXpaths, STFactory stf,
+        int workingCoverageValue, XPathParts xpp, TestResultBundle checkCldr, List<CheckStatus> examplesResult, List<CheckStatus> checkCldrResult) {
 
-        /* ** iterate over all xpaths */
         for (String xpath : allXpaths) {
             if (xpath == null) {
                 throw new InternalError("null xpath in allXpaths");
@@ -2545,12 +2528,14 @@ public class DataSection implements JSONString {
                     continue;
                 }
                 if (!xpath.startsWith(workPrefix)) {
-                    if (DEBUG && SurveyMain.isUnofficial())
+                    if (DEBUG && SurveyMain.isUnofficial()) {
                         System.err.println("@@ BAD XPATH " + xpath);
+                    }
                     continue;
                 } else if (ourSrc.isPathExcludedForSurvey(xpath)) {
-                    if (DEBUG && SurveyMain.isUnofficial())
+                    if (DEBUG && SurveyMain.isUnofficial()) {
                         System.err.println("@@ excluded:" + xpath);
+                    }
                     continue;
                 } else if (DEBUG) {
                     System.err.println("allPath: " + xpath);
@@ -2560,16 +2545,6 @@ public class DataSection implements JSONString {
              * 'extra' paths get shim treatment
              */
             boolean isExtraPath = extraXpaths != null && extraXpaths.contains(xpath);
-
-            if (SHOW_TIME) {
-                count++;
-                nextTime = System.currentTimeMillis();
-                if ((nextTime - lastTime) > 10000) {
-                    lastTime = nextTime;
-                    System.err.println("[] " + locale + ":" + xpathPrefix + " #" + count + ", or "
-                        + (((double) (System.currentTimeMillis() - countStart)) / count) + "ms per.");
-                }
-            }
 
             SurveyToolStatus ststats = SurveyToolStatus.READ_WRITE;
             PathHeader ph = stf.getPathHeader(xpath);
@@ -2594,170 +2569,188 @@ public class DataSection implements JSONString {
             if (fullPath == null) {
                 fullPath = xpath; // (this is normal for 'extra' paths)
             }
-
-            if (TRACE_TIME)
-                System.err.println("ns0  " + (System.currentTimeMillis() - nextTime));
-            
-            /*
-             * TODO: clarify the significance and usage of the local variable ourValue.
-             * Formerly it was named "value"; the new name "ourValue" reflects that it is
-             * gotten as ourSrc.getStringValue(xpath).
-             *
-             * If not null, it's ourSrc.getStringValue(xpath); not possible (confirm?) for that
-             * to be CldrUtility.INHERITANCE_MARKER. getStringValue effectively resolves that to
-             * the Bailey value -- could that possibly be causing a "hard" vote to be treated as
-             * winning when in reality it may have been a "soft" vote that was winning?
-             *
-             * Does ourValue reflect the current votes? How does it relate to winningValue
-             * the oldValue, etc.? ourSrc contrasts with oldFile (both are type CLDRFile).
-             */
-            String ourValue = isExtraPath ? null : ourSrc.getStringValue(xpath);
-            if (ourValue == null) {
-                if (DEBUG) {
-                    System.err.println("warning: populatefrom " + this + ": " + locale + ":" + xpath + " = NULL! wasExtraPath="
-                        + isExtraPath);
-                }
-                isExtraPath = true;
-            }
-
-            // determine 'alt' param
-            String alt = sm.xpt.altFromPathToTinyXpath(xpath, xpp);
-
-            /* FULL path processing (references.. alt proposed.. ) */
-            xpp.clear();
-            xpp.initialize(fullPath);
-            String lelement = xpp.getElement(-1);
-            xpp.findAttributeValue(lelement, LDMLConstants.ALT);
-            String eDraft = xpp.findAttributeValue(lelement, LDMLConstants.DRAFT);
-            if (TRACE_TIME) {
-                System.err.println("n04  " + (System.currentTimeMillis() - nextTime));
-            }
-            String typeAndProposed[] = LDMLUtilities.parseAlt(alt);
-            String altProp = typeAndProposed[1];
-
             // Now we are ready to add the data
+            populateFromThisXpath(xpath, isExtraPath, ourSrc, oldFile, xpp, fullPath, checkCldr, coverageValue, base_xpath, examplesResult, checkCldrResult);
+        }
+    }
 
-            // Load the 'data row' which represents one user visible row.
-            // (may be nested in the case of alt types) (nested??)
-            DataRow row = getDataRow(xpath);
+    /**
+     * Add data to this DataSection including a new DataRow for the given xpath
+     *
+     * @param xpath
+     * @param isExtraPath
+     * @param ourSrc
+     * @param oldFile
+     * @param xpp
+     * @param fullPath
+     * @param checkCldr
+     * @param coverageValue
+     * @param base_xpath
+     * @param examplesResult
+     * @param checkCldrResult
+     */
+    private void populateFromThisXpath(String xpath, boolean isExtraPath, CLDRFile ourSrc, CLDRFile oldFile, XPathParts xpp, String fullPath,
+        TestResultBundle checkCldr, int coverageValue, int base_xpath, List<CheckStatus> examplesResult, List<CheckStatus> checkCldrResult) {
 
-            if (oldFile != null) {
-                row.oldValue = oldFile.getStringValueWithBailey(xpath);
-            } else {
-                row.oldValue = null;
+        /*
+         * TODO: clarify the significance and usage of the local variable ourValue.
+         * Formerly it was named "value"; the new name "ourValue" reflects that it is
+         * gotten as ourSrc.getStringValue(xpath).
+         *
+         * If not null, it's ourSrc.getStringValue(xpath); not possible (confirm?) for that
+         * to be CldrUtility.INHERITANCE_MARKER. getStringValue effectively resolves that to
+         * the Bailey value -- could that possibly be causing a "hard" vote to be treated as
+         * winning when in reality it may have been a "soft" vote that was winning?
+         *
+         * Does ourValue reflect the current votes? How does it relate to winningValue
+         * the oldValue, etc.? ourSrc contrasts with oldFile (both are type CLDRFile).
+         */
+        String ourValue = isExtraPath ? null : ourSrc.getStringValue(xpath);
+        if (ourValue == null) {
+            if (DEBUG) {
+                System.err.println("warning: populatefrom " + this + ": " + locale + ":" + xpath + " = NULL! wasExtraPath="
+                    + isExtraPath);
             }
-            Set<String> v = ballotBox.getValues(xpath);
-            if (v != null) {
-                for (String avalue : v) {
-                    if (DEBUG) {
-                        System.err.println(" //val='" + avalue + "' vs " + ourValue + " in " + xpath);
+            isExtraPath = true;
+        }
+
+        // determine 'alt' param
+        String alt = sm.xpt.altFromPathToTinyXpath(xpath, xpp);
+
+        /* FULL path processing (references.. alt proposed.. ) */
+        xpp.clear();
+        xpp.initialize(fullPath);
+        String lelement = xpp.getElement(-1);
+        xpp.findAttributeValue(lelement, LDMLConstants.ALT);
+        String eDraft = xpp.findAttributeValue(lelement, LDMLConstants.DRAFT);
+
+        String typeAndProposed[] = LDMLUtilities.parseAlt(alt);
+        String altProp = typeAndProposed[1];
+
+        // Load the 'data row' which represents one user visible row.
+        // (may be nested in the case of alt types) (nested??)
+        DataRow row = getDataRow(xpath);
+
+        if (oldFile != null) {
+            row.oldValue = oldFile.getStringValueWithBailey(xpath);
+        } else {
+            row.oldValue = null;
+        }
+
+        Set<String> v = ballotBox.getValues(xpath);
+        if (v != null) {
+            populateFromThisXpathAddItemsForVotes(v, xpath, ourValue, row, checkCldr);
+        }
+
+        if (row.oldValue != null && !row.oldValue.equals(ourValue) && (v == null || !v.contains(row.oldValue))) {
+            // if "oldValue" isn't already represented as an item, add it.
+            CandidateItem oldItem = row.addItem(row.oldValue);
+            oldItem.isOldValue = true;
+        }
+
+        row.coverageValue = coverageValue;
+
+        if ((locale.getCountry() != null && locale.getCountry().length() > 0) && (v == null || !v.contains(CldrUtility.INHERITANCE_MARKER))) {
+            /*
+             * If "vote for inherited" isn't already represented as an item, add it (child locales only).
+             * 
+             * TODO: Note that updateInheritedValue is called a few lines below, unless isExtraPath; normally
+             * it's the job of updateInheritedValue to do addItem(CldrUtility.INHERITANCE_MARKER); is there
+             * any need to call it here as well?
+             */
+            row.addItem(CldrUtility.INHERITANCE_MARKER);
+        }
+
+        if (isExtraPath) {
+            /*
+             * This is an 'extra' item- it doesn't exist in xml (including root).
+             * For example, isExtraPath may be true when xpath is:
+             *  '//ldml/dates/timeZoneNames/metazone[@type="Mexico_Northwest"]/short/standard'
+             * and the URL ends with "v#/aa/NAmerica/".
+             * Set up 'shim' tests, to display coverage.
+             */
+            row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr, null);
+        } else if (row.inheritedItem == null) {
+            /*
+             *  This item fell back from root. Make sure it has an Item, and that tests are run.
+             */
+            row.updateInheritedValue(ourSrc, checkCldr);
+        }
+
+        if ((row.getDisplayName() == null)) {
+            canName = false; // disable 'view by name' if not all have names.
+        }
+
+        // If it is draft and not proposed.. make it proposed-draft
+        if (((eDraft != null) && (!eDraft.equals("false"))) && (altProp == null)) {
+            altProp = SurveyMain.PROPOSED_DRAFT;
+        }
+
+        CLDRFile.Status sourceLocaleStatus = new CLDRFile.Status();
+        String sourceLocale = ourSrc.getSourceLocaleID(xpath, sourceLocaleStatus);
+
+        /*
+         * If it is inherited, do NOT add any CandidateItems.
+         */
+        boolean isInherited = !(sourceLocale.equals(locale.toString()));
+        if (isInherited && !isExtraPath) {
+             return;
+        }
+        if (altProp != null && !isInherited && altProp != SurveyMain.PROPOSED_DRAFT) { // 'draft=true'
+            row.hasMultipleProposals = true;
+        }
+        CLDRLocale setInheritFrom = (isInherited) ? CLDRLocale.getInstance(sourceLocale) : null;
+        if (checkCldr != null) {
+            checkCldr.check(xpath, checkCldrResult, isExtraPath ? null : ourValue);
+            checkCldr.getExamples(xpath, isExtraPath ? null : ourValue, examplesResult);
+        }
+        if (ourValue != null && ourValue.length() > 0) {
+            addOurValue(ourValue, row, checkCldrResult, sourceLocaleStatus, xpath, setInheritFrom, examplesResult);
+        }
+    }
+
+    /**
+     * For each string in the given set, based on values that have votes,
+     * add an item to the given row with that string as its value,
+     * unless the string matches ourValue.
+     * 
+     * Also run some tests if appropriate.
+     * 
+     * @param v the set of values that have votes
+     * @param xpath
+     * @param ourValue
+     * @param row the DataRow
+     * @param checkCldr the TestResultBundle, or null
+     */
+    private void populateFromThisXpathAddItemsForVotes(Set<String> v, String xpath, String ourValue, DataRow row, TestResultBundle checkCldr) {
+        for (String avalue : v) {
+            if (DEBUG) {
+                System.err.println(" //val='" + avalue + "' vs " + ourValue + " in " + xpath);
+            }
+            if (!avalue.equals(ourValue)) {
+                CandidateItem item2 = row.addItem(avalue);
+                if (avalue != null && checkCldr != null) {
+                    List<CheckStatus> item2Result = new ArrayList<CheckStatus>();
+                    checkCldr.check(xpath, item2Result, avalue);
+                    if (!item2Result.isEmpty()) {
+                        item2.setTests(item2Result);
                     }
-                    if (!avalue.equals(ourValue)) {
-                        CandidateItem item2 = row.addItem(avalue);
-                        if (avalue != null && (checkCldr != null)) {
-                            List<CheckStatus> item2Result = new ArrayList<CheckStatus>();
-                            checkCldr.check(xpath, item2Result, avalue);
-                            if (!item2Result.isEmpty()) {
-                                item2.setTests(item2Result);
-                            }
-                        }
-                    }
                 }
-            }
-            if (row.oldValue != null && !row.oldValue.equals(ourValue) && (v == null || !v.contains(row.oldValue))) {
-                // if "oldValue" isn't already represented as an item, add it.
-                CandidateItem oldItem = row.addItem(row.oldValue);
-                oldItem.isOldValue = true;
-            }
-            if ((locale.getCountry() != null && locale.getCountry().length() > 0) && (v == null || !v.contains(CldrUtility.INHERITANCE_MARKER))) {
-                // if "vote for inherited" isn't already represented as an item, add it (child locales only)
-                row.addItem(CldrUtility.INHERITANCE_MARKER);
-            }
-
-            row.coverageValue = coverageValue;
-
-            if (isExtraPath) {
-                // This is an 'extra' item- it doesn't exist in xml (including root).
-                // For example, isExtraPath may be true when xpath is:
-                // '//ldml/dates/timeZoneNames/metazone[@type="Mexico_Northwest"]/short/standard'
-                // and the URL ends with "v#/aa/NAmerica/".
-                // Set up 'shim' tests, to display coverage.
-                row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr, null);
-            } else if (row.inheritedItem == null) {
-                // This item fell back from root. Make sure it has an Item, and that tests are run.
-                row.updateInheritedValue(ourSrc, checkCldr);
-            }
-
-            if (TRACE_TIME)
-                System.err.println("n05  " + (System.currentTimeMillis() - nextTime));
-
-            if ((row.getDisplayName() == null)) {
-                canName = false; // disable 'view by name' if not all have names.
-            }
-            if (TRACE_TIME)
-                System.err.println("n06  " + (System.currentTimeMillis() - nextTime));
-
-            // If it is draft and not proposed.. make it proposed-draft
-            if (((eDraft != null) && (!eDraft.equals("false"))) && (altProp == null)) {
-                altProp = SurveyMain.PROPOSED_DRAFT;
-            }
-
-            if (TRACE_TIME)
-                System.err.println("n06a  " + (System.currentTimeMillis() - nextTime));
-
-            CLDRFile.Status sourceLocaleStatus = new CLDRFile.Status();
-
-            if (TRACE_TIME)
-                System.err.println("n06b  " + (System.currentTimeMillis() - nextTime));
-
-            String sourceLocale = ourSrc.getSourceLocaleID(xpath, sourceLocaleStatus);
-
-            if (TRACE_TIME)
-                System.err.println("n06c  " + (System.currentTimeMillis() - nextTime));
-
-            boolean isInherited = !(sourceLocale.equals(locale.toString()));
-
-            if (TRACE_TIME) {
-                System.err.println("n06d  " + (System.currentTimeMillis() - nextTime));
-            }
-
-            // ** IF it is inherited, do NOT add any Items.
-            if (isInherited && !isExtraPath) {
-                if (TRACE_TIME)
-                    System.err.println("n06da  [src:" + sourceLocale + " vs " + locale + ", sttus:" + sourceLocaleStatus + "] "
-                        + (System.currentTimeMillis() - nextTime));
-                 continue;
-            }
-            if (TRACE_TIME) {
-                System.err.println("n06e  " + (System.currentTimeMillis() - nextTime));
-            }
-
-            if (altProp != null && !isInherited && altProp != SurveyMain.PROPOSED_DRAFT) { // 'draft=true'
-                row.hasMultipleProposals = true;
-            }
-
-            CLDRLocale setInheritFrom = (isInherited) ? CLDRLocale.getInstance(sourceLocale) : null;
-
-            // ***** Set up Candidate Items *****
-            // These are the items users may choose between
-            //
-            if (checkCldr != null) {
-                if (TRACE_TIME) {
-                    System.err.println("n07.1  (check) " + (System.currentTimeMillis() - nextTime));
-                }
-                checkCldr.check(xpath, checkCldrResult, isExtraPath ? null : ourValue);
-                if (TRACE_TIME) {
-                    System.err.println("n07.2  (check) " + (System.currentTimeMillis() - nextTime));
-                }
-                checkCldr.getExamples(xpath, isExtraPath ? null : ourValue, examplesResult);
-            }
-
-            if (ourValue != null && ourValue.length() > 0) {
-                addOurValue(ourValue, row, checkCldrResult, sourceLocaleStatus, xpath, setInheritFrom, examplesResult);
             }
         }
     }
 
+    /**
+     * Add an item for "ourValue" to the given DataRow, and set various fields of the DataRow
+     *
+     * @param ourValue
+     * @param row
+     * @param checkCldrResult
+     * @param sourceLocaleStatus
+     * @param xpath
+     * @param setInheritFrom
+     * @param examplesResult
+     */
     private void addOurValue(String ourValue, DataRow row, List<CheckStatus> checkCldrResult,
             org.unicode.cldr.util.CLDRFile.Status sourceLocaleStatus, String xpath, CLDRLocale setInheritFrom,
             List<CheckStatus> examplesResult) {

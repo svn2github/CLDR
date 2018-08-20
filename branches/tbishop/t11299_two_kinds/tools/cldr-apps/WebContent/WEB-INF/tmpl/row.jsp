@@ -45,9 +45,6 @@
 <% } %>
 <th rowspan='<%= rowSpan %>' class='botgray' valign='top' align='left'>
 	<%= p.itemTypeName(ctx,canModify,zoomedIn,specialUrl) %>
-	<% if (p.altType !=null) { %>
-		<br> (<%= p.altType %> alternative)
-	<% } %>
 	<%-- <%= ctx.base() --%>
 </th>
 <th rowspan='<%= rowSpan %>' style='padding-left: 4px;' colspan='1' valign='top' align='left' class='botgray'>
