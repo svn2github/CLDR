@@ -540,7 +540,7 @@ public class DataSection implements JSONString {
          * The winning item for this DataRow.
          */
         private CandidateItem winningItem = null;
-        
+
         /**
          * The candidate items for this DataRow, stored in a Map whose keys are CandidateItem.rawValue
          * and whose values are CandidateItem objects.
@@ -709,7 +709,7 @@ public class DataSection implements JSONString {
          *
          * @return winningItem
          * 
-         * Called from row.jsp and RefreshRow.jsp
+         * "The type DataSection.DataRow must implement the inherited abstract method CLDRInfo.PathValueInfo.getCurrentItem()
          */
         public CandidateItem getCurrentItem() {
             return winningItem;
@@ -817,17 +817,6 @@ public class DataSection implements JSONString {
             return null; /* not found. */
         }
 
-        /**
-         * @see #getCurrentItem()
-         * @return
-         */
-        CandidateItem getWinningItem() {
-            if (winningValue == null) {
-                return null;
-            }
-            return items.get(winningValue);
-        }
-
         public String getWinningValue() {
             return winningValue;
         }
@@ -905,6 +894,16 @@ public class DataSection implements JSONString {
             }
         }
 
+        /**
+         * Does the DataSection, to which this DataRow belongs, have examples?
+         *
+         * @return true or false
+         * 
+         * TODO: Why is this a method of DataRow, when the field of the same name that it returns
+         * is a field of DataSection??
+         * 
+         * Called only by row.jsp
+         */
         public boolean hasExamples() {
             return hasExamples;
         }
@@ -1222,52 +1221,52 @@ public class DataSection implements JSONString {
         public String toJSONString() throws JSONException {
 
             try {
-                /*
-                 * TODO: fix bug here, where getWinningItem() may return null even though
-                 * already winningValue != null.
-                 * 
-                 * Tentatively doing the following: if winningValue isn't null, simply set
-                 * winningVhash = DataSection.getValueHash(winningValue);
-                 */
                 String winningVhash = "";
-                if (winningValue != null) {
-                    winningVhash = DataSection.getValueHash(winningValue);
-                }
-                else {
-                    CandidateItem winningItem = getWinningItem();
-                    if (winningItem != null) {
-                        winningVhash = winningItem.getValueHash();
-                    }
-                    else {
-                        System.out.println("Warning: winningItem, winningVhash null in DataRow.toJSONString");
-                        /*
-                         * If inheritedValue isn't null, use it for winning value -- that was formerly done
-                         * on the client, but should be done on the server.
-                         */
-                        if (inheritedValue != null) {
-                            winningValue = CldrUtility.INHERITANCE_MARKER; // NOT inheritedValue
-                            winningVhash = DataSection.getValueHash(winningValue);
-                        }
-                     }
+                if (winningValue == null) {
+                   /*
+                    * If inheritedValue isn't null, make winningValue a vote for inheritance
+                    * (winningValue itself gets INHERITANCE_MARKER) -- this was formerly done
+                    * on the client, but should be done on the server.
+                    */
+                   if (inheritedValue != null) {
+                       winningValue = CldrUtility.INHERITANCE_MARKER; // NOT inheritedValue
+                       winningVhash = DataSection.getValueHash(winningValue);
+                       // TODO: maybe winningItem = inheritedItem -- but what if inheritedItem is null?
+                   }
                 }
                 /*
                  * Now there's a bug seen on the client: there is no item for winningValue, winningVhash!
-                 * 
-                 * But wait, if there's only one item, with INHERITANCE_MARKER, then that's also the winning item,
-                 * and so indeed we should NOT have any item with rawValue == winningValue.
-                 * 
-                 * TODO: Temporary hack...:
+                 *
+                 * See updateRowProposedWinningCell in survey.js:
+                 * addVitem(children[config.proposedcell], tr, theRow, theRow.items[theRow.winningVhash], cloneAnon(protoButton));
+                 *
+                 * We get an eror "item is undefined" in addVitem if theRow.items[theRow.winningVhash] isn't defined.
+                 *
+                 * Get that, for example, at http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/
+                 *
+                 * If there's only one item, with INHERITANCE_MARKER, then that's also the winning item,
+                 * in which case, what is (or should be) winningValue? Should it be INHERITANCE_MARKER, or
+                 * should it be inheritedValue?
+                 *
+                 * Should the client always get an item with rawValue == winningValue?
+                 *
+                 * TODO: Temporary debugging code follows;
+                 * winningValueOrEmpty is temporary hack, should guarantee
+                 * earlier that winningValue is not null.
+                 * Also, move all this winingValue-fixing code to a new method.
                  */
                 if (winningValue != null && getItem(winningValue) == null) {
                     System.out.println("Warning: creating new item for winningValue in DataRow.toJSONString");
                     winningItem = addItem(winningValue);
                 }
-                /*
-                 * TODO: winningValueOrEmpty is temporary hack, should guarantee
-                 * earlier that winningValue is not null.
-                 */
-                String winningValueOrEmpty = winningValue != null ? winningValue : "";
-                    
+                String winningValueOrEmpty = winningValue;
+                if (winningValueOrEmpty == null) {
+                    System.out.println("Warning: using empty string in place of null winningValue in DataRow.toJSONString");
+                    winningValueOrEmpty = "";
+                    winningVhash = DataSection.getValueHash(winningValue);
+                }
+                winningVhash = DataSection.getValueHash(winningValueOrEmpty);
+
                 String voteVhash = "";
                 String ourVote = null;
                 if (userForVotelist != null) {
@@ -1303,24 +1302,26 @@ public class DataSection implements JSONString {
 
                 VoteResolver<String> resolver = ballotBox.getResolver(xpath);
                 JSONObject voteResolver = SurveyAjax.JSONWriter.wrap(resolver);
-                
+
                 /*
                  * TODO: resolve pointless difference in names, xpathId on server, xpid on client
+                 * The name "xpathId" is currently unused in survey.js, would be easiest to replace
+                 * all "xpid" in survey.js with "xpathId". 
                  */
                 int xpid = xpathId;
-                
+
                 boolean rowFlagged = sm.getSTFactory().getFlag(locale, xpathId);
 
                 String xpstrid = XPathTable.getStringIDString(xpath);
 
                 StatusAction statusAction = getStatusAction();
-                
+
                 Map<String, String> extraAttributes = getNonDistinguishingAttributes();
 
                 boolean hasVoted = (userForVotelist != null) ? userHasVoted(userForVotelist.id) : false;
 
                 String inheritedXpid = (pathWhereFound != null) ? XPathTable.getStringIDString(pathWhereFound) : null;
-                    
+
                 boolean canFlagOnLosing = (resolver.getRequiredVotes() == VoteResolver.HIGH_BAR);
 
                 String dir = (ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS) ? "ltr" : null;
@@ -2113,6 +2114,11 @@ public class DataSection implements JSONString {
     // hash of examples
     Hashtable<String, ExampleEntry> exampleHash = new Hashtable<String, ExampleEntry>();
 
+    /**
+     * Does this DataSection have examples?
+     * 
+     * TODO: resolve confusion: this is a field of DataSection, but it's returned by a function with the same name in DataRow
+     */
     public boolean hasExamples = false;
 
     /*
@@ -3065,7 +3071,8 @@ public class DataSection implements JSONString {
 
 
     /**
-     * 
+     * Print something...
+     *
      * @param ctx
      * @param section
      * @param zoomedIn
