@@ -80,7 +80,7 @@ public class DataSection implements JSONString {
     
     /*
      * TODO: order classes consistently; inner classes should all be at top or all be at bottom.
-     * Default for Eclipse "Sort Members" is to Types, including inner classes, before all
+     * Default for Eclipse "Sort Members" is to put Types, including inner classes, before all
      * other members; however, it also alphabetizes methods, which may not be helpful.
      */
     
@@ -1221,51 +1221,7 @@ public class DataSection implements JSONString {
         public String toJSONString() throws JSONException {
 
             try {
-                String winningVhash = "";
-                if (winningValue == null) {
-                   /*
-                    * If inheritedValue isn't null, make winningValue a vote for inheritance
-                    * (winningValue itself gets INHERITANCE_MARKER) -- this was formerly done
-                    * on the client, but should be done on the server.
-                    */
-                   if (inheritedValue != null) {
-                       winningValue = CldrUtility.INHERITANCE_MARKER; // NOT inheritedValue
-                       winningVhash = DataSection.getValueHash(winningValue);
-                       // TODO: maybe winningItem = inheritedItem -- but what if inheritedItem is null?
-                   }
-                }
-                /*
-                 * Now there's a bug seen on the client: there is no item for winningValue, winningVhash!
-                 *
-                 * See updateRowProposedWinningCell in survey.js:
-                 * addVitem(children[config.proposedcell], tr, theRow, theRow.items[theRow.winningVhash], cloneAnon(protoButton));
-                 *
-                 * We get an eror "item is undefined" in addVitem if theRow.items[theRow.winningVhash] isn't defined.
-                 *
-                 * Get that, for example, at http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/
-                 *
-                 * If there's only one item, with INHERITANCE_MARKER, then that's also the winning item,
-                 * in which case, what is (or should be) winningValue? Should it be INHERITANCE_MARKER, or
-                 * should it be inheritedValue?
-                 *
-                 * Should the client always get an item with rawValue == winningValue?
-                 *
-                 * TODO: Temporary debugging code follows;
-                 * winningValueOrEmpty is temporary hack, should guarantee
-                 * earlier that winningValue is not null.
-                 * Also, move all this winingValue-fixing code to a new method.
-                 */
-                if (winningValue != null && getItem(winningValue) == null) {
-                    System.out.println("Warning: creating new item for winningValue in DataRow.toJSONString");
-                    winningItem = addItem(winningValue);
-                }
-                String winningValueOrEmpty = winningValue;
-                if (winningValueOrEmpty == null) {
-                    System.out.println("Warning: using empty string in place of null winningValue in DataRow.toJSONString");
-                    winningValueOrEmpty = "";
-                    winningVhash = DataSection.getValueHash(winningValue);
-                }
-                winningVhash = DataSection.getValueHash(winningValueOrEmpty);
+                String winningVhash = decideWinningVhashForClient();
 
                 String voteVhash = "";
                 String ourVote = null;
@@ -1320,40 +1276,104 @@ public class DataSection implements JSONString {
                 String dir = (ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS) ? "ltr" : null;
 
                 /*
+                 * TODO: it is probably a bug if isInherited is true but inheritedLocale and inheritedXpid are both undefined.
+                 */
+                /*
                  * When the second argument to JSONObject.put is null, then the key is removed if present.
                  * Here that means that the client will not receive anything for that key!
                  */
                 JSONObject jo = new JSONObject();
-                // TODO: alphabetize
-                jo.put("xpath", xpath);
-                jo.put("xpathId", xpathId);
-                jo.put("rowFlagged", rowFlagged);
-                jo.put("xpstrid", xpstrid);
-                jo.put("winningValue", winningValueOrEmpty);
-                jo.put("displayName", displayName);
-                jo.put("displayExample", displayExample);
-                jo.put("statusAction", statusAction);
+                jo.put("canFlagOnLosing", canFlagOnLosing);
                 jo.put("code", code);
-                jo.put("extraAttributes", extraAttributes);
-                jo.put("coverageValue", coverageValue);
-                jo.put("hasErrors", hasErrors);
                 jo.put("confirmStatus", confirmStatus);
+                jo.put("coverageValue", coverageValue);
+                jo.put("dir", dir);
+                jo.put("displayExample", displayExample);
+                jo.put("displayName", displayName);
+                jo.put("extraAttributes", extraAttributes);
+                jo.put("hasErrors", hasErrors); // TODO: unused on client survey.js!
                 jo.put("hasVoted", hasVoted);
-                jo.put("winningVhash", winningVhash);
-                jo.put("ourVote", ourVote);
-                jo.put("voteVhash", voteVhash);
-                jo.put("voteResolver", voteResolver);
-                jo.put("items", itemsJson);
+                jo.put("inheritedLocale", inheritedLocale);
                 jo.put("inheritedValue", inheritedValue);
                 jo.put("inheritedXpid", inheritedXpid);
-                jo.put("inheritedLocale", inheritedLocale);
-                jo.put("canFlagOnLosing", canFlagOnLosing);
-                jo.put("dir", dir);
+                jo.put("items", itemsJson);
+                jo.put("ourVote", ourVote); // TODO: unused on client survey.js!
+                jo.put("rowFlagged", rowFlagged);
+                jo.put("statusAction", statusAction);
+                jo.put("voteResolver", voteResolver);
+                jo.put("voteVhash", voteVhash);
+                jo.put("winningValue", winningValue); // TODO: unused on client survey.js?? Not same as vr.winningValue? vr = theRow.voteResolver
+                jo.put("winningVhash", winningVhash);
+                jo.put("xpath", xpath);
+                jo.put("xpathId", xpathId);
+                jo.put("xpstrid", xpstrid);
                 return jo.toString();
             } catch (Throwable t) {
                 SurveyLog.logException(t, "Exception in DataRow.toJSONString of " + this);
                 throw new JSONException(t);
             }
+        }
+
+        /**
+         * Ensure that winningVhash is properly defined for the client.
+         *
+         * Possibly set winningValue, winningItem; possibly add one item to items with addItem
+         *
+         * Note: client doesn't even use winningValue currently! It uses winningVhash.
+         * 
+         * TODO: clarify what needs to happen here as part of completeness+consistency checking.
+         * Reference: https://unicode.org/cldr/trac/ticket/11299
+         *
+         * A bug may occur on the client if there is no item for winningVhash.
+         *
+         * See updateRowProposedWinningCell in survey.js:
+         * addVitem(children[config.proposedcell], tr, theRow, theRow.items[theRow.winningVhash], cloneAnon(protoButton));
+         *
+         * We get an error "item is undefined" in addVitem if theRow.items[theRow.winningVhash] isn't defined.
+         *
+         * Get that, for example, at http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/
+         *
+         * If there's only one item, with INHERITANCE_MARKER, then that's also the winning item,
+         * in which case, what is (or should be) winningValue? Should it be INHERITANCE_MARKER, or
+         * should it be inheritedValue?
+         *
+         * Should the client always get an item with rawValue == winningValue?
+         * 
+         * @return winningVhash
+         */
+        private String decideWinningVhashForClient() {
+            /*
+             * TODO: what if winningValue != null and winningValue != INHERITANCE_MARKER,
+             * but the winner should really be INHERITANCE_MARKER, then should winningValue
+             * be changed to INHERITANCE_MARKER here?
+             */
+            if (winningValue == null) {
+                /*
+                 * If inheritedValue isn't null, make winningValue a vote for inheritance
+                 * (winningValue itself gets INHERITANCE_MARKER) -- this was formerly done
+                 * on the client, but should be done on the server.
+                 */
+                if (inheritedValue != null) {
+                    winningValue = CldrUtility.INHERITANCE_MARKER; // NOT inheritedValue
+                    // TODO: maybe winningItem = inheritedItem -- but what if inheritedItem is null?
+                }
+                else {
+                    // TODO: this happens! Very temporary debugging code!!
+                    System.out.println("Warning: errorNoWinningValue in decideWinningValueForClient");
+                    winningValue = "errorNoWinningValue";
+                }
+             }
+            if (getItem(winningValue) == null) {
+                // TODO: this happens! Very temporary debugging code!!
+                System.out.println("Warning: creating new item for winningValue in decideWinningValueForClient; inheritedValue = " + inheritedValue);
+                winningItem = addItem(winningValue);
+             }
+
+            /*
+             * No matter what winningValue is, for consistency we might always want
+             * the client to get winningVhash = DataSection.getValueHash(winningValue)
+             */
+            return DataSection.getValueHash(winningValue);
         }
 
         /*
