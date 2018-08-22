@@ -1291,18 +1291,15 @@ public class DataSection implements JSONString {
                 jo.put("displayExample", displayExample);
                 jo.put("displayName", displayName);
                 jo.put("extraAttributes", extraAttributes);
-                jo.put("hasErrors", hasErrors); // TODO: unused on client survey.js!
                 jo.put("hasVoted", hasVoted);
                 jo.put("inheritedLocale", inheritedLocale);
                 jo.put("inheritedValue", inheritedValue);
                 jo.put("inheritedXpid", inheritedXpid);
                 jo.put("items", itemsJson);
-                jo.put("ourVote", ourVote); // TODO: unused on client survey.js!
                 jo.put("rowFlagged", rowFlagged);
                 jo.put("statusAction", statusAction);
                 jo.put("voteResolver", voteResolver);
                 jo.put("voteVhash", voteVhash);
-                jo.put("winningValue", winningValue); // TODO: unused on client survey.js?? Not same as vr.winningValue? vr = theRow.voteResolver
                 jo.put("winningVhash", winningVhash);
                 jo.put("xpath", xpath);
                 jo.put("xpathId", xpathId);
@@ -1319,10 +1316,13 @@ public class DataSection implements JSONString {
          *
          * Possibly set winningValue, winningItem; possibly add one item to items with addItem
          *
-         * Note: client doesn't even use winningValue currently! It uses winningVhash.
-         * 
-         * TODO: clarify what needs to happen here as part of completeness+consistency checking.
+         * TODO: clarify what needs to happen here for completeness+consistency.
          * Reference: https://unicode.org/cldr/trac/ticket/11299
+         * 
+         * Note: client doesn't use DataRow.winningValue currently. It uses winningVhash. Also,
+         * client uses vr.winningValue, a.k.a. theRow.voteResolver.winningValue, which gets
+         * set by wrap() in SurveyAjax.java in "put("winningValue", r.getWinningValue())"...
+         * Need to check voteResolver.winningValue for consistency too!
          *
          * A bug may occur on the client if there is no item for winningVhash.
          *
@@ -1364,8 +1364,8 @@ public class DataSection implements JSONString {
                 }
              }
             if (getItem(winningValue) == null) {
-                // TODO: this happens! Very temporary debugging code!!
-                System.out.println("Warning: creating new item for winningValue in decideWinningValueForClient; inheritedValue = " + inheritedValue);
+                // TODO: this happens! Very temporary debugging code!! So far, winningValue = errorNoWinningValue, inheritedValue = null
+                System.out.println("Warning: creating new item for winningValue = " + winningValue + " in decideWinningValueForClient; inheritedValue = " + inheritedValue);
                 winningItem = addItem(winningValue);
              }
 
