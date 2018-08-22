@@ -2701,7 +2701,6 @@ function showProposedItem(inTd,tr,theRow,value,tests, json) {
 // returns a popinto function
 function showItemInfoFn(theRow, item, vHash, newButton, div) {
 	return function(td) {
-		//div.className = 'd-item-selected';
 		var isInherited = false;
 		var h3 = document.createElement("div");
 		var displayValue = item.value;
@@ -2713,20 +2712,16 @@ function showItemInfoFn(theRow, item, vHash, newButton, div) {
 		var span = appendItem(h3, displayValue, item.pClass); /* no need to pass in 'tr' - clicking this span would have no effect. */
 		setLang(span);
 		h3.className="span";
-		if(false) { // click to copy
-			h3.onclick = function() {
-				if(tr.inputBox) {
-					tr.inputBox.value  = item.value;
-				}
-				return false;
-			};
-			h3.title = stui.clickToCopy;
-		}
 		td.appendChild(h3);
 
 		if ( item.value) {
-               h3.appendChild(createChunk(stui.sub("pClass_"+item.pClass, item ),"p","pClassExplain"));
+			h3.appendChild(createChunk(stui.sub("pClass_"+item.pClass, item ),"p","pClassExplain"));
 		}
+
+		/*
+		 * TODO: this "if" is probably superfluous since if item.pClass has one of these values
+		 * then item.value == INHERITANCE_MARKER so we already set isInherited = true above.
+		 */
 		if (   item.pClass === 'alias'
 			|| item.pClass === 'fallback'
 		    || item.pClass === 'fallback_root' ) {
@@ -2735,7 +2730,7 @@ function showItemInfoFn(theRow, item, vHash, newButton, div) {
 
 		/*
 		 * TODO: it is probably a bug if isInherited is true but theRow.inheritedLocale and
-		 *  theRow.inheritedXpid are both undefined. This happens with "example C" in
+		 *  theRow.inheritedXpid are both undefined (null on server). This happens with "example C" in
 		 *  https://unicode.org/cldr/trac/ticket/11299#comment:15
 		 */
 		if ( isInherited && (theRow.inheritedLocale || theRow.inheritedXpid )) {

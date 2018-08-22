@@ -1224,9 +1224,8 @@ public class DataSection implements JSONString {
                 String winningVhash = decideWinningVhashForClient();
 
                 String voteVhash = "";
-                String ourVote = null;
                 if (userForVotelist != null) {
-                    ourVote = ballotBox.getVoteValue(userForVotelist, xpath);
+                    String ourVote = ballotBox.getVoteValue(userForVotelist, xpath);
                     if (ourVote != null) {
                         CandidateItem voteItem = items.get(ourVote);
                         if (voteItem != null) {
@@ -1276,13 +1275,26 @@ public class DataSection implements JSONString {
                 String dir = (ph.getSurveyToolStatus() == SurveyToolStatus.LTR_ALWAYS) ? "ltr" : null;
 
                 /*
-                 * TODO: it is probably a bug if isInherited is true but inheritedLocale and inheritedXpid are both undefined.
+                 * TODO: it is probably a bug if we have an item with INHERITANCE_MARKER
+                 * but inheritedLocale and inheritedXpid are both null. This happens with
+                 * "example C" in https://unicode.org/cldr/trac/ticket/11299#comment:15 .
+                 * See showItemInfoFn in survey.js
                  */
+ 
                 /*
                  * When the second argument to JSONObject.put is null, then the key is removed if present.
                  * Here that means that the client will not receive anything for that key!
                  */
                 JSONObject jo = new JSONObject();
+                /*
+                 * At last count (2018-8-22) there are 21 key/value pairs here, of which 7 are fields
+                 * of DataRow, and 14 are local variables in this function. Some of the local variables
+                 * like voteResolver and itemsJson are specially "wrapped up" for json; maybe with those
+                 * as exceptions, the rest should become fields of DataRow to facilitate consistency
+                 * checking without sending them all as parameters to consistency-checking methods.
+                 * Anyway, try to keep the names same on server and client, and avoid using function calls
+                 * or compound expressions for the arguments passed to jo.put here. 
+                 */
                 jo.put("canFlagOnLosing", canFlagOnLosing);
                 jo.put("code", code);
                 jo.put("confirmStatus", confirmStatus);
