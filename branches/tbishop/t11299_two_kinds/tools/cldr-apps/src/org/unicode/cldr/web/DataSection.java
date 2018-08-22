@@ -1303,13 +1303,6 @@ public class DataSection implements JSONString {
                 VoteResolver<String> resolver = ballotBox.getResolver(xpath);
                 JSONObject voteResolver = SurveyAjax.JSONWriter.wrap(resolver);
 
-                /*
-                 * TODO: resolve pointless difference in names, xpathId on server, xpid on client
-                 * The name "xpathId" is currently unused in survey.js, would be easiest to replace
-                 * all "xpid" in survey.js with "xpathId". 
-                 */
-                int xpid = xpathId;
-
                 boolean rowFlagged = sm.getSTFactory().getFlag(locale, xpathId);
 
                 String xpstrid = XPathTable.getStringIDString(xpath);
@@ -1333,7 +1326,7 @@ public class DataSection implements JSONString {
                 JSONObject jo = new JSONObject();
                 // TODO: alphabetize
                 jo.put("xpath", xpath);
-                jo.put("xpid", xpid);
+                jo.put("xpathId", xpathId);
                 jo.put("rowFlagged", rowFlagged);
                 jo.put("xpstrid", xpstrid);
                 jo.put("winningValue", winningValueOrEmpty);

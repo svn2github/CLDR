@@ -411,7 +411,7 @@ LocaleMap.prototype.getLanguage = function getLanguage(locid) {
 
 /**
  * @class XpathMap
- * This manages xpid / strid / PathHeader etc mappings.
+ * This manages xpathId / strid / PathHeader etc mappings.
  * It is a cache, and gets populated with data 'volunteered' by page loads, so that
  * hopefully it doesn't need to do any network operations on its own.
  * However, it MAY BE capable of filling in any missing data via AJAX. This is why its operations are async.
@@ -433,7 +433,7 @@ function XpathMap() {
 	 */
 	this.stridToInfo = {};
 	/**
-	 * Map xpid (such as 1337) to info
+	 * Map xpathId (such as 1337) to info
 	 * @property XpathMap.xpidToInfo
 	 */
 	this.xpidToInfo = {};
@@ -2272,7 +2272,7 @@ function appendForumStuff(tr, theRow, forumDiv) {
 	var theForum = 	locmap.getLanguage(surveyCurrentLocale);
 	forumDiv.replyStub = contextPath + "/survey?forum=" + theForum + "&_=" + surveyCurrentLocale + "&replyto=";
 	forumDiv.postUrl = forumDiv.replyStub + "x"+theRow;
-	forumDiv.url = contextPath + "/SurveyAjax?xpath=" + theRow.xpid + "&_=" + surveyCurrentLocale + "&fhash="
+	forumDiv.url = contextPath + "/SurveyAjax?xpath=" + theRow.xpathId + "&_=" + surveyCurrentLocale + "&fhash="
 		+ theRow.rowHash + "&vhash=" + "&s=" + tr.theTable.session
 		+ "&voteinfo=t";
 }
@@ -2929,12 +2929,12 @@ function updateRow(tr, theRow) {
 	tr.ticketOnly = (tr.theTable.json.canModify && tr.statusAction.ticket);
 	tr.canChange = (tr.canModify && tr.statusAction.change);
 
-	if(!theRow || !theRow.xpid) {
+	if(!theRow || !theRow.xpathId) {
 		tr.innerHTML="<td><i>ERROR: missing row</i></td>";
 		return;
 	}
 	if(!tr.xpstrid) {
-		tr.xpid = theRow.xpid;
+		tr.xpathId = theRow.xpathId;
 		tr.xpstrid = theRow.xpstrid;
 		if(tr.xpstrid) {
 			tr.id = "r@"+tr.xpstrid;
@@ -3321,13 +3321,13 @@ function updateRowCodeCell(tr, theRow, config, children) {
 	if (stdebug_enabled) {
 		var anch = document.createElement("i");
 		anch.className = "anch";
-		anch.id = theRow.xpid;
+		anch.id = theRow.xpathId;
 		children[config.codecell].appendChild(anch);
 		anch.appendChild(document.createTextNode("#"));
 		var go = document.createElement("a");
 		go.className = "anch-go";
 		go.appendChild(document.createTextNode("zoom"));
-		go.href = window.location.pathname + "?_=" + surveyCurrentLocale + "&x=r_rxt&xp=" + theRow.xpid;
+		go.href = window.location.pathname + "?_=" + surveyCurrentLocale + "&x=r_rxt&xp=" + theRow.xpathId;
 		children[config.codecell].appendChild(go);
 		var js = document.createElement("a");
 		js.className = "anch-go";
@@ -3701,7 +3701,7 @@ function insertRowsIntoTbody(theTable,tbody) {
 			console.log("Missing row " + k);
 		}
 		// update the xpath map
-		xpathMap.put({id: theRow.xpid,
+		xpathMap.put({id: theRow.xpathId,
 					  hex: theRow.xpstrid,
 					  path: theRow.xpath,
 					  ph: {
@@ -6094,7 +6094,7 @@ function showV() {
 function refreshRow2(tr,theRow,vHash,onSuccess, onFailure) {
 	showLoader(tr.theTable.theDiv.loader,stui.loadingOneRow);
 	// vHash not used.
-    var ourUrl = contextPath + "/RefreshRow.jsp?what="+WHAT_GETROW+"&xpath="+theRow.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+/*"&vhash="+vHash+*/"&s="+tr.theTable.session +"&json=t&automatic=t";
+    var ourUrl = contextPath + "/RefreshRow.jsp?what="+WHAT_GETROW+"&xpath="+theRow.xpathId +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+/*"&vhash="+vHash+*/"&s="+tr.theTable.session +"&json=t&automatic=t";
 
     if(isDashboard()) {
     	ourUrl += "&dashboard=true";
@@ -6123,7 +6123,7 @@ function refreshRow2(tr,theRow,vHash,onSuccess, onFailure) {
         		} else {
         	        tr.className = "ferrbox";
         	        console.log("could not find " + tr.rowHash + " in " + json);
-        	        onFailure("refreshRow2: Could not refresh this single row: Server failed to return xpath #"+theRow.xpid+" for locale "+surveyCurrentLocale);
+        	        onFailure("refreshRow2: Could not refresh this single row: Server failed to return xpath #"+theRow.xpathId+" for locale "+surveyCurrentLocale);
         		}
            }catch(e) {
                console.log("Error in ajax post [refreshRow2] ",e.message);
@@ -6205,14 +6205,14 @@ function handleWiredClick(tr,theRow,vHash,box,button,what) {
 	console.log("Vote for " + tr.rowHash + " v='"+vHash+"', value='"+value+"'");
 	var ourContent = {
 			what: what,
-			xpath: tr.xpid,
+			xpath: tr.xpathId,
 			"_": surveyCurrentLocale,
 			fhash: tr.rowHash,
 			vhash: vHash,
 			s: tr.theTable.session
 	};
 
-	var ourUrl = contextPath + "/SurveyAjax"; // ?what="+what+"&xpath="+tr.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session;
+	var ourUrl = contextPath + "/SurveyAjax"; // ?what="+what+"&xpath="+tr.xpathId +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session;
 
 	// vote reduced
 	var voteReduced = document.getElementById("voteReduced");
@@ -6325,7 +6325,7 @@ function handleCancelWiredClick(tr,theRow,vHash,button) {
 	theRow.proposedResults = null;
 
 	console.log("Delete " + tr.rowHash + " v='"+vHash+"', value='"+value+"'");
-	var ourUrl = contextPath + "/SurveyAjax?what="+what+"&xpath="+tr.xpid +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session;
+	var ourUrl = contextPath + "/SurveyAjax?what="+what+"&xpath="+tr.xpathId +"&_="+surveyCurrentLocale+"&fhash="+tr.rowHash+"&vhash="+vHash+"&s="+tr.theTable.session;
 	var loadHandler = function(json){
 		try {
 			if(json.err && json.err.length >0) {
