@@ -2893,9 +2893,6 @@ function updateRow(tr, theRow) {
 
 	/*
 	 * For convenience, set up two hashes, for reverse mapping from value or rawValue to item.
-	 * 
-	 * At the same time, find the item with rawValue === INHERITANCE_MARKER and if found mark it with
-	 * "item.isVoteForBailey = true".
 	 */	
 	tr.valueToItem = {}; // hash:  string value to item (which has a div)
 	tr.rawValueToItem = {}; // hash:  string value to item (which has a div)
@@ -2904,9 +2901,6 @@ function updateRow(tr, theRow) {
 		if(item.value) {
 			tr.valueToItem[item.value] = item; // back link by value
 			tr.rawValueToItem[item.rawValue] = item; // back link by value
-			if(item.rawValue === INHERITANCE_MARKER) { // This is a vote for Bailey.
-				item.isVoteForBailey = true;
-			}
 		}
 	}
 
@@ -3113,14 +3107,7 @@ function updateRowVoteInfo(tr, theRow) {
 		}
 		// heading row
 		var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_tr_heading");
-
-		/*
-		 * TODO: this looks suspicious, for https://unicode.org/cldr/trac/ticket/11299
-		 * In general we should NOT skip "soft" vote for inheritance... but really this
-		 * says NOT to skip if isVoteForBailey so is it OK?
-		 */
-		if (!item.isVoteForBailey && (!item.votes || Object.keys(item.votes).length == 0)) {
-		} else {
+		if (item.rawValue === INHERITANCE_MARKER || (item.votes && Object.keys(item.votes).length > 0)) {
 			vrow.appendChild(createChunk(stui.str("voteInfo_orgColumn"), "td", "voteInfo_orgColumn voteInfo_td"));
 		}
 		var isection = createChunk(null, "div", "voteInfo_iconBar");
@@ -3144,9 +3131,15 @@ function updateRowVoteInfo(tr, theRow) {
 		***/
 		setLang(valdiv);
 		if (value == INHERITANCE_MARKER) {
+			/*
+			 * Show "[Accept Inherited Value]" in info panel
+			 */
 			appendItem(valdiv, stui.str("voteInfo_acceptInherited"), "fallback", tr);
 			valdiv.appendChild(createChunk(stui.str('voteInfo_baileyVoteList'), 'p'));
 		} else {
+			/*
+			 * calcPClass (not called elsewhere) returns (value == vr.winningValue) ? "winner" : "value"
+			 */
 			appendItem(valdiv, value, calcPClass(value, vr.winningValue), tr);
 		}
 		valdiv.appendChild(isection);
@@ -3169,11 +3162,12 @@ function updateRowVoteInfo(tr, theRow) {
 			vrow.appendChild(createChunk(stui.str("voteInfo_noVotes"), "td", "voteInfo_noVotes voteInfo_td"));
 			vrow.appendChild(createChunk(null, "td", "voteInfo_noVotes voteInfo_td"));
 			vdiv.appendChild(vrow);
-		} else if (item.isVoteForBailey && false) {
+		} else if (item.rawValue === INHERITANCE_MARKER && false) {
 			/*
-			 * TODO: why this special handling of isVoteForBailey? is value == INHERITANCE_MARKER?
-			 * 
+			 * TODO: why this special handling of INHERITANCE_MARKER?
+			 *
 			 * DEBUGGING temporary added "&& false" above
+			 * Fall through to updateRowVoteInfoForAllOrgs instead 
 			 */
 			// show the raw votes.
 			for (var kk in item.votes) {
@@ -3256,10 +3250,22 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv)
 				}
 			}
 			// ORG SUBHEADING row
+
 			/*
-			 * TODO: check value == INHERITANCE_MARKER instead of isVoteForBailey?
+			 * There was some buggy code here, testing item.votes[topVoter].isVoteForBailey, but no element
+			 * of the votes array could have had isVoteForBailey, which was a property of an "item" (CandidateItem)
+			 * not a "vote" (based on UserRegistry.User -- see CandidateItem.toJSONString in DataSection.java)
+			 * 
+			 * item.votes[topVoter].isVoteForBailey was always undefined (effectively false), so baileyClass
+			 * was always "" (empty string) here.
+			 * 
+			 * TODO: clarify whether baileyClass should ever be non-empty here; if so, fix this, else simplify it.
+			 * 
+			 * isVoteForBailey is obsolete; could test item.rawValue === INHERITANCE_MARKER
+			 *  -- and why would item.votes[topVoter] matter? Probably doesn't matter for baileyClass.
 			 */
-			var baileyClass = (item.votes[topVoter] && item.votes[topVoter].isVoteForBailey) ? " fallback" : "";
+			// var baileyClass = (item.votes[topVoter] && item.votes[topVoter].isVoteForBailey) ? " fallback" : "";
+			var baileyClass = "";
 			var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_orgHeading");
 			vrow.appendChild(createChunk(org, "td", "voteInfo_orgColumn voteInfo_td"));
 			if (item.votes[topVoter]) {
@@ -3271,8 +3277,9 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv)
 				var cell = createChunk(null, "td", "voteInfo_orgsVote voteInfo_voteCount voteInfo_td" + baileyClass);
 				cell.appendChild(createChunk(orgVoteValue, "span", "badge"));
 				vrow.appendChild(cell);
-			} else
+			} else {
 				vrow.appendChild(createChunk(orgVoteValue, "td", "voteInfo_orgsNonVote voteInfo_voteCount voteInfo_td" + baileyClass));
+			}
 			vdiv.appendChild(vrow);
 			//now, other rows:
 			for (var voter in item.votes) {
@@ -3282,9 +3289,10 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv)
 				}
 				// OTHER VOTER row
 				/*
-				 * TODO: check value == INHERITANCE_MARKER instead of isVoteForBailey?
+				 * TODO: same bug here as above, clarify whether baileyClass should ever be non-empty here; if so, fix this, else simplify it.
 				 */
-				var baileyClass = (item.votes[voter].isVoteForBailey) ? " fallback" : "";
+				// var baileyClass = (item.votes[voter].isVoteForBailey) ? " fallback" : "";
+				var baileyClass = "";
 				var vrow = createChunk(null, "tr", "voteInfo_tr");
 				vrow.appendChild(createChunk("", "td", "voteInfo_orgColumn voteInfo_td")); // spacer
 				vrow.appendChild(createVoter(item.votes[voter])); // voteInfo_td
