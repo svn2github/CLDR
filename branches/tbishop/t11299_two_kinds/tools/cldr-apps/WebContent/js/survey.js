@@ -3184,86 +3184,7 @@ function updateRowVoteInfo(tr, theRow) {
 				vdiv.appendChild(vrow);
 			}
 		} else {
-			for (org in theRow.voteResolver.orgs) {
-				var theOrg = vr.orgs[org];
-				var vrRaw = {};
-				/*
-				 * bug here when value = INHERITANCE_MARKER
-				 * theOrg.orgVote = INHERITANCE_MARKER, so far so good, but theOrg.votes has one member, and it is for "latn" not INHERITANCE_MARKER
-				 * bug is probably on server, doing problematic substitutions of "soft" votes with "hard" votes...
-				 */
-				var orgVoteValue = theOrg.votes[value];
-				if (orgVoteValue !== undefined && orgVoteValue > 0) { // someone in the org actually voted for it
-					var topVoter = null; // top voter for this item
-					var orgsVote = (theOrg.orgVote == value);
-					var topVoterTime = 0; // Calculating the latest time for a user from same org
-					if (orgsVote) {
-						// find a top-ranking voter to use for the top line
-						for (var voter in item.votes) {
-							if (item.votes[voter].org == org && item.votes[voter].votes == theOrg.votes[value]) {
-								if (topVoterTime != 0) {
-									// Get the latest time vote only
-									if (vr.nameTime[item.votes[topVoter].name] < vr.nameTime[item.votes[voter].name]) {
-										topVoter = voter;
-										console.log(item);
-										console.log(vr.nameTime[item.votes[topVoter].name]);
-										topVoterTime = vr.nameTime[item.votes[topVoter].name];
-									}
-								} else {
-									topVoter = voter;
-									console.log(item);
-									console.log(vr.nameTime[item.votes[topVoter].name]);
-									topVoterTime = vr.nameTime[item.votes[topVoter].name];
-								}
-							}
-						}
-					} else {
-						// just find someone in the right org..
-						for (var voter in item.votes) {
-							if (item.votes[voter].org == org) {
-								topVoter = voter;
-								break;
-							}
-						}
-					}
-					// ORG SUBHEADING row
-					/*
-					 * TODO: check value == INHERITANCE_MARKER instead of isVoteForBailey?
-					 */
-					var baileyClass = (item.votes[topVoter] && item.votes[topVoter].isVoteForBailey) ? " fallback" : "";
-					var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_orgHeading");
-					vrow.appendChild(createChunk(org, "td", "voteInfo_orgColumn voteInfo_td"));
-					if (item.votes[topVoter]) {
-						vrow.appendChild(createVoter(item.votes[topVoter])); // voteInfo_td
-					} else {
-						vrow.appendChild(createVoter(null));
-					}
-					if (orgsVote) {
-						var cell = createChunk(null, "td", "voteInfo_orgsVote voteInfo_voteCount voteInfo_td" + baileyClass);
-						cell.appendChild(createChunk(orgVoteValue, "span", "badge"));
-						vrow.appendChild(cell);
-					} else
-						vrow.appendChild(createChunk(orgVoteValue, "td", "voteInfo_orgsNonVote voteInfo_voteCount voteInfo_td" + baileyClass));
-					vdiv.appendChild(vrow);
-					//now, other rows:
-					for (var voter in item.votes) {
-						if (item.votes[voter].org != org || // wrong org or
-							voter == topVoter) { // already done
-							continue; // skip
-						}
-						// OTHER VOTER row
-						/*
-						 * TODO: check value == INHERITANCE_MARKER instead of isVoteForBailey?
-						 */
-						var baileyClass = (item.votes[voter].isVoteForBailey) ? " fallback" : "";
-						var vrow = createChunk(null, "tr", "voteInfo_tr");
-						vrow.appendChild(createChunk("", "td", "voteInfo_orgColumn voteInfo_td")); // spacer
-						vrow.appendChild(createVoter(item.votes[voter])); // voteInfo_td
-						vrow.appendChild(createChunk(item.votes[voter].votes, "td", "voteInfo_orgsNonVote voteInfo_voteCount voteInfo_td" + baileyClass));
-						vdiv.appendChild(vrow);
-					}
-				}
-			}
+			updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv);
 		}
 		perValueContainer.appendChild(valdiv);
 		perValueContainer.appendChild(vdiv);
@@ -3277,6 +3198,100 @@ function updateRowVoteInfo(tr, theRow) {
 	// done with voteresolver table
 	if (stdebug_enabled) {
 		tr.voteDiv.appendChild(createChunk(vr.raw, "p", "debugStuff"));
+	}
+}
+
+/**
+ * Update the vote info for this row, looping through all the orgs
+ * 
+ * @param theRow
+ * @param vr
+ * @param value
+ * @param item
+ * @param createVoter
+ * @param vdiv
+ */
+function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv) {
+	'use strict';
+	for (org in theRow.voteResolver.orgs) {
+		var theOrg = vr.orgs[org];
+		var vrRaw = {};
+		/*
+		 * Prior to changes for ticket 11299 there was a bug here when value = INHERITANCE_MARKER,
+		 * theOrg.orgVote = INHERITANCE_MARKER, but theOrg.votes had one member, and was is for "latn" 
+		 * not INHERITANCE_MARKER; bug was on server, problematic substitutions of "soft" votes with "hard" votes, now fixed.
+		 */
+		var orgVoteValue = theOrg.votes[value];
+		if (orgVoteValue !== undefined && orgVoteValue > 0) { // someone in the org actually voted for it
+			var topVoter = null; // top voter for this item
+			var orgsVote = (theOrg.orgVote == value);
+			var topVoterTime = 0; // Calculating the latest time for a user from same org
+			if (orgsVote) {
+				// find a top-ranking voter to use for the top line
+				for (var voter in item.votes) {
+					if (item.votes[voter].org == org && item.votes[voter].votes == theOrg.votes[value]) {
+						if (topVoterTime != 0) {
+							// Get the latest time vote only
+							if (vr.nameTime[item.votes[topVoter].name] < vr.nameTime[item.votes[voter].name]) {
+								topVoter = voter;
+								console.log(item);
+								console.log(vr.nameTime[item.votes[topVoter].name]);
+								topVoterTime = vr.nameTime[item.votes[topVoter].name];
+							}
+						} else {
+							topVoter = voter;
+							console.log(item);
+							console.log(vr.nameTime[item.votes[topVoter].name]);
+							topVoterTime = vr.nameTime[item.votes[topVoter].name];
+						}
+					}
+				}
+			} else {
+				// just find someone in the right org..
+				for (var voter in item.votes) {
+					if (item.votes[voter].org == org) {
+						topVoter = voter;
+						break;
+					}
+				}
+			}
+			// ORG SUBHEADING row
+			/*
+			 * TODO: check value == INHERITANCE_MARKER instead of isVoteForBailey?
+			 */
+			var baileyClass = (item.votes[topVoter] && item.votes[topVoter].isVoteForBailey) ? " fallback" : "";
+			var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_orgHeading");
+			vrow.appendChild(createChunk(org, "td", "voteInfo_orgColumn voteInfo_td"));
+			if (item.votes[topVoter]) {
+				vrow.appendChild(createVoter(item.votes[topVoter])); // voteInfo_td
+			} else {
+				vrow.appendChild(createVoter(null));
+			}
+			if (orgsVote) {
+				var cell = createChunk(null, "td", "voteInfo_orgsVote voteInfo_voteCount voteInfo_td" + baileyClass);
+				cell.appendChild(createChunk(orgVoteValue, "span", "badge"));
+				vrow.appendChild(cell);
+			} else
+				vrow.appendChild(createChunk(orgVoteValue, "td", "voteInfo_orgsNonVote voteInfo_voteCount voteInfo_td" + baileyClass));
+			vdiv.appendChild(vrow);
+			//now, other rows:
+			for (var voter in item.votes) {
+				if (item.votes[voter].org != org || // wrong org or
+					voter == topVoter) { // already done
+					continue; // skip
+				}
+				// OTHER VOTER row
+				/*
+				 * TODO: check value == INHERITANCE_MARKER instead of isVoteForBailey?
+				 */
+				var baileyClass = (item.votes[voter].isVoteForBailey) ? " fallback" : "";
+				var vrow = createChunk(null, "tr", "voteInfo_tr");
+				vrow.appendChild(createChunk("", "td", "voteInfo_orgColumn voteInfo_td")); // spacer
+				vrow.appendChild(createVoter(item.votes[voter])); // voteInfo_td
+				vrow.appendChild(createChunk(item.votes[voter].votes, "td", "voteInfo_orgsNonVote voteInfo_voteCount voteInfo_td" + baileyClass));
+				vdiv.appendChild(vrow);
+			}
+		}
 	}
 }
 
