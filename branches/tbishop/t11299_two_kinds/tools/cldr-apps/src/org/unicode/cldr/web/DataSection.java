@@ -1106,7 +1106,7 @@ public class DataSection implements JSONString {
                      */
                     inheritedItem = items.get(CldrUtility.INHERITANCE_MARKER);
                     /*
-                     * TODO: should any of the code after "else ... addItem" below also be called in this case? Yes!
+                     * TODO: should any of the code after "else ... addItem" below also be called in this case? Yes! Done!
                      * When would the existing item have been added? In row.addItem(CldrUtility.INHERITANCE_MARKER) in populateFromThisXpath
                      * a few lines before it calls updateInheritedValue.
                      * Would it already have taken care of inheritedLocale, pathWhereFound, ...? No!
@@ -1118,7 +1118,8 @@ public class DataSection implements JSONString {
                      * Add a new item, to be the inheritedItem of this DataRow, with value INHERITANCE_MARKER.
                      */                    
                     inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER);
-
+                }
+                if (inheritedValue != null) {
                     if (TRACE_TIME) {
                         System.err.println("@@2:" + (System.currentTimeMillis() - lastTime));
                     }
@@ -1157,7 +1158,7 @@ public class DataSection implements JSONString {
                         if (TRACE_TIME) {
                             System.err.println("@@4:" + (System.currentTimeMillis() - lastTime));
                         }
-                    }
+                    }                    
                 }
             }
 
@@ -2716,8 +2717,10 @@ public class DataSection implements JSONString {
              * 
              * TODO: Note that updateInheritedValue is called a few lines below, unless isExtraPath; normally
              * it's the job of updateInheritedValue to do addItem(CldrUtility.INHERITANCE_MARKER); is there
-             * any need to call it here as well? There may be harm in doing it here, since then we skip
-             * code in updateInheritedValue needed for inheritedLocale, pathWhereFound.
+             * any need to call it here as well? There may be harm in doing it here, if we then skip
+             * code in updateInheritedValue needed for inheritedLocale, pathWhereFound. Currently that
+             * problem has been fixed at least partly, by NOT skipping that code in updateInheritedValue
+             * even if an item with INHERITANCE_MARKER already exists.
              */
             row.addItem(CldrUtility.INHERITANCE_MARKER);
         }
