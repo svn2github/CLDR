@@ -1106,9 +1106,12 @@ public class DataSection implements JSONString {
                      */
                     inheritedItem = items.get(CldrUtility.INHERITANCE_MARKER);
                     /*
-                     * TODO: should any of the code after "else ... addItem" below also be called in this case?
-                     * When would the existing item have been added, and would it already have
-                     * taken care of inheritedLocale, pathWhereFound, ...?
+                     * TODO: should any of the code after "else ... addItem" below also be called in this case? Yes!
+                     * When would the existing item have been added? In row.addItem(CldrUtility.INHERITANCE_MARKER) in populateFromThisXpath
+                     * a few lines before it calls updateInheritedValue.
+                     * Would it already have taken care of inheritedLocale, pathWhereFound, ...? No!
+                     * For example, get here for "occitan" first row for http://localhost:8080/cldr-apps/v#/fr_CA/Languages_O_S
+                     * missing inheritedLocale, pathWhereFound, "Jump to Original"!
                      */
                 } else {
                     /*
@@ -2713,7 +2716,8 @@ public class DataSection implements JSONString {
              * 
              * TODO: Note that updateInheritedValue is called a few lines below, unless isExtraPath; normally
              * it's the job of updateInheritedValue to do addItem(CldrUtility.INHERITANCE_MARKER); is there
-             * any need to call it here as well?
+             * any need to call it here as well? There may be harm in doing it here, since then we skip
+             * code in updateInheritedValue needed for inheritedLocale, pathWhereFound.
              */
             row.addItem(CldrUtility.INHERITANCE_MARKER);
         }

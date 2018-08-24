@@ -3111,13 +3111,16 @@ function updateRowVoteInfo(tr, theRow) {
 			vrow.appendChild(createChunk(stui.str("voteInfo_orgColumn"), "td", "voteInfo_orgColumn voteInfo_td"));
 		}
 		var isection = createChunk(null, "div", "voteInfo_iconBar");
+		var isectionIsUsed = false;
 		var vvalue = createChunk("User", "td", "voteInfo_valueTitle voteInfo_td");
 		var vbadge = createChunk(vote, "span", "badge");
 		if (value == vr.winningValue) {
 			appendIcon(isection, "voteInfo_winningItem d-dr-" + theRow.voteResolver.winningStatus);
+			isectionIsUsed = true;
 		}
 		if (value == vr.lastReleaseValue) {
 			appendIcon(isection, "voteInfo_lastRelease i-star");
+			isectionIsUsed = true;
 		}
 		/* Disable all usage of the "i-vote" (vote.png, check-mark in a square) icon pending
 		 * clarification/documentation of its meaning/purpose.
@@ -3126,23 +3129,53 @@ function updateRowVoteInfo(tr, theRow) {
 		 */
 		/***
 		if(value != vr.winningValue) {
-				appendIcon(isection,"i-vote");
+			appendIcon(isection,"i-vote");
+			isectionIsUsed = true;
 		}
 		***/
 		setLang(valdiv);
 		if (value == INHERITANCE_MARKER) {
 			/*
-			 * Show "[Accept Inherited Value]" in info panel
+			 * Show "[Accept Inherited Value]" (voteInfo_acceptInherited) and
+			 * "These votes are for the inherited value. They are also listed under the specific value below."
+			 * (voteInfo_baileyVoteList) in the Information Panel.
+			 * 
+			 * TODO: show the inherited value here, in addition to (or in place of) "[Accept Inherited Value]".
+			 * Also, revise voteInfo_baileyVoteList to reflect current reality, in which "soft" votes
+			 * are NOT moved into "hard" votes, and "hard" votes are only shown if nonzero.
+			 * voteInfo_baileyVoteList could be "These are votes for inheritance."
+			 * Then "hard" votes should also get a special message like,
+			 * "These are votes for the specific value currently matching the inherited value."
+			 * Also, if there are both "hard" and "soft" votes, we should add a message like,
+			 * "Votes for inheritance are combined with votes for the specific value currently matching the inherited value.",
+			 * and possibly add a message clarifying whether that combination is winning in this case, and which of the
+			 * two -- hard or soft -- is the current winner.
 			 */
-			appendItem(valdiv, stui.str("voteInfo_acceptInherited"), "fallback", tr);
-			valdiv.appendChild(createChunk(stui.str('voteInfo_baileyVoteList'), 'p'));
+			if (true) {							
+				/*
+				 * TODO: EXPERIMENTAL - if keep this, move the string to stui
+				 */
+				appendItem(valdiv, theRow.inheritedValue, "fallback", tr);
+				valdiv.appendChild(createChunk("These are votes for inheritance.", 'p'));
+			} else {
+				appendItem(valdiv, stui.str("voteInfo_acceptInherited"), "fallback", tr);
+				valdiv.appendChild(createChunk(stui.str('voteInfo_baileyVoteList'), 'p'));				
+			}
 		} else {
 			/*
 			 * calcPClass (not called elsewhere) returns (value == vr.winningValue) ? "winner" : "value"
 			 */
 			appendItem(valdiv, value, calcPClass(value, vr.winningValue), tr);
+			/*
+			 * TODO: EXPERIMENTAL - if keep this, move the string to stui
+			 */
+			if (value === theRow.inheritedValue) {
+				valdiv.appendChild(createChunk("These are votes for the specific value currently matching the inherited value.", 'p'));
+			}
 		}
-		valdiv.appendChild(isection);
+		if (isectionIsUsed) {
+			valdiv.appendChild(isection);			
+		}
 		vrow.appendChild(vvalue);
 		var cell = createChunk(null, "td", "voteInfo_voteTitle voteInfo_voteCount voteInfo_td" + "");
 		cell.appendChild(vbadge);
@@ -3165,9 +3198,20 @@ function updateRowVoteInfo(tr, theRow) {
 		} else if (item.rawValue === INHERITANCE_MARKER && false) {
 			/*
 			 * TODO: why this special handling of INHERITANCE_MARKER?
+			 * 
+			 * If this block is used, then "soft" votes for inheritance are displayed with the
+			 * entire line containing the organization name and user name to have blue background,
+			 * and the individual vote counts aren't displayed. This doesn't seem helpful at all.
+			 * It may have made more sense when "soft" votes were "moved" into "hard" votes for
+			 * voting. There is also a message, voteInfo_baileyVoteList:
+			 * "These votes are for the inherited value. They are also listed under the specific value below."
+			 * which isn't generally true anymore: if there are soft votes but not hard votes, then the
+			 * "specific value" (hard vote) isn't displayed, so that message should change.   
 			 *
 			 * DEBUGGING temporary added "&& false" above
-			 * Fall through to updateRowVoteInfoForAllOrgs instead 
+			 * Fall through to updateRowVoteInfoForAllOrgs instead
+			 * 
+			 * TODO: if this block is removed, then the createVoter function could be moved into updateRowVoteInfoForAllOrgs
 			 */
 			// show the raw votes.
 			for (var kk in item.votes) {
@@ -3196,14 +3240,15 @@ function updateRowVoteInfo(tr, theRow) {
 }
 
 /**
- * Update the vote info for this row, looping through all the orgs
+ * Update the vote info for one candidate item in this row, looping through all the orgs.
+ * Information will be displayed in the Information Panel (right edge of window).
  * 
- * @param theRow
- * @param vr
- * @param value
- * @param item
- * @param createVoter
- * @param vdiv
+ * @param theRow the row
+ * @param vr the vote resolver
+ * @param value the value of the candidate item
+ * @param item the candidate item
+ * @param createVoter a function defined in the caller
+ * @param vdiv a table created by the caller as vdiv = createChunk(null, "table", "voteInfo_perValue table table-vote")
  */
 function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv) {
 	'use strict';
@@ -3259,13 +3304,16 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv)
 			 * item.votes[topVoter].isVoteForBailey was always undefined (effectively false), so baileyClass
 			 * was always "" (empty string) here.
 			 * 
-			 * TODO: clarify whether baileyClass should ever be non-empty here; if so, fix this, else simplify it.
+			 * This has been fixed, to test item.rawValue === INHERITANCE_MARKER instead.
 			 * 
-			 * isVoteForBailey is obsolete; could test item.rawValue === INHERITANCE_MARKER
-			 *  -- and why would item.votes[topVoter] matter? Probably doesn't matter for baileyClass.
+			 * This only affects cells ("td" elements) with style "voteInfo_voteCount", which appear in the info panel,
+			 * and which have contents like '<span class="badge">12</span>'. If the "fallback" style is added, then
+			 * these circled numbers are surrounded (outside the circle) by dark blue background.
+			 *
+			 * TODO: see whether the blue background is actually wanted in this context, around the numbers.
+			 * For now, display it, to give people something to evaluate.
 			 */
-			// var baileyClass = (item.votes[topVoter] && item.votes[topVoter].isVoteForBailey) ? " fallback" : "";
-			var baileyClass = "";
+			var baileyClass = (item.rawValue === INHERITANCE_MARKER) ? " fallback" : "";
 			var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_orgHeading");
 			vrow.appendChild(createChunk(org, "td", "voteInfo_orgColumn voteInfo_td"));
 			if (item.votes[topVoter]) {
@@ -3281,18 +3329,13 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv)
 				vrow.appendChild(createChunk(orgVoteValue, "td", "voteInfo_orgsNonVote voteInfo_voteCount voteInfo_td" + baileyClass));
 			}
 			vdiv.appendChild(vrow);
-			//now, other rows:
+			// now, other rows:
 			for (var voter in item.votes) {
 				if (item.votes[voter].org != org || // wrong org or
 					voter == topVoter) { // already done
 					continue; // skip
 				}
 				// OTHER VOTER row
-				/*
-				 * TODO: same bug here as above, clarify whether baileyClass should ever be non-empty here; if so, fix this, else simplify it.
-				 */
-				// var baileyClass = (item.votes[voter].isVoteForBailey) ? " fallback" : "";
-				var baileyClass = "";
 				var vrow = createChunk(null, "tr", "voteInfo_tr");
 				vrow.appendChild(createChunk("", "td", "voteInfo_orgColumn voteInfo_td")); // spacer
 				vrow.appendChild(createVoter(item.votes[voter])); // voteInfo_td
