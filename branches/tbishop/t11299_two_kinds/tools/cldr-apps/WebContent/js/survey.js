@@ -2791,8 +2791,9 @@ function addVitem(td, tr, theRow, item, newButton) {
 	}
 	var displayValue = item.value;
 	if (item.value == INHERITANCE_MARKER) {
-		displayValue = theRow.inheritedValue;
+		displayValue = theRow.inheritedValue; // TODO: what if theRow.inheritedValue is undefined, as it sometimes is?
 	}
+	
 	var choiceField = document.createElement("div");
 	var wrap;
 	choiceField.className = "choice-field";
@@ -2810,7 +2811,11 @@ function addVitem(td, tr, theRow, item, newButton) {
 	setLang(span);
 	checkLRmarker(choiceField, span.dir, item.value);
 
-	if(item.isOldValue==true && !isWinner) {
+	/*
+	 * TODO: show star even if isWinner? See https://unicode.org/cldr/trac/ticket/11386
+	 * That can be done by commenting out " && !isWinner" here...
+	 */
+	if(item.isOldValue==true /*** && !isWinner ***/) {
 		addIcon(choiceField,"i-star");
 	}
 	if(item.votes && !isWinner) {
@@ -3170,7 +3175,8 @@ function updateRowVoteInfo(tr, theRow) {
 			 * TODO: EXPERIMENTAL - if keep this, move the string to stui
 			 */
 			if (value === theRow.inheritedValue) {
-				valdiv.appendChild(createChunk("These are votes for the specific value currently matching the inherited value.", 'p'));
+				valdiv.appendChild(createChunk("These are votes for the specific value currently matching the inherited value."
+						+ " Votes for this specific value are combined with any votes for inheritance.", 'p'));
 			}
 		}
 		if (isectionIsUsed) {
@@ -3487,7 +3493,12 @@ function updateRowProposedWinningCell(tr, theRow, config, children, protoButton)
 	setLang(children[config.proposedcell]);
 	tr.proposedcell = children[config.proposedcell];
 
-	if (theRow.items && theRow.winningVhash) {
+	/*
+	 * If server doesn't do its job properly, theRow.items[theRow.winningVhash] may be undefined.
+	 * Check for that here to prevent crash in addVitem. An error message might be appropriate here
+	 * in that case, though the consistency checking really should happen earlier.
+	 */
+	if (theRow.items && theRow.winningVhash && theRow.items[theRow.winningVhash]) {
 		addVitem(children[config.proposedcell], tr, theRow, theRow.items[theRow.winningVhash], cloneAnon(protoButton));
 	} else {
 		children[config.proposedcell].showFn = function() {}; // nothing else to show

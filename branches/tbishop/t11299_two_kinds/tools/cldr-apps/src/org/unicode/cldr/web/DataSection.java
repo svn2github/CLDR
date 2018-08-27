@@ -1042,14 +1042,13 @@ public class DataSection implements JSONString {
         }
 
         /**
-         * Calculate the inherited item for this DataRow from the vetted parent locale,
-         * possibly including tests; possibly set some fields in the DataRow, which may
+         * Calculate the inherited item for this DataRow, possibly including tests;
+         * possibly set some fields in the DataRow, which may
          * include inheritedValue, inheritedItem, inheritedLocale, pathWhereFound
          *
-         * @param vettedParent
-         *            CLDRFile for the parent locale, resolved with vetting on ( really just the current )
-         * @param checkCldr
-         *            The tests to use
+         * @param ourSrc the CLDRFile
+         * @param checkCldr the tests to use
+         * @param xpath the path, for example "//ldml/numbers/otherNumberingSystems/native"
          *
          * Called only by populateFromThisXpath, which is a method of DataSection.
          * 
@@ -1063,29 +1062,33 @@ public class DataSection implements JSONString {
          *
          * TODO: Get rid of, or merge with, the code that currently does "row.addItem(CldrUtility.INHERITANCE_MARKER)" in populateFromThisXpath.
          */
-        private void updateInheritedValue(CLDRFile vettedParent, TestResultBundle checkCldr) {
+        private void updateInheritedValue(CLDRFile ourSrc, TestResultBundle checkCldr, String xpath) {
             long lastTime = System.currentTimeMillis();
-            if (vettedParent == null) {
-                return;
-            }
             if (xpathId == -1) {
                 return;
             }
-            String xpath = sm.xpt.getById(xpathId);
+            /*
+             * TODO: the caller already has xpath, and it is now a parameter of updateInheritedValue;
+             * make sure same value here and in caller, then get rid of this useless code for xpath2
+             */
+            String xpath2 = sm.xpt.getById(xpathId);
+            if (!xpath.equals(xpath2)) {
+                System.err.println("ERROR: unexpected different xpath in updateInheritedValue");                
+            }
             if (TRACE_TIME) {
                 System.err.println("@@0:" + (System.currentTimeMillis() - lastTime));
             }
-            if (xpath == null) {
+            if (xpath2 == null) {
                 return;
             }
-            if ((vettedParent != null) && (inheritedItem == null)) {
+            if (inheritedItem == null) {
                 /*
                  * Set the inheritedValue field of the DataRow containing this CandidateItem.
                  * Also possibly set the inheritedLocale and pathWhereFound fields of the DataRow.
                  */
                 Output<String> inheritancePathWhereFound = new Output<String>(); // may become pathWhereFound
                 Output<String> localeWhereFound = new Output<String>(); // may be used to construct inheritedLocale
-                inheritedValue = vettedParent.getConstructedBaileyValue(xpath, inheritancePathWhereFound, localeWhereFound);
+                inheritedValue = ourSrc.getConstructedBaileyValue(xpath, inheritancePathWhereFound, localeWhereFound);
                 
                 if (TRACE_TIME) {
                     System.err.println("@@1:" + (System.currentTimeMillis() - lastTime));
@@ -1093,8 +1096,10 @@ public class DataSection implements JSONString {
                 if (inheritedValue == null) {
                     /*
                      * No inherited value.
-                     * 
-                     * TODO: what are the implications when vettedParent.getConstructedBaileyValue has returned null?
+                     *
+                     * This happens often!!
+                     *
+                     * TODO: what are the implications when ourSrc.getConstructedBaileyValue has returned null?
                      * Unless we're at root, shouldn't there always be a non-null inheritedValue here?
                      * See https://unicode.org/cldr/trac/ticket/11299
                      */
@@ -1374,14 +1379,25 @@ public class DataSection implements JSONString {
                     // TODO: maybe winningItem = inheritedItem -- but what if inheritedItem is null?
                 }
                 else {
-                    // TODO: this happens! Very temporary debugging code!!
-                    System.out.println("Warning: errorNoWinningValue in decideWinningValueForClient");
+                    // TODO: this happens, such as for "http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/"! Very temporary debugging code!!
+                    System.out.println("Warning: errorNoWinningValue in decideWinningValueForClient; xpath = " + xpath);
                     winningValue = "errorNoWinningValue";
                 }
-             }
+            }
             if (getItem(winningValue) == null) {
-                // TODO: this happens! Very temporary debugging code!! So far, winningValue = errorNoWinningValue, inheritedValue = null
-                System.out.println("Warning: creating new item for winningValue = " + winningValue + " in decideWinningValueForClient; inheritedValue = " + inheritedValue);
+                // TODO: this happens! Very temporary debugging code!! So far, either winningValue = errorNoWinningValue and inheritedValue = null,
+                // or else winningValue equals inheritedValue and neither is null. 
+                if (inheritedValue == null) {
+                    // this happens, errorNoWinningValue
+                    System.out.println("Warning: creating new item for winningValue = " + winningValue + " in decideWinningValueForClient; inheritedValue is null");
+                }
+                else if (inheritedValue.equals(winningValue)) {
+                    // this happens, for example, "Monegasque Franc".
+                    System.out.println("Warning: creating new item for winningValue = inheritedValue = " + winningValue + " in decideWinningValueForClient");
+                }
+                else {
+                    System.out.println("Warning: creating new item for winningValue " + winningValue + " in decideWinningValueForClient; inheritedValue is DIFFERENT: " + inheritedValue);
+                }
                 winningItem = addItem(winningValue);
              }
 
@@ -2602,10 +2618,6 @@ public class DataSection implements JSONString {
                     System.err.println("allPath: " + xpath);
                 }
             }
-            /*
-             * 'extra' paths get shim treatment
-             */
-            boolean isExtraPath = extraXpaths != null && extraXpaths.contains(xpath);
 
             SurveyToolStatus ststats = SurveyToolStatus.READ_WRITE;
             PathHeader ph = stf.getPathHeader(xpath);
@@ -2631,7 +2643,7 @@ public class DataSection implements JSONString {
                 fullPath = xpath; // (this is normal for 'extra' paths)
             }
             // Now we are ready to add the data
-            populateFromThisXpath(xpath, isExtraPath, ourSrc, oldFile, xpp, fullPath, checkCldr, coverageValue, base_xpath, examplesResult, checkCldrResult);
+            populateFromThisXpath(xpath, extraXpaths, ourSrc, oldFile, xpp, fullPath, checkCldr, coverageValue, base_xpath, examplesResult, checkCldrResult);
         }
     }
 
@@ -2639,7 +2651,7 @@ public class DataSection implements JSONString {
      * Add data to this DataSection including a possibly new DataRow for the given xpath
      *
      * @param xpath
-     * @param isExtraPath
+     * @param extraXpaths
      * @param ourSrc
      * @param oldFile
      * @param xpp
@@ -2650,8 +2662,15 @@ public class DataSection implements JSONString {
      * @param examplesResult
      * @param checkCldrResult
      */
-    private void populateFromThisXpath(String xpath, boolean isExtraPath, CLDRFile ourSrc, CLDRFile oldFile, XPathParts xpp, String fullPath,
+    private void populateFromThisXpath(String xpath, Set<String> extraXpaths, CLDRFile ourSrc, CLDRFile oldFile, XPathParts xpp, String fullPath,
         TestResultBundle checkCldr, int coverageValue, int base_xpath, List<CheckStatus> examplesResult, List<CheckStatus> checkCldrResult) {
+        /*
+         * 'extra' paths get shim treatment
+         * 
+         * NOTE: this is a sufficient but not a necessary condition for isExtraPath; if it gets false here,
+         * it may still get true below if ourSrc.getStringValue returns null.
+         */
+        boolean isExtraPath = extraXpaths != null && extraXpaths.contains(xpath);
 
         /*
          * TODO: clarify the significance and usage of the local variable ourValue.
@@ -2663,16 +2682,49 @@ public class DataSection implements JSONString {
          * the Bailey value -- could that possibly be causing a "hard" vote to be treated as
          * winning when in reality it may have been a "soft" vote that was winning?
          *
-         * Does ourValue reflect the current votes? How does it relate to winningValue
-         * the oldValue, etc.? ourSrc contrasts with oldFile (both are type CLDRFile).
+         * Does ourValue reflect the current votes? YES.
+         * Enter a new winning value for a row, for example "test-bogus" in place of "occitan"
+         * in the first row of http://localhost:8080/cldr-apps/v#/fr_CA/Languages_O_S/24368393ccee3451
+         * and ourValue will get "test-bogus" here.
+         * Then vote for "soft" inheritance, and ourValue will get "occitan" here (NOT CldrUtility.INHERITANCE_MARKER).
+         * How does ourValue relate to winningValue, oldValue, etc.?
+         * ourSrc contrasts with oldFile; both are type CLDRFile.
+         * Each CLDRFile has a dataSource, which is an XMLSource, an abstract class.
+         * These classes extends XMLSource: DelegateXMLSource, DummyXMLSource, ResolvingSource,
+         * SimpleXMLSource. Generally (always?) in this context ourSrc.dataSource is a
+         * ResolvingSource, and ourSrc.dataSource.currentSource is a DataBackedSource.
+         * ourSrc is initialized as follows:
+         *         CLDRFile ourSrc = sm.getSTFactory().make(locale.getBaseName(), true, true);
          */
+
+        /*
+         * TODO: temporary debugging code, for setting breakpoint:
+         */
+        if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kazakhstan_Eastern\"]/long/standard")) {
+        // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kazakhstan_Eastern\"]/long/generic")) {
+        // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kyrgystan\"]/long/generic")) {
+            System.out.println("Debugging: populateFromThisXpath xpath  = " + xpath);
+        }
+        
         String ourValue = isExtraPath ? null : ourSrc.getStringValue(xpath);
         if (ourValue == null) {
+            /*
+             * This happens, for example, with xpath = "//ldml/dates/timeZoneNames/metazone[@type=\"Kyrgystan\"]/long/generic"
+             * at http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/
+             * 
+             * getStringValue calls getFallbackPath which calls getRawExtraPaths which contains xpath
+             */
             if (DEBUG) {
-                System.err.println("warning: populatefrom " + this + ": " + locale + ":" + xpath + " = NULL! wasExtraPath="
+                System.err.println("warning: populateFromThisXpath " + this + ": " + locale + ":" + xpath + " = NULL! wasExtraPath="
                     + isExtraPath);
             }
             isExtraPath = true;
+        }
+        /*
+         * TODO: temporary debugging code:
+         */
+        if (ourValue != null && ourValue.equals(CldrUtility.INHERITANCE_MARKER)) {
+            System.out.println("Debugging: ourValue = INHERITANCE_MARKER in populateFromThisXpath; xpath = " + xpath);
         }
 
         // determine 'alt' param
@@ -2703,6 +2755,13 @@ public class DataSection implements JSONString {
             populateFromThisXpathAddItemsForVotes(v, xpath, ourValue, row, checkCldr);
         }
 
+        /*
+         * TODO: the condition !row.oldValue.equals(ourValue) here prevents the oldValue item from
+         * getting isOldValue if oldValue equals ourValue. Why? See https://unicode.org/cldr/trac/ticket/11386
+         * Note that the client, not the server, should decide when it's appropriate to add a star icon to
+         * the old value. The server should provide accurate data, so depending on what "isOldValue" is supposed
+         * to mean, these limitations on setting isOldValue may be inappropriate.
+         */
         if (row.oldValue != null && !row.oldValue.equals(ourValue) && (v == null || !v.contains(row.oldValue))) {
             // if "oldValue" isn't already represented as an item, add it.
             CandidateItem oldItem = row.addItem(row.oldValue);
@@ -2721,8 +2780,14 @@ public class DataSection implements JSONString {
              * code in updateInheritedValue needed for inheritedLocale, pathWhereFound. Currently that
              * problem has been fixed at least partly, by NOT skipping that code in updateInheritedValue
              * even if an item with INHERITANCE_MARKER already exists.
-             */
+             */            
             row.addItem(CldrUtility.INHERITANCE_MARKER);
+            /*
+             * TEMPORARY debugging:
+             */
+            if (row.pathWhereFound != null) {
+                System.out.println("Warning in populateFromThisXpath: added INHERITANCE_MARKER, pathWhereFound not null");
+            }
         }
 
         if (isExtraPath) {
@@ -2738,7 +2803,7 @@ public class DataSection implements JSONString {
             /*
              *  This item fell back from root. Make sure it has an Item, and that tests are run.
              */
-            row.updateInheritedValue(ourSrc, checkCldr);
+            row.updateInheritedValue(ourSrc, checkCldr, xpath);
         }
 
         if ((row.getDisplayName() == null)) {
@@ -2755,8 +2820,19 @@ public class DataSection implements JSONString {
 
         /*
          * If it is inherited, do NOT add any CandidateItems.
+         * TODO: explain why would being inherited be a reason not to add items? Only one value is possibly added
+         * in the rest of this function: ourValue; if ourValue is inherited, then indeed there should be an item
+         * for "soft" inheritance with INHERITANCE_MARKER, but no item for hard/explicit value unless it has votes.
+         * Test if this value of isInherited is reliable and consistent with what happens in setInheritedValue; could
+         * use this opportunity to set inheritedValue = ourValue ... but if ourValue is always the same as inheritedValue
+         * or winningValue, then what do we need it for?
          */
         boolean isInherited = !(sourceLocale.equals(locale.toString()));
+        /*
+         * TODO: temporary debugging code:
+         */
+        System.out.println("Debugging: in populateFromThisXpath; xpath = " + xpath + "; isInherited = " + isInherited + "; ourValue = " + ourValue);
+        
         if (isInherited && !isExtraPath) {
              return;
         }
@@ -2791,7 +2867,15 @@ public class DataSection implements JSONString {
             if (DEBUG) {
                 System.err.println(" //val='" + avalue + "' vs " + ourValue + " in " + xpath);
             }
-            if (!avalue.equals(ourValue)) {
+            /*
+             * Skip the "equals" condition here to fix bug.
+             * That bug manifested as follows: to begin with, there were 12 "hard" votes for "heure de l’Est du Kazakhstan"
+             * for the first row in http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/35cbcd768d0ad2c9
+             * As admin, vote for "soft" inheritance: the 12 "hard" votes, and the "hard" item, are no longer displayed,
+             * in the Others column or the Info Panel!
+             * TODO: Clean this up; unless further change is needed here, ourValue is an unused parameter for this method.
+             */
+            /// if (!avalue.equals(ourValue)) {
                 CandidateItem item2 = row.addItem(avalue);
                 if (avalue != null && checkCldr != null) {
                     List<CheckStatus> item2Result = new ArrayList<CheckStatus>();
@@ -2800,7 +2884,7 @@ public class DataSection implements JSONString {
                         item2.setTests(item2Result);
                     }
                 }
-            }
+            /// }
         }
     }
 
@@ -2814,11 +2898,22 @@ public class DataSection implements JSONString {
      * @param xpath
      * @param setInheritFrom
      * @param examplesResult
+     * 
+     * TODO: addOurValue could be a method of DataRow instead of DataSection?
      */
     private void addOurValue(String ourValue, DataRow row, List<CheckStatus> checkCldrResult,
             org.unicode.cldr.util.CLDRFile.Status sourceLocaleStatus, String xpath, CLDRLocale setInheritFrom,
             List<CheckStatus> examplesResult) {
-        
+
+        /*
+         * TODO: temporary debugging code: check if DataRow.pathWhereFound is already set...
+         * Shouldn't replace a valid pathWhereFound with null. 
+         */
+        if (ourValue.equals(CldrUtility.INHERITANCE_MARKER)) {
+            // This does not seem to happen so far
+            System.out.println("Debugging: addOurValue called with ourValue = INHERITANCE_MARKER; xpath = " + xpath
+                + "; ourValue = " + ourValue + "; inheritedValue = " + row.inheritedValue);
+        }
         CandidateItem myItem = row.addItem(ourValue);
 
         if (DEBUG) {
@@ -2839,8 +2934,28 @@ public class DataSection implements JSONString {
              * TODO: temporary debugging code: check if DataRow.pathWhereFound is already set...
              * Shouldn't replace a valid pathWhereFound with null. 
              */
-            if (row.pathWhereFound != null) {
-                System.out.println("Warning: row.pathWhereFound was already set in populateFrom, and sourceLocaleStatus != null");
+            if (row.pathWhereFound == null) {
+                // This does not seem to happen so far
+                System.out.println("Warning: row.pathWhereFound NOT already set in addOurValue, and sourceLocaleStatus != null; xpath = " + xpath
+                    + "; ourValue = " + ourValue + "; inheritedValue = " + row.inheritedValue);
+            } else {
+                System.out.println("Warning: row.pathWhereFound was already set in addOurValue, and sourceLocaleStatus != null; xpath = " + xpath
+                        + "; ourValue = " + ourValue + "; inheritedValue = " + row.inheritedValue);
+                if (row.pathWhereFound.equals(sourceLocaleStatus.pathWhereFound)) {
+                    // This does happen. Must have been set already in updateInheritedValue... in such cases, is ourValue = inheritedValue?
+                    if (ourValue.equals(row.inheritedValue)) {
+                        // This does happen.
+                        System.out.println("Warning: row.pathWhereFound equals sourceLocaleStatus.pathWhereFound, ourValue=inheritedValue");
+                    }
+                    else {
+                        // This does not seem to happen so far
+                        System.out.println("Warning: row.pathWhereFound equals sourceLocaleStatus.pathWhereFound, ourValue DOES NOT EQUAL inheritedValue");                        
+                    }
+                }
+                else {
+                    // This does not seem to happen so far
+                    System.out.println("Warning: row.pathWhereFound DOES NOT EQUAL sourceLocaleStatus.pathWhereFound");
+                }
             }
             row.pathWhereFound = sourceLocaleStatus.pathWhereFound;
         }
