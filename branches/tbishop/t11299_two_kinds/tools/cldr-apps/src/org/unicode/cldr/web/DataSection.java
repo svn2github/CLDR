@@ -526,7 +526,9 @@ public class DataSection implements JSONString {
          *
          * Change for https://unicode.org/cldr/trac/ticket/11299 : formerly the rawValue for
          * inheritedItem was the Bailey value. Instead, now rawValue will be INHERITANCE_MARKER,
-         * and the Bailey value will be stored in DataRow.inheritedValue. 
+         * and the Bailey value will be stored in DataRow.inheritedValue.
+         * 
+         * inheritedItem is set by updateInheritedValue and by setShimTests
          */
         private CandidateItem inheritedItem = null;
 
@@ -672,11 +674,43 @@ public class DataSection implements JSONString {
          * 
          * @param value
          * @return the new or existing item with the given value
-         * 
-         * TODO: is this really ever called with value = null or empty string, and if so, why? shim?
+         *
+         * Sequential order in which addItem may be called (as of 2018-8-28) for a given DataRow:
+         *
+         * (1) For votes:
+         *     in populateFromThisXpathAddItemsForVotes (called by populateFromThisXpath):
+         *         CandidateItem item2 = row.addItem(avalue);
+         *
+         * (2) For oldValue (if not null, not in votes, and not same as ourValue):
+         *     in populateFromThisXpath:
+         *         CandidateItem oldItem = row.addItem(row.oldValue);
+         *
+         * (3) For INHERITANCE_MARKER (if not in votes and locale.getCountry isn't empty):
+         *     in populateFromThisXpath:
+         *         row.addItem(CldrUtility.INHERITANCE_MARKER);
+         *
+         * (4) For INHERITANCE_MARKER (if inheritedValue = ourSrc.getConstructedBaileyValue not null):
+         *     in updateInheritedValue (called by populateFromThisXpath):
+         *         inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER);
+         *
+         * (5) For ourValue:
+         *     in addOurValue (called by populateFromThisXpath):
+         *         CandidateItem myItem = row.addItem(ourValue);
+         *
+         * (6) For winningValue in exceptional/experimental circumstances:
+         *     in decideWinningVhashForClient (exceptional/experimental):
+         *         winningItem = addItem(winningValue);
          */
         public CandidateItem addItem(String value) {
             final String kValue = (value == null) ? "" : value;
+            /*
+             * TODO: TEMPORARY DEBUGGING
+             * is addItem really ever called with value = null or empty string, and if so, why? shim?
+             */
+            if (kValue.equals("")) {
+                System.out.println("addItem: empty value!");
+            }
+
             CandidateItem pi = items.get(kValue);
             if (pi != null) {
                 return pi;
@@ -868,6 +902,11 @@ public class DataSection implements JSONString {
         }
 
         /**
+         * If inheritedItem is null, possibly create inheritedItem; otherwise do nothing.
+         *
+         * inheritedItem is normally null when setShimTests is called by populateFromThisXpath,
+         * unless setShimTests has already been called by ensureComplete, for some timezones.
+         *
          * A Shim is a candidate item which does not correspond to actual XML
          * data, but is synthesized.
          *
@@ -875,13 +914,12 @@ public class DataSection implements JSONString {
          * @param base_xpath_string
          * @param checkCldr
          * @param options
+         *
+         * Called by populateFromThisXpath (if isExtraPath), and by ensureComplete (for timezones)
          */
-        void setShimTests(int base_xpath, String base_xpath_string, TestResultBundle checkCldr, Map<String, String> options) {
-            CandidateItem shimItem = inheritedItem;
-
-            if (shimItem == null) {
-                shimItem = new CandidateItem(null);
-
+        private void setShimTests(int base_xpath, String base_xpath_string, TestResultBundle checkCldr, Map<String, String> options) {
+            if (inheritedItem == null) {
+                CandidateItem shimItem = new CandidateItem(null);
                 List<CheckStatus> iTests = new ArrayList<CheckStatus>();
                 checkCldr.check(base_xpath_string, iTests, null);
                 if (!iTests.isEmpty()) {
@@ -1173,7 +1211,8 @@ public class DataSection implements JSONString {
                 }
 
                 List<CheckStatus> iTests = new ArrayList<CheckStatus>();
-                checkCldr.check(xpath, iTests, inheritedItem.rawValue);
+
+                checkCldr.check(xpath, iTests, inheritedValue);
 
                 if (TRACE_TIME) {
                     System.err.println("@@6:" + (System.currentTimeMillis() - lastTime));
@@ -1377,9 +1416,11 @@ public class DataSection implements JSONString {
                 if (inheritedValue != null) {
                     winningValue = CldrUtility.INHERITANCE_MARKER; // NOT inheritedValue
                     // TODO: maybe winningItem = inheritedItem -- but what if inheritedItem is null?
-                }
-                else {
+                } else {
                     // TODO: this happens, such as for "http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/"! Very temporary debugging code!!
+                    // xpath = //ldml/dates/timeZoneNames/metazone[@type="Kyrgystan"]/long/generic
+                    // xpath = //ldml/dates/timeZoneNames/metazone[@type="Qyzylorda"]/long/generic
+                    // These are "extra" paths.
                     System.out.println("Warning: errorNoWinningValue in decideWinningValueForClient; xpath = " + xpath);
                     winningValue = "errorNoWinningValue";
                 }
@@ -1390,16 +1431,15 @@ public class DataSection implements JSONString {
                 if (inheritedValue == null) {
                     // this happens, errorNoWinningValue
                     System.out.println("Warning: creating new item for winningValue = " + winningValue + " in decideWinningValueForClient; inheritedValue is null");
-                }
-                else if (inheritedValue.equals(winningValue)) {
-                    // this happens, for example, "Monegasque Franc".
+                } else if (inheritedValue.equals(winningValue)) {
+                    // this happens, for example, "Monegasque Franc"
                     System.out.println("Warning: creating new item for winningValue = inheritedValue = " + winningValue + " in decideWinningValueForClient");
-                }
-                else {
+                } else {
+                    // This does not seem to happen so far
                     System.out.println("Warning: creating new item for winningValue " + winningValue + " in decideWinningValueForClient; inheritedValue is DIFFERENT: " + inheritedValue);
                 }
                 winningItem = addItem(winningValue);
-             }
+            }
 
             /*
              * No matter what winningValue is, for consistency we might always want
@@ -2404,9 +2444,9 @@ public class DataSection implements JSONString {
 
                     // set up tests
                     myp.setShimTests(base_xpath, base_xpath_string, checkCldr, options);
-                }
-            }
-        } // tz
+                } // end inner for loop
+            } // end outer for loop
+        } // end if timezone
     }
 
     /**
@@ -2742,7 +2782,21 @@ public class DataSection implements JSONString {
 
         // Load the 'data row' which represents one user visible row.
         // (may be nested in the case of alt types) (nested??)
+        // Is it ever true that rowsHash already contains xpath here, or does getDataRow always create a new DataRow here?
         DataRow row = getDataRow(xpath);
+
+        if (ourValue != null) {
+            if (ourValue.equals(row.winningValue)) {
+                // This happens, e.g. at v#/fr_CA/CAsia/:
+                // ourValue = winningValue = heure avancée d’Aqtöbe in populateFromThisXpath; xpath = //ldml/dates/timeZoneNames/metazone[@type="Aqtobe"]/long/daylight
+                System.out.println("Debugging: ourValue = winningValue = " + row.winningValue + " in populateFromThisXpath; xpath = " + xpath);
+            } else {
+                // This happens for winningValue = ↑↑↑:
+                // ourValue = Atyraou and winningValue = ↑↑↑ are DIFFERENT ... xpath = //ldml/dates/timeZoneNames/zone[@type="Asia/Atyrau"]/exemplarCity
+                // ourValue = heure de l’Est du Kazakhstan and winningValue = ↑↑↑ are DIFFERENT ... xpath = //ldml/dates/timeZoneNames/metazone[@type="Kazakhstan_Eastern"]/long/standard
+                System.out.println("Debugging: ourValue = " + ourValue + " and winningValue = " + row.winningValue + " are DIFFERENT in populateFromThisXpath; xpath = " + xpath);
+            }
+        }
 
         if (oldFile != null) {
             row.oldValue = oldFile.getStringValueWithBailey(xpath);
@@ -2773,6 +2827,10 @@ public class DataSection implements JSONString {
         if ((locale.getCountry() != null && locale.getCountry().length() > 0) && (v == null || !v.contains(CldrUtility.INHERITANCE_MARKER))) {
             /*
              * If "vote for inherited" isn't already represented as an item, add it (child locales only).
+             *
+             * Note: the above condition "!v.contains(CldrUtility.INHERITANCE_MARKER)" is superfluous, since
+             * the values from addItem have already been called for all votes in v, and addItem does nothing if
+             * the item is already contained.
              * 
              * TODO: Note that updateInheritedValue is called a few lines below, unless isExtraPath; normally
              * it's the job of updateInheritedValue to do addItem(CldrUtility.INHERITANCE_MARKER); is there
@@ -2786,27 +2844,40 @@ public class DataSection implements JSONString {
              * TEMPORARY debugging:
              */
             if (row.pathWhereFound != null) {
+                // This doesn't seem to happen so far
                 System.out.println("Warning in populateFromThisXpath: added INHERITANCE_MARKER, pathWhereFound not null");
             }
         }
 
-        if (isExtraPath) {
-            /*
-             * This is an 'extra' item- it doesn't exist in xml (including root).
-             * For example, isExtraPath may be true when xpath is:
-             *  '//ldml/dates/timeZoneNames/metazone[@type="Mexico_Northwest"]/short/standard'
-             * and the URL ends with "v#/aa/NAmerica/".
-             * Set up 'shim' tests, to display coverage.
-             */
-            row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr, null);
-        } else if (row.inheritedItem == null) {
-            /*
-             *  This item fell back from root. Make sure it has an Item, and that tests are run.
-             */
-            row.updateInheritedValue(ourSrc, checkCldr, xpath);
+        /*
+         * Normally row.inheritedItem is null at this point, unless setShimTests has already been called
+         * by ensureComplete, for some timezones. If row.inheritedItem is null, possibly create it,
+         * either with setShimTests if isExtraPath, or else with updateInheritedValue.
+         */
+        /*
+         * TODO: Temporary debugging code:
+         */
+        if (row.inheritedItem != null) {
+            System.out.println("DEBUGGING: inheritedItem not null in populateFromThisXpath!");
         }
-
-        if ((row.getDisplayName() == null)) {
+        if (row.inheritedItem == null) {
+            if (isExtraPath) {
+                /*
+                 * This is an 'extra' item- it doesn't exist in xml (including root).
+                 * For example, isExtraPath may be true when xpath is:
+                 *  '//ldml/dates/timeZoneNames/metazone[@type="Mexico_Northwest"]/short/standard'
+                 * and the URL ends with "v#/aa/NAmerica/".
+                 * Set up 'shim' tests, to display coverage.
+                 */
+                row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr, null);
+            } else {
+                /*
+                 * This item fell back from root (what does that mean?). Make sure it has an Item, and that tests are run.
+                 */
+                row.updateInheritedValue(ourSrc, checkCldr, xpath);
+            }
+        }
+        if (row.getDisplayName() == null) {
             canName = false; // disable 'view by name' if not all have names.
         }
 
@@ -2819,19 +2890,20 @@ public class DataSection implements JSONString {
         String sourceLocale = ourSrc.getSourceLocaleID(xpath, sourceLocaleStatus);
 
         /*
-         * If it is inherited, do NOT add any CandidateItems.
-         * TODO: explain why would being inherited be a reason not to add items? Only one value is possibly added
-         * in the rest of this function: ourValue; if ourValue is inherited, then indeed there should be an item
+         * If ourValue is inherited, do NOT add a CandidateItem for it.
+         * TODO: clarify. If ourValue is inherited, then indeed there should be an item
          * for "soft" inheritance with INHERITANCE_MARKER, but no item for hard/explicit value unless it has votes.
          * Test if this value of isInherited is reliable and consistent with what happens in setInheritedValue; could
          * use this opportunity to set inheritedValue = ourValue ... but if ourValue is always the same as inheritedValue
-         * or winningValue, then what do we need it for?
+         * or winningValue, then what do we need it for? Commonly updateInheritedValue or setShimTests will already have
+         * been called above.
          */
         boolean isInherited = !(sourceLocale.equals(locale.toString()));
         /*
          * TODO: temporary debugging code:
          */
-        System.out.println("Debugging: in populateFromThisXpath; xpath = " + xpath + "; isInherited = " + isInherited + "; ourValue = " + ourValue);
+        System.out.println("Debugging: in populateFromThisXpath; xpath = " + xpath + "; isInherited = " + isInherited
+            + "; ourValue = " + ourValue + "; isExtraPath = " + isExtraPath);
         
         if (isInherited && !isExtraPath) {
              return;
