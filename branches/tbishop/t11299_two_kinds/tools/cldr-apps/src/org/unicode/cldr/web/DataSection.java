@@ -1433,7 +1433,7 @@ public class DataSection implements JSONString {
                     System.out.println("Warning: creating new item for winningValue = " + winningValue + " in decideWinningValueForClient; inheritedValue is null");
                 } else if (inheritedValue.equals(winningValue)) {
                     // this happens, for example, "Monegasque Franc"
-                    System.out.println("Warning: creating new item for winningValue = inheritedValue = " + winningValue + " in decideWinningValueForClient");
+                    System.out.println("Warning: creating new item for winningValue = inheritedValue = " + winningValue + " in decideWinningValueForClient; xpath = " + xpath);
                 } else {
                     // This does not seem to happen so far
                     System.out.println("Warning: creating new item for winningValue " + winningValue + " in decideWinningValueForClient; inheritedValue is DIFFERENT: " + inheritedValue);
@@ -2740,12 +2740,13 @@ public class DataSection implements JSONString {
         /*
          * TODO: temporary debugging code, for setting breakpoint:
          */
-        if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kazakhstan_Eastern\"]/long/standard")) {
-        // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kazakhstan_Eastern\"]/long/generic")) {
-        // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kyrgystan\"]/long/generic")) {
-            System.out.println("Debugging: populateFromThisXpath xpath  = " + xpath);
-        }
-        
+        // if (xpath.equals("//ldml/localeDisplayNames/languages/language[@type=\"frc\"]")) {
+            // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kazakhstan_Eastern\"]/long/standard")) {
+            // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kazakhstan_Eastern\"]/long/generic")) {
+            // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kyrgystan\"]/long/generic")) {
+            // System.out.println("Debugging: populateFromThisXpath xpath  = " + xpath);
+        // }
+
         String ourValue = isExtraPath ? null : ourSrc.getStringValue(xpath);
         if (ourValue == null) {
             /*
@@ -2764,6 +2765,7 @@ public class DataSection implements JSONString {
          * TODO: temporary debugging code:
          */
         if (ourValue != null && ourValue.equals(CldrUtility.INHERITANCE_MARKER)) {
+            // this doesn't seem to happen so far
             System.out.println("Debugging: ourValue = INHERITANCE_MARKER in populateFromThisXpath; xpath = " + xpath);
         }
 
@@ -2783,17 +2785,32 @@ public class DataSection implements JSONString {
         // Load the 'data row' which represents one user visible row.
         // (may be nested in the case of alt types) (nested??)
         // Is it ever true that rowsHash already contains xpath here, or does getDataRow always create a new DataRow here?
+
+        /*
+         * TODO: Temporary debugging code:
+         */
+        if (rowsHash.get(xpath) != null) {
+            // this doesn't seem to happen so far
+            System.out.println("Debugging: row already exists before getDataRow in populateFromThisXpath; xpath = " + xpath);
+        }
+
         DataRow row = getDataRow(xpath);
 
+        /*
+         * TODO: Temporary debugging code:
+         */
         if (ourValue != null) {
             if (ourValue.equals(row.winningValue)) {
                 // This happens, e.g. at v#/fr_CA/CAsia/:
                 // ourValue = winningValue = heure avancée d’Aqtöbe in populateFromThisXpath; xpath = //ldml/dates/timeZoneNames/metazone[@type="Aqtobe"]/long/daylight
-                System.out.println("Debugging: ourValue = winningValue = " + row.winningValue + " in populateFromThisXpath; xpath = " + xpath);
-            } else {
+                // System.out.println("Debugging: ourValue = winningValue = " + row.winningValue + " in populateFromThisXpath; xpath = " + xpath);
+            } else if (CldrUtility.INHERITANCE_MARKER.equals(row.winningValue)) {
                 // This happens for winningValue = ↑↑↑:
                 // ourValue = Atyraou and winningValue = ↑↑↑ are DIFFERENT ... xpath = //ldml/dates/timeZoneNames/zone[@type="Asia/Atyrau"]/exemplarCity
                 // ourValue = heure de l’Est du Kazakhstan and winningValue = ↑↑↑ are DIFFERENT ... xpath = //ldml/dates/timeZoneNames/metazone[@type="Kazakhstan_Eastern"]/long/standard
+                System.out.println("Debugging: ourValue = " + ourValue + " and winningValue is INHERITANCE_MARKER in populateFromThisXpath; xpath = " + xpath);
+            } else {
+                // this doesn't seem to happen so far
                 System.out.println("Debugging: ourValue = " + ourValue + " and winningValue = " + row.winningValue + " are DIFFERENT in populateFromThisXpath; xpath = " + xpath);
             }
         }
@@ -2809,17 +2826,10 @@ public class DataSection implements JSONString {
             populateFromThisXpathAddItemsForVotes(v, xpath, ourValue, row, checkCldr);
         }
 
-        /*
-         * TODO: the condition !row.oldValue.equals(ourValue) here prevents the oldValue item from
-         * getting isOldValue if oldValue equals ourValue. Why? See https://unicode.org/cldr/trac/ticket/11386
-         * Note that the client, not the server, should decide when it's appropriate to add a star icon to
-         * the old value. The server should provide accurate data, so depending on what "isOldValue" is supposed
-         * to mean, these limitations on setting isOldValue may be inappropriate.
-         */
         if (row.oldValue != null && !row.oldValue.equals(ourValue) && (v == null || !v.contains(row.oldValue))) {
             // if "oldValue" isn't already represented as an item, add it.
             CandidateItem oldItem = row.addItem(row.oldValue);
-            oldItem.isOldValue = true;
+            oldItem.isOldValue = true; // TODO: delete this line, redundant since addItem sets isOldValue if value equals oldValue
         }
 
         row.coverageValue = coverageValue;
@@ -2886,6 +2896,17 @@ public class DataSection implements JSONString {
             altProp = SurveyMain.PROPOSED_DRAFT;
         }
 
+        /*
+         * TODO: address the situation where ourValue is inherited, but winningValue != INHERITANCE_MARKER.
+         * (E.g., v#/pt_PT/Languages_A_D/, xpath = //ldml/localeDisplayNames/languages/language[@type="frc"].)
+         * This can happen if there are no votes and resolver.getWinningValue() returns lastReleaseValue,
+         * which is never (?) INHERITANCE_MARKER. We should not trust getWinningValue as the final
+         * decider of winningValue. Instead, trust isInherited = !(sourceLocale.equals(locale.toString()))
+         * and if that is true, then change winningValue to INHERITANCE_MARKER, and confirm that 
+         * ourValue matches what getWinningValue returned, and use it for inheritedValue.
+         * To do that, need to move the next three lines of code for sourceLocaleStatus,
+         * sourceLocale, and isInherited, up earlier in this function before creating the new row...
+         */
         CLDRFile.Status sourceLocaleStatus = new CLDRFile.Status();
         String sourceLocale = ourSrc.getSourceLocaleID(xpath, sourceLocaleStatus);
 
