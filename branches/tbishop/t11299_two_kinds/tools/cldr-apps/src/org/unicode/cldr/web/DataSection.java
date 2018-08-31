@@ -636,9 +636,8 @@ public class DataSection implements JSONString {
              * Note: we set winningValue = resolver.getWinningValue() here, but we
              * may change winningValue subsequently in fixWinningValue().
              * 
-             * There is a need to address the situation if winningValue gets null or empty string here;
-             * null/empty winningValue should not be sent to the client!
-             * Also fix the bug where client receives non-empty winningValue but empty winningVhash.
+             * There is a need to address the situation if winningValue gets null or empty string here.
+             * Fix the bug where winningVhash is empty or undefined on client.
              * See https://unicode.org/cldr/trac/ticket/11299 "Example C".
              */
             winningValue = resolver.getWinningValue();
@@ -1088,6 +1087,21 @@ public class DataSection implements JSONString {
          * sometimes "extra paths" are involved. This should be documented more clearly. The client
          * shouldn't be burdened with the responsibility of deciding what to when no winning value
          * is specified.
+         *
+         * TODO: address the situation where ourValue is inherited, but winningValue != INHERITANCE_MARKER.
+         * (E.g., v#/pt_PT/Languages_A_D/, xpath = //ldml/localeDisplayNames/languages/language[@type="frc"].)
+         * This can happen if there are no votes and resolver.getWinningValue() returns lastReleaseValue,
+         * which is never (?) INHERITANCE_MARKER.
+         * 
+         * Possibly we should not always accept getWinningValue as the final decider of winningValue.
+         *
+         * Consider the applicability of isInherited = !(sourceLocale.equals(locale.toString())).
+         * It perhaps only applies to ourValue that is, ourValue is inherited if and only if isInherited is true.
+         * If ourValue equals winningValue, then winningValue is inherited, then change winningValue to
+         * INHERITANCE_MARKER, and use what getWinningValue returned for inheritedValue...
+         * 
+         * CAUTION: if ourValue and winningValue differ, then isInherited does NOT imply that winningValue is
+         * inherited.
          * 
          * Reference: https://unicode.org/cldr/trac/ticket/11299
          *
@@ -1095,25 +1109,8 @@ public class DataSection implements JSONString {
          * @param isInherited the boolean that was obtained as !(sourceLocale.equals(locale.toString()))
          */
         private void fixWinningValue(String ourValue, boolean isInherited) {
-            /*
-             * If isInherited, set row.winningValue = INHERITANCE_MARKER if it isn't already
-             */
             if (isInherited) {
-                if (!CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
-                    /*
-                     * TODO: Temporary debugging code:
-                     */
-                    if (ourValue != null && winningValue != null && !ourValue.equals(winningValue)) {
-                        /*
-                         * This happens, for example at v#/pt_PT/Buddhist
-                         * ourValue = "d MMM y G" and winningValue = "dd/MM/y G" are DIFFERENT
-                         * xpath = //ldml/dates/calendars/calendar[@type="buddhist"]/dateFormats/dateFormatLength[@type="medium"]/dateFormat[@type="standard"]/pattern[@type="standard"]
-                         *
-                         * TODO: fix or explain this seeming contradiction, and decide what to do about it.
-                         * What are the implications for how to set inheritedValue?
-                         */
-                        System.out.println("Debugging: isInherited; ourValue = " + ourValue + " and winningValue = " + winningValue + " are DIFFERENT in fixWinningValue; xpath = " + xpath);
-                    }
+                if (ourValue.equals(winningValue) && !CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
                     winningValue = CldrUtility.INHERITANCE_MARKER;
                 }
             } else {
@@ -1122,13 +1119,14 @@ public class DataSection implements JSONString {
                      * This happens, for example at v#/en/Symbols
                      * ourValue = E
                      * xpath = //ldml/numbers/symbols[@numberSystem="gong"]/exponential
+                     *
                      * TODO: fix or explain this seeming contradiction, and decide what to do about it.
                      */
-                    System.out.println("Debugging: NOT isInherited; ourValue = " + ourValue + " and winningValue is null in fixWinningValue; xpath = " + xpath);
+                    System.out.println("Debugging: isInherited = " + isInherited + "; setting winningValue = ourValue; ourValue = " + ourValue + " and winningValue is null in fixWinningValue; xpath = " + xpath);
                     winningValue = ourValue;
                 } else if (CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
                     // this doesn't seem to happen so far
-                    System.out.println("Debugging: NOT isInherited; ourValue = " + ourValue + " and winningValue is INHERITANCE_MARKER in fixWinningValue; xpath = " + xpath);
+                    System.out.println("Debugging: isInherited = " + isInherited + "; ourValue = " + ourValue + " and winningValue is INHERITANCE_MARKER in fixWinningValue; xpath = " + xpath);
                 }
             }
 
@@ -1141,9 +1139,15 @@ public class DataSection implements JSONString {
                  * isInherited = false
                  * ourValue = E, d 'de' MMM – E, d 'de' MMM 'de' y G and winningValue = E, d – E, d 'de' MMM 'de' y G
                  * xpath = //ldml/dates/calendars/calendar[@type="buddhist"]/dateTimeFormats/intervalFormats/intervalFormatItem[@id="yMMMEd"]/greatestDifference[@id="d"]
-                 * TODO: fix or explain this seeming contradiction, and decide what to do about it, if anything.
+
+                 * Also for example at v#/pt_PT/Buddhist
+                 * isInherited = true
+                 * ourValue = "d MMM y G" and winningValue = "dd/MM/y G" are DIFFERENT
+                 * xpath = //ldml/dates/calendars/calendar[@type="buddhist"]/dateFormats/dateFormatLength[@type="medium"]/dateFormat[@type="standard"]/pattern[@type="standard"]
+                 *
+                 * TODO: fix or explain this seeming contradiction, and decide what to do about it.
                  */
-               System.out.println("Debugging: ourValue = " + ourValue + " and winningValue = " + winningValue + " are DIFFERENT in fixWinningValue; xpath = " + xpath);
+                System.out.println("Debugging: isInherited = " + isInherited + "; ourValue = " + ourValue + " and winningValue = " + winningValue + " are DIFFERENT in fixWinningValue; xpath = " + xpath);
             }
         }
 
@@ -2775,6 +2779,8 @@ public class DataSection implements JSONString {
          * ResolvingSource, and ourSrc.dataSource.currentSource is a DataBackedSource.
          * ourSrc is initialized as follows:
          *         CLDRFile ourSrc = sm.getSTFactory().make(locale.getBaseName(), true, true);
+         * 
+         * See fixWinningValue for more related comments.
          */
 
         /*
@@ -2816,27 +2822,9 @@ public class DataSection implements JSONString {
         String typeAndProposed[] = LDMLUtilities.parseAlt(alt);
         String altProp = typeAndProposed[1];
 
-        /*
-         * TODO: address the situation where ourValue is inherited, but winningValue != INHERITANCE_MARKER.
-         * (E.g., v#/pt_PT/Languages_A_D/, xpath = //ldml/localeDisplayNames/languages/language[@type="frc"].)
-         * This can happen if there are no votes and resolver.getWinningValue() returns lastReleaseValue,
-         * which is never (?) INHERITANCE_MARKER. We should not trust getWinningValue as the final
-         * decider of winningValue. Instead, trust isInherited = !(sourceLocale.equals(locale.toString()))
-         * and if that is true, then change winningValue to INHERITANCE_MARKER, and confirm that 
-         * ourValue matches what getWinningValue returned, and use it for inheritedValue.
-         */
         CLDRFile.Status sourceLocaleStatus = new CLDRFile.Status();
         String sourceLocale = ourSrc.getSourceLocaleID(xpath, sourceLocaleStatus);
 
-        /*
-         * If ourValue is inherited, do NOT add a CandidateItem for it.
-         * TODO: clarify. If ourValue is inherited, then indeed there should be an item
-         * for "soft" inheritance with INHERITANCE_MARKER, but no item for hard/explicit value unless it has votes.
-         * Test if this value of isInherited is reliable and consistent with what happens in setInheritedValue; could
-         * use this opportunity to set inheritedValue = ourValue ... but if ourValue is always the same as inheritedValue
-         * or winningValue, then what do we need it for? Commonly updateInheritedValue or setShimTests will already have
-         * been called above.
-         */
         boolean isInherited = !(sourceLocale.equals(locale.toString()));
 
         // Load the 'data row' which represents one user visible row.
@@ -2929,6 +2917,15 @@ public class DataSection implements JSONString {
             altProp = SurveyMain.PROPOSED_DRAFT;
         }
         
+        /*
+         * If ourValue is inherited, do NOT add a CandidateItem for it.
+         * TODO: clarify. If ourValue is inherited, then indeed there should be an item
+         * for "soft" inheritance with INHERITANCE_MARKER, but no item for hard/explicit value unless it has votes.
+         * Test if this value of isInherited is reliable and consistent with what happens in setInheritedValue; could
+         * use this opportunity to set inheritedValue = ourValue ... but if ourValue is always the same as inheritedValue
+         * or winningValue, then what do we need it for? Commonly updateInheritedValue or setShimTests will already have
+         * been called above.
+         */
         if (isInherited && !isExtraPath) {
              return;
         }
