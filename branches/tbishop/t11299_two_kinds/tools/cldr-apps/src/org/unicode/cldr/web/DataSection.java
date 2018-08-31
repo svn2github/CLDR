@@ -633,34 +633,18 @@ public class DataSection implements JSONString {
             }
             VoteResolver<String> resolver = ballotBox.getResolver(xpath);
             /*
-             * TODO: address the situation if winningValue gets null or empty string here;
+             * Note: we set winningValue = resolver.getWinningValue() here, but we
+             * may change winningValue subsequently in fixWinningValue().
+             * 
+             * There is a need to address the situation if winningValue gets null or empty string here;
              * null/empty winningValue should not be sent to the client!
              * Also fix the bug where client receives non-empty winningValue but empty winningVhash.
              * See https://unicode.org/cldr/trac/ticket/11299 "Example C".
-             * 
-             * Why not simply set winningVHash = DataSection.getValueHash((winningValue) immediately
-             * after setting winningValue?
              */
-            /*
-             * TODO: temporary debugging code:
-             * URL: http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/
-             * xpath = "//ldml/dates/timeZoneNames/metazone[@type=\"Qyzylorda\"]/short/daylight"
-             * We get winningValue = null, confirmStatus = "missing", displayName = null
-             * Later we get isExtraPath = true ...
-             */
-            // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Qyzylorda\"]/short/daylight")) {
-            //    System.out.println("In DataRow constructor, xpath = " + xpath);
-            // }
-
             winningValue = resolver.getWinningValue();
 
             confirmStatus = resolver.getWinningStatus();
-            /*
-             * TODO: Temporary debugging code:
-             */
-            // if (winningValue == null) {
-            //    System.out.println("Warning: winningValue is null, status is " + confirmStatus + " in DataRow constructor, xpath = " + xpath);
-            // }
+
             this.displayName = baselineFile.getStringValue(xpath);
         }
 
@@ -702,15 +686,12 @@ public class DataSection implements JSONString {
          *         winningItem = addItem(winningValue);
          */
         public CandidateItem addItem(String value) {
-            final String kValue = (value == null) ? "" : value;
             /*
-             * TODO: TEMPORARY DEBUGGING
-             * is addItem really ever called with value = null or empty string, and if so, why? shim?
+             * TODO: Clarify the purpose of changing null to empty string here, rather than
+             * simply doing nothing, or reporting an error. There appears to be no reason to
+             * add an item with null or empty value.
              */
-            if (kValue.equals("")) {
-                System.out.println("addItem: empty value!");
-            }
-
+            final String kValue = (value == null) ? "" : value;
             CandidateItem pi = items.get(kValue);
             if (pi != null) {
                 return pi;
@@ -913,11 +894,10 @@ public class DataSection implements JSONString {
          * @param base_xpath
          * @param base_xpath_string
          * @param checkCldr
-         * @param options
          *
          * Called by populateFromThisXpath (if isExtraPath), and by ensureComplete (for timezones)
          */
-        private void setShimTests(int base_xpath, String base_xpath_string, TestResultBundle checkCldr, Map<String, String> options) {
+        private void setShimTests(int base_xpath, String base_xpath_string, TestResultBundle checkCldr) {
             if (inheritedItem == null) {
                 CandidateItem shimItem = new CandidateItem(null);
                 List<CheckStatus> iTests = new ArrayList<CheckStatus>();
@@ -1080,13 +1060,102 @@ public class DataSection implements JSONString {
         }
 
         /**
+         * After constructing this new DataRow, change its winningValue if needed for consistency
+         * with ourValue and isInherited.
+         *
+         * We have two ways of getting the currently winning value for a row:
+         *     (1) ourValue = ourSrc.getStringValue(xpath)
+         *     (2) winningValue = resolver.getWinningValue()
+         * Often these are equal. They can be different when one or the other (but not both) is null,
+         * or when winningValue is INHERITANCE_MARKER. ourValue is never (?) INHERITANCE_MARKER.
+         *
+         * ourValue and winningValue can also be different even when neither is null or INHERITANCE_MARKER,
+         * and that is especially perplexing. This happens, for example at v#/pt_PT/Buddhist
+         * isInherited = true
+         * ourValue = "d MMM y G" and winningValue = "dd/MM/y G" are DIFFERENT
+         * xpath = //ldml/dates/calendars/calendar[@type="buddhist"]/dateFormats/dateFormatLength[@type="medium"]/dateFormat[@type="standard"]/pattern[@type="standard"]
+         * 
+         * Another example, also at v#/pt_PT/Buddhist
+         * isInherited = false
+         * ourValue = E, d 'de' MMM – E, d 'de' MMM 'de' y G and winningValue = E, d – E, d 'de' MMM 'de' y G
+         * xpath = //ldml/dates/calendars/calendar[@type="buddhist"]/dateTimeFormats/intervalFormats/intervalFormatItem[@id="yMMMEd"]/greatestDifference[@id="d"]
+         *
+         * When "soft" inheritance is currently winning (isInherited is true), we always want winningValue to
+         * be INHERITANCE_MARKER, but resolver.getWinningValue() may return lastReleaseValue (not INHERITANCE_MARKER)
+         * if there are currently no votes. winningValue should be INHERITANCE_MARKER if and only if isInherited.
+         * 
+         * The circumstances under which ourValue and/or winningValue may be null aren't very clear;
+         * sometimes "extra paths" are involved. This should be documented more clearly. The client
+         * shouldn't be burdened with the responsibility of deciding what to when no winning value
+         * is specified.
+         * 
+         * Reference: https://unicode.org/cldr/trac/ticket/11299
+         *
+         * @param ourValue the String that was obtained as ourSrc.getStringValue(xpath)
+         * @param isInherited the boolean that was obtained as !(sourceLocale.equals(locale.toString()))
+         */
+        private void fixWinningValue(String ourValue, boolean isInherited) {
+            /*
+             * If isInherited, set row.winningValue = INHERITANCE_MARKER if it isn't already
+             */
+            if (isInherited) {
+                if (!CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
+                    /*
+                     * TODO: Temporary debugging code:
+                     */
+                    if (ourValue != null && winningValue != null && !ourValue.equals(winningValue)) {
+                        /*
+                         * This happens, for example at v#/pt_PT/Buddhist
+                         * ourValue = "d MMM y G" and winningValue = "dd/MM/y G" are DIFFERENT
+                         * xpath = //ldml/dates/calendars/calendar[@type="buddhist"]/dateFormats/dateFormatLength[@type="medium"]/dateFormat[@type="standard"]/pattern[@type="standard"]
+                         *
+                         * TODO: fix or explain this seeming contradiction, and decide what to do about it.
+                         * What are the implications for how to set inheritedValue?
+                         */
+                        System.out.println("Debugging: isInherited; ourValue = " + ourValue + " and winningValue = " + winningValue + " are DIFFERENT in fixWinningValue; xpath = " + xpath);
+                    }
+                    winningValue = CldrUtility.INHERITANCE_MARKER;
+                }
+            } else {
+                if (winningValue == null && ourValue != null) {
+                    /*
+                     * This happens, for example at v#/en/Symbols
+                     * ourValue = E
+                     * xpath = //ldml/numbers/symbols[@numberSystem="gong"]/exponential
+                     * TODO: fix or explain this seeming contradiction, and decide what to do about it.
+                     */
+                    System.out.println("Debugging: NOT isInherited; ourValue = " + ourValue + " and winningValue is null in fixWinningValue; xpath = " + xpath);
+                    winningValue = ourValue;
+                } else if (CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
+                    // this doesn't seem to happen so far
+                    System.out.println("Debugging: NOT isInherited; ourValue = " + ourValue + " and winningValue is INHERITANCE_MARKER in fixWinningValue; xpath = " + xpath);
+                }
+            }
+
+            /*
+             * TODO: Temporary debugging code:
+             */
+            if (ourValue != null && !ourValue.equals(winningValue) && !CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
+                /*
+                 * This happens, for example at v#/pt_PT/Buddhist
+                 * isInherited = false
+                 * ourValue = E, d 'de' MMM – E, d 'de' MMM 'de' y G and winningValue = E, d – E, d 'de' MMM 'de' y G
+                 * xpath = //ldml/dates/calendars/calendar[@type="buddhist"]/dateTimeFormats/intervalFormats/intervalFormatItem[@id="yMMMEd"]/greatestDifference[@id="d"]
+                 * TODO: fix or explain this seeming contradiction, and decide what to do about it, if anything.
+                 */
+               System.out.println("Debugging: ourValue = " + ourValue + " and winningValue = " + winningValue + " are DIFFERENT in fixWinningValue; xpath = " + xpath);
+            }
+        }
+
+        /**
          * Calculate the inherited item for this DataRow, possibly including tests;
          * possibly set some fields in the DataRow, which may
          * include inheritedValue, inheritedItem, inheritedLocale, pathWhereFound
          *
          * @param ourSrc the CLDRFile
          * @param checkCldr the tests to use
-         * @param xpath the path, for example "//ldml/numbers/otherNumberingSystems/native"
+         * @param ourValue for debugging messages only, currently; maybe use for inheritedValue if can't get that otherwise
+         * @param isInherited true if the currently winning value is inherited; for debugging messages only
          *
          * Called only by populateFromThisXpath, which is a method of DataSection.
          * 
@@ -1100,111 +1169,82 @@ public class DataSection implements JSONString {
          *
          * TODO: Get rid of, or merge with, the code that currently does "row.addItem(CldrUtility.INHERITANCE_MARKER)" in populateFromThisXpath.
          */
-        private void updateInheritedValue(CLDRFile ourSrc, TestResultBundle checkCldr, String xpath) {
-            long lastTime = System.currentTimeMillis();
-            if (xpathId == -1) {
-                return;
-            }
-            /*
-             * TODO: the caller already has xpath, and it is now a parameter of updateInheritedValue;
-             * make sure same value here and in caller, then get rid of this useless code for xpath2
-             */
-            String xpath2 = sm.xpt.getById(xpathId);
-            if (!xpath.equals(xpath2)) {
-                System.err.println("ERROR: unexpected different xpath in updateInheritedValue");                
-            }
-            if (TRACE_TIME) {
-                System.err.println("@@0:" + (System.currentTimeMillis() - lastTime));
-            }
-            if (xpath2 == null) {
-                return;
-            }
-            if (inheritedItem == null) {
+        private void updateInheritedValue(CLDRFile ourSrc, TestResultBundle checkCldr, String ourValue, boolean isInherited) {
+            if (inheritedItem != null) {
                 /*
-                 * Set the inheritedValue field of the DataRow containing this CandidateItem.
-                 * Also possibly set the inheritedLocale and pathWhereFound fields of the DataRow.
+                 * TODO: temporary debugging code -- This does not seem to happen so far,
+                 * but could in principle happen due to ensureComplete calling setShimTests?
                  */
-                Output<String> inheritancePathWhereFound = new Output<String>(); // may become pathWhereFound
-                Output<String> localeWhereFound = new Output<String>(); // may be used to construct inheritedLocale
-                inheritedValue = ourSrc.getConstructedBaileyValue(xpath, inheritancePathWhereFound, localeWhereFound);
-                
-                if (TRACE_TIME) {
-                    System.err.println("@@1:" + (System.currentTimeMillis() - lastTime));
-                }
-                if (inheritedValue == null) {
-                    /*
-                     * No inherited value.
-                     *
-                     * This happens often!!
-                     *
-                     * TODO: what are the implications when ourSrc.getConstructedBaileyValue has returned null?
-                     * Unless we're at root, shouldn't there always be a non-null inheritedValue here?
-                     * See https://unicode.org/cldr/trac/ticket/11299
-                     */
-                    System.out.println("Warning: no inherited value in updateInheritedValue");
-                } else if (items.containsKey(CldrUtility.INHERITANCE_MARKER)) {
-                    /*
-                     * This DataRow already has an item with value INHERITANCE_MARKER.
-                     * Set inheritedItem = that item.
-                     */
-                    inheritedItem = items.get(CldrUtility.INHERITANCE_MARKER);
-                    /*
-                     * TODO: should any of the code after "else ... addItem" below also be called in this case? Yes! Done!
-                     * When would the existing item have been added? In row.addItem(CldrUtility.INHERITANCE_MARKER) in populateFromThisXpath
-                     * a few lines before it calls updateInheritedValue.
-                     * Would it already have taken care of inheritedLocale, pathWhereFound, ...? No!
-                     * For example, get here for "occitan" first row for http://localhost:8080/cldr-apps/v#/fr_CA/Languages_O_S
-                     * missing inheritedLocale, pathWhereFound, "Jump to Original"!
-                     */
-                } else {
-                    /*
-                     * Add a new item, to be the inheritedItem of this DataRow, with value INHERITANCE_MARKER.
-                     */                    
-                    inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER);
-                }
-                if (inheritedValue != null) {
-                    if (TRACE_TIME) {
-                        System.err.println("@@2:" + (System.currentTimeMillis() - lastTime));
-                    }
-
-                    /*
-                     * TODO: temporary debugging code: check if DataRow.inheritedLocale is already set
-                     */
-                    if (inheritedLocale != null) {
-                        // This does not seem to happen so far
-                        System.out.println("Warning: inheritedLocale was already set in updateInheritedValue");
-                    }
-                    inheritedLocale = CLDRLocale.getInstance(localeWhereFound.value);
-
-                    if (inheritancePathWhereFound.value != null && !inheritancePathWhereFound.value.equals(xpath)) {
-                        /*
-                         * TODO: temporary debugging code: check if DataRow.pathWhereFound is already set...
-                         * Shouldn't replace a valid pathWhereFound with null. 
-                         */
-                        if (pathWhereFound != null) {
-                            // This doesn't seem to happen, so far...
-                            System.out.println("Warning: pathWhereFound was already set in updateInheritedValue, and inheritancePathWhereFound.value != null");
-                        }
-                        pathWhereFound = inheritancePathWhereFound.value;
-
-                        if (TRACE_TIME) {
-                            System.err.println("@@3:" + (System.currentTimeMillis() - lastTime));
-                        }
-
-                        /*
-                         * TODO: does xpathToBaseXpathId have any useful side-effect here? If not,
-                         * delete this call to it. Formerly the return value was assigned to
-                         * aliasFromXpath, whose value was unused.
-                         */
-                        sm.xpt.xpathToBaseXpathId(inheritancePathWhereFound.value);
-
-                        if (TRACE_TIME) {
-                            System.err.println("@@4:" + (System.currentTimeMillis() - lastTime));
-                        }
-                    }                    
-                }
+                System.out.println("Warning: inheritedLocale was already set in updateInheritedValue");
+                return;
             }
+            long lastTime = System.currentTimeMillis();
 
+            /*
+             * Set the inheritedValue field of the DataRow containing this CandidateItem.
+             * Also possibly set the inheritedLocale and pathWhereFound fields of the DataRow.
+             */
+            Output<String> inheritancePathWhereFound = new Output<String>(); // may become pathWhereFound
+            Output<String> localeWhereFound = new Output<String>(); // may be used to construct inheritedLocale
+            inheritedValue = ourSrc.getConstructedBaileyValue(xpath, inheritancePathWhereFound, localeWhereFound);
+            
+            if (TRACE_TIME) {
+                System.err.println("@@1:" + (System.currentTimeMillis() - lastTime));
+            }
+            if (inheritedValue == null) {
+                /*
+                 * No inherited value.
+                 *
+                 * This happens often. For example, v#/en/Alphabetic_Information
+                 * xpath = //ldml/characters/exemplarCharacters[@type="index"]
+                 * In the caller, isInherited is false and ourValue isn't null
+                 * 
+                 * Another example: v#/pt_PT/Gregorian
+                 * xpath = //ldml/dates/calendars/calendar[@type="gregorian"]/dateTimeFormats/availableFormats/dateFormatItem[@id="yMMMEEEEd"]
+                 * isInherited = false; ourValue = "EEEE, d/MM/y"; isExtraPath = false
+                 *
+                 * TODO: what are the implications when ourSrc.getConstructedBaileyValue has returned null?
+                 * Unless we're at root, shouldn't there always be a non-null inheritedValue here?
+                 * See https://unicode.org/cldr/trac/ticket/11299
+                 */
+                System.out.println("Warning: no inherited value in updateInheritedValue; isInherited = " + isInherited + "; ourValue = " + ourValue + "; xpath = " + xpath);
+            } else if (items.containsKey(CldrUtility.INHERITANCE_MARKER)) {
+                /*
+                 * This DataRow already has an item with value INHERITANCE_MARKER.
+                 * Set inheritedItem = that item.
+                 */
+                inheritedItem = items.get(CldrUtility.INHERITANCE_MARKER);
+            } else {
+                /*
+                 * Add a new item, to be the inheritedItem of this DataRow, with value INHERITANCE_MARKER.
+                 */                    
+                inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER);
+            }
+            if (inheritedValue != null) {
+                if (TRACE_TIME) {
+                    System.err.println("@@2:" + (System.currentTimeMillis() - lastTime));
+                }
+                inheritedLocale = CLDRLocale.getInstance(localeWhereFound.value);
+
+                if (inheritancePathWhereFound.value != null && !inheritancePathWhereFound.value.equals(xpath)) {
+                    pathWhereFound = inheritancePathWhereFound.value;
+
+                    if (TRACE_TIME) {
+                        System.err.println("@@3:" + (System.currentTimeMillis() - lastTime));
+                    }
+
+                    /*
+                     * TODO: does xpathToBaseXpathId have any useful side-effect here? If not,
+                     * delete this call to it. Formerly the return value was assigned to
+                     * aliasFromXpath, whose value was unused.
+                     */
+                    sm.xpt.xpathToBaseXpathId(inheritancePathWhereFound.value);
+
+                    if (TRACE_TIME) {
+                        System.err.println("@@4:" + (System.currentTimeMillis() - lastTime));
+                    }
+                }                    
+            }
             if ((checkCldr != null) && (inheritedItem != null) && (inheritedItem.tests == null)) {
                 if (TRACE_TIME) {
                     System.err.println("@@5:" + (System.currentTimeMillis() - lastTime));
@@ -1328,7 +1368,7 @@ public class DataSection implements JSONString {
                  * "example C" in https://unicode.org/cldr/trac/ticket/11299#comment:15 .
                  * See showItemInfoFn in survey.js
                  */
- 
+
                 /*
                  * When the second argument to JSONObject.put is null, then the key is removed if present.
                  * Here that means that the client will not receive anything for that key!
@@ -1414,6 +1454,7 @@ public class DataSection implements JSONString {
                  * on the client, but should be done on the server.
                  */
                 if (inheritedValue != null) {
+                    System.out.println("Warning: setting winningValue to INHERITANCE_MARKER in decideWinningValueForClient; should happen earlier? xpath = " + xpath);
                     winningValue = CldrUtility.INHERITANCE_MARKER; // NOT inheritedValue
                     // TODO: maybe winningItem = inheritedItem -- but what if inheritedItem is null?
                 } else {
@@ -2099,7 +2140,7 @@ public class DataSection implements JSONString {
                 ctx.flush();
             }
             if (pageId == null) {
-                section.ensureComplete(ourSrc, checkCldr, null, workingCoverageLevel);
+                section.ensureComplete(ourSrc, checkCldr, workingCoverageLevel);
                 popCount = section.getAll().size();
             }
             if (showLoading && ctx != null && SHOW_TIME) {
@@ -2318,8 +2359,7 @@ public class DataSection implements JSONString {
      *
      * TODO: Actually still called by DataSection.make, clarify whether "obsolete"
      */
-    private void ensureComplete(CLDRFile ourSrc, TestResultBundle checkCldr, Map<String, String> options,
-        String workingCoverageLevel) {
+    private void ensureComplete(CLDRFile ourSrc, TestResultBundle checkCldr, String workingCoverageLevel) {
 
         STFactory stf = sm.getSTFactory();
         SectionId sectionId = (pageId != null) ? pageId.getSectionId() : null;
@@ -2443,7 +2483,7 @@ public class DataSection implements JSONString {
                     int base_xpath = sm.xpt.getByXpath(base_xpath_string);
 
                     // set up tests
-                    myp.setShimTests(base_xpath, base_xpath_string, checkCldr, options);
+                    myp.setShimTests(base_xpath, base_xpath_string, checkCldr);
                 } // end inner for loop
             } // end outer for loop
         } // end if timezone
@@ -2740,7 +2780,8 @@ public class DataSection implements JSONString {
         /*
          * TODO: temporary debugging code, for setting breakpoint:
          */
-        // if (xpath.equals("//ldml/localeDisplayNames/languages/language[@type=\"frc\"]")) {
+        // if (xpath.equals("//ldml/dates/calendars/calendar[@type=\"buddhist\"]/dateFormats/dateFormatLength[@type=\"medium\"]/dateFormat[@type=\"standard\"]/pattern[@type=\"standard\"]")) {
+            // if (xpath.equals("//ldml/localeDisplayNames/languages/language[@type=\"frc\"]")) {
             // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kazakhstan_Eastern\"]/long/standard")) {
             // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kazakhstan_Eastern\"]/long/generic")) {
             // if (xpath.equals("//ldml/dates/timeZoneNames/metazone[@type=\"Kyrgystan\"]/long/generic")) {
@@ -2761,13 +2802,6 @@ public class DataSection implements JSONString {
             }
             isExtraPath = true;
         }
-        /*
-         * TODO: temporary debugging code:
-         */
-        if (ourValue != null && ourValue.equals(CldrUtility.INHERITANCE_MARKER)) {
-            // this doesn't seem to happen so far
-            System.out.println("Debugging: ourValue = INHERITANCE_MARKER in populateFromThisXpath; xpath = " + xpath);
-        }
 
         // determine 'alt' param
         String alt = sm.xpt.altFromPathToTinyXpath(xpath, xpp);
@@ -2781,6 +2815,29 @@ public class DataSection implements JSONString {
 
         String typeAndProposed[] = LDMLUtilities.parseAlt(alt);
         String altProp = typeAndProposed[1];
+
+        /*
+         * TODO: address the situation where ourValue is inherited, but winningValue != INHERITANCE_MARKER.
+         * (E.g., v#/pt_PT/Languages_A_D/, xpath = //ldml/localeDisplayNames/languages/language[@type="frc"].)
+         * This can happen if there are no votes and resolver.getWinningValue() returns lastReleaseValue,
+         * which is never (?) INHERITANCE_MARKER. We should not trust getWinningValue as the final
+         * decider of winningValue. Instead, trust isInherited = !(sourceLocale.equals(locale.toString()))
+         * and if that is true, then change winningValue to INHERITANCE_MARKER, and confirm that 
+         * ourValue matches what getWinningValue returned, and use it for inheritedValue.
+         */
+        CLDRFile.Status sourceLocaleStatus = new CLDRFile.Status();
+        String sourceLocale = ourSrc.getSourceLocaleID(xpath, sourceLocaleStatus);
+
+        /*
+         * If ourValue is inherited, do NOT add a CandidateItem for it.
+         * TODO: clarify. If ourValue is inherited, then indeed there should be an item
+         * for "soft" inheritance with INHERITANCE_MARKER, but no item for hard/explicit value unless it has votes.
+         * Test if this value of isInherited is reliable and consistent with what happens in setInheritedValue; could
+         * use this opportunity to set inheritedValue = ourValue ... but if ourValue is always the same as inheritedValue
+         * or winningValue, then what do we need it for? Commonly updateInheritedValue or setShimTests will already have
+         * been called above.
+         */
+        boolean isInherited = !(sourceLocale.equals(locale.toString()));
 
         // Load the 'data row' which represents one user visible row.
         // (may be nested in the case of alt types) (nested??)
@@ -2796,24 +2853,7 @@ public class DataSection implements JSONString {
 
         DataRow row = getDataRow(xpath);
 
-        /*
-         * TODO: Temporary debugging code:
-         */
-        if (ourValue != null) {
-            if (ourValue.equals(row.winningValue)) {
-                // This happens, e.g. at v#/fr_CA/CAsia/:
-                // ourValue = winningValue = heure avancée d’Aqtöbe in populateFromThisXpath; xpath = //ldml/dates/timeZoneNames/metazone[@type="Aqtobe"]/long/daylight
-                // System.out.println("Debugging: ourValue = winningValue = " + row.winningValue + " in populateFromThisXpath; xpath = " + xpath);
-            } else if (CldrUtility.INHERITANCE_MARKER.equals(row.winningValue)) {
-                // This happens for winningValue = ↑↑↑:
-                // ourValue = Atyraou and winningValue = ↑↑↑ are DIFFERENT ... xpath = //ldml/dates/timeZoneNames/zone[@type="Asia/Atyrau"]/exemplarCity
-                // ourValue = heure de l’Est du Kazakhstan and winningValue = ↑↑↑ are DIFFERENT ... xpath = //ldml/dates/timeZoneNames/metazone[@type="Kazakhstan_Eastern"]/long/standard
-                System.out.println("Debugging: ourValue = " + ourValue + " and winningValue is INHERITANCE_MARKER in populateFromThisXpath; xpath = " + xpath);
-            } else {
-                // this doesn't seem to happen so far
-                System.out.println("Debugging: ourValue = " + ourValue + " and winningValue = " + row.winningValue + " are DIFFERENT in populateFromThisXpath; xpath = " + xpath);
-            }
-        }
+        row.fixWinningValue(ourValue, isInherited);
 
         if (oldFile != null) {
             row.oldValue = oldFile.getStringValueWithBailey(xpath);
@@ -2823,13 +2863,12 @@ public class DataSection implements JSONString {
 
         Set<String> v = ballotBox.getValues(xpath);
         if (v != null) {
-            populateFromThisXpathAddItemsForVotes(v, xpath, ourValue, row, checkCldr);
+            populateFromThisXpathAddItemsForVotes(v, xpath, row, checkCldr);
         }
 
         if (row.oldValue != null && !row.oldValue.equals(ourValue) && (v == null || !v.contains(row.oldValue))) {
             // if "oldValue" isn't already represented as an item, add it.
-            CandidateItem oldItem = row.addItem(row.oldValue);
-            oldItem.isOldValue = true; // TODO: delete this line, redundant since addItem sets isOldValue if value equals oldValue
+            row.addItem(row.oldValue);
         }
 
         row.coverageValue = coverageValue;
@@ -2850,13 +2889,6 @@ public class DataSection implements JSONString {
              * even if an item with INHERITANCE_MARKER already exists.
              */            
             row.addItem(CldrUtility.INHERITANCE_MARKER);
-            /*
-             * TEMPORARY debugging:
-             */
-            if (row.pathWhereFound != null) {
-                // This doesn't seem to happen so far
-                System.out.println("Warning in populateFromThisXpath: added INHERITANCE_MARKER, pathWhereFound not null");
-            }
         }
 
         /*
@@ -2868,6 +2900,7 @@ public class DataSection implements JSONString {
          * TODO: Temporary debugging code:
          */
         if (row.inheritedItem != null) {
+            // this doesn't seem to happen so far
             System.out.println("DEBUGGING: inheritedItem not null in populateFromThisXpath!");
         }
         if (row.inheritedItem == null) {
@@ -2879,12 +2912,12 @@ public class DataSection implements JSONString {
                  * and the URL ends with "v#/aa/NAmerica/".
                  * Set up 'shim' tests, to display coverage.
                  */
-                row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr, null);
+                row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr);
             } else {
                 /*
                  * This item fell back from root (what does that mean?). Make sure it has an Item, and that tests are run.
                  */
-                row.updateInheritedValue(ourSrc, checkCldr, xpath);
+                row.updateInheritedValue(ourSrc, checkCldr, ourValue, isInherited);
             }
         }
         if (row.getDisplayName() == null) {
@@ -2895,36 +2928,6 @@ public class DataSection implements JSONString {
         if (((eDraft != null) && (!eDraft.equals("false"))) && (altProp == null)) {
             altProp = SurveyMain.PROPOSED_DRAFT;
         }
-
-        /*
-         * TODO: address the situation where ourValue is inherited, but winningValue != INHERITANCE_MARKER.
-         * (E.g., v#/pt_PT/Languages_A_D/, xpath = //ldml/localeDisplayNames/languages/language[@type="frc"].)
-         * This can happen if there are no votes and resolver.getWinningValue() returns lastReleaseValue,
-         * which is never (?) INHERITANCE_MARKER. We should not trust getWinningValue as the final
-         * decider of winningValue. Instead, trust isInherited = !(sourceLocale.equals(locale.toString()))
-         * and if that is true, then change winningValue to INHERITANCE_MARKER, and confirm that 
-         * ourValue matches what getWinningValue returned, and use it for inheritedValue.
-         * To do that, need to move the next three lines of code for sourceLocaleStatus,
-         * sourceLocale, and isInherited, up earlier in this function before creating the new row...
-         */
-        CLDRFile.Status sourceLocaleStatus = new CLDRFile.Status();
-        String sourceLocale = ourSrc.getSourceLocaleID(xpath, sourceLocaleStatus);
-
-        /*
-         * If ourValue is inherited, do NOT add a CandidateItem for it.
-         * TODO: clarify. If ourValue is inherited, then indeed there should be an item
-         * for "soft" inheritance with INHERITANCE_MARKER, but no item for hard/explicit value unless it has votes.
-         * Test if this value of isInherited is reliable and consistent with what happens in setInheritedValue; could
-         * use this opportunity to set inheritedValue = ourValue ... but if ourValue is always the same as inheritedValue
-         * or winningValue, then what do we need it for? Commonly updateInheritedValue or setShimTests will already have
-         * been called above.
-         */
-        boolean isInherited = !(sourceLocale.equals(locale.toString()));
-        /*
-         * TODO: temporary debugging code:
-         */
-        System.out.println("Debugging: in populateFromThisXpath; xpath = " + xpath + "; isInherited = " + isInherited
-            + "; ourValue = " + ourValue + "; isExtraPath = " + isExtraPath);
         
         if (isInherited && !isExtraPath) {
              return;
@@ -2951,33 +2954,21 @@ public class DataSection implements JSONString {
      * 
      * @param v the set of values that have votes
      * @param xpath
-     * @param ourValue
      * @param row the DataRow
      * @param checkCldr the TestResultBundle, or null
+     *
+     * TODO: populateFromThisXpathAddItemsForVotes could be a method of DataRow instead of DataSection, then wouldn't need row, xpath as params
      */
-    private void populateFromThisXpathAddItemsForVotes(Set<String> v, String xpath, String ourValue, DataRow row, TestResultBundle checkCldr) {
+    private void populateFromThisXpathAddItemsForVotes(Set<String> v, String xpath, DataRow row, TestResultBundle checkCldr) {
         for (String avalue : v) {
-            if (DEBUG) {
-                System.err.println(" //val='" + avalue + "' vs " + ourValue + " in " + xpath);
-            }
-            /*
-             * Skip the "equals" condition here to fix bug.
-             * That bug manifested as follows: to begin with, there were 12 "hard" votes for "heure de l’Est du Kazakhstan"
-             * for the first row in http://localhost:8080/cldr-apps/v#/fr_CA/CAsia/35cbcd768d0ad2c9
-             * As admin, vote for "soft" inheritance: the 12 "hard" votes, and the "hard" item, are no longer displayed,
-             * in the Others column or the Info Panel!
-             * TODO: Clean this up; unless further change is needed here, ourValue is an unused parameter for this method.
-             */
-            /// if (!avalue.equals(ourValue)) {
-                CandidateItem item2 = row.addItem(avalue);
-                if (avalue != null && checkCldr != null) {
-                    List<CheckStatus> item2Result = new ArrayList<CheckStatus>();
-                    checkCldr.check(xpath, item2Result, avalue);
-                    if (!item2Result.isEmpty()) {
-                        item2.setTests(item2Result);
-                    }
+            CandidateItem item2 = row.addItem(avalue);
+            if (avalue != null && checkCldr != null) {
+                List<CheckStatus> item2Result = new ArrayList<CheckStatus>();
+                checkCldr.check(xpath, item2Result, avalue);
+                if (!item2Result.isEmpty()) {
+                    item2.setTests(item2Result);
                 }
-            /// }
+            }
         }
     }
 
@@ -2992,7 +2983,7 @@ public class DataSection implements JSONString {
      * @param setInheritFrom
      * @param examplesResult
      * 
-     * TODO: addOurValue could be a method of DataRow instead of DataSection?
+     * TODO: addOurValue could be a method of DataRow instead of DataSection, then wouldn't need row, xpath as params
      */
     private void addOurValue(String ourValue, DataRow row, List<CheckStatus> checkCldrResult,
             org.unicode.cldr.util.CLDRFile.Status sourceLocaleStatus, String xpath, CLDRLocale setInheritFrom,
@@ -3032,15 +3023,9 @@ public class DataSection implements JSONString {
                 System.out.println("Warning: row.pathWhereFound NOT already set in addOurValue, and sourceLocaleStatus != null; xpath = " + xpath
                     + "; ourValue = " + ourValue + "; inheritedValue = " + row.inheritedValue);
             } else {
-                System.out.println("Warning: row.pathWhereFound was already set in addOurValue, and sourceLocaleStatus != null; xpath = " + xpath
-                        + "; ourValue = " + ourValue + "; inheritedValue = " + row.inheritedValue);
                 if (row.pathWhereFound.equals(sourceLocaleStatus.pathWhereFound)) {
-                    // This does happen. Must have been set already in updateInheritedValue... in such cases, is ourValue = inheritedValue?
-                    if (ourValue.equals(row.inheritedValue)) {
-                        // This does happen.
-                        System.out.println("Warning: row.pathWhereFound equals sourceLocaleStatus.pathWhereFound, ourValue=inheritedValue");
-                    }
-                    else {
+                    // This does happen with ourValue = inheritedValue
+                    if (!ourValue.equals(row.inheritedValue)) {
                         // This does not seem to happen so far
                         System.out.println("Warning: row.pathWhereFound equals sourceLocaleStatus.pathWhereFound, ourValue DOES NOT EQUAL inheritedValue");                        
                     }
