@@ -42,7 +42,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="ang">Oudengels</language>
 			<language type="anp">Angika</language>
 			<language type="ar">Arabisch</language>
-			<language type="ar_001">Arabisch (wereld)</language>
 			<language type="arc">Aramees</language>
 			<language type="arn">Mapudungun</language>
 			<language type="aro">Araona</language>
@@ -137,8 +136,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="dar">Dargwa</language>
 			<language type="dav">Taita</language>
 			<language type="de">Duits</language>
-			<language type="de_AT">Duits (Oostenrijk)</language>
-			<language type="de_CH">Duits (Zwitserland)</language>
 			<language type="del">Delaware</language>
 			<language type="den">Slavey</language>
 			<language type="dgr">Dogrib</language>
@@ -163,18 +160,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="el">Grieks</language>
 			<language type="elx">Elamitisch</language>
 			<language type="en">Engels</language>
-			<language type="en_AU">Engels (Australië)</language>
-			<language type="en_CA">Engels (Canada)</language>
-			<language type="en_GB">Engels (Verenigd Koninkrijk)</language>
 			<language type="en_GB" alt="short">Engels (VK)</language>
-			<language type="en_US">Engels (Verenigde Staten)</language>
 			<language type="en_US" alt="short">Engels (VS)</language>
 			<language type="enm">Middelengels</language>
 			<language type="eo">Esperanto</language>
 			<language type="es">Spaans</language>
-			<language type="es_419">Spaans (Latijns-Amerika)</language>
-			<language type="es_ES">Spaans (Spanje)</language>
-			<language type="es_MX">Spaans (Mexico)</language>
 			<language type="esu">Yupik</language>
 			<language type="et">Estisch</language>
 			<language type="eu">Baskisch</language>
@@ -191,8 +181,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="fo">Faeröers</language>
 			<language type="fon">Fon</language>
 			<language type="fr">Frans</language>
-			<language type="fr_CA">Frans (Canada)</language>
-			<language type="fr_CH">Frans (Zwitserland)</language>
 			<language type="frc">Cajun-Frans</language>
 			<language type="frm">Middelfrans</language>
 			<language type="fro">Oudfrans</language>
@@ -412,7 +400,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="niu">Niueaans</language>
 			<language type="njo">Ao Naga</language>
 			<language type="nl">Nederlands</language>
-			<language type="nl_BE">Nederlands (België)</language>
 			<language type="nmg">Ngumba</language>
 			<language type="nn">Noors - Nynorsk</language>
 			<language type="nnh">Ngiemboon</language>
@@ -461,8 +448,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="ps">Pasjtoe</language>
 			<language type="ps" alt="variant">Pashto</language>
 			<language type="pt">Portugees</language>
-			<language type="pt_BR">Portugees (Brazilië)</language>
-			<language type="pt_PT">Portugees (Portugal)</language>
 			<language type="qu">Quechua</language>
 			<language type="quc">K’iche’</language>
 			<language type="qug">Kichwa</language>
@@ -474,7 +459,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="rm">Reto-Romaans</language>
 			<language type="rn">Kirundi</language>
 			<language type="ro">Roemeens</language>
-			<language type="ro_MD">Roemeens (Moldavië)</language>
 			<language type="rof">Rombo</language>
 			<language type="rom">Romani</language>
 			<language type="root">Root</language>
@@ -543,7 +527,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="sux">Soemerisch</language>
 			<language type="sv">Zweeds</language>
 			<language type="sw">Swahili</language>
-			<language type="sw_CD">Swahili (Congo-Kinshasa)</language>
 			<language type="swb">Shimaore</language>
 			<language type="syc">Klassiek Syrisch</language>
 			<language type="syr">Syrisch</language>
@@ -633,8 +616,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="zen">Zenaga</language>
 			<language type="zgh">Standaard Marokkaanse Tamazight</language>
 			<language type="zh">Chinees</language>
-			<language type="zh_Hans">Chinees (vereenvoudigd)</language>
-			<language type="zh_Hant">Chinees (traditioneel)</language>
 			<language type="zu">Zoeloe</language>
 			<language type="zun">Zuni</language>
 			<language type="zxx">geen linguïstische inhoud</language>
@@ -774,54 +755,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<script type="Phnx">Foenicisch</script>
 			<script type="Plrd">Pollard-fonetisch</script>
 			<script type="Prti">Inscriptioneel Parthisch</script>
-			<script type="Qaaa" draft="contributed">Qaaa</script>
-			<script type="Qaab" draft="contributed">Qaab</script>
-			<script type="Qaac" draft="contributed">Qaac</script>
-			<script type="Qaad" draft="contributed">Qaad</script>
-			<script type="Qaae" draft="contributed">Qaae</script>
-			<script type="Qaaf" draft="contributed">Qaaf</script>
-			<script type="Qaag" draft="contributed">Qaag</script>
-			<script type="Qaah" draft="contributed">Qaah</script>
-			<script type="Qaak" draft="contributed">Qaak</script>
-			<script type="Qaal" draft="contributed">Qaal</script>
-			<script type="Qaam" draft="contributed">Qaam</script>
-			<script type="Qaan" draft="contributed">Qaan</script>
-			<script type="Qaao" draft="contributed">Qaao</script>
-			<script type="Qaap" draft="contributed">Qaap</script>
-			<script type="Qaaq" draft="contributed">Qaaq</script>
-			<script type="Qaar" draft="contributed">Qaar</script>
-			<script type="Qaas" draft="contributed">Qaas</script>
-			<script type="Qaat" draft="contributed">Qaat</script>
-			<script type="Qaau" draft="contributed">Qaau</script>
-			<script type="Qaav" draft="contributed">Qaav</script>
-			<script type="Qaaw" draft="contributed">Qaaw</script>
-			<script type="Qaax" draft="contributed">Qaax</script>
-			<script type="Qaay" draft="contributed">Qaay</script>
-			<script type="Qaaz" draft="contributed">Qaaz</script>
-			<script type="Qaba" draft="contributed">Qaba</script>
-			<script type="Qabb" draft="contributed">Qabb</script>
-			<script type="Qabc" draft="contributed">Qabc</script>
-			<script type="Qabd" draft="contributed">Qabd</script>
-			<script type="Qabe" draft="contributed">Qabe</script>
-			<script type="Qabf" draft="contributed">Qabf</script>
-			<script type="Qabg" draft="contributed">Qabg</script>
-			<script type="Qabh" draft="contributed">Qabh</script>
-			<script type="Qabi" draft="contributed">Qabi</script>
-			<script type="Qabj" draft="contributed">Qabj</script>
-			<script type="Qabk" draft="contributed">Qabk</script>
-			<script type="Qabl" draft="contributed">Qabl</script>
-			<script type="Qabm" draft="contributed">Qabm</script>
-			<script type="Qabn" draft="contributed">Qabn</script>
-			<script type="Qabo" draft="contributed">Qabo</script>
-			<script type="Qabp" draft="contributed">Qabp</script>
-			<script type="Qabq" draft="contributed">Qabq</script>
-			<script type="Qabr" draft="contributed">Qabr</script>
-			<script type="Qabs" draft="contributed">Qabs</script>
-			<script type="Qabt" draft="contributed">Qabt</script>
-			<script type="Qabu" draft="contributed">Qabu</script>
-			<script type="Qabv" draft="contributed">Qabv</script>
-			<script type="Qabw" draft="contributed">Qabw</script>
-			<script type="Qabx" draft="contributed">Qabx</script>
 			<script type="Rjng">Rejang</script>
 			<script type="Rohg" draft="contributed">Hanifi Rohingya</script>
 			<script type="Roro">Rongorongo</script>
@@ -1185,11 +1118,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabwe</territory>
 			<territory type="ZZ">onbekend gebied</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">Engeland</subdivision>
-			<subdivision type="gbsct">Schotland</subdivision>
-			<subdivision type="gbwls">Wales</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">Traditionele Duitse spelling</variant>
 			<variant type="1994">Gestandaardiseerde Resiaanse spelling</variant>
@@ -1492,7 +1420,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 	<characters>
 		<exemplarCharacters>[a á ä b c d e é ë f g h i í ï {ij} {íj\u0301} j k l m n o ó ö p q r s t u ú ü v w x y z]</exemplarCharacters>
 		<exemplarCharacters type="auxiliary">[à â å ã æ ç è ê î ñ ô ø œ ù û ÿ]</exemplarCharacters>
-		<exemplarCharacters type="index" draft="contributed">[A-Z]</exemplarCharacters>
+		<exemplarCharacters type="index" draft="contributed">[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters>
 		<exemplarCharacters type="numbers">[\- , . % ‰ + 0 1 2 3 4 5 6 7 8 9]</exemplarCharacters>
 		<exemplarCharacters type="punctuation">[\- ‐ – — , ; \: ! ? . … ' ‘ ’ &quot; “ ” ( ) \[ \] § @ * / \&amp; # † ‡ ′ ″]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
@@ -4779,28 +4707,28 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 							<dayPeriod type="midnight">middernacht</dayPeriod>
 							<dayPeriod type="am">a.m.</dayPeriod>
 							<dayPeriod type="pm">p.m.</dayPeriod>
-							<dayPeriod type="morning1">‘s ochtends</dayPeriod>
-							<dayPeriod type="afternoon1">‘s middags</dayPeriod>
-							<dayPeriod type="evening1">‘s avonds</dayPeriod>
-							<dayPeriod type="night1">‘s nachts</dayPeriod>
+							<dayPeriod type="morning1">’s ochtends</dayPeriod>
+							<dayPeriod type="afternoon1">’s middags</dayPeriod>
+							<dayPeriod type="evening1">’s avonds</dayPeriod>
+							<dayPeriod type="night1">’s nachts</dayPeriod>
 						</dayPeriodWidth>
 						<dayPeriodWidth type="narrow">
 							<dayPeriod type="midnight">middernacht</dayPeriod>
 							<dayPeriod type="am">a.m.</dayPeriod>
 							<dayPeriod type="pm">p.m.</dayPeriod>
-							<dayPeriod type="morning1">‘s ochtends</dayPeriod>
-							<dayPeriod type="afternoon1">‘s middags</dayPeriod>
-							<dayPeriod type="evening1">‘s avonds</dayPeriod>
-							<dayPeriod type="night1">‘s nachts</dayPeriod>
+							<dayPeriod type="morning1">’s ochtends</dayPeriod>
+							<dayPeriod type="afternoon1">’s middags</dayPeriod>
+							<dayPeriod type="evening1">’s avonds</dayPeriod>
+							<dayPeriod type="night1">’s nachts</dayPeriod>
 						</dayPeriodWidth>
 						<dayPeriodWidth type="wide">
 							<dayPeriod type="midnight">middernacht</dayPeriod>
 							<dayPeriod type="am">a.m.</dayPeriod>
 							<dayPeriod type="pm">p.m.</dayPeriod>
-							<dayPeriod type="morning1">‘s ochtends</dayPeriod>
-							<dayPeriod type="afternoon1">‘s middags</dayPeriod>
-							<dayPeriod type="evening1">‘s avonds</dayPeriod>
-							<dayPeriod type="night1">‘s nachts</dayPeriod>
+							<dayPeriod type="morning1">’s ochtends</dayPeriod>
+							<dayPeriod type="afternoon1">’s middags</dayPeriod>
+							<dayPeriod type="evening1">’s avonds</dayPeriod>
+							<dayPeriod type="night1">’s nachts</dayPeriod>
 						</dayPeriodWidth>
 					</dayPeriodContext>
 					<dayPeriodContext type="stand-alone">
@@ -15739,8 +15667,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName draft="contributed">fm</displayName>
-				<unitPattern count="one" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="other" draft="contributed">{0} fm</unitPattern>
+				<unitPattern count="one" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="other" draft="contributed">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>nmi</displayName>
@@ -16472,8 +16400,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName draft="contributed">fm</displayName>
-				<unitPattern count="one" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="other" draft="contributed">{0} fm</unitPattern>
+				<unitPattern count="one" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="other" draft="contributed">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName draft="contributed">nmi</displayName>

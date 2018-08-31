@@ -828,11 +828,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabwe</territory>
 			<territory type="ZZ">Wilayah Tidak Diketahui</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">England</subdivision>
-			<subdivision type="gbsct">Scotland</subdivision>
-			<subdivision type="gbwls">Wales</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="POSIX">Komputer</variant>
 		</variants>
@@ -1880,15 +1875,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<eras>
 					<eraNames>
 						<era type="0">S.M.</era>
-						<era type="0" alt="variant">S.M.</era>
 						<era type="1">TM</era>
-						<era type="1" alt="variant">TM</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">S.M.</era>
-						<era type="0" alt="variant">S.M.</era>
 						<era type="1">TM</era>
-						<era type="1" alt="variant">TM</era>
 					</eraAbbr>
 					<eraNarrow>
 						<era type="0" draft="contributed">S.M.</era>
@@ -7896,7 +7887,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName draft="contributed">fathom</displayName>
-				<unitPattern count="other" draft="contributed">{0} fm</unitPattern>
+				<unitPattern count="other" draft="contributed">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName draft="contributed">btn</displayName>

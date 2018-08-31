@@ -801,7 +801,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="CG" alt="variant">Республика Конго</territory>
 			<territory type="CH">Швейцария</territory>
 			<territory type="CI">Кот-д’Ивуар</territory>
-			<territory type="CI" alt="variant">Кот-д’Ивуар</territory>
 			<territory type="CK">Острова Кука</territory>
 			<territory type="CL">Чили</territory>
 			<territory type="CM">Камерун</territory>
@@ -1029,11 +1028,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Зимбабве</territory>
 			<territory type="ZZ">неизвестный регион</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">Англия</subdivision>
-			<subdivision type="gbsct">Шотландия</subdivision>
-			<subdivision type="gbwls">Уэльс</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901" draft="contributed">Традиционная немецкая орфография</variant>
 			<variant type="1994" draft="contributed">Стандартизированная резьянская орфография</variant>
@@ -2156,7 +2150,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 					</eraNames>
 					<eraAbbr>
 						<era type="0">до н. э.</era>
-						<era type="0" alt="variant">до н. э.</era>
 						<era type="1">н. э.</era>
 						<era type="1" alt="variant">н. э.</era>
 					</eraAbbr>
@@ -8156,7 +8149,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 		</currencies>
 		<miscPatterns numberSystem="latn">
 			<pattern type="approximately">≈{0}</pattern>
-			<pattern type="atLeast">⩾{0}</pattern>
+			<pattern type="atLeast">≥{0}</pattern>
 			<pattern type="atMost">≤{0}</pattern>
 			<pattern type="range">{0}–{1}</pattern>
 		</miscPatterns>

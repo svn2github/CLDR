@@ -466,15 +466,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 				<eras>
 					<eraNames>
 						<era type="0">BCE</era>
-						<era type="0" alt="variant">BCE</era>
 						<era type="1">CE</era>
-						<era type="1" alt="variant">CE</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">BCE</era>
-						<era type="0" alt="variant">BCE</era>
 						<era type="1">CE</era>
-						<era type="1" alt="variant">CE</era>
 					</eraAbbr>
 				</eras>
 				<dateFormats>
@@ -1097,7 +1093,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<currency type="NZD">
 				<displayName>Tāra o Aotearoa</displayName>
 				<displayName count="other">Ngā tāra o Aotearoa</displayName>
-				<symbol draft="contributed">NZ$</symbol>
+				<symbol>$</symbol>
 			</currency>
 			<currency type="PAB">
 				<displayName>PAB</displayName>
@@ -1134,7 +1130,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</currency>
 		</currencies>
 		<miscPatterns numberSystem="latn">
-			<pattern type="atLeast">⩾{0}</pattern>
+			<pattern type="atLeast">≥{0}</pattern>
 			<pattern type="range">{0}–{1}</pattern>
 		</miscPatterns>
 	</numbers>

@@ -142,7 +142,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="enm">srednja angleščina</language>
 			<language type="eo">esperanto</language>
 			<language type="es">španščina</language>
-			<language type="es_419">španščina (Latinska Amerika)</language>
 			<language type="es_ES">evropska španščina</language>
 			<language type="es_MX">mehiška španščina</language>
 			<language type="et">estonščina</language>
@@ -966,11 +965,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabve</territory>
 			<territory type="ZZ">Neznano ali neveljavno območje</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">Anglija</subdivision>
-			<subdivision type="gbsct">Škotska</subdivision>
-			<subdivision type="gbwls">Wales</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">tradicionalni nemški pravopis</variant>
 			<variant type="1994">standardizirani rezijanski pravopis (1994)</variant>
@@ -7621,7 +7615,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 		</currencies>
 		<miscPatterns numberSystem="latn">
 			<pattern type="approximately" draft="contributed">~{0}</pattern>
-			<pattern type="atLeast">⩾{0}</pattern>
+			<pattern type="atLeast">≥{0}</pattern>
 			<pattern type="atMost" draft="contributed">≤{0}</pattern>
 			<pattern type="range">{0}–{1}</pattern>
 		</miscPatterns>
@@ -8203,10 +8197,10 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName draft="contributed">fm</displayName>
-				<unitPattern count="one" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="two" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="few" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="other" draft="contributed">{0} fm</unitPattern>
+				<unitPattern count="one" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="two" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="few" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="other" draft="contributed">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>navtična milja</displayName>
@@ -9207,10 +9201,10 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName draft="contributed">fm</displayName>
-				<unitPattern count="one" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="two" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="few" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="other" draft="contributed">{0} fm</unitPattern>
+				<unitPattern count="one" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="two" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="few" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="other" draft="contributed">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>nmi</displayName>
@@ -9931,10 +9925,10 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName draft="contributed">fm</displayName>
-				<unitPattern count="one" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="two" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="few" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="other" draft="contributed">{0} fm</unitPattern>
+				<unitPattern count="one" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="two" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="few" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="other" draft="contributed">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName draft="contributed">nmi</displayName>

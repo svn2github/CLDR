@@ -8,7 +8,13 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 <ldml>
 	<identity>
 		<version number="$Revision$"/>
-		<language type="ia"/>
-		<territory type="FR"/>
+		<language type="uz"/>
 	</identity>
+	<localeDisplayNames>
+		<subdivisions>
+			<subdivision type="gbeng">Angliya</subdivision>
+			<subdivision type="gbsct">Shotlandiya</subdivision>
+			<subdivision type="gbwls">Uels</subdivision>
+		</subdivisions>
+	</localeDisplayNames>
 </ldml>

@@ -8,18 +8,13 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 <ldml>
 	<identity>
 		<version number="$Revision$"/>
-		<language type="ff"/>
-		<script type="Adlm"/>
-		<territory type="MR"/>
+		<language type="pa"/>
 	</identity>
-	<numbers>
-		<currencies>
-			<currency type="GNF">
-				<symbol>GNF</symbol>
-			</currency>
-			<currency type="MRU">
-				<symbol draft="unconfirmed">UM</symbol>
-			</currency>
-		</currencies>
-	</numbers>
+	<localeDisplayNames>
+		<subdivisions>
+			<subdivision type="gbeng">ਇੰਗਲੈਂਡ</subdivision>
+			<subdivision type="gbsct">ਸਕਾਟਲੈਂਡ</subdivision>
+			<subdivision type="gbwls">ਵੇਲਸ</subdivision>
+		</subdivisions>
+	</localeDisplayNames>
 </ldml>

@@ -741,7 +741,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<script type="Phnx">Pheniceach</script>
 			<script type="Plrd">Miao Phollard</script>
 			<script type="Prti">Partais snaidh-sgrìobhte</script>
-			<script type="Qaac">Qaac</script>
 			<script type="Rjng">Rejang</script>
 			<script type="Rohg">Hanifi Rohingya</script>
 			<script type="Roro">Rongorongo</script>
@@ -1102,11 +1101,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="ZW">An t-Sìombab</territory>
 			<territory type="ZZ">Roinn-dùthcha neo-aithnichte</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">Sasainn</subdivision>
-			<subdivision type="gbsct">Alba</subdivision>
-			<subdivision type="gbwls">A’ Chuimrigh</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">Litreachadh tradaiseanta na Gearmailtise</variant>
 			<variant type="1994">Litreachadh stannardach dual-chainnt Resia</variant>
@@ -1353,7 +1347,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 		<exemplarCharacters type="auxiliary">[á ă â å ä ã ā æ ċ ç ḋ é ĕ ê ë ē ḟ ġ í ĭ î ï ī ı j k ł ṁ ñ ó ŏ ô ö ø ō œ ṗ q ṡ ş ș ṫ ú ŭ û ü ū v w x y ÿ z]</exemplarCharacters>
 		<exemplarCharacters type="index">[A B C D E F G H I L M N O P R S T U]</exemplarCharacters>
 		<exemplarCharacters type="numbers">[\- , . % ‰ + 0 1 2 3 4 5 6 7 8 9]</exemplarCharacters>
-		<exemplarCharacters type="punctuation" draft="contributed">[!-#%-*,-/\:;?@\[\]\{\}¡§©®°¶·‐–—‘’“”†‡…‧⁊™]</exemplarCharacters>
+		<exemplarCharacters type="punctuation" draft="contributed">[\- ‐ – — , ; \: ! ¡ ? . … · ' ‘ ’ &quot; “ ” ( ) \[ \] \{ \} § ¶ @ * / \&amp; ⁊ # % † ‡ ‧ ° © ® ™]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
 		<ellipsis type="initial">…{0}</ellipsis>
 		<ellipsis type="medial">{0}…{1}</ellipsis>
@@ -9797,11 +9791,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<pattern type="range">{0}–{1}</pattern>
 		</miscPatterns>
 		<minimalPairs>
-			<pluralMinimalPairs count="one">{0} chaora bhàin</pluralMinimalPairs>
-			<pluralMinimalPairs count="two">{0} caora bàn</pluralMinimalPairs>
-			<pluralMinimalPairs count="few">{0} chaora bhàn</pluralMinimalPairs>
-			<pluralMinimalPairs count="other">{0} caoraich bhàna</pluralMinimalPairs>
-			<ordinalMinimalPairs ordinal="other">Gabh an {0}mh air an taobh dheas.</ordinalMinimalPairs>
+			<pluralMinimalPairs count="one">{0} dealbh, {0} mhionaid</pluralMinimalPairs>
+			<pluralMinimalPairs count="two">{0} dhealbh, {0} mhionaid</pluralMinimalPairs>
+			<pluralMinimalPairs count="few">{0} dealbhan, {0} mionaidean</pluralMinimalPairs>
+			<pluralMinimalPairs count="other">{0} dealbh, {0} mionaid</pluralMinimalPairs>
+			<!-- <ordinalMinimalPairs ordinal="other">Gabh an {0}mh air an taobh dheas.</ordinalMinimalPairs> -->
 		</minimalPairs>
 	</numbers>
 	<units>
@@ -12396,10 +12390,10 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</unit>
 			<unit type="length-fathom">
 				<displayName>aitheamh</displayName>
-				<unitPattern count="one">{0}fm</unitPattern>
-				<unitPattern count="two">{0}fm</unitPattern>
-				<unitPattern count="few">{0}fm</unitPattern>
-				<unitPattern count="other">{0}fm</unitPattern>
+				<unitPattern count="one">{0}ftm</unitPattern>
+				<unitPattern count="two">{0}ftm</unitPattern>
+				<unitPattern count="few">{0}ftm</unitPattern>
+				<unitPattern count="other">{0}ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>nmi</displayName>

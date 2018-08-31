@@ -1115,11 +1115,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Зимбабве</territory>
 			<territory type="ZZ">Непознат регион</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">Англија</subdivision>
-			<subdivision type="gbsct">Шкотска</subdivision>
-			<subdivision type="gbwls">Велс</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="PINYIN">Пинјин романизација</variant>
 			<variant type="WADEGILE">Вејд-Џајлс романизација</variant>
@@ -2204,7 +2199,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 						<era type="0">пр.н.е.</era>
 						<era type="0" alt="variant">п.н.е.</era>
 						<era type="1">н.е.</era>
-						<era type="1" alt="variant">н.е.</era>
 					</eraAbbr>
 					<eraNarrow>
 						<era type="0">пр.н.е.</era>

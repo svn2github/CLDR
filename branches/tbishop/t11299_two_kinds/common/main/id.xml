@@ -129,7 +129,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="dar">Dargwa</language>
 			<language type="dav">Taita</language>
 			<language type="de">Jerman</language>
-			<language type="de_AT">Jerman (Austria)</language>
 			<language type="de_CH">Jerman Tinggi (Swiss)</language>
 			<language type="del">Delaware</language>
 			<language type="den">Slave</language>
@@ -153,18 +152,13 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="el">Yunani</language>
 			<language type="elx">Elam</language>
 			<language type="en">Inggris</language>
-			<language type="en_AU">Inggris (Australia)</language>
-			<language type="en_CA">Inggris (Kanada)</language>
 			<language type="en_GB">Inggris (Inggris)</language>
 			<language type="en_GB" alt="short">Inggris (U.K.)</language>
-			<language type="en_US">Inggris (Amerika Serikat)</language>
 			<language type="en_US" alt="short">Inggris (A.S.)</language>
 			<language type="enm">Inggris Abad Pertengahan</language>
 			<language type="eo">Esperanto</language>
 			<language type="es">Spanyol</language>
-			<language type="es_419">Spanyol (Amerika Latin)</language>
 			<language type="es_ES">Spanyol (Eropa)</language>
-			<language type="es_MX">Spanyol (Meksiko)</language>
 			<language type="et">Esti</language>
 			<language type="eu">Basque</language>
 			<language type="ewo">Ewondo</language>
@@ -376,7 +370,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="nia">Nias</language>
 			<language type="niu">Niuea</language>
 			<language type="nl">Belanda</language>
-			<language type="nl_BE">Belanda (Belgia)</language>
 			<language type="nmg">Kwasio</language>
 			<language type="nn">Nynorsk Norwegia</language>
 			<language type="nnh">Ngiemboon</language>
@@ -419,7 +412,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="ps">Pashto</language>
 			<language type="ps" alt="variant">Pushto</language>
 			<language type="pt">Portugis</language>
-			<language type="pt_BR">Portugis (Brasil)</language>
 			<language type="pt_PT">Portugis (Eropa)</language>
 			<language type="qu">Quechua</language>
 			<language type="quc">Kʼicheʼ</language>
@@ -827,7 +819,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="CG" alt="variant">Kongo (Republik)</territory>
 			<territory type="CH">Swiss</territory>
 			<territory type="CI">Pantai Gading</territory>
-			<territory type="CI" alt="variant">Pantai Gading</territory>
 			<territory type="CK">Kepulauan Cook</territory>
 			<territory type="CL">Cile</territory>
 			<territory type="CM">Kamerun</territory>
@@ -1020,7 +1011,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TJ">Tajikistan</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Timor Leste</territory>
-			<territory type="TL" alt="variant">Timor Leste</territory>
 			<territory type="TM">Turkimenistan</territory>
 			<territory type="TN">Tunisia</territory>
 			<territory type="TO">Tonga</territory>
@@ -1055,11 +1045,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabwe</territory>
 			<territory type="ZZ">Wilayah Tidak Dikenal</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">Inggris</subdivision>
-			<subdivision type="gbsct">Skotlandia</subdivision>
-			<subdivision type="gbwls">Wales</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">Ortografi Jerman Tradisional</variant>
 			<variant type="1994">Ortografi Resia Standar</variant>
@@ -2214,7 +2199,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 							<month type="5">Mei</month>
 							<month type="6">Jun</month>
 							<month type="7">Jul</month>
-							<month type="8">Agt</month>
+							<month type="8">Agu</month>
 							<month type="9">Sep</month>
 							<month type="10">Okt</month>
 							<month type="11">Nov</month>
@@ -2258,7 +2243,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 							<month type="5">Mei</month>
 							<month type="6">Jun</month>
 							<month type="7">Jul</month>
-							<month type="8">Agt</month>
+							<month type="8">Agu</month>
 							<month type="9">Sep</month>
 							<month type="10">Okt</month>
 							<month type="11">Nov</month>
@@ -8060,7 +8045,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 		</currencies>
 		<miscPatterns numberSystem="latn">
 			<pattern type="approximately">~{0}</pattern>
-			<pattern type="atLeast">⩾{0}</pattern>
+			<pattern type="atLeast">≥{0}</pattern>
 			<pattern type="atMost">≤{0}</pattern>
 			<pattern type="range">{0}–{1}</pattern>
 		</miscPatterns>

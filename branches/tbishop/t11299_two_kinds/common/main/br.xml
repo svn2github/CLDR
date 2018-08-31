@@ -951,11 +951,6 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			<territory type="ZW">Zimbabwe</territory>
 			<territory type="ZZ">Rannved dianav</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">Bro-Saoz</subdivision>
-			<subdivision type="gbsct">Skos</subdivision>
-			<subdivision type="gbwls">Kembre</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">reizhskrivadur alamanek hengounel</variant>
 			<variant type="1994">reizhskrivadur resianek skoueriekaet</variant>
@@ -1170,7 +1165,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 		<exemplarCharacters type="auxiliary">[á à ă â å ä ã ā æ c ç é è ĕ ë ē í ì ĭ î ï ī ó ò ŏ ô ö ø ō œ q ú ŭ û ü ū ÿ]</exemplarCharacters>
 		<exemplarCharacters type="index">[A B C D E F G H I J K L M N O P R S T U V W X Y Z]</exemplarCharacters>
 		<exemplarCharacters type="numbers">[  \- , % ‰ + 0 1 2 3 4 5 6 7 8 9]</exemplarCharacters>
-		<exemplarCharacters type="punctuation" draft="contributed">[!(),-.\:;?\[\]\{\}]</exemplarCharacters>
+		<exemplarCharacters type="punctuation" draft="contributed">[\- , ; \: ! ? . ( ) \[ \] \{ \}]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
 		<ellipsis type="initial">…{0}</ellipsis>
 		<ellipsis type="medial">{0}…{1}</ellipsis>
@@ -11162,7 +11157,7 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</currency>
 		</currencies>
 		<miscPatterns numberSystem="latn">
-			<pattern type="atLeast">⩾{0}</pattern>
+			<pattern type="atLeast">≥{0}</pattern>
 			<pattern type="range">{0}–{1}</pattern>
 		</miscPatterns>
 		<minimalPairs>
@@ -12645,11 +12640,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</unit>
 			<unit type="length-fathom">
 				<displayName>fm</displayName>
-				<unitPattern count="one">{0} fm</unitPattern>
-				<unitPattern count="two">{0} fm</unitPattern>
-				<unitPattern count="few">{0} fm</unitPattern>
-				<unitPattern count="many">{0} fm</unitPattern>
-				<unitPattern count="other">{0} fm</unitPattern>
+				<unitPattern count="one">{0} ftm</unitPattern>
+				<unitPattern count="two">{0} ftm</unitPattern>
+				<unitPattern count="few">{0} ftm</unitPattern>
+				<unitPattern count="many">{0} ftm</unitPattern>
+				<unitPattern count="other">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>nmi</displayName>
@@ -13440,11 +13435,11 @@ CLDR data files are interpreted according to the LDML specification (http://unic
 			</unit>
 			<unit type="length-fathom">
 				<displayName>fm</displayName>
-				<unitPattern count="one">{0} fm</unitPattern>
-				<unitPattern count="two">{0} fm</unitPattern>
-				<unitPattern count="few">{0} fm</unitPattern>
-				<unitPattern count="many">{0} fm</unitPattern>
-				<unitPattern count="other">{0} fm</unitPattern>
+				<unitPattern count="one">{0} ftm</unitPattern>
+				<unitPattern count="two">{0} ftm</unitPattern>
+				<unitPattern count="few">{0} ftm</unitPattern>
+				<unitPattern count="many">{0} ftm</unitPattern>
+				<unitPattern count="other">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>nmi</displayName>

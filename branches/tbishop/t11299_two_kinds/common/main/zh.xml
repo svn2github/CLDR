@@ -1012,7 +1012,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TJ">塔吉克斯坦</territory>
 			<territory type="TK">托克劳</territory>
 			<territory type="TL">东帝汶</territory>
-			<territory type="TL" alt="variant">东帝汶</territory>
 			<territory type="TM">土库曼斯坦</territory>
 			<territory type="TN">突尼斯</territory>
 			<territory type="TO">汤加</territory>
@@ -1047,11 +1046,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">津巴布韦</territory>
 			<territory type="ZZ">未知地区</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">英格兰</subdivision>
-			<subdivision type="gbsct">苏格兰</subdivision>
-			<subdivision type="gbwls">威尔士</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">传统德文拼字</variant>
 			<variant type="1994">标准雷西亚拼字</variant>
@@ -2854,15 +2848,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<eras>
 					<eraNames>
 						<era type="0">公元前</era>
-						<era type="0" alt="variant">公元前</era>
 						<era type="1">公元</era>
-						<era type="1" alt="variant">公元</era>
 					</eraNames>
 					<eraAbbr>
 						<era type="0">公元前</era>
-						<era type="0" alt="variant">公元前</era>
 						<era type="1">公元</era>
-						<era type="1" alt="variant">公元</era>
 					</eraAbbr>
 					<eraNarrow>
 						<era type="0">公元前</era>

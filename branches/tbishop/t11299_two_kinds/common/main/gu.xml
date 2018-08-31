@@ -650,7 +650,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<script type="Phnx">ફોનિશિયન</script>
 			<script type="Plrd">પોલાર્ડ ફોનેટિક</script>
 			<script type="Prti">ઇન્સ્ક્રિપ્શનલ પાર્થિયન</script>
-			<script type="Qaae">Qaae</script>
 			<script type="Rjng">રીજાંગ</script>
 			<script type="Roro">રોંગોરોંગો</script>
 			<script type="Runr">રૂનિક</script>
@@ -999,11 +998,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">ઝિમ્બાબ્વે</territory>
 			<territory type="ZZ">અજ્ઞાત પ્રદેશ</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">ઈંગ્લેન્ડ</subdivision>
-			<subdivision type="gbsct">સ્કોટલેન્ડ</subdivision>
-			<subdivision type="gbwls">વોલ્સ</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="PINYIN">પિનયિન રોમનાઇઝેશન</variant>
 			<variant type="WADEGILE">વેડ-ગિલ્સ રોમનાઇઝેશન</variant>

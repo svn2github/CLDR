@@ -137,8 +137,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="dar">dargwa</language>
 			<language type="dav">taita</language>
 			<language type="de">tysk</language>
-			<language type="de_AT">tysk (Østerrike)</language>
-			<language type="de_CH">tysk (Sveits)</language>
 			<language type="del">delaware</language>
 			<language type="den">slavey</language>
 			<language type="dgr">dogrib</language>
@@ -163,18 +161,9 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="el">gresk</language>
 			<language type="elx">elamittisk</language>
 			<language type="en">engelsk</language>
-			<language type="en_AU">engelsk (Australia)</language>
-			<language type="en_CA">engelsk (Canada)</language>
-			<language type="en_GB">engelsk (Storbritannia)</language>
-			<language type="en_GB" alt="short">engelsk (Storbritannia)</language>
-			<language type="en_US">engelsk (USA)</language>
-			<language type="en_US" alt="short">engelsk (USA)</language>
 			<language type="enm">mellomengelsk</language>
 			<language type="eo">esperanto</language>
 			<language type="es">spansk</language>
-			<language type="es_419">spansk (Latin-Amerika)</language>
-			<language type="es_ES">spansk (Spania)</language>
-			<language type="es_MX">spansk (Mexico)</language>
 			<language type="esu">sentralyupik</language>
 			<language type="et">estisk</language>
 			<language type="eu">baskisk</language>
@@ -191,8 +180,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="fo">færøysk</language>
 			<language type="fon">fon</language>
 			<language type="fr">fransk</language>
-			<language type="fr_CA">fransk (Canada)</language>
-			<language type="fr_CH">fransk (Sveits)</language>
 			<language type="frc">cajunfransk</language>
 			<language type="frm">mellomfransk</language>
 			<language type="fro">gammelfransk</language>
@@ -461,8 +448,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="ps">pashto</language>
 			<language type="ps" alt="variant">pushto</language>
 			<language type="pt">portugisisk</language>
-			<language type="pt_BR">portugisisk (Brasil)</language>
-			<language type="pt_PT">portugisisk (Portugal)</language>
 			<language type="qu">quechua</language>
 			<language type="quc">k’iche’</language>
 			<language type="qug">kichwa (Chimborazo-høylandet)</language>
@@ -764,54 +749,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<script type="Phnx">fønikisk</script>
 			<script type="Plrd">pollard-fonetisk</script>
 			<script type="Prti">inskripsjonsparthisk</script>
-			<script type="Qaaa" draft="contributed">qaaa</script>
-			<script type="Qaab" draft="contributed">qaab</script>
-			<script type="Qaac" draft="contributed">qaac</script>
-			<script type="Qaad" draft="contributed">qaad</script>
-			<script type="Qaae" draft="contributed">qaae</script>
-			<script type="Qaaf" draft="contributed">qaaf</script>
-			<script type="Qaag" draft="contributed">qaag</script>
-			<script type="Qaah" draft="contributed">qaah</script>
-			<script type="Qaak" draft="contributed">qaak</script>
-			<script type="Qaal" draft="contributed">qaal</script>
-			<script type="Qaam" draft="contributed">qaam</script>
-			<script type="Qaan" draft="contributed">qaan</script>
-			<script type="Qaao" draft="contributed">qaao</script>
-			<script type="Qaap" draft="contributed">qaap</script>
-			<script type="Qaaq" draft="contributed">qaaq</script>
-			<script type="Qaar" draft="contributed">qaar</script>
-			<script type="Qaas" draft="contributed">qaas</script>
-			<script type="Qaat" draft="contributed">qaat</script>
-			<script type="Qaau" draft="contributed">qaau</script>
-			<script type="Qaav" draft="contributed">qaav</script>
-			<script type="Qaaw" draft="contributed">qaaw</script>
-			<script type="Qaax" draft="contributed">qaax</script>
-			<script type="Qaay" draft="contributed">qaay</script>
-			<script type="Qaaz" draft="contributed">qaaz</script>
-			<script type="Qaba" draft="contributed">qaba</script>
-			<script type="Qabb" draft="contributed">qabb</script>
-			<script type="Qabc" draft="contributed">qabc</script>
-			<script type="Qabd" draft="contributed">qabd</script>
-			<script type="Qabe" draft="contributed">qabe</script>
-			<script type="Qabf" draft="contributed">qafb</script>
-			<script type="Qabg" draft="contributed">qabg</script>
-			<script type="Qabh" draft="contributed">qabh</script>
-			<script type="Qabi" draft="contributed">qabi</script>
-			<script type="Qabj" draft="contributed">qabj</script>
-			<script type="Qabk" draft="contributed">qabk</script>
-			<script type="Qabl" draft="contributed">qabl</script>
-			<script type="Qabm" draft="contributed">qabm</script>
-			<script type="Qabn" draft="contributed">qabn</script>
-			<script type="Qabo" draft="contributed">qabo</script>
-			<script type="Qabp" draft="contributed">qabp</script>
-			<script type="Qabq" draft="contributed">qabq</script>
-			<script type="Qabr" draft="contributed">qabr</script>
-			<script type="Qabs" draft="contributed">qabs</script>
-			<script type="Qabt" draft="contributed">qabt</script>
-			<script type="Qabu" draft="contributed">qabu</script>
-			<script type="Qabv" draft="contributed">qabv</script>
-			<script type="Qabw" draft="contributed">qabw</script>
-			<script type="Qabx" draft="contributed">qabx</script>
 			<script type="Rjng">rejang</script>
 			<script type="Roro">rongorongo</script>
 			<script type="Runr">runer</script>
@@ -942,7 +879,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="CG" alt="variant">Republikken Kongo</territory>
 			<territory type="CH">Sveits</territory>
 			<territory type="CI">Elfenbenskysten</territory>
-			<territory type="CI" alt="variant">Elfenbenskysten</territory>
 			<territory type="CK">Cookøyene</territory>
 			<territory type="CL">Chile</territory>
 			<territory type="CM">Kamerun</territory>
@@ -956,7 +892,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="CX">Christmasøya</territory>
 			<territory type="CY">Kypros</territory>
 			<territory type="CZ">Tsjekkia</territory>
-			<territory type="CZ" alt="variant">Tsjekkia</territory>
 			<territory type="DE">Tyskland</territory>
 			<territory type="DG">Diego Garcia</territory>
 			<territory type="DJ">Djibouti</territory>
@@ -1135,7 +1070,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="TJ">Tadsjikistan</territory>
 			<territory type="TK">Tokelau</territory>
 			<territory type="TL">Øst-Timor</territory>
-			<territory type="TL" alt="variant">Øst-Timor</territory>
 			<territory type="TM">Turkmenistan</territory>
 			<territory type="TN">Tunisia</territory>
 			<territory type="TO">Tonga</territory>
@@ -1170,11 +1104,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabwe</territory>
 			<territory type="ZZ">ukjent område</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">England</subdivision>
-			<subdivision type="gbsct">Skottland</subdivision>
-			<subdivision type="gbwls">Wales</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">tradisjonell tysk ortografi</variant>
 			<variant type="1994">standardisert resisk ortografi</variant>
@@ -13634,173 +13563,173 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</currency>
 		</currencies>
 		<miscPatterns numberSystem="arab">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="arabext">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="bali">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="beng">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="brah">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="cakm">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="cham">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="deva">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="fullwide">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="gujr">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="guru">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="hanidec">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="java">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="kali">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="khmr">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="knda">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="lana">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="lanatham">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="laoo">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="latn">
 			<pattern type="approximately">~{0}</pattern>
-			<pattern type="atLeast">⩾{0}</pattern>
+			<pattern type="atLeast">≥{0}</pattern>
 			<pattern type="atMost">≤{0}</pattern>
 			<pattern type="range">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="lepc">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="limb">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="mlym">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="mong">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="mtei">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="mymr">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="mymrshan">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="nkoo">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="olck">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="orya">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="osma">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="saur">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="shrd">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="sora">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="sund">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="takr">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="talu">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="tamldec">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="telu">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="thai">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="tibt">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<miscPatterns numberSystem="vaii">
-			<pattern type="atLeast" draft="contributed">⩾{0}</pattern>
+			<pattern type="atLeast" draft="contributed">≥{0}</pattern>
 			<pattern type="range" draft="contributed">{0}–{1}</pattern>
 		</miscPatterns>
 		<minimalPairs>

@@ -166,9 +166,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<language type="en_AU">australisk engelska</language>
 			<language type="en_CA">kanadensisk engelska</language>
 			<language type="en_GB">brittisk engelska</language>
-			<language type="en_GB" alt="short">engelska (Storbritannien)</language>
 			<language type="en_US">amerikansk engelska</language>
-			<language type="en_US" alt="short">engelska (USA)</language>
 			<language type="enm">medelengelska</language>
 			<language type="eo">esperanto</language>
 			<language type="es">spanska</language>
@@ -920,7 +918,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="CX">Julön</territory>
 			<territory type="CY">Cypern</territory>
 			<territory type="CZ">Tjeckien</territory>
-			<territory type="CZ" alt="variant">Tjeckien</territory>
 			<territory type="DE">Tyskland</territory>
 			<territory type="DG">Diego Garcia</territory>
 			<territory type="DJ">Djibouti</territory>
@@ -941,7 +938,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="FI">Finland</territory>
 			<territory type="FJ">Fiji</territory>
 			<territory type="FK">Falklandsöarna</territory>
-			<territory type="FK" alt="variant">Falklandsöarna</territory>
 			<territory type="FM">Mikronesien</territory>
 			<territory type="FO">Färöarna</territory>
 			<territory type="FR">Frankrike</territory>
@@ -1134,11 +1130,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabwe</territory>
 			<territory type="ZZ">okänd region</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">England</subdivision>
-			<subdivision type="gbsct">Skottland</subdivision>
-			<subdivision type="gbwls">Wales</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">traditionell tysk stavning</variant>
 			<variant type="1994">1994 års resisk stavning</variant>
@@ -7963,7 +7954,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 		</currencies>
 		<miscPatterns numberSystem="latn">
 			<pattern type="approximately">~{0}</pattern>
-			<pattern type="atLeast">⩾{0}</pattern>
+			<pattern type="atLeast">≥{0}</pattern>
 			<pattern type="atMost">≤{0}</pattern>
 			<pattern type="range">{0}‒{1}</pattern>
 		</miscPatterns>

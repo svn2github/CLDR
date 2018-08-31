@@ -986,11 +986,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">زيمبابوي</territory>
 			<territory type="ZZ">منطقة غير معروفة</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">إنجلترا</subdivision>
-			<subdivision type="gbsct">اسكتلندا</subdivision>
-			<subdivision type="gbwls">ويلز</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">التهجئة الألمانية التقليدية</variant>
 			<variant type="1996">التهجئة الألمانية لعام 1996</variant>
@@ -7340,7 +7335,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<displayName count="few">أوقية موريتانية - 1973-2017</displayName>
 				<displayName count="many">أوقية موريتانية - 1973-2017</displayName>
 				<displayName count="other">أوقية موريتانية - 1973-2017</displayName>
-				<symbol>أ.م.‏</symbol>
+				<symbol>MRO</symbol>
 			</currency>
 			<currency type="MRU">
 				<displayName>أوقية موريتانية</displayName>
@@ -7350,7 +7345,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 				<displayName count="few">أوقية موريتانية</displayName>
 				<displayName count="many">أوقية موريتانية</displayName>
 				<displayName count="other">أوقية موريتانية</displayName>
-				<symbol draft="contributed">MRU</symbol>
+				<symbol>أ.م.</symbol>
 			</currency>
 			<currency type="MTL">
 				<displayName>ليرة مالطية</displayName>

@@ -891,7 +891,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="CG" alt="variant">Kongo Cumhuriyeti</territory>
 			<territory type="CH">İsviçre</territory>
 			<territory type="CI">Fildişi Sahili</territory>
-			<territory type="CI" alt="variant">Fildişi Sahili</territory>
 			<territory type="CK">Cook Adaları</territory>
 			<territory type="CL">Şili</territory>
 			<territory type="CM">Kamerun</territory>
@@ -1119,11 +1118,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">Zimbabve</territory>
 			<territory type="ZZ">Bilinmeyen Bölge</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">İngiltere</subdivision>
-			<subdivision type="gbsct">İskoçya</subdivision>
-			<subdivision type="gbwls">Galler</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">Geleneksel Almanca Yazım Kuralları</variant>
 			<variant type="1994">Standart Resia Yazım Kuralları</variant>
@@ -8578,8 +8572,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName draft="contributed">fathom</displayName>
-				<unitPattern count="one" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="other" draft="contributed">{0} fm</unitPattern>
+				<unitPattern count="one" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="other" draft="contributed">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>nmi</displayName>
@@ -9292,8 +9286,8 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName draft="contributed">fathom</displayName>
-				<unitPattern count="one" draft="contributed">{0} fm</unitPattern>
-				<unitPattern count="other" draft="contributed">{0} fm</unitPattern>
+				<unitPattern count="one" draft="contributed">{0} ftm</unitPattern>
+				<unitPattern count="other" draft="contributed">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName draft="contributed">nmi</displayName>

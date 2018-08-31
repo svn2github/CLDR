@@ -939,11 +939,6 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			<territory type="ZW">an tSiombáib</territory>
 			<territory type="ZZ">Réigiún Anaithnid</territory>
 		</territories>
-		<subdivisions>
-			<subdivision type="gbeng">Sasana</subdivision>
-			<subdivision type="gbsct">Albain</subdivision>
-			<subdivision type="gbwls">an Bhreatain Bheag</subdivision>
-		</subdivisions>
 		<variants>
 			<variant type="1901">Litriú Traidisiúnta na Gearmáinise</variant>
 			<variant type="1994">1994</variant>
@@ -1180,7 +1175,7 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 		<exemplarCharacters type="auxiliary">[å ḃ ċ ḋ ḟ ġ j k ṁ ṗ q ṡ ṫ v w x y z]</exemplarCharacters>
 		<exemplarCharacters type="index" draft="unconfirmed">[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters>
 		<exemplarCharacters type="numbers">[\- , . % ‰ + 0 1 2 3 4 5 6 7 8 9]</exemplarCharacters>
-		<exemplarCharacters type="punctuation" draft="contributed">[!-#\&amp;-*,-/\:;?@\[\]§‐–—‘’“”†‡…′″]</exemplarCharacters>
+		<exemplarCharacters type="punctuation" draft="contributed">[\- ‐ – — , ; \: ! ? . … ' ‘ ’ &quot; “ ” ( ) \[ \] § @ * / \&amp; # † ‡ ′ ″]</exemplarCharacters>
 		<ellipsis type="final">{0}…</ellipsis>
 		<ellipsis type="initial">…{0}</ellipsis>
 		<ellipsis type="medial">{0}…{1}</ellipsis>
@@ -9960,11 +9955,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName>feánna</displayName>
-				<unitPattern count="one">{0} fm</unitPattern>
-				<unitPattern count="two">{0} fm</unitPattern>
-				<unitPattern count="few">{0} fm</unitPattern>
-				<unitPattern count="many">{0} fm</unitPattern>
-				<unitPattern count="other">{0} fm</unitPattern>
+				<unitPattern count="one">{0} ftm</unitPattern>
+				<unitPattern count="two">{0} ftm</unitPattern>
+				<unitPattern count="few">{0} ftm</unitPattern>
+				<unitPattern count="many">{0} ftm</unitPattern>
+				<unitPattern count="other">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>muirmh.</displayName>
@@ -11094,11 +11089,11 @@ Warnings: All cp values have U+FE0F characters removed. See /annotationsDerived/
 			</unit>
 			<unit type="length-fathom">
 				<displayName>feá</displayName>
-				<unitPattern count="one">{0} fm</unitPattern>
-				<unitPattern count="two">{0} fm</unitPattern>
-				<unitPattern count="few">{0} fm</unitPattern>
-				<unitPattern count="many">{0} fm</unitPattern>
-				<unitPattern count="other">{0} fm</unitPattern>
+				<unitPattern count="one">{0} ftm</unitPattern>
+				<unitPattern count="two">{0} ftm</unitPattern>
+				<unitPattern count="few">{0} ftm</unitPattern>
+				<unitPattern count="many">{0} ftm</unitPattern>
+				<unitPattern count="other">{0} ftm</unitPattern>
 			</unit>
 			<unit type="length-nautical-mile">
 				<displayName>muirmh.</displayName>
