@@ -162,6 +162,12 @@ public class DataSection implements JSONString {
             private String valueHash = null;
 
             /**
+             * A history of events in the creation of this CandidateItem,
+             * for debugging and possibly for inspection by users
+             */
+            private String history = null;
+            
+            /**
              * Create a new CandidateItem with the given value
              *
              * @param value,  may be null if called by setShimTests!
@@ -403,7 +409,8 @@ public class DataSection implements JSONString {
                     .put("example", getExample())
                     .put("isOldValue", isOldValue)
                     .put("pClass", getPClass())
-                    .put("tests", SurveyAjax.JSONWriter.wrap(this.tests));
+                    .put("tests", SurveyAjax.JSONWriter.wrap(this.tests))
+                    .put("history", history);
                 Set<User> theVotes = getVotes();
                 if (theVotes != null && !theVotes.isEmpty()) {
                     JSONObject voteList = new JSONObject();
@@ -656,6 +663,8 @@ public class DataSection implements JSONString {
          *  check whether the item matches oldValue, and if so set isOldValue = true.
          * 
          * @param value
+         * @param candidateHistory a string used for debugging and possibly also for describing to the user
+         *          how/why/when/where the item was added
          * @return the new or existing item with the given value
          *
          * Sequential order in which addItem may be called (as of 2018-8-28) for a given DataRow:
@@ -684,26 +693,28 @@ public class DataSection implements JSONString {
          *     in decideWinningVhashForClient (exceptional/experimental):
          *         winningItem = addItem(winningValue);
          */
-        public CandidateItem addItem(String value) {
+        private CandidateItem addItem(String value, String candidateHistory) {
             /*
              * TODO: Clarify the purpose of changing null to empty string here, rather than
              * simply doing nothing, or reporting an error. There appears to be no reason to
              * add an item with null or empty value.
              */
             final String kValue = (value == null) ? "" : value;
-            CandidateItem pi = items.get(kValue);
-            if (pi != null) {
-                return pi;
+            CandidateItem item = items.get(kValue);
+            if (item != null) {
+                item.history += "+" + candidateHistory;
+                return item;
             }
-            pi = new CandidateItem(value);
-            items.put(kValue, pi);
+            item = new CandidateItem(value);
+            item.history = candidateHistory;
+            items.put(kValue, item);
             if (winningValue != null && winningValue.equals(value)) {
-                winningItem = pi;
+                winningItem = item;
             }
             if (oldValue != null && oldValue.equals(value)) {
-                pi.isOldValue = true;
+                item.isOldValue = true;
             }
-            return pi;
+            return item;
         }
 
         /**
@@ -1212,19 +1223,17 @@ public class DataSection implements JSONString {
                  * See https://unicode.org/cldr/trac/ticket/11299
                  */
                 System.out.println("Warning: no inherited value in updateInheritedValue; isInherited = " + isInherited + "; ourValue = " + ourValue + "; xpath = " + xpath);
-            } else if (items.containsKey(CldrUtility.INHERITANCE_MARKER)) {
-                /*
-                 * This DataRow already has an item with value INHERITANCE_MARKER.
-                 * Set inheritedItem = that item.
-                 */
-                inheritedItem = items.get(CldrUtility.INHERITANCE_MARKER);
             } else {
                 /*
-                 * Add a new item, to be the inheritedItem of this DataRow, with value INHERITANCE_MARKER.
+                 * Unless this DataRow already has an item with value INHERITANCE_MARKER,
+                 * add a new item, to be the inheritedItem of this DataRow, with value INHERITANCE_MARKER.
+                 * 
+                 * Call addItem even if item with this value already exists, for simplicity and to update inheritedItem.history  
+                 *
+                 * Set inheritedItem = that item.
                  */                    
-                inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER);
-            }
-            if (inheritedValue != null) {
+                inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER, "updateInheritedValue");
+
                 if (TRACE_TIME) {
                     System.err.println("@@2:" + (System.currentTimeMillis() - lastTime));
                 }
@@ -1480,10 +1489,13 @@ public class DataSection implements JSONString {
                     // this happens, for example, "Monegasque Franc"
                     System.out.println("Warning: creating new item for winningValue = inheritedValue = " + winningValue + " in decideWinningValueForClient; xpath = " + xpath);
                 } else {
-                    // This does not seem to happen so far
+                    // This happens, for example:
+                    // http://localhost:8080/cldr-apps/v#/fr/Languages_A_D/
+                    // Warning: setting winningValue to INHERITANCE_MARKER in decideWinningValueForClient; should happen earlier? xpath = //ldml/localeDisplayNames/languages/language[@type="ccp"]
+                    // Warning: creating new item for winningValue ↑↑↑ in decideWinningValueForClient; inheritedValue is DIFFERENT: ccp
                     System.out.println("Warning: creating new item for winningValue " + winningValue + " in decideWinningValueForClient; inheritedValue is DIFFERENT: " + inheritedValue);
                 }
-                winningItem = addItem(winningValue);
+                winningItem = addItem(winningValue, "decideWinningVhashForClient");
             }
 
             /*
@@ -2856,7 +2868,7 @@ public class DataSection implements JSONString {
 
         if (row.oldValue != null && !row.oldValue.equals(ourValue) && (v == null || !v.contains(row.oldValue))) {
             // if "oldValue" isn't already represented as an item, add it.
-            row.addItem(row.oldValue);
+            row.addItem(row.oldValue, "oldValue");
         }
 
         row.coverageValue = coverageValue;
@@ -2876,7 +2888,7 @@ public class DataSection implements JSONString {
              * problem has been fixed at least partly, by NOT skipping that code in updateInheritedValue
              * even if an item with INHERITANCE_MARKER already exists.
              */            
-            row.addItem(CldrUtility.INHERITANCE_MARKER);
+            row.addItem(CldrUtility.INHERITANCE_MARKER, "locale.getCountry");
         }
 
         /*
@@ -2921,10 +2933,15 @@ public class DataSection implements JSONString {
          * If ourValue is inherited, do NOT add a CandidateItem for it.
          * TODO: clarify. If ourValue is inherited, then indeed there should be an item
          * for "soft" inheritance with INHERITANCE_MARKER, but no item for hard/explicit value unless it has votes.
-         * Test if this value of isInherited is reliable and consistent with what happens in setInheritedValue; could
+         * Test if this value of isInherited is reliable and consistent with what happens in updateInheritedValue; could
          * use this opportunity to set inheritedValue = ourValue ... but if ourValue is always the same as inheritedValue
          * or winningValue, then what do we need it for? Commonly updateInheritedValue or setShimTests will already have
          * been called above.
+         * 
+         * The relationship between ourValue and winningValue is still unclear. Given the seemingly primary importance
+         * of winningValue, it's odd that we may not have added any item yet for winningValue. When ourValue equals
+         * winningValue, then we often do add it here in addOurValue, but sometimes it doesn't happen until decideWinningValueForClient,
+         * which is a crude temporary hack as it stands...
          */
         if (isInherited && !isExtraPath) {
              return;
@@ -2958,7 +2975,7 @@ public class DataSection implements JSONString {
      */
     private void populateFromThisXpathAddItemsForVotes(Set<String> v, String xpath, DataRow row, TestResultBundle checkCldr) {
         for (String avalue : v) {
-            CandidateItem item2 = row.addItem(avalue);
+            CandidateItem item2 = row.addItem(avalue, "votes");
             if (avalue != null && checkCldr != null) {
                 List<CheckStatus> item2Result = new ArrayList<CheckStatus>();
                 checkCldr.check(xpath, item2Result, avalue);
@@ -2995,7 +3012,7 @@ public class DataSection implements JSONString {
             System.out.println("Debugging: addOurValue called with ourValue = INHERITANCE_MARKER; xpath = " + xpath
                 + "; ourValue = " + ourValue + "; inheritedValue = " + row.inheritedValue);
         }
-        CandidateItem myItem = row.addItem(ourValue);
+        CandidateItem myItem = row.addItem(ourValue, "ourValue");
 
         if (DEBUG) {
             System.err.println("Added item " + ourValue + " - now items=" + row.items.size());

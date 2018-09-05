@@ -2315,10 +2315,12 @@ public class SurveyAjax extends HttpServlet {
      * @throws VoteNotAcceptedException 
      * @throws InvalidXPathException
      *
-     * TODO: for https://unicode.org/cldr/trac/ticket/11299
-     * figure out what needs to happen if candVal = val = INHERITANCE_MARKER,
-     * see "ci = pvi.getItem(candVal)", what if that returns inheritedItem
-     * with inheritedItem.rawValue = INHERITANCE_MARKER?
+     * Note: the function CandidateItem.getItem in DataSection.java
+     * called from here as ci = pvi.getItem(candVal)
+     * has been revised for https://unicode.org/cldr/trac/ticket/11299
+     * -- when val = candVal = INHERITANCE_MARKER, it now returns inheritedItem
+     * with inheritedItem.rawValue = INHERITANCE_MARKER. This appears to work
+     * correctly so no change has been made here.
      */
     private void submitVoteOrAbstention(JSONWriter r, String val, CookieSession mySession, CLDRLocale locale,
             String xp, STFactory stf, String otherErr, final List<CheckStatus> result,

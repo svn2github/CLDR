@@ -2830,6 +2830,15 @@ function addVitem(td, tr, theRow, item, newButton) {
 			var newIcon = addIcon(choiceField,"i-stop"); // DEBUG
 		}
 	}
+
+	/*
+	 * TODO: maybe only for debugging; won't normally display this in production
+	 */
+	if (item.history) {
+		var historyTag = createChunk(" ☛" + item.history, "span", "");
+		choiceField.appendChild(historyTag);
+	}
+
 	if(newButton &&
 			theRow.voteVhash == item.valueHash &&
 			theRow.items[theRow.voteVhash].votes &&
