@@ -13,7 +13,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import org.unicode.cldr.test.CheckExemplars.ExemplarType;
 import org.unicode.cldr.util.Builder;
 import org.unicode.cldr.util.CLDRFile;
@@ -31,7 +30,7 @@ import org.unicode.cldr.util.XPathParts;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
-import com.google.myanmartools.ZawgyiDetector;
+// import com.google.myanmartools.ZawgyiDetector;
 
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.Collator;
@@ -141,9 +140,12 @@ public class DisplayAndInputProcessor {
     private static final char[][] URDU_PLUS_CONVERSIONS = {
         { '\u0643', '\u06A9' }}; //  wrong char
 
+    /***
     private static final ZawgyiDetector detector = new ZawgyiDetector();
+
     private static final Transliterator zawgyiUnicodeTransliterator =
         Transliterator.getInstance("Zawgyi-my");
+     ***/
 
     private Collator col;
 
@@ -689,9 +691,11 @@ public class DisplayAndInputProcessor {
 
     // Use the myanmar-tools detector.
     private String standardizeMyanmar(String value) {
+        /***
         if (detector.getZawgyiProbability(value) > 0.90) {
             return zawgyiUnicodeTransliterator.transform(value);
         }
+        ***/
         return value;
     }
 

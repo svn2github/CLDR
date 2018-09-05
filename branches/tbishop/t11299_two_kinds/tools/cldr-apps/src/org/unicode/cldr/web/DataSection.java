@@ -1120,6 +1120,9 @@ public class DataSection implements JSONString {
          * @param isInherited the boolean that was obtained as !(sourceLocale.equals(locale.toString()))
          */
         private void fixWinningValue(String ourValue, boolean isInherited) {
+            if (winningValue == null && inheritedValue != null) {
+                winningValue = CldrUtility.INHERITANCE_MARKER;
+            }
             if (isInherited) {
                 if (ourValue.equals(winningValue) && !CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
                     winningValue = CldrUtility.INHERITANCE_MARKER;
@@ -1182,7 +1185,7 @@ public class DataSection implements JSONString {
          * was the result. This function has been changed to set the value to INHERITANCE_MARKER, and to store
          * the actual Bailey value in the inheritedValue field of DataRow.
          *
-         * TODO: Get rid of, or merge with, the code that currently does "row.addItem(CldrUtility.INHERITANCE_MARKER)" in populateFromThisXpath.
+         * TODO: Get rid of, or merge with, the code that currently does 'row.addItem(CldrUtility.INHERITANCE_MARKER, "getCountry")' in populateFromThisXpath.
          */
         private void updateInheritedValue(CLDRFile ourSrc, TestResultBundle checkCldr, String ourValue, boolean isInherited) {
             if (inheritedItem != null) {
@@ -1232,7 +1235,7 @@ public class DataSection implements JSONString {
                  *
                  * Set inheritedItem = that item.
                  */                    
-                inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER, "updateInheritedValue");
+                inheritedItem = addItem(CldrUtility.INHERITANCE_MARKER, "inheritedItem");
 
                 if (TRACE_TIME) {
                     System.err.println("@@2:" + (System.currentTimeMillis() - lastTime));
@@ -2853,6 +2856,20 @@ public class DataSection implements JSONString {
 
         DataRow row = getDataRow(xpath);
 
+        /*
+         * TODO: EXPERIMENTAL:
+         * 
+         * Call updateInheritedValue before fixWinningValue, so that the latter can use inheritedValue as needed.
+         * 
+         * Normally row.inheritedItem is null at this point, unless setShimTests has already been called
+         * by ensureComplete, for some timezones. If row.inheritedItem is null, possibly create it.
+         * 
+         * However, skip updateInheritedValue if isExtra. See setShimTests below, which may set inheritedItem
+         * when isExtraPath.
+         */
+        if (row.inheritedItem == null && !isExtraPath) {
+            row.updateInheritedValue(ourSrc, checkCldr, ourValue, isInherited);
+        }
         row.fixWinningValue(ourValue, isInherited);
 
         if (oldFile != null) {
@@ -2866,6 +2883,15 @@ public class DataSection implements JSONString {
             populateFromThisXpathAddItemsForVotes(v, xpath, row, checkCldr);
         }
 
+        /*
+         * TODO: experimental:
+         * 
+         * Add an item for winningValue if there isn't one already.
+         */
+        if (row.winningValue != null /** && !row.winningValue.equals(CldrUtility.INHERITANCE_MARKER) **/) {
+            row.addItem(row.winningValue, "winningValue");
+        }
+
         if (row.oldValue != null && !row.oldValue.equals(ourValue) && (v == null || !v.contains(row.oldValue))) {
             // if "oldValue" isn't already represented as an item, add it.
             row.addItem(row.oldValue, "oldValue");
@@ -2873,52 +2899,26 @@ public class DataSection implements JSONString {
 
         row.coverageValue = coverageValue;
 
-        if ((locale.getCountry() != null && locale.getCountry().length() > 0) && (v == null || !v.contains(CldrUtility.INHERITANCE_MARKER))) {
+        if (locale.getCountry() != null && locale.getCountry().length() > 0) {
             /*
              * If "vote for inherited" isn't already represented as an item, add it (child locales only).
-             *
-             * Note: the above condition "!v.contains(CldrUtility.INHERITANCE_MARKER)" is superfluous, since
-             * the values from addItem have already been called for all votes in v, and addItem does nothing if
-             * the item is already contained.
              * 
-             * TODO: Note that updateInheritedValue is called a few lines below, unless isExtraPath; normally
+             * TODO: Note that updateInheritedValue is called above, unless isExtraPath; normally
              * it's the job of updateInheritedValue to do addItem(CldrUtility.INHERITANCE_MARKER); is there
-             * any need to call it here as well? There may be harm in doing it here, if we then skip
-             * code in updateInheritedValue needed for inheritedLocale, pathWhereFound. Currently that
-             * problem has been fixed at least partly, by NOT skipping that code in updateInheritedValue
-             * even if an item with INHERITANCE_MARKER already exists.
+             * any need to call it here as well?
              */            
-            row.addItem(CldrUtility.INHERITANCE_MARKER, "locale.getCountry");
+            row.addItem(CldrUtility.INHERITANCE_MARKER, "getCountry");
         }
 
-        /*
-         * Normally row.inheritedItem is null at this point, unless setShimTests has already been called
-         * by ensureComplete, for some timezones. If row.inheritedItem is null, possibly create it,
-         * either with setShimTests if isExtraPath, or else with updateInheritedValue.
-         */
-        /*
-         * TODO: Temporary debugging code:
-         */
-        if (row.inheritedItem != null) {
-            // this doesn't seem to happen so far
-            System.out.println("DEBUGGING: inheritedItem not null in populateFromThisXpath!");
-        }
-        if (row.inheritedItem == null) {
-            if (isExtraPath) {
-                /*
-                 * This is an 'extra' item- it doesn't exist in xml (including root).
-                 * For example, isExtraPath may be true when xpath is:
-                 *  '//ldml/dates/timeZoneNames/metazone[@type="Mexico_Northwest"]/short/standard'
-                 * and the URL ends with "v#/aa/NAmerica/".
-                 * Set up 'shim' tests, to display coverage.
-                 */
-                row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr);
-            } else {
-                /*
-                 * This item fell back from root (what does that mean?). Make sure it has an Item, and that tests are run.
-                 */
-                row.updateInheritedValue(ourSrc, checkCldr, ourValue, isInherited);
-            }
+        if (row.inheritedItem == null && isExtraPath) {
+            /*
+             * This is an 'extra' item- it doesn't exist in xml (including root).
+             * For example, isExtraPath may be true when xpath is:
+             *  '//ldml/dates/timeZoneNames/metazone[@type="Mexico_Northwest"]/short/standard'
+             * and the URL ends with "v#/aa/NAmerica/".
+             * Set up 'shim' tests, to display coverage.
+             */
+            row.setShimTests(base_xpath, this.sm.xpt.getById(base_xpath), checkCldr);
         }
         if (row.getDisplayName() == null) {
             canName = false; // disable 'view by name' if not all have names.
