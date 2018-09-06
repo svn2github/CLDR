@@ -29,9 +29,7 @@ import org.unicode.cldr.util.XPathParts;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-
-// import com.google.myanmartools.ZawgyiDetector;
-
+import com.google.myanmartools.ZawgyiDetector;
 import com.ibm.icu.lang.UCharacter;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.DateIntervalInfo;
@@ -140,12 +138,9 @@ public class DisplayAndInputProcessor {
     private static final char[][] URDU_PLUS_CONVERSIONS = {
         { '\u0643', '\u06A9' }}; //  wrong char
 
-    /***
     private static final ZawgyiDetector detector = new ZawgyiDetector();
-
     private static final Transliterator zawgyiUnicodeTransliterator =
         Transliterator.getInstance("Zawgyi-my");
-     ***/
 
     private Collator col;
 
@@ -691,11 +686,9 @@ public class DisplayAndInputProcessor {
 
     // Use the myanmar-tools detector.
     private String standardizeMyanmar(String value) {
-        /***
         if (detector.getZawgyiProbability(value) > 0.90) {
             return zawgyiUnicodeTransliterator.transform(value);
         }
-        ***/
         return value;
     }
 
