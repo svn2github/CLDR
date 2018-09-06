@@ -2915,6 +2915,11 @@ function updateRow(tr, theRow) {
 		if(item.value) {
 			tr.valueToItem[item.value] = item; // back link by value
 			tr.rawValueToItem[item.rawValue] = item; // back link by value
+			if (item.value === INHERITANCE_MARKER && !theRow.inheritedValue) {
+				// In earlier implementation, essentially the same error was reported as "... there is no Bailey Target item!")
+				// Reference: https://unicode.org/cldr/trac/ticket/11238
+				console.error('For ' + theRow.xpstrid + ' - there is INHERITANCE_MARKER without inheritedValue');
+			}
 		}
 	}
 
