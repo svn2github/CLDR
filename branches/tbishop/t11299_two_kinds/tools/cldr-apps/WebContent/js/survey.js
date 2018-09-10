@@ -2698,15 +2698,21 @@ function showProposedItem(inTd,tr,theRow,value,tests, json) {
 	return false;
 }
 
-// returns a popinto function
-function showItemInfoFn(theRow, item, vHash, newButton, div) {
+/**
+ * Return a function that will show info for the given item in the Info Panel.
+ * 
+ * @param theRow the data row
+ * @param item the candidate item
+ * @returns the function
+ * 
+ * Called only by addVitem.
+ */
+function showItemInfoFn(theRow, item) {
 	return function(td) {
-		var isInherited = false;
 		var h3 = document.createElement("div");
 		var displayValue = item.value;
-		if (item.value == INHERITANCE_MARKER) {
+		if (item.value === INHERITANCE_MARKER) {
 			displayValue = theRow.inheritedValue;
-			isInherited = true;
 		}
 
 		var span = appendItem(h3, displayValue, item.pClass); /* no need to pass in 'tr' - clicking this span would have no effect. */
@@ -2714,52 +2720,40 @@ function showItemInfoFn(theRow, item, vHash, newButton, div) {
 		h3.className="span";
 		td.appendChild(h3);
 
-		if ( item.value) {
+		if (item.value) {
 			h3.appendChild(createChunk(stui.sub("pClass_"+item.pClass, item ),"p","pClassExplain"));
 		}
 
-		/*
-		 * TODO: this "if" is probably superfluous since if item.pClass has one of these values
-		 * then item.value == INHERITANCE_MARKER so we already set isInherited = true above.
-		 */
-		if (   item.pClass === 'alias'
-			|| item.pClass === 'fallback'
-		    || item.pClass === 'fallback_root' ) {
-			isInherited = true;
-		}
-
-		/*
-		 * TODO: it is probably a bug if isInherited is true but theRow.inheritedLocale and
-		 *  theRow.inheritedXpid are both undefined (null on server). This happens with "example C" in
-		 *  https://unicode.org/cldr/trac/ticket/11299#comment:15
-		 */
-		if ( isInherited && (theRow.inheritedLocale || theRow.inheritedXpid )) {
+		if (item.value === INHERITANCE_MARKER) {
 			/*
-			 * Add a link in the Info Panel for "Jump to Original" (stui.str('followAlias')).
+			 * Add a link in the Info Panel for "Jump to Original" (stui.str('followAlias')),
+			 * if theRow.inheritedLocale or theRow.inheritedXpid is defined.
+			 *
+			 * Normally at least one of theRow.inheritedLocale and theRow.inheritedXpid should be
+			 * defined whenever we have an INHERITANCE_MARKER item. Otherwise an error is reported
+			 * by checkRowConsistency.
 			 */
-			var clickyLink = createChunk(stui.str('followAlias'), "a", 'followAlias');
-			clickyLink.href = '#/'+ ( theRow.inheritedLocale || surveyCurrentLocale )+
-				'//'+ ( theRow.inheritedXpid || theRow.xpstrid ); //linkToLocale(subLoc);
-			h3.appendChild(clickyLink);
+			if (theRow.inheritedLocale || theRow.inheritedXpid) {
+				var clickyLink = createChunk(stui.str('followAlias'), "a", 'followAlias');
+				clickyLink.href = '#/'+ ( theRow.inheritedLocale || surveyCurrentLocale )+
+					'//'+ ( theRow.inheritedXpid || theRow.xpstrid ); //linkToLocale(subLoc);
+				h3.appendChild(clickyLink);
+			}
 		}
 
 		var newDiv = document.createElement("div");
 		td.appendChild(newDiv);
 
-		var newHtml = "";
-
 		if (item.tests) {
-			newHtml += testsToHtml(item.tests);
+			newDiv.innerHTML = testsToHtml(item.tests);
 		} else {
-			newHtml = "<i>no tests</i>";
+			newDiv.innerHTML = "<i>no tests</i>";
 		}
 
-		newDiv.innerHTML = newHtml;
-
-		if(item.example) {
+		if (item.example) {
 			appendExample(td, item.example);
 		}
-	}; // end fn
+	}; // end function(td)
 }
 
 function appendExample(parent, text, loc) {
@@ -2790,7 +2784,7 @@ function addVitem(td, tr, theRow, item, newButton) {
 		return;
 	}
 	var displayValue = item.value;
-	if (item.value == INHERITANCE_MARKER) {
+	if (item.value === INHERITANCE_MARKER) {
 		displayValue = theRow.inheritedValue; // TODO: what if theRow.inheritedValue is undefined, as it sometimes is?
 	}
 	
@@ -2832,11 +2826,15 @@ function addVitem(td, tr, theRow, item, newButton) {
 	}
 
 	/*
-	 * TODO: maybe only for debugging; won't normally display this in production
+	 * Note: history is maybe only defined for debugging; won't normally display it in production.
+	 * See DataSection.USE_CANDIDATE_HISTORY which currently should be false for production, so
+	 * that item.history will be undefined.
 	 */
 	if (item.history) {
-		var historyTag = createChunk(" ☛" + item.history, "span", "");
+		const historyText = " ☛" + item.history;
+		const historyTag = createChunk(historyText, "span", "");
 		choiceField.appendChild(historyTag);
+		listenToPop(historyText, tr, historyTag);
 	}
 
 	if(newButton &&
@@ -2850,25 +2848,14 @@ function addVitem(td, tr, theRow, item, newButton) {
 
 	div.appendChild(choiceField);
 
-	var inheritedClassName = "fallback";
-	var defaultClassName = "fallback_code";
-
-    // wire up the onclick
-	td.showFn = item.showFn = showItemInfoFn(theRow,item,item.valueHash,newButton,div);
+    // wire up the onclick function for the Info Panel
+	td.showFn = item.showFn = showItemInfoFn(theRow,item);
 	div.popParent = tr;
 	listenToPop(null, tr, div, td.showFn);
 	td.appendChild(div);
 
     if(item.example && item.value != item.examples ) {
 		appendExample(div,item.example);
-	}
-}
-
-function calcPClass(value, winner) {
-	if(value==winner) {
-		return "winner";
-	} else {
-		return "value";
 	}
 }
 
@@ -2905,6 +2892,8 @@ function appendExtraAttributes(container, theRow) {
 function updateRow(tr, theRow) {
 	tr.theRow = theRow;
 
+	checkRowConsistency(theRow);
+
 	/*
 	 * For convenience, set up two hashes, for reverse mapping from value or rawValue to item.
 	 */	
@@ -2915,11 +2904,6 @@ function updateRow(tr, theRow) {
 		if(item.value) {
 			tr.valueToItem[item.value] = item; // back link by value
 			tr.rawValueToItem[item.rawValue] = item; // back link by value
-			if (item.value === INHERITANCE_MARKER && !theRow.inheritedValue) {
-				// In earlier implementation, essentially the same error was reported as "... there is no Bailey Target item!")
-				// Reference: https://unicode.org/cldr/trac/ticket/11238
-				console.error('For ' + theRow.xpstrid + ' - there is INHERITANCE_MARKER without inheritedValue');
-			}
 		}
 	}
 
@@ -3051,8 +3035,8 @@ function updateRow(tr, theRow) {
 	updateRowNoAbstainCell(tr, theRow, config, children, protoButton);
 
 	/*
-	 * Do something related to coverage.
-	 * TODO: explain.
+	 * Set className for this row to "vother" and "cov..." based on the coverage value.
+	 * Elsewhere className can get values including "ferrbox", "tr_err", "tr_checking2".
 	 */
 	tr.className = 'vother cov' + theRow.coverageValue;
 
@@ -3062,6 +3046,50 @@ function updateRow(tr, theRow) {
 	 */
 	if(surveyCurrentId!== '' && surveyCurrentId === tr.id) {
 		window.showCurrentId(); // refresh again - to get the updated voting status.
+	}
+}
+
+/**
+ * Check whether the data for this row is consistent, and report to console error
+ * if it isn't.
+ *
+ * @param theRow the data from the server for this row
+ *
+ * Called by updateRow.
+ * 
+ * Inconsistencies should primarily be detected/reported/fixed on server (DataSection.java)
+ * rather than here on the client, but better late than never, and these checks may be useful
+ * for automated testing with WebDriver.
+ */
+function checkRowConsistency(theRow) {
+	'use strict';
+	if (!theRow.winningVhash) {
+		/*
+		 * The server, not the client, is responsible for ensuring that a winning item is present.
+		 */
+		console.error('For ' + theRow.xpstrid + ' - there is no winningVhash');
+	} else if (theRow.items && !theRow.items[theRow.winningVhash]) {
+		console.error('For ' + theRow.xpstrid + ' - there is winningVhash but no item for it');
+	}
+	for (var k in theRow.items) {
+		var item = theRow.items[k];
+		if (item.value === INHERITANCE_MARKER) {
+			if (!theRow.inheritedValue) {
+				/*
+				 * In earlier implementation, essentially the same error was reported as "... there is no Bailey Target item!")
+				 * Reference: https://unicode.org/cldr/trac/ticket/11238
+				 */ 
+				console.error('For ' + theRow.xpstrid + ' - there is INHERITANCE_MARKER without inheritedValue');
+			} else if (!theRow.inheritedLocale && !theRow.inheritedXpid) {
+				/*
+				 * It is probably a bug if item.value === INHERITANCE_MARKER but theRow.inheritedLocale and
+				 * theRow.inheritedXpid are both undefined (null on server).
+				 * This happens with "example C" in
+				 *     https://unicode.org/cldr/trac/ticket/11299#comment:15
+				 */
+				console.log('For ' + theRow.xpstrid + ' - there is INHERITANCE_MARKER without inheritedLocale or inheritedXpid');
+			}
+		}
 	}
 }
 
@@ -3133,7 +3161,15 @@ function updateRowVoteInfo(tr, theRow) {
 		var isectionIsUsed = false;
 		var vvalue = createChunk("User", "td", "voteInfo_valueTitle voteInfo_td");
 		var vbadge = createChunk(vote, "span", "badge");
-		if (value == vr.winningValue) {
+
+		/*
+		 * Note: due to the existence of the function fixWinningValue in DataSection.java, here on the the client
+		 * we should use theRow.winningValue, not vr.winningValue. Eventually VoteResolver.getWinningValue may be
+		 * fixed in such a way that fixWinningValue isn't necessary and there won't be a distinction between
+		 * theRow.winningValue and vr.winningValue. Cf. theRow.winningVhash.
+		 * TODO: alternatively, could we just check for item.pClass === "winner" here?
+		 */
+		if (value == theRow.winningValue) {
 			appendIcon(isection, "voteInfo_winningItem d-dr-" + theRow.voteResolver.winningStatus);
 			isectionIsUsed = true;
 		}
@@ -3147,50 +3183,22 @@ function updateRowVoteInfo(tr, theRow) {
 		 * See https://unicode.org/cldr/trac/ticket/10521#comment:29
 		 */
 		/***
-		if(value != vr.winningValue) {
+		if(value != theRow) {
 			appendIcon(isection,"i-vote");
 			isectionIsUsed = true;
 		}
 		***/
 		setLang(valdiv);
-		if (value == INHERITANCE_MARKER) {
-			/*
-			 * Show "[Accept Inherited Value]" (voteInfo_acceptInherited) and
-			 * "These votes are for the inherited value. They are also listed under the specific value below."
-			 * (voteInfo_baileyVoteList) in the Information Panel.
-			 * 
-			 * TODO: show the inherited value here, in addition to (or in place of) "[Accept Inherited Value]".
-			 * Also, revise voteInfo_baileyVoteList to reflect current reality, in which "soft" votes
-			 * are NOT moved into "hard" votes, and "hard" votes are only shown if nonzero.
-			 * voteInfo_baileyVoteList could be "These are votes for inheritance."
-			 * Then "hard" votes should also get a special message like,
-			 * "These are votes for the specific value currently matching the inherited value."
-			 * Also, if there are both "hard" and "soft" votes, we should add a message like,
-			 * "Votes for inheritance are combined with votes for the specific value currently matching the inherited value.",
-			 * and possibly add a message clarifying whether that combination is winning in this case, and which of the
-			 * two -- hard or soft -- is the current winner.
-			 */
-			if (true) {							
-				/*
-				 * TODO: EXPERIMENTAL - if keep this, move the string to stui
-				 */
-				appendItem(valdiv, theRow.inheritedValue, "fallback", tr);
-				valdiv.appendChild(createChunk("These are votes for inheritance.", 'p'));
-			} else {
-				appendItem(valdiv, stui.str("voteInfo_acceptInherited"), "fallback", tr);
-				valdiv.appendChild(createChunk(stui.str('voteInfo_baileyVoteList'), 'p'));				
-			}
+		if (value === INHERITANCE_MARKER) {
+			appendItem(valdiv, theRow.inheritedValue, item.pClass, tr);
+			valdiv.appendChild(createChunk(stui.str("voteInfo_votesForInheritance"), 'p'));
 		} else {
 			/*
-			 * calcPClass (not called elsewhere) returns (value == vr.winningValue) ? "winner" : "value"
+			 * TODO: alternatively, could we just check for item.pClass === "winner" here?
 			 */
-			appendItem(valdiv, value, calcPClass(value, vr.winningValue), tr);
-			/*
-			 * TODO: EXPERIMENTAL - if keep this, move the string to stui
-			 */
+			appendItem(valdiv, value, (value == theRow.winningValue) ? "winner" : "value", tr);
 			if (value === theRow.inheritedValue) {
-				valdiv.appendChild(createChunk("These are votes for the specific value currently matching the inherited value."
-						+ " Votes for this specific value are combined with any votes for inheritance.", 'p'));
+				valdiv.appendChild(createChunk(stui.str('voteInfo_votesForSpecificValue'), 'p'));
 			}
 		}
 		if (isectionIsUsed) {
@@ -3201,48 +3209,13 @@ function updateRowVoteInfo(tr, theRow) {
 		cell.appendChild(vbadge);
 		vrow.appendChild(cell);
 		vdiv.appendChild(vrow);
-		var createVoter = function(v) {
-			if (v == null) {
-				return createChunk("(missing information)!", "i", "stopText");
-			}
-			var div = createChunk(v.name || stui.str('emailHidden'), "td", "voteInfo_voterInfo voteInfo_td");
-			div.setAttribute('data-name', v.name || stui.str('emailHidden'));
-			div.setAttribute('data-email', v.email || '');
-			return div;
-		};
 		if (!item.votes || Object.keys(item.votes).length == 0) {
 			var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_orgHeading");
 			vrow.appendChild(createChunk(stui.str("voteInfo_noVotes"), "td", "voteInfo_noVotes voteInfo_td"));
 			vrow.appendChild(createChunk(null, "td", "voteInfo_noVotes voteInfo_td"));
 			vdiv.appendChild(vrow);
-		} else if (item.rawValue === INHERITANCE_MARKER && false) {
-			/*
-			 * TODO: why this special handling of INHERITANCE_MARKER?
-			 * 
-			 * If this block is used, then "soft" votes for inheritance are displayed with the
-			 * entire line containing the organization name and user name to have blue background,
-			 * and the individual vote counts aren't displayed. This doesn't seem helpful at all.
-			 * It may have made more sense when "soft" votes were "moved" into "hard" votes for
-			 * voting. There is also a message, voteInfo_baileyVoteList:
-			 * "These votes are for the inherited value. They are also listed under the specific value below."
-			 * which isn't generally true anymore: if there are soft votes but not hard votes, then the
-			 * "specific value" (hard vote) isn't displayed, so that message should change.   
-			 *
-			 * DEBUGGING temporary added "&& false" above
-			 * Fall through to updateRowVoteInfoForAllOrgs instead
-			 * 
-			 * TODO: if this block is removed, then the createVoter function could be moved into updateRowVoteInfoForAllOrgs
-			 */
-			// show the raw votes.
-			for (var kk in item.votes) {
-				var thevote = item.votes[kk];
-				var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_orgHeading fallback");
-				vrow.appendChild(createChunk(thevote.org, "td", "voteInfo_orgColumn voteInfo_td"));
-				vrow.appendChild(createVoter(thevote)); // voteInfo_td
-				vdiv.appendChild(vrow);
-			}
 		} else {
-			updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv);
+			updateRowVoteInfoForAllOrgs(theRow, vr, value, item, vdiv);
 		}
 		perValueContainer.appendChild(valdiv);
 		perValueContainer.appendChild(vdiv);
@@ -3267,11 +3240,19 @@ function updateRowVoteInfo(tr, theRow) {
  * @param vr the vote resolver
  * @param value the value of the candidate item
  * @param item the candidate item
- * @param createVoter a function defined in the caller
  * @param vdiv a table created by the caller as vdiv = createChunk(null, "table", "voteInfo_perValue table table-vote")
  */
-function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv) {
+function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, vdiv) {
 	'use strict';
+	var createVoter = function(v) {
+		if (v == null) {
+			return createChunk("(missing information)!", "i", "stopText");
+		}
+		var div = createChunk(v.name || stui.str('emailHidden'), "td", "voteInfo_voterInfo voteInfo_td");
+		div.setAttribute('data-name', v.name || stui.str('emailHidden'));
+		div.setAttribute('data-email', v.email || '');
+		return div;
+	};
 	for (org in theRow.voteResolver.orgs) {
 		var theOrg = vr.orgs[org];
 		var vrRaw = {};
@@ -3293,14 +3274,14 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv)
 							// Get the latest time vote only
 							if (vr.nameTime[item.votes[topVoter].name] < vr.nameTime[item.votes[voter].name]) {
 								topVoter = voter;
-								console.log(item);
-								console.log(vr.nameTime[item.votes[topVoter].name]);
+								// console.log(item);
+								// console.log(vr.nameTime[item.votes[topVoter].name]);
 								topVoterTime = vr.nameTime[item.votes[topVoter].name];
 							}
 						} else {
 							topVoter = voter;
-							console.log(item);
-							console.log(vr.nameTime[item.votes[topVoter].name]);
+							// console.log(item);
+							// console.log(vr.nameTime[item.votes[topVoter].name]);
 							topVoterTime = vr.nameTime[item.votes[topVoter].name];
 						}
 					}
@@ -3328,12 +3309,13 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, createVoter, vdiv)
 			 * 
 			 * This only affects cells ("td" elements) with style "voteInfo_voteCount", which appear in the info panel,
 			 * and which have contents like '<span class="badge">12</span>'. If the "fallback" style is added, then
-			 * these circled numbers are surrounded (outside the circle) by dark blue background.
-			 *
-			 * TODO: see whether the blue background is actually wanted in this context, around the numbers.
-			 * For now, display it, to give people something to evaluate.
+			 * these circled numbers are surrounded (outside the circle) by a colored background.
+			 * 
+			 * TODO: see whether the colored background is actually wanted in this context, around the numbers.
+			 * For now, display it, and use item.pClass rather than literal "fallback" so the color matches when
+			 * item.pClass is "alias", "fallback_root", etc.
 			 */
-			var baileyClass = (item.rawValue === INHERITANCE_MARKER) ? " fallback" : "";
+			var baileyClass = (item.rawValue === INHERITANCE_MARKER) ? " " + item.pClass : "";
 			var vrow = createChunk(null, "tr", "voteInfo_tr voteInfo_orgHeading");
 			vrow.appendChild(createChunk(org, "td", "voteInfo_orgColumn voteInfo_td"));
 			if (item.votes[topVoter]) {
