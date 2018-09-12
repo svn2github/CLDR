@@ -3183,7 +3183,7 @@ function updateRowVoteInfo(tr, theRow) {
 		 * See https://unicode.org/cldr/trac/ticket/10521#comment:29
 		 */
 		/***
-		if(value != theRow) {
+		if(value != theRow.winningValue) {
 			appendIcon(isection,"i-vote");
 			isectionIsUsed = true;
 		}
