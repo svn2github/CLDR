@@ -913,6 +913,8 @@ public class STFactory extends Factory implements BallotBoxFactory<UserRegistry.
          * @param r
          *            if non-null, resolver to re-use.
          * @return the new or updated resolver
+         * 
+         * This function is called by getResolver, and may also call itself recursively.
          */
         private VoteResolver<String> getResolverInternal(PerXPathData perXPathData, String path, VoteResolver<String> r) {
             if (path == null)

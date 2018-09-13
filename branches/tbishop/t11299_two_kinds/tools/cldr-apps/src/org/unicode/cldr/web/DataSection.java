@@ -660,8 +660,9 @@ public class DataSection implements JSONString {
              * See https://unicode.org/cldr/trac/ticket/11299 "Example C".
              */
             winningValue = resolver.getWinningValue();
-
             confirmStatus = resolver.getWinningStatus();
+
+            oldValue = resolver.getLastReleaseValue();
 
             this.displayName = baselineFile.getStringValue(xpath);
         }
@@ -2861,12 +2862,6 @@ public class DataSection implements JSONString {
             row.updateInheritedValue(ourSrc, checkCldr);
         }
         row.fixWinningValue(ourValue, ourValueIsInherited);
-
-        if (oldFile != null) {
-            row.oldValue = oldFile.getStringValueWithBailey(xpath);
-        } else {
-            row.oldValue = null;
-        }
 
         Set<String> v = ballotBox.getValues(xpath);
         if (v != null) {

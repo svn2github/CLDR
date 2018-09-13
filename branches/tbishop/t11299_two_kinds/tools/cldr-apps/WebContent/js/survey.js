@@ -2721,6 +2721,13 @@ function showItemInfoFn(theRow, item) {
 		td.appendChild(h3);
 
 		if (item.value) {
+			/*
+			 * Strings produced here, used as keys for stui.js, may include:
+			 *  "pClass_winner", "pClass_alias", "pClass_fallback", "pClass_fallback_code", "pClass_fallback_root", "pClass_loser".
+			 *  See getPClass in DataSection.java.
+			 *  
+			 *  TODO: why not show stars, etc., here?
+			 */
 			h3.appendChild(createChunk(stui.sub("pClass_"+item.pClass, item ),"p","pClassExplain"));
 		}
 
@@ -3173,7 +3180,15 @@ function updateRowVoteInfo(tr, theRow) {
 			appendIcon(isection, "voteInfo_winningItem d-dr-" + theRow.voteResolver.winningStatus);
 			isectionIsUsed = true;
 		}
-		if (value == vr.lastReleaseValue) {
+
+		/*
+		 * For adding star for last release value, we could check item.isOldValue or (value == vr.lastReleaseValue);
+		 * ideally the two should be consistent. The star icon should be applied to old value = inherited value when
+		 * appropriate. Work is in progress on ticket 11299, whether item with value INHERITANCE_MARKER has isOldValue,
+		 * whether vr.lastReleaseValue is ever INHERITANCE_MARKER. For flexibility, for now, show star if either of the
+		 * conditions is true.
+		 */
+		if (value == vr.lastReleaseValue || item.isOldValue) {
 			appendIcon(isection, "voteInfo_lastRelease i-star");
 			isectionIsUsed = true;
 		}

@@ -301,8 +301,6 @@ public class VoteResolver<T> {
         private final Map<Organization, T> orgToAdd = new EnumMap<>(Organization.class);
         private T baileyValue;
         private boolean baileySet; // was the bailey value set
-        private boolean hasExplicitBailey; // has an explicit version of the bailey value
-        private boolean hasExplicitInheritanceMarker; // has an implicit version of the bailey value
 
         OrganizationToValueAndVote() {
             for (Organization org : Organization.values()) {
@@ -324,8 +322,6 @@ public class VoteResolver<T> {
             totalVotes.clear();
             baileyValue = null;
             baileySet = false;
-            hasExplicitBailey = false;
-            hasExplicitInheritanceMarker = false;
         }
 
         public int countValuesWithVotes() {
@@ -381,29 +377,6 @@ public class VoteResolver<T> {
             if (baileySet == false) {
                 throw new IllegalArgumentException("setBaileyValue must be called before add");
             }
-            if (value.equals(baileyValue)) {
-                hasExplicitBailey = true;
-            } else if (CldrUtility.INHERITANCE_MARKER.equals(value)) {
-                hasExplicitInheritanceMarker = true;
-
-                /*
-                 * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
-                 * comment it out for now -- TEMPORARY DEBUGGING
-                 * 
-                 * Commenting out the following block fixes a bug where a "soft" vote for
-                 * inheritance had no votes shown in the info panel.
-                 */
-
-                /***
-                if (baileyValue != null) {
-                    value = baileyValue; // For now, we just remap to the bailey value
-                    // TODO 
-                    // Later, we might have a more complicated algorithm, but right now, if there is any explicit value,
-                    // we count CldrUtility.INHERITANCE_MARKERs as that value 
-                }
-                ***/
-            }
-            //long time = new Date().getTime();
             totalVotes.add(value, votes, time.getTime());
             nameTime.put(info.getName(), time.getTime());
             if (DEBUG) {
@@ -571,26 +544,7 @@ public class VoteResolver<T> {
          * @deprecated
          */
         public T getOrgVote(Organization org) {
-            // System.out.println("getOrgVote : " + org.displayName + " : " + orgToAdd.get(org));
-
-            // OLD CODE
-            // return orgToAdd.get(org);
-
-            // NEW CODE
-            /*
-             * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
-             * 
-             * commenting out for debugging...
-             */
-            T value = orgToAdd.get(org);
-            
-            /***
-            if (hasExplicitInheritanceMarker && Objects.equal(value, baileyValue)) {
-                return (T) CldrUtility.INHERITANCE_MARKER;
-            }
-            ***/
-            
-            return value;
+            return orgToAdd.get(org);
         }
 
         public T getOrgVoteRaw(Organization orgOfUser) {
@@ -657,18 +611,37 @@ public class VoteResolver<T> {
         }
     };
 
-    /**
-     * Call this method first, for a new path. You'll then call add for each value
-     * associated with that path
-     *
-     * @param valueToVoter
-     * @param lastReleaseValue
-     * @param lastReleaseStatus
-     */
 
+    /**
+     * Set the last-release value and status for this VoteResolver.
+     *
+     * If the value matches the bailey value, change it to CldrUtility.INHERITANCE_MARKER,
+     * in order to distinguish "soft" votes for inheritance from "hard" votes for the specific
+     * value that currently matches the inherited value.
+     * TODO: possibly that change should be done in the caller instead; also there may be room
+     * for improvement in determining whether the last release value, when it matches the
+     * inherited value, should be associated with a "hard" or "soft" candidate item.
+     *
+     * Reference: https://unicode.org/cldr/trac/ticket/11299
+     *
+     * @param lastReleaseValue the last-release value
+     * @param lastReleaseStatus the last-release status
+     */
     public void setLastRelease(T lastReleaseValue, Status lastReleaseStatus) {
         this.lastReleaseValue = lastReleaseValue;
         this.lastReleaseStatus = lastReleaseStatus == null ? Status.missing : lastReleaseStatus;
+
+        /*
+         * Depending on the order in which setLastRelease and setBaileyValue are called,
+         * bailey might not be set yet. Similar code in setBaileyValue makes the implementation
+         * robust regardless of the order in which the two functions are called.
+         */
+        if (organizationToValueAndVote != null
+                && organizationToValueAndVote.baileySet
+                && organizationToValueAndVote.baileyValue != null
+                && organizationToValueAndVote.baileyValue.equals(lastReleaseValue)) {
+            this.lastReleaseValue = (T) CldrUtility.INHERITANCE_MARKER;
+        }
     }
 
     public void setTrunk(T trunkValue, Status trunkStatus) {
@@ -754,10 +727,21 @@ public class VoteResolver<T> {
      * Set the Bailey value (what the inherited value would be if there were no explicit value).
      * This value is used in handling any {@link CldrUtility.INHERITANCE_MARKER}.
      * This value must be set <i>before</i> adding values. Usually by calling CLDRFile.getBaileyValue().
+     *
+     * Also, revise lastReleaseValue to INHERITANCE_MARKER if appropriate.
      */
     public void setBaileyValue(T baileyValue) {
         organizationToValueAndVote.baileySet = true;
         organizationToValueAndVote.baileyValue = baileyValue;
+
+        /*
+         * If setLastRelease was called before setBaileyValue, then lastRelease
+         * may need fixing here. Similar code in setLastRelease makes the implementation
+         * robust regardless of the order in which the two functions are called.
+         */
+        if (baileyValue != null && baileyValue.equals(lastReleaseValue)) {
+            lastReleaseValue = (T) CldrUtility.INHERITANCE_MARKER;
+        }
     }
 
     /**
@@ -898,23 +882,6 @@ public class VoteResolver<T> {
          */
         long weights[] = setBestNextAndSameVoteValues(sortedValues, voteCount);
         
-        /*
-         * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
-         * 
-         * TEMPORARY DEBUGGING comment it out
-         * 
-         * Commenting out this block fixes a bug where a "hard" vote seemed to disappear
-         * if there was already a "soft" vote by a different user
-         */
-        /***
-        if (organizationToValueAndVote.hasExplicitInheritanceMarker
-            && !organizationToValueAndVote.hasExplicitBailey
-            && winningValue.equals(organizationToValueAndVote.baileyValue)
-            && winningValue instanceof CharSequence) {
-            winningValue = (T) CldrUtility.INHERITANCE_MARKER;
-        }
-        ***/
-
         oValue = winningValue;
 
         winningStatus = computeStatus(weights[0], weights[1], trunkStatus);
