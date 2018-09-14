@@ -633,7 +633,7 @@ public class VoteResolver<T> {
 
         /*
          * Depending on the order in which setLastRelease and setBaileyValue are called,
-         * bailey might not be set yet. Similar code in setBaileyValue makes the implementation
+         * bailey might not be set yet; often baileySet is false here. Keep the implementation
          * robust regardless of the order in which the two functions are called.
          */
         if (organizationToValueAndVote != null
@@ -735,8 +735,8 @@ public class VoteResolver<T> {
         organizationToValueAndVote.baileyValue = baileyValue;
 
         /*
-         * If setLastRelease was called before setBaileyValue, then lastRelease
-         * may need fixing here. Similar code in setLastRelease makes the implementation
+         * If setLastRelease was called before setBaileyValue (as appears often to be the case),
+         * then lastRelease may need fixing here. Similar code in setLastRelease makes the implementation
          * robust regardless of the order in which the two functions are called.
          */
         if (baileyValue != null && baileyValue.equals(lastReleaseValue)) {
@@ -1799,9 +1799,6 @@ public class VoteResolver<T> {
     }
 
     private boolean equalsOrgVote(T value, T orgVote) {
-        /*
-         * TODO: this looks dubious, see https://unicode.org/cldr/trac/ticket/11299
-         */
         return orgVote == null
             || orgVote.equals(value)
             || CldrUtility.INHERITANCE_MARKER.equals(value)
