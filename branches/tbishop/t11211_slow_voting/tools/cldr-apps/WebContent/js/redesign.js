@@ -410,7 +410,7 @@ function setManageContent(content) {
 //create/update the pull down menu popover
 function interceptPulldownLink(event) {
 	var menu = $(this).closest('.pull-menu');
-	menu.popover('destroy').
+	menu.popover('dispose').
 	popover({placement:"bottom", 
 			 html:true, 
 			 content:menu.children('ul').html(), 
@@ -445,10 +445,14 @@ function toAddVoteButton(btn) {
 	btn.title = "Add";
 	btn.type = "submit";
 	btn.innerHTML = '<span class="glyphicon glyphicon-plus"></span>';
-	$(btn).parent().popover('destroy');
-	$(btn).tooltip('destroy').tooltip();
-	$(btn).closest('form').next('.subSpan').show();
 	
+	// const popup = $('.popover-content'); // testing!!
+	// popup.popover('dispose'); // testing!!
+	// popup.children('input').parent().remove(); // testing!!
+
+	$(btn).parent().popover('dispose');
+	$(btn).tooltip('dispose').tooltip();
+	$(btn).closest('form').next('.subSpan').show();	
 	$(btn).parent().children('input').remove();
 }
 
@@ -459,7 +463,7 @@ function toSubmitVoteButton(btn) {
 	btn.title = "Submit";
 	
 	
-	$(btn).tooltip('destroy').tooltip();
+	$(btn).tooltip('dispose').tooltip();
 
 	$(btn).closest('form').next('.subSpan').hide();
 	return btn;

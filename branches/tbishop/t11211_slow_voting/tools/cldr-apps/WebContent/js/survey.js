@@ -516,7 +516,7 @@ XpathMap.prototype.put = function put(info) {
 	if(!info || !info.id || !info.path || !info.hex || !info.ph) {
 		stdebug("XpathMap: rejecting incomplete contribution " + JSON.stringify(info));
 	} else if(this.stridToInfo[info.hex]) {
-		stdebug("XpathMap: rejecting duplicate contribution " + JSON.stringify(info));
+		// stdebug("XpathMap: rejecting duplicate contribution " + JSON.stringify(info));
 	} else {
 		this.stridToInfo[info.hex] =
 			this.xpidToInfo[info.id] =
@@ -929,7 +929,7 @@ var disconnected = false;
  * Is debugging enabled?
  * @property stdebug_enabled
  */
-var stdebug_enabled = (window.location.search.indexOf('&stdebug=') > -1);
+var stdebug_enabled = true; // (window.location.search.indexOf('&stdebug=') > -1);
 
 /**
  * Queue of XHR requests waiting to go out
@@ -1661,6 +1661,7 @@ function updateStatus() {
             }
 
             if((wasBusted == false) && (json.status.isSetup) && (loadOnOk != null)) {
+            	stdebug("xhrGet load calling window.location.replace; loadOnOk = " + loadOnOk);
                 window.location.replace(loadOnOk);
             } else {
             	setTimeout(updateStatus, timerSpeed);
@@ -2631,7 +2632,7 @@ function showProposedItem(inTd,tr,theRow,value,tests, json) {
 		var input = $(inTd).closest('tr').find('.input-add');
 		if(input) {
 			input.closest('.form-group').addClass('has-error');
-			input.popover('destroy').popover({placement:'bottom',html:true, content:testsToHtml(tests),trigger:'hover'}).popover('show');
+			input.popover('dispose').popover({placement:'bottom',html:true, content:testsToHtml(tests),trigger:'hover'}).popover('show');
 			if(tr.myProposal)
 				tr.myProposal.style.display = "none";
 		}
@@ -3030,6 +3031,9 @@ function updateRow(tr, theRow) {
 		}
 		else {
 			removeAllChildNodes(children[config.addcell]);
+			if (tr.xpstrid === "7dc9d414a9ca8a6a") {
+				stdebug("SUPER IMPORTANT: updateRow calling appendChild(formAdd), tr.xpstrid = " + tr.xpstrid);
+			}
 			children[config.addcell].appendChild(formAdd);//add button
 		}
 	}
@@ -3540,6 +3544,7 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 		formAdd.className = "form-inline";
 		var buttonAdd = document.createElement("div");
 		var btn = document.createElement("button");
+		
 		buttonAdd.className = "button-add form-group";
 
 		toAddVoteButton(btn);
@@ -3550,6 +3555,7 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 		var input = document.createElement("input");
 		var popup;
 		input.className = "form-control input-add";
+		input.id = "add-candidate-item"
 		input.placeholder = 'Add a translation';
 		var copyWinning = document.createElement("button");
 		copyWinning.className = "copyWinning btn btn-info btn-xs";
@@ -3566,6 +3572,7 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 			}
 			input.value = theValue || null;
 			input.focus();
+			e.preventDefault(); // needed if element with popoverParentId has a default action 
 		}
 		var copyEnglish = document.createElement("button");
 		copyEnglish.className = "copyEnglish btn btn-info btn-xs";
@@ -3575,10 +3582,32 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 		copyEnglish.onclick = function(e) {
 			input.value = theRow.displayName || null;
 			input.focus();
+			e.preventDefault(); // needed if element with popoverParentId has a default action 
 		}
+		const popoverParentId = "title-locale";
+		const popoverParentEl = document.getElementById(popoverParentId);
+		if (popoverParentEl) {
+			const muob = new MutationObserver(function(mutations) {
+				mutations.forEach(function(mutation) {
+					if (mutation.removedNodes) {
+						console.log("Observed a mutation with removedNodes: " + mutation.removedNodes[0]);
+					}
+				});
+			});
+			muob.observe(popoverParentEl, {
+				// attributes: true,
+				// characterData: true,
+				childList: true
+				// subtree: true,
+				// attributeOldValue: true,
+				// characterDataOldValue: true
+			});
+		}
+		
 		btn.onclick = function(e) {
 			//if no input, add one
-			if ($(buttonAdd).parent().find('input').length == 0) {
+			// if ($(buttonAdd).parent().find('input').length == 0) {
+			if ($('#add-candidate-item').length == 0) {
 
 				//hide other
 				$.each($('button.vote-submit'), function() {
@@ -3587,10 +3616,27 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 
 				//transform the button
 				toSubmitVoteButton(btn);
-				$(buttonAdd).popover({
-					content: ' '
+
+				if (tr.xpstrid === "7dc9d414a9ca8a6a") {
+					stdebug("SUPER-DUPER IMPORTANT: updateRowOthersCell onclick making popover, tr.xpstrid = " + tr.xpstrid);
+				}
+				$('#' + popoverParentId).popover('dispose');
+				$('#' + popoverParentId).popover({
+				// $(buttonAdd).popover({
+				//	content: ' ',
+				//	content: 'test 123'
+					content: tr.xpstrid,					
+					// https://codingexplained.com/coding/front-end/css/change-bootstrap-popover-position
+				    placement: 'right',
+				 // container: '#' + popoverParentId
+				 // template: '<div class="popover my-popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
 				}).popover('show');
-				popup = $(buttonAdd).parent().find('.popover-content');
+
+				popup = $('.popover-content'); // testing!!
+				// popup = $(buttonAdd).parent().find('.popover-content');
+				
+				popup.className += " button-add form-group"; // testing!!
+				
 				popup.append(input);
 				if (theRow.displayName) {
 					popup.append(copyEnglish);
@@ -3599,7 +3645,22 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 					theRow.inheritedValue) {
 					popup.append(copyWinning);
 				}
-				popup.closest('.popover').css('top', popup.closest('.popover').position().top - 19);
+			    ///  $('.popover').css('top',parseInt($('.popover').css('top')) + 22 + 'px')
+
+				/*
+				$('.popover').on('shown.bs.popover', function() {
+				    // parseInt removes "px"
+				    var currentTop = parseInt($(this).css('top'));
+				    var currentLeft = parseInt($(this).css('left'));
+
+				    $(this).css({
+				        top: (currentTop + 200) + 'px',
+				        left: (currentLeft + 500) + 'px'
+				    });
+				});
+				*/
+
+				/// popup.closest('.popover').css('top', popup.closest('.popover').position().top - 19);
 				input.focus();
 
 				//enter pressed
@@ -4024,6 +4085,10 @@ function insertRows(theDiv,xpath,session,json) {
 
 	var tbody = theTable.getElementsByTagName("tbody")[0];
 	insertRowsIntoTbody(theTable,tbody);
+	/*
+	 * TODO: it seems impossible for doInsertTable to be null here;
+	 * if that's right, simplify.
+	 */
 	if(doInsertTable) {
 		theDiv.appendChild(doInsertTable);
 	} else {

@@ -2,7 +2,6 @@
 <%@ page import="org.unicode.cldr.web.*" %>
 <%@ page import="org.unicode.cldr.util.*" %>
 <!--  begin ajax_status.jsp -->
-<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css" />
 
 <!-- Bootstrap core CSS -->
 <% // TODO: when v.jsp includes ajax_status.js, avoid redundant links for bootstrap, surveytool.css, redesign.css  %>
@@ -12,12 +11,7 @@
 <link href="<%= request.getContextPath() %>/css/redesign.css" rel="stylesheet">
 <%= VettingViewer.getHeaderStyles() %>
 
-<script type='text/javascript'>
-dojoConfig = {
-		parseOnLoad: true,
-		};</script>
-<% // TODO: encapsulate dojo version in one place, cf. dojoheader.jspf  %>
-<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js'></script>
+<%@ include file="/WEB-INF/jspf/dojoheader.jspf" %>
 <script type='text/javascript'>
 require(["dojo/parser", "dijit/layout/ContentPane", "dijit/layout/BorderContainer"]);
 </script>

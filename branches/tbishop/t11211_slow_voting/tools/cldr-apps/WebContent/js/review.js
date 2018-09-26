@@ -224,7 +224,7 @@ function toggleFix(event) {
 	var tr = $(this).closest('tr');
     var button = $(this);	
     var isPopover = button.parent().find('.popover').length === 1;
-	$('button.fix').popover('destroy');
+	$('button.fix').popover('dispose');
 	toggleOverlay();
 	if(!isPopover) {
 	    var url = contextPath + "/RefreshRow.jsp?what="+WHAT_GETROW+"&json=t&_="+surveyCurrentLocale+"&s="+surveySessionId+"&xpath="+tr.data('path')+"&strid="+surveyCurrentId+cacheKill()+"&dashboard=true";
@@ -255,7 +255,7 @@ function toggleFix(event) {
 	    				
 	    				//display the popover
 	    				if(button.parent().find('.popover:visible').length == 0)
-	    					button.popover('destroy');
+	    					button.popover('dispose');
 	    				button.popover({placement:"left",html:true,content:'<div></div>', title:showAllProblems(json.issues) + tr.children('td').first().html(), animation:false}).popover('show');
 	    				button.data('issues', json.issues);
 	    				//check if we have to suppress the line 

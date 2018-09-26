@@ -1,3 +1,20 @@
-    <link rel='stylesheet' type='text/css' href='//ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/themes/claro/claro.css' />
-    <script src="//ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"
-        djConfig="parseOnLoad: true"></script>
+    <link rel='stylesheet' type='text/css' href='//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dijit/themes/claro/claro.css' />
+    
+	<script>
+        // Instead of using data-dojo-config, we're creating a dojoConfig
+        // object *before* we load dojo.js; they're functionally identical,
+        // it's just easier to read this approach with a larger configuration.
+        var dojoConfig = {
+            async: false,
+            parseOnLoad: true,
+			isDebug: true,
+        };
+    </script>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js"></script>
+	<!-- alternatives:
+		src="//ajax.googleapis.com/ajax/libs/dojo/1.13.0/dojo/dojo.js"
+		src="http://localhost/dojo-release-1.13.0-src/dojo/dojo.js"
+		src="http://wenlin.us/dojo-release-1.13.0-src/dojo/dojo.js" -->
+	
+	
