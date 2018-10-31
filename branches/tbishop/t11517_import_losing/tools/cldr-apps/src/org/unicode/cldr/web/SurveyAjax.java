@@ -1873,14 +1873,14 @@ public class SurveyAjax extends HttpServlet {
         for (Map<String, Object> m : rows) {
             String value = m.get("value").toString();
             if (value == null) {
-                continue; // ignore abstentions
+                continue; // skip abstentions
             }
             int xp = (Integer) m.get("xpath");
             String xpathString = sm.xpt.getById(xp);
-            value = daip.processInput(xpathString, value, exceptionList);
             try {
                 String strid = sm.xpt.getStringIDString(xp);
                 if (confirmSet.contains(strid)) {
+                    value = daip.processInput(xpathString, value, exceptionList);
                     box.voteForValue(user, xpathString, value);
                 }
             } catch (InvalidXPathException ix) {
