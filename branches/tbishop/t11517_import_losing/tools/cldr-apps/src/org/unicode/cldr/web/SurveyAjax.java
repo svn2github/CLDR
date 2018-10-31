@@ -1589,7 +1589,6 @@ public class SurveyAjax extends HttpServlet {
 
         JSONObject oldvotes = new JSONObject();
         final String newVotesTable = DBUtils.Table.VOTE_VALUE.toString();
-        oldvotes.put("votesafter", "(version" + SurveyMain.getLastVoteVersion() + ")");
 
         if (loc == null || loc.isEmpty()) {
             listLocalesForImportOldVotes(user, sm, newVotesTable, oldvotes);
@@ -1842,11 +1841,10 @@ public class SurveyAjax extends HttpServlet {
      * On the frontend, submitOldVotes is called in response to the user clicking a button
      * set up in addOldvotesType in survey.js: submit.on("click",function(e) {...
      * ... if(jsondata[kk].box.checked) confirmList.push(jsondata[kk].strid);
-     * That on-click code sets up confirmList, and also an always-empty deleteList. Those are combined in
+     * That on-click code sets up confirmList, inside of saveList:
      * var saveList = {
      *   locale: surveyCurrentLocale,
-     *   confirmList: confirmList,
-     *   deleteList: deleteList
+     *   confirmList: confirmList
      * };
      * That saveList is what we receive here as "val", and expand into "list".
      */
@@ -1861,23 +1859,11 @@ public class SurveyAjax extends HttpServlet {
 
         BallotBox<User> box = fac.ballotBoxForLocale(locale);
 
-        int deletions = 0;
-        int confirmations = 0;
-
         JSONArray confirmList = list.getJSONArray("confirmList");
-        JSONArray deleteList = list.getJSONArray("deleteList"); // is this ever non-empty? No, based on addOldvotesType in survey.js
-
-        Set<String> deleteSet = new HashSet<String>();
         Set<String> confirmSet = new HashSet<String>();
-
         for (int i = 0; i < confirmList.length(); i++) {
             String strid = confirmList.getString(i);
             confirmSet.add(strid);
-        }
-
-        for (int i = 0; i < deleteList.length(); i++) {
-            String strid = deleteList.getString(i);
-            deleteSet.add(strid);
         }
 
         Map<String, Object> rows[] = getOldVotesRows(newVotesTable, locale, user.id);
@@ -1886,20 +1872,16 @@ public class SurveyAjax extends HttpServlet {
         Exception[] exceptionList = new Exception[1];
         for (Map<String, Object> m : rows) {
             String value = m.get("value").toString();
-            if (value == null) continue; // ignore unvotes.
+            if (value == null) {
+                continue; // ignore abstentions
+            }
             int xp = (Integer) m.get("xpath");
             String xpathString = sm.xpt.getById(xp);
             value = daip.processInput(xpathString, value, exceptionList);
             try {
                 String strid = sm.xpt.getStringIDString(xp);
-                if (deleteSet.contains(strid)) {
-                    box.unvoteFor(user, xpathString);
-                    deletions++;
-                } else if (confirmSet.contains(strid)) {
+                if (confirmSet.contains(strid)) {
                     box.voteForValue(user, xpathString, value);
-                    confirmations++;
-                } else {
-                    //System.err.println("SAJ: Ignoring non mentioned strid " + xpathString + " for loc " + locale + " in user "  +user);
                 }
             } catch (InvalidXPathException ix) {
                 SurveyLog.logException(ix, "Bad XPath: Trying to vote for " + xpathString);
@@ -1907,12 +1889,6 @@ public class SurveyAjax extends HttpServlet {
                 SurveyLog.logException(ix, "Vote not accepted: Trying to vote for " + xpathString);
             }
         }
-        oldvotes.put("didUnvotes", deletions);
-        oldvotes.put("didRevotes", confirmations);
-        int uncontestedCount = 0; // always zero; is this used for anything?
-        oldvotes.put("didUncontested", uncontestedCount);
-        System.out.println("Old Vote migration for " + user + " " + locale + " - delete:" + deletions + ", confirm:"
-            + confirmations + ", uncontestedconfirm:" + uncontestedCount);
         oldvotes.put("ok", true);
     }
 

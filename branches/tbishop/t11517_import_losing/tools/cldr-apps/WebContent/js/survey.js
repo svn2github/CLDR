@@ -5446,10 +5446,6 @@ function showV() {
 
 							removeAllChildNodes(theDiv);
 
-							// changed h2txt, v_oldvotes_title per https://unicode.org/cldr/trac/ticket/11135
-							// TODO: simplify if votesafter, newVersion no longer used
-							// var h2var = {votesafter:json.oldvotes.votesafter, newVersion:json.status.newVersion};
-							// var h2txt = stui.sub("v_oldvotes_title",h2var);
 							var h2txt = stui.str("v_oldvotes_title");
 							theDiv.appendChild(createChunk(h2txt, "h2", "v-title"));
 
@@ -5661,7 +5657,6 @@ function showV() {
 										submit.on("click",function(e) {
 											setDisplayed(navChunk, false);
 											var confirmList= []; // these will be revoted with current params
-											var deleteList = []; // these will be deleted
 
 											// explicit confirm list -  save us desync hassle
 											for(var kk in jsondata ) {
@@ -5673,11 +5668,10 @@ function showV() {
 											var saveList = {
 													locale: surveyCurrentLocale,
 													confirmList: confirmList,
-													deleteList: deleteList
 											};
 
 											console.log(saveList.toString());
-											console.log("Submitting " + type + " " +  confirmList.length + " for confirm and " + deleteList.length + " for deletion");
+											console.log("Submitting " + type + " " + confirmList.length + " for confirm");
 
 											var url = contextPath + "/SurveyAjax?what=oldvotes&_="+surveyCurrentLocale+"&s="+surveySessionId+"&doSubmit=true&"+cacheKill();
 											myLoad(url, "(submitting oldvotes " + surveyCurrentLocale + ")", function(json) {
