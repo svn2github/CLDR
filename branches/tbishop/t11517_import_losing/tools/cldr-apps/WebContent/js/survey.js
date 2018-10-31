@@ -3287,13 +3287,16 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, vdiv) {
 	for (org in theRow.voteResolver.orgs) {
 		var theOrg = vr.orgs[org];
 		var vrRaw = {};
-		/*
-		 * Prior to changes for ticket 11299 there was a bug here when value = INHERITANCE_MARKER,
-		 * theOrg.orgVote = INHERITANCE_MARKER, but theOrg.votes had one member, and was is for "latn" 
-		 * not INHERITANCE_MARKER; bug was on server, problematic substitutions of "soft" votes with "hard" votes, now fixed.
-		 */
 		var orgVoteValue = theOrg.votes[value];
-		if (orgVoteValue !== undefined && orgVoteValue > 0) { // someone in the org actually voted for it
+		/*
+		 * We should display something under "Org." and "User" even when orgVoteValue is zero (not undefined),
+		 * for "anonymous" imported losing votes. Therefore we have >= 0 rather than > 0 here.
+		 * TODO: Is there any circumstance where we need to hide a zero vote count (on the client),
+		 * where orgVoteValue is not undefined? That might be true for blocked users, unless they're
+		 * filtered out by the server.
+		 * Reference: https://unicode.org/cldr/trac/ticket/11517 
+		 */
+		if (orgVoteValue !== undefined && orgVoteValue >= 0) { // someone in the org actually voted for it
 			var topVoter = null; // top voter for this item
 			var orgsVote = (theOrg.orgVote == value);
 			var topVoterTime = 0; // Calculating the latest time for a user from same org
