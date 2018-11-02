@@ -169,6 +169,8 @@ public class UserRegistry {
     /**< Guest Vetter **/
     public static final int LOCKED = VoteResolver.Level.locked.getSTLevel();
     /**< Locked user - can't login **/
+    public static final int ANONYMOUS = VoteResolver.Level.anonymous.getSTLevel();
+    /**< Anonymous user - special for imported old losing votes **/
 
     public static final int LIMIT_LEVEL = 10000;
     /** max level **/
@@ -1591,6 +1593,10 @@ public class UserRegistry {
         return (u != null) && (u.userlevel == UserRegistry.LOCKED);
     }
 
+    public static final boolean userIsExactlyAnonymous(User u) {
+        return (u != null) && (u.userlevel == UserRegistry.ANONYMOUS);
+    }
+
     // * user rights
     /** can create a user in a different organization? */
     public static final boolean userCreateOtherOrgs(User u) {
@@ -2543,6 +2549,47 @@ public class UserRegistry {
         out.println("</users>");
         out.close();
         return 1;
+    }
+
+    Set<User> anonymousUsers = null;
+
+    public Set<User> getAnonymousUsers() {
+        if (anonymousUsers == null) {
+            anonymousUsers = new HashSet<User>();
+            ResultSet rs = null;
+            Connection conn = null;
+            try {
+                conn = DBUtils.getInstance().getDBConnection();
+                rs = list(null, conn);
+                // id,userlevel,name,email,org,locales,intlocs,lastlogin
+                while (rs.next()) {
+                    int userlevel = rs.getInt(2);
+                    if (userlevel == UserRegistry.ANONYMOUS) {
+                        User u = new UserRegistry.User(rs.getInt(1));
+                        u.userlevel = userlevel;
+                        u.name = DBUtils.getStringUTF8(rs, 3);
+                        u.email = rs.getString(4);
+                        u.org = rs.getString(5);
+                        u.locales = rs.getString(6);
+                        if (isAllLocales(u.locales)) {
+                            u.locales = ALL_LOCALES;
+                        }
+                        u.intlocs = rs.getString(7);
+                        u.last_connect = rs.getTimestamp(8);
+                        anonymousUsers.add(u);
+                    }
+                }
+            } catch (SQLException se) {
+                logger.log(java.util.logging.Level.SEVERE,
+                    "UserRegistry: SQL error getting anonymous users - " + DBUtils.unchainSqlException(se), se);
+            } catch (Throwable t) {
+                logger.log(java.util.logging.Level.SEVERE,
+                    "UserRegistry: some error getting anonymous users - " + t.toString(), t);
+            } finally {
+                DBUtils.close(rs, conn);
+            }
+        }
+        return anonymousUsers;
     }
 
 }

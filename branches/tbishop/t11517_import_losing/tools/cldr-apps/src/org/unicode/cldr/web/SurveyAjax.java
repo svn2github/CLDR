@@ -1829,7 +1829,7 @@ public class SurveyAjax extends HttpServlet {
      * Submit the selected old votes to be imported.
      *
      * @param user the User
-     * @param sm the SurveyMain instance
+     * @param sm the SurveyMain instance, used for sm.xpt and sm.reg
      * @param locale the CLDRLocale
      * @param val the JSON String like "{"locale":"aa","confirmList":["7b8ee7884f773afa"],"deleteList":[]}"
      * @param newVotesTable the String for the table name like "cldr_vote_value_34"
@@ -1872,8 +1872,12 @@ public class SurveyAjax extends HttpServlet {
         Exception[] exceptionList = new Exception[1];
         for (Map<String, Object> m : rows) {
             String value = m.get("value").toString();
-            if (value == null) {
-                continue; // skip abstentions
+            /*
+             * Skip abstentions (null value) and votes for inheritance.
+             * For inheritance, a candidate item is provided anyway when appropriate.
+             */
+            if (value == null || value.equals(CldrUtility.INHERITANCE_MARKER)) {
+                continue;
             }
             int xp = (Integer) m.get("xpath");
             String xpathString = sm.xpt.getById(xp);
@@ -1881,15 +1885,55 @@ public class SurveyAjax extends HttpServlet {
                 String strid = sm.xpt.getStringIDString(xp);
                 if (confirmSet.contains(strid)) {
                     value = daip.processInput(xpathString, value, exceptionList);
-                    box.voteForValue(user, xpathString, value);
+                    importAnonymousOldLosingVote(box, xpathString, value, sm.reg);
                 }
             } catch (InvalidXPathException ix) {
-                SurveyLog.logException(ix, "Bad XPath: Trying to vote for " + xpathString);
+                SurveyLog.logException(ix, "Bad XPath: Trying to import for " + xpathString);
             } catch (VoteNotAcceptedException ix) {
-                SurveyLog.logException(ix, "Vote not accepted: Trying to vote for " + xpathString);
+                SurveyLog.logException(ix, "Vote not accepted: Trying to import for " + xpathString);
             }
         }
         oldvotes.put("ok", true);
+    }
+
+    /**
+     * Import the given old losing value as an "anonymous" vote.
+     * 
+     * @param box the BallotBox, specific to the locale
+     * @param xpathString the path
+     * @param value the old losing value to be imported
+     * @param reg the UserRegistry
+     * @throws InvalidXPathException
+     * @throws VoteNotAcceptedException
+     * 
+     * Reference: https://unicode.org/cldr/trac/ticket/11211
+     */
+    private void importAnonymousOldLosingVote(BallotBox<User> box, String xpathString, String value, UserRegistry reg)
+        throws InvalidXPathException, VoteNotAcceptedException {
+        /*
+         * If we already have an anonymous vote for this locale+path+value, just return,
+         * since there is no need for more than one.
+         */
+        Set<User> voters = box.getVotesForValue(xpathString, value);
+        if (voters != null) {
+            for (User user: voters) {
+                if (UserRegistry.userIsExactlyAnonymous(user)) {
+                    return;
+                }
+            }
+        }
+        /*
+         * Find an anonymous user to be the submitter, which must be unique for this locale+path.
+         */
+        for (User user: reg.getAnonymousUsers()) {
+            if (box.userDidVote(user, xpathString) == false) {
+                box.voteForValue(user, xpathString, value);
+                return;
+            }
+        }
+        /*
+         * Exhausted our pool of anonymous voters! Hope this doesn't happen too often.
+         */
     }
 
     /**
