@@ -18,19 +18,17 @@ import org.unicode.cldr.util.XMLSource;
  */
 public abstract class TestCache implements XMLSource.Listener {
     public class TestResultBundle {
-        private boolean USE_PATH_CACHE = true;
         protected List<CheckStatus> possibleProblems = new ArrayList<CheckStatus>();
         CLDRFile file;
         CheckCLDR cc = createCheck();
         private CheckCLDR.Options options;
         private HashMap<String, List<CheckStatus>> pathCache;
         
-        protected TestResultBundle(CheckCLDR.Options options) {
-            if (USE_PATH_CACHE) {
-                pathCache = new HashMap<String, List<CheckStatus>>();
-            }
-            cc.setCldrFileToCheck(file = getFactory().make(options.getLocale().getBaseName(), true), this.options = options,
-                possibleProblems);
+        protected TestResultBundle(CheckCLDR.Options cldrOptions) {
+            options = cldrOptions;
+            pathCache = new HashMap<String, List<CheckStatus>>();
+            file = getFactory().make(options.getLocale().getBaseName(), true);
+            cc.setCldrFileToCheck(file, options, possibleProblems);
         }
 
         public List<CheckStatus> getPossibleProblems() {
@@ -53,25 +51,20 @@ public abstract class TestCache implements XMLSource.Listener {
         * @param value the value to be checked
         */
         public void check(String path, List<CheckStatus> result, String value) {
-            String key = path + " " + value;
-            if (USE_PATH_CACHE) {
-                List<CheckStatus> cachedResult = pathCache.get(key);
-                if (cachedResult != null) {
-                    result.addAll(cachedResult);
-                    /*
-                     * TODO: remove temporary debugging code
-                     */
-                    System.out.println("🔶 checking " + path + " value " + value + "; got from cache");
-                    return;
-                }
+            /*
+             * value can be null, and in principle could be "null". To distinguish those two
+             * values in pathCache key, use "\n-NuL" (an arbitrary string assumed never actually
+             * to occur as a value; note that it starts with a newline) to represent null, and
+             * use "null" to represent itself.
+             */
+            String key = path + " " + ((value == null) ? "\n-NuL" : value);
+            List<CheckStatus> cachedResult = pathCache.get(key);
+            if (cachedResult != null) {
+                result.addAll(cachedResult);
             }
-            cc.check(path, file.getFullXPath(path), value, options, result);
-            if (USE_PATH_CACHE) {
-                pathCache.put(key, (List<CheckStatus>) result);
-                /*
-                 * TODO: remove temporary debugging code
-                 */
-                System.out.println("🔷 checking " + path + " value " + value + "; added new to cache");
+            else {
+                cc.check(path, file.getFullXPath(path), value, options, result);
+                pathCache.put(key, result);
             }
         }
 
