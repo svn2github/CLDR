@@ -1,6 +1,7 @@
 package org.unicode.cldr.test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
@@ -17,12 +18,17 @@ import org.unicode.cldr.util.XMLSource;
  */
 public abstract class TestCache implements XMLSource.Listener {
     public class TestResultBundle {
+        private boolean USE_PATH_CACHE = true;
         protected List<CheckStatus> possibleProblems = new ArrayList<CheckStatus>();
         CLDRFile file;
         CheckCLDR cc = createCheck();
         private CheckCLDR.Options options;
-
+        private HashMap<String, List<CheckStatus>> pathCache;
+        
         protected TestResultBundle(CheckCLDR.Options options) {
+            if (USE_PATH_CACHE) {
+                pathCache = new HashMap<String, List<CheckStatus>>();
+            }
             cc.setCldrFileToCheck(file = getFactory().make(options.getLocale().getBaseName(), true), this.options = options,
                 possibleProblems);
         }
@@ -31,12 +37,42 @@ public abstract class TestCache implements XMLSource.Listener {
             return possibleProblems;
         }
 
+        /*
+         * Check the current value for the given path
+         */
         public void check(String path, List<CheckStatus> result) {
-            cc.check(path, file.getFullXPath(path), file.getStringValue(path), options, result);
+            check(path, result, file.getStringValue(path));
         }
-
+       
+       /**
+        * Check the given value for the given path, using this TestResultBundle for
+        * options, pathCache and cc (CheckCLDR).
+        * 
+        * @param path the path
+        * @param result the list to which CheckStatus objects may be added
+        * @param value the value to be checked
+        */
         public void check(String path, List<CheckStatus> result, String value) {
+            String key = path + " " + value;
+            if (USE_PATH_CACHE) {
+                List<CheckStatus> cachedResult = pathCache.get(key);
+                if (cachedResult != null) {
+                    result.addAll(cachedResult);
+                    /*
+                     * TODO: remove temporary debugging code
+                     */
+                    System.out.println("🔶 checking " + path + " value " + value + "; got from cache");
+                    return;
+                }
+            }
             cc.check(path, file.getFullXPath(path), value, options, result);
+            if (USE_PATH_CACHE) {
+                pathCache.put(key, (List<CheckStatus>) result);
+                /*
+                 * TODO: remove temporary debugging code
+                 */
+                System.out.println("🔷 checking " + path + " value " + value + "; added new to cache");
+            }
         }
 
         public void getExamples(String path, String value, List<CheckStatus> result) {

@@ -15,13 +15,18 @@ import org.unicode.cldr.test.CheckCLDR;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus;
 import org.unicode.cldr.test.CheckCLDR.CheckStatus.Subtype;
 import org.unicode.cldr.test.CheckCLDR.Options;
+import org.unicode.cldr.test.CheckCLDR.Phase;
 import org.unicode.cldr.test.CheckConsistentCasing;
 import org.unicode.cldr.test.CheckDates;
 import org.unicode.cldr.test.CheckForExemplars;
 import org.unicode.cldr.test.CheckNames;
 import org.unicode.cldr.test.CheckNew;
+import org.unicode.cldr.test.SimpleTestCache;
+import org.unicode.cldr.test.TestCache;
+import org.unicode.cldr.test.TestCache.TestResultBundle;
 import org.unicode.cldr.util.CLDRConfig;
 import org.unicode.cldr.util.CLDRFile;
+import org.unicode.cldr.util.CLDRLocale;
 import org.unicode.cldr.util.DayPeriodInfo;
 import org.unicode.cldr.util.DayPeriodInfo.DayPeriod;
 import org.unicode.cldr.util.DayPeriodInfo.Type;
@@ -88,6 +93,35 @@ public class TestCheckCLDR extends TestFmwk {
             c.check(path, english.getFullXPath(path),
                 english.getStringValue(path), options, possibleErrors);
         }
+    }
+
+    /**
+     * Test the SimpleTestCache and TestResultBundle objects
+     */
+    public static void TestSimpleTestCache() {
+        String localeString = "en";
+        CLDRLocale locale = CLDRLocale.getInstance(localeString);
+        CheckCLDR.Options checkCldrOptions = new Options(locale, Phase.SUBMISSION, "default", "basic");
+        TestCache testCache = new SimpleTestCache();
+        testCache.setFactory(testInfo.getCldrFactory(), ".*", CheckCLDR.getDisplayInformation()); 
+        TestResultBundle bundle = testCache.getBundle(checkCldrOptions);
+        List<CheckStatus> possibleErrors = new ArrayList<CheckStatus>();
+        final CLDRFile cldrFile = testInfo.getCLDRFile(localeString, true);
+        /*
+         * TODO: loop through something like the following twice, so that the cache is beneficial
+         * the second time. Measure the times, test whether the second time is faster.
+         * So far, we're only testing that we can create and use the objects without
+         * crashing.
+         */
+        for (String path : cldrFile) {
+            String fullPath = cldrFile.getFullXPath(path);
+            String value = cldrFile.getStringValue(path);
+            bundle.check(fullPath, possibleErrors, value);
+        }
+        /*
+         * TODO: check possibleErrors, expected to be empty; also set up some exceptions that SHOULD
+         * generate CheckStatus objects
+         */
     }
 
     /**
