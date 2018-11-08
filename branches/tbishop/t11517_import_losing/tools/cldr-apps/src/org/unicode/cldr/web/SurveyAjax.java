@@ -1884,8 +1884,9 @@ public class SurveyAjax extends HttpServlet {
             try {
                 String strid = sm.xpt.getStringIDString(xp);
                 if (confirmSet.contains(strid)) {
-                    value = daip.processInput(xpathString, value, exceptionList);
-                    importAnonymousOldLosingVote(box, xpathString, value, sm.reg);
+                    String unprocessedValue = value;
+                    String processedValue = daip.processInput(xpathString, value, exceptionList);
+                    importAnonymousOldLosingVote(box, locale, xpathString, xp, unprocessedValue, processedValue, sm.reg);
                 }
             } catch (InvalidXPathException ix) {
                 SurveyLog.logException(ix, "Bad XPath: Trying to import for " + xpathString);
@@ -1900,24 +1901,28 @@ public class SurveyAjax extends HttpServlet {
      * Import the given old losing value as an "anonymous" vote.
      * 
      * @param box the BallotBox, specific to the locale
+     * @param locale the CLDRLocale
      * @param xpathString the path
-     * @param value the old losing value to be imported
+     * @param unprocessedValue the old losing value to be imported, before daip.processInput
+     * @param processedValue the old losing value to be imported, after daip.processInput
      * @param reg the UserRegistry
      * @throws InvalidXPathException
      * @throws VoteNotAcceptedException
      * 
      * Reference: https://unicode.org/cldr/trac/ticket/11211
      */
-    private void importAnonymousOldLosingVote(BallotBox<User> box, String xpathString, String value, UserRegistry reg)
+    private void importAnonymousOldLosingVote(BallotBox<User> box, CLDRLocale locale, String xpathString,
+        int xpathId, String unprocessedValue, String processedValue, UserRegistry reg)
         throws InvalidXPathException, VoteNotAcceptedException {
         /*
          * If we already have an anonymous vote for this locale+path+value, just return,
          * since there is no need for more than one.
          */
-        Set<User> voters = box.getVotesForValue(xpathString, value);
+        Set<User> voters = box.getVotesForValue(xpathString, processedValue);
         if (voters != null) {
             for (User user: voters) {
                 if (UserRegistry.userIsExactlyAnonymous(user)) {
+                    System.out.println("Already have userIsExactlyAnonymous"); // temporary debugging
                     return;
                 }
             }
@@ -1925,15 +1930,58 @@ public class SurveyAjax extends HttpServlet {
         /*
          * Find an anonymous user to be the submitter, which must be unique for this locale+path.
          */
+        User anonUser = getFreshAnonymousUser(box, xpathString, reg);
+        if (anonUser == null) {
+            System.out.println("getFreshAnonymousUser null!"); // temporary debugging
+            return;
+        }
+        box.voteForValue(anonUser, xpathString, processedValue);
+
+        /*
+         * Add a row to the IMPORT table, so we can avoid importing the same value repeatedly.
+         * For this we need unprocessedValue, to match what occurs for the original votes in the
+         * old votes tables.
+         */
+        int newVer = Integer.parseInt(SurveyMain.getNewVersion());
+        String importTable = DBUtils.Table.IMPORT.forVersion(new Integer(newVer).toString(), false).toString();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        String sql = "INSERT INTO " + importTable + "(locale,xpath,value) VALUES(?,?,?)";
+        try {          
+            conn = DBUtils.getInstance().getDBConnection();
+            
+            // int count = DBUtils.sqlUpdate(conn, sql, locale.getBaseName(), xpathId, unprocessedValue);
+            
+            ps = DBUtils.prepareStatementWithArgs(conn, sql, locale.getBaseName(), xpathId, unprocessedValue);
+            int count = ps.executeUpdate();
+            conn.commit();
+            System.out.println("executeUpdate returned = " + count + ", for sql = " + sql); // temporary debugging
+        } catch (SQLException e) {
+            SurveyLog.logException(e);
+        } finally {
+            DBUtils.close(ps, conn);
+        }
+    }
+
+    /**
+     * Get an anonymous user who has not already voted for the given xpath in this locale
+     *
+     * @param box
+     * @param xpathString
+     * @param reg
+     * @return the anonymous user, or null if there are none who haven't voted
+     * @throws InvalidXPathException
+     */
+    private User getFreshAnonymousUser(BallotBox<User> box, String xpathString, UserRegistry reg) throws InvalidXPathException {
         for (User user: reg.getAnonymousUsers()) {
             if (box.userDidVote(user, xpathString) == false) {
-                box.voteForValue(user, xpathString, value);
-                return;
+                return user;
             }
         }
         /*
          * Exhausted our pool of anonymous voters! Hope this doesn't happen too often.
          */
+        return null;
     }
 
     /**
@@ -1953,20 +2001,34 @@ public class SurveyAjax extends HttpServlet {
         /* Loop thru multiple old votes tables in reverse chronological order.
          * Use "union" to combine into a single sql query.
          */
-        int ver = Integer.parseInt(SurveyMain.getNewVersion());
+        int newVer = Integer.parseInt(SurveyMain.getNewVersion());
+        String importTable = DBUtils.Table.IMPORT.forVersion(new Integer(newVer).toString(), false).toString();
         String sql = "";
         int tableCount = 0;
+        int ver = newVer;
         while (--ver >= oldestVersionForImportingVotes) {
             String oldVotesTable = DBUtils.Table.VOTE_VALUE.forVersion(new Integer(ver).toString(), false).toString();
             if (DBUtils.hasTable(oldVotesTable)) {
                 if (!sql.isEmpty()) {
                     sql += " UNION ALL ";
                 }
-                sql += "(select xpath,value from " + oldVotesTable + " where locale=? and submitter=? and value is not null " +
-                    " and not exists (select * from " + newVotesTable + " where " + oldVotesTable + ".locale=" + newVotesTable
-                    + ".locale  and " + oldVotesTable + ".xpath=" + newVotesTable + ".xpath  "
-                    + " and " + oldVotesTable + ".submitter=" + newVotesTable + ".submitter "
-                    + " and " + newVotesTable + ".value is not null))";
+                sql += "(select xpath,value from " + oldVotesTable
+                    + " where locale=? and submitter=? and value is not null"
+                    /*
+                     * ... and same submitter hasn't voted for a different value for this locale+xpath in current version:
+                     */
+                    + " and not exists (select * from " + newVotesTable
+                    + " where " + oldVotesTable + ".locale="    + newVotesTable + ".locale"
+                    + " and "   + oldVotesTable + ".xpath="     + newVotesTable + ".xpath"
+                    + " and "   + oldVotesTable + ".submitter=" + newVotesTable + ".submitter"
+                    + " and "   + newVotesTable + ".value is not null)"
+                    /*
+                     * ... and no vote for the same locale+path+value has been anonymously imported into the current version:
+                     */
+                    + " and not exists (select * from " + importTable
+                    + " where " + oldVotesTable + ".value="     + importTable + ".value"
+                    + " and "   + oldVotesTable + ".locale="    + importTable + ".locale"
+                    + " and "   + oldVotesTable + ".xpath="     + importTable + ".xpath))";
                 ++tableCount;
             }
         }
