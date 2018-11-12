@@ -1835,6 +1835,10 @@ public class SurveyAjax extends HttpServlet {
      * @param newVotesTable the String for the table name like "cldr_vote_value_34"
      * @param oldvotes the JSONObject to be added to
      * @param fac the STFactory to be used for ballotBoxForLocale
+     * @throws ServletException
+     * @throws IOException
+     * @throws JSONException
+     * @throws SQLException
      *
      * Called locally by importOldVotesForValidatedUser, and also by unit test TestImportOldVotes.java, therefore public.
      * 
@@ -1908,21 +1912,21 @@ public class SurveyAjax extends HttpServlet {
      * @param reg the UserRegistry
      * @throws InvalidXPathException
      * @throws VoteNotAcceptedException
+     * @throws SQLException
      * 
-     * Reference: https://unicode.org/cldr/trac/ticket/11211
+     * Reference: https://unicode.org/cldr/trac/ticket/11517
      */
     private void importAnonymousOldLosingVote(BallotBox<User> box, CLDRLocale locale, String xpathString,
-        int xpathId, String unprocessedValue, String processedValue, UserRegistry reg)
-        throws InvalidXPathException, VoteNotAcceptedException {
+            int xpathId, String unprocessedValue, String processedValue, UserRegistry reg)
+            throws InvalidXPathException, VoteNotAcceptedException, SQLException {
         /*
-         * If we already have an anonymous vote for this locale+path+value, just return,
-         * since there is no need for more than one.
+         * If there is already an anonymous vote for this locale+path+value, do not add
+         * another one, simply return.
          */
         Set<User> voters = box.getVotesForValue(xpathString, processedValue);
         if (voters != null) {
             for (User user: voters) {
                 if (UserRegistry.userIsExactlyAnonymous(user)) {
-                    System.out.println("Already have userIsExactlyAnonymous"); // temporary debugging
                     return;
                 }
             }
@@ -1932,16 +1936,60 @@ public class SurveyAjax extends HttpServlet {
          */
         User anonUser = getFreshAnonymousUser(box, xpathString, reg);
         if (anonUser == null) {
-            System.out.println("getFreshAnonymousUser null!"); // temporary debugging
             return;
         }
-        box.voteForValue(anonUser, xpathString, processedValue);
-
         /*
-         * Add a row to the IMPORT table, so we can avoid importing the same value repeatedly.
+         * Submit the anonymous vote.
+         */
+        box.voteForValue(anonUser, xpathString, processedValue);
+        /*
+         * Add a row to the IMPORT table, to avoid importing the same value repeatedly.
          * For this we need unprocessedValue, to match what occurs for the original votes in the
          * old votes tables.
          */
+        addRowToImportTable(locale, xpathId, unprocessedValue);
+    }
+
+    /**
+     * Get an anonymous user who has not already voted for the given xpath in this locale
+     *
+     * @param box the BallotBox, specific to the locale
+     * @param xpathString the path
+     * @param reg the UserRegistry
+     * @return the anonymous user, or null if there are none who haven't voted
+     * @throws InvalidXPathException
+     */
+    private User getFreshAnonymousUser(BallotBox<User> box, String xpathString, UserRegistry reg)
+            throws InvalidXPathException {
+
+        for (User user: reg.getAnonymousUsers()) {
+            if (box.userDidVote(user, xpathString) == false) {
+                return user;
+            }
+        }
+        /*
+         * The pool of anonymous voters has run out. See UserRegistry.ANONYMOUS_USER_COUNT.
+         * We could dynamically add a new anonymous user here. The current assumption is
+         * that ANONYMOUS_USER_COUNT is larger than will be needed in practice. A larger
+         * number of old losing votes for the same path and locale is not to be imported.
+         */
+        return null;
+    }
+
+    /**
+     * Add a row to the IMPORT table, so we can avoid importing the same value repeatedly.
+     * For this we need unprocessedValue, to match what occurs for the original votes in the
+     * old votes tables.
+     *
+     * @param locale the locale
+     * @param xpathId the xpath id
+     * @param unprocessedValue the value
+     * @throws InvalidXPathException
+     * @throws SQLException
+     */
+    private void addRowToImportTable(CLDRLocale locale, int xpathId, String unprocessedValue)    
+            throws InvalidXPathException, SQLException {
+
         int newVer = Integer.parseInt(SurveyMain.getNewVersion());
         String importTable = DBUtils.Table.IMPORT.forVersion(new Integer(newVer).toString(), false).toString();
         Connection conn = null;
@@ -1949,39 +1997,18 @@ public class SurveyAjax extends HttpServlet {
         String sql = "INSERT INTO " + importTable + "(locale,xpath,value) VALUES(?,?,?)";
         try {          
             conn = DBUtils.getInstance().getDBConnection();
-            
-            // int count = DBUtils.sqlUpdate(conn, sql, locale.getBaseName(), xpathId, unprocessedValue);
-            
-            ps = DBUtils.prepareStatementWithArgs(conn, sql, locale.getBaseName(), xpathId, unprocessedValue);
-            int count = ps.executeUpdate();
+            /*
+             * arg 1 = locale (ASCII) use prepareStatementWithArgs
+             * arg 2 = xpath (int) use prepareStatementWithArgs
+             * arg 3 = value (UTF-8) use setStringUTF8 (can't use prepareStatementWithArgs)
+             */
+            ps = DBUtils.prepareStatementWithArgs(conn, sql, locale.getBaseName(), xpathId);
+            DBUtils.setStringUTF8(ps, 3, unprocessedValue);
+            ps.executeUpdate();
             conn.commit();
-            System.out.println("executeUpdate returned = " + count + ", for sql = " + sql); // temporary debugging
-        } catch (SQLException e) {
-            SurveyLog.logException(e);
         } finally {
             DBUtils.close(ps, conn);
         }
-    }
-
-    /**
-     * Get an anonymous user who has not already voted for the given xpath in this locale
-     *
-     * @param box
-     * @param xpathString
-     * @param reg
-     * @return the anonymous user, or null if there are none who haven't voted
-     * @throws InvalidXPathException
-     */
-    private User getFreshAnonymousUser(BallotBox<User> box, String xpathString, UserRegistry reg) throws InvalidXPathException {
-        for (User user: reg.getAnonymousUsers()) {
-            if (box.userDidVote(user, xpathString) == false) {
-                return user;
-            }
-        }
-        /*
-         * Exhausted our pool of anonymous voters! Hope this doesn't happen too often.
-         */
-        return null;
     }
 
     /**
@@ -1997,7 +2024,8 @@ public class SurveyAjax extends HttpServlet {
      * Called by viewOldVotes and submitOldVotes.
      */
     private static Map<String, Object>[] getOldVotesRows(final String newVotesTable, CLDRLocale locale, int id)
-        throws SQLException, IOException {
+            throws SQLException, IOException {
+
         /* Loop thru multiple old votes tables in reverse chronological order.
          * Use "union" to combine into a single sql query.
          */
