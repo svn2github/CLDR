@@ -3290,13 +3290,13 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, vdiv) {
 		var orgVoteValue = theOrg.votes[value];
 		/*
 		 * We should display something under "Org." and "User" even when orgVoteValue is zero (not undefined),
-		 * for "anonymous" imported losing votes. Therefore we have >= 0 rather than > 0 here.
-		 * TODO: Is there any circumstance where we need to hide a zero vote count (on the client),
-		 * where orgVoteValue is not undefined? That might be true for blocked users, unless they're
-		 * filtered out by the server.
+		 * for "anonymous" imported losing votes. Therefore do not require orgVoteValue > 0 here.
+		 * There does not appear to be any circumstance where we need to hide a zero vote count (on the client).
+		 * If we do discover such a circumstance, we could display 0 vote only if voter is "anonymous";
+		 * currently such voters have org = "cldr"; but if we don't need such a dependency here, don't add it.
 		 * Reference: https://unicode.org/cldr/trac/ticket/11517 
 		 */
-		if (orgVoteValue !== undefined && orgVoteValue >= 0) { // someone in the org actually voted for it
+		if (orgVoteValue !== undefined) { // someone in the org actually voted for it
 			var topVoter = null; // top voter for this item
 			var orgsVote = (theOrg.orgVote == value);
 			var topVoterTime = 0; // Calculating the latest time for a user from same org
