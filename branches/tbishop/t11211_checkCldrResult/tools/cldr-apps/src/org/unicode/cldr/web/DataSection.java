@@ -2958,6 +2958,15 @@ public class DataSection implements JSONString {
             row.hasMultipleProposals = true;
         }
         CLDRLocale setInheritFrom = ourValueIsInherited ? CLDRLocale.getInstance(sourceLocale) : null;
+        /*
+         * TODO: we seem to need the addition of checkCldrResult.clear() to prevent phantom warnings
+         * in the Info Panel accidentally getting copied from one candidate item to another.
+         * For some reason this only seems to be a problem when pathCache is enabled in TestResultBundle,
+         * but the connection isn't clear.
+         * Probably checkCldrResult should simply be created here, no reason to have it in all the calling
+         * functions between here and populateFrom. Reference: https://unicode.org/cldr/trac/ticket/11211
+         */
+        checkCldrResult.clear();
         if (checkCldr != null) {
             checkCldr.check(xpath, checkCldrResult, isExtraPath ? null : ourValue);
             checkCldr.getExamples(xpath, isExtraPath ? null : ourValue, examplesResult);
