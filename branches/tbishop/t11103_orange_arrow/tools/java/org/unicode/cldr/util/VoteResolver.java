@@ -72,7 +72,7 @@ public class VoteResolver<T> {
      * The status levels according to the committee, in ascending order
      */
     public enum Status {
-        missing, unconfirmed, provisional, contributed, approved;
+        missing, unconfirmed, provisional, contributed, inherited, approved;
         public static Status fromString(String source) {
             return source == null ? missing : Status.valueOf(source);
         }
@@ -845,6 +845,9 @@ public class VoteResolver<T> {
                 winningValue = trunkValue;
             } else {
                 winningStatus = lastReleaseStatus;
+                if (CldrUtility.INHERITANCE_MARKER.equals(lastReleaseValue)) {
+                    winningStatus = Status.inherited;
+                }
                 winningValue = lastReleaseValue;
             }
             valuesWithSameVotes.add(winningValue); // may be null
@@ -1239,6 +1242,9 @@ public class VoteResolver<T> {
     }
 
     private Status computeStatus(long weight1, long weight2, Status oldStatus) {
+        if (CldrUtility.INHERITANCE_MARKER.equals(winningValue)) {
+            return Status.inherited;
+        }
         int orgCount = organizationToValueAndVote.getOrgCount(winningValue);
         return weight1 > weight2 &&
             (weight1 >= requiredVotes) ? Status.approved

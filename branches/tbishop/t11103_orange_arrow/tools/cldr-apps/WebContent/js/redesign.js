@@ -482,6 +482,12 @@ function labelizeIcon() {
 	                 title:'The "Proposed" (winning) value will be in the release.'
 	             },
 	             {
+	            	 selector:'.d-dr-inherited',
+	                 type:'inherited',
+	                 text:'Inherited',
+	                 title:'The "Proposed" (winning) value is inherited.'
+	             },
+	             {
 	            	 selector:'.d-dr-contributed',
 	                 type:'success',
 	                 text:'Contributed',
