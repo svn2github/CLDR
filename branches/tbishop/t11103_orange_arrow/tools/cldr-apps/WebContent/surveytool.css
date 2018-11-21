@@ -2557,6 +2557,12 @@ span.d-sort-size {
 	background: url(approved.png) no-repeat center;
 }
 
+.d-dr-inherited {
+	width: 16px;
+	height: 16px;
+	background: url(inherited.png) no-repeat center;
+}
+
 .d-dr-contributed {
 	width: 16px;
 	height: 16px;
