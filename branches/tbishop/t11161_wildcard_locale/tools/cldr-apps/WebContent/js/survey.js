@@ -4196,11 +4196,11 @@ function setLang(node, loc) {
 
 	if(overridedir){
 		node.dir = overridedir;
-	} else if (info.dir) {
+	} else if (info && info.dir) {
 		node.dir = info.dir;
 	}
 
-	if(info.bcp47) {
+	if (info && info.bcp47) {
 		node.lang = info.bcp47;
 	}
 }
@@ -4494,6 +4494,21 @@ function showV() {
 				var pieces = hash.substr(0).split("/");
 				if(pieces.length > 1) {
 					surveyCurrentLocale = pieces[1]; // could be null
+					/*
+					 * Note that if we get surveyCurrentLocale === "USER" here, it should be changed to
+					 * the user's preferred locale, but that may not be possible until we receive server
+					 * response; see "USER" elsewhere in this file.
+					 *
+					 * TODO: test whether the following block ever works; so far it seems cachedJson.loc
+					 * and _thePages.loc aren't defined here. Delete this block if it's pointless.
+					 */
+					if (surveyCurrentLocale === "USER") {
+						if (cachedJson && cachedJson.loc) {
+							surveyCurrentLocale = cachedJson.loc;
+						} else if (_thePages && _thePages.loc) {
+							surveyCurrentLocale = _thePages.loc;
+						}
+					}
 				} else {
 					surveyCurrentLocale = '';
 				}
@@ -5979,6 +5994,11 @@ function showV() {
 				if(!verifyJson(json,'locmap')) {
 					return;
 				} else {
+
+					if (surveyCurrentLocale === "USER" && json.loc) {
+						surveyCurrentLocale = json.loc;
+					}
+					
 					locmap = new LocaleMap(json.locmap);
 
 					// make this into a hashmap.
