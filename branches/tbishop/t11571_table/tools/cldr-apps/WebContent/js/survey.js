@@ -2803,7 +2803,7 @@ function addVitem(td, tr, theRow, item, newButton) {
 	var testKind = getTestKind(item.tests);
 	setDivClass(div,testKind);
 	item.div = div; // back link
-	if(item==null)  {
+	if(item==null)  { // TODO: this is impossible, we would hit an exception on the previous line if item were null
 		return;
 	}
 	var displayValue = item.value;
@@ -2943,7 +2943,7 @@ function updateRow(tr, theRow) {
 	tr.ticketOnly = (tr.theTable.json.canModify && tr.statusAction.ticket);
 	tr.canChange = (tr.canModify && tr.statusAction.change);
 
-	if(!theRow || !theRow.xpathId) {
+	if(!theRow || !theRow.xpathId) { // TODO: is this possible? At least theRow can't be null, we'd hit an exception above.
 		tr.innerHTML="<td><i>ERROR: missing row</i></td>";
 		return;
 	}
@@ -3755,7 +3755,6 @@ function findPartition(partitions,partitionList,curPartition,i) {
 function insertRowsIntoTbody(theTable) {
 	'use strict';
 	var tbody = theTable.getElementsByTagName("tbody")[0];
-	theTable.hitCount++;
 	var theRows = theTable.json.section.rows;
 	var toAdd = theTable.toAdd;
 	var parRow = dojo.byId('proto-parrow');
@@ -3766,7 +3765,7 @@ function insertRowsIntoTbody(theTable) {
 	var rowList = theSort.rows;
 	var partitionList = Object.keys(partitions);
 	var curPartition = null;
-	for(i in rowList ) {
+	for (i in rowList) {
 		var k = rowList[i];
 		var theRow = theRows[k];
 		var dir = theRow.dir;
@@ -3828,8 +3827,35 @@ function insertRowsIntoTbody(theTable) {
 		// add the tr to the table
 		tbody.appendChild(tr);
 	}
+	// downloadObjectAsJson(theTable, "theTable.json");
 }
 
+function downloadObjectAsJson(exportObj, exportName) {
+    var seen = [];
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, function(key, val) {
+ 	   if (val != null && typeof val == "object") {
+	        if (seen.indexOf(val) >= 0) {
+	            return;
+	        }
+	        seen.push(val);
+	    }
+	    return val;
+	}));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+/**
+ * TODO: what is the purpose of this function? Is there an interface for sorting rows? Where?
+ *
+ * @param theTable
+ * @param k
+ * @returns
+ */
 function reSort(theTable,k) {
 	if(theTable.curSortMode==k) {
 		return; // no op
@@ -3986,8 +4012,11 @@ function updateCoverage(theDiv) {
 
 /**
  * Prepare rows to be inserted into theDiv
- *
- * @method insertRows
+ * 
+ * @param theDiv
+ * @param xpath
+ * @param session
+ * @param json
  */
 function insertRows(theDiv,xpath,session,json) {
 	'use strict';
@@ -4030,7 +4059,6 @@ function insertRows(theDiv,xpath,session,json) {
 	// append header row
 	theTable.json = json;
 	theTable.xpath = xpath;
-	theTable.hitCount=0;
 	theTable.session = session;
 
 	if(!theTable.curSortMode) {
