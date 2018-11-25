@@ -173,14 +173,14 @@ public class SurveyAjax extends HttpServlet {
 
             EnumSet<Organization> conflictedOrgs = r.getConflictedOrganizations();
 
-            Map<String, Long> valueToVote = r.getResolvedVoteCounts();
+            Map<String, Double> valueToVote = r.getResolvedVoteCounts();
 
             JSONObject orgs = new JSONObject();
             for (Organization o : Organization.values()) {
                 String orgVote = r.getOrgVote(o);
                 if (orgVote == null)
                     continue;
-                Map<String, Long> votes = r.getOrgToVotes(o);
+                Map<String, Double> votes = r.getOrgToVotes(o);
 
                 JSONObject org = new JSONObject();
                 org.put("status", r.getStatusForOrganization(o));
@@ -193,7 +193,7 @@ public class SurveyAjax extends HttpServlet {
             }
             ret.put("orgs", orgs);
             JSONArray valueToVoteA = new JSONArray();
-            for (Map.Entry<String, Long> e : valueToVote.entrySet()) {
+            for (Map.Entry<String, Double> e : valueToVote.entrySet()) {
                 valueToVoteA.put(e.getKey()).put(e.getValue());
             }
             ret.put("value_vote", valueToVoteA);

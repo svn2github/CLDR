@@ -72,7 +72,7 @@ public class Race {
     /**
      * Get a map of xpath to score for this org.
      */
-    public Map<String, Long> getOrgToVotes(Organization org) {
+    public Map<String, Double> getOrgToVotes(Organization org) {
         return resolver.getOrgToVotes(org);
     }
 

@@ -17,7 +17,7 @@ public class TestAnnotationVotes extends TestFmwk {
 
     VoteResolver<String> r = new VoteResolver<String>();
     Set<String> sortedValuesI = null, sortedValuesO = null; // input and output
-    HashMap<String, Long> voteCountI = null; // input
+    HashMap<String, Double> voteCountI = null; // input
 
     public static void main(String[] args) {
         new TestAnnotationVotes().run(args);
@@ -46,7 +46,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV01() {
         String test = "adjustAnnotationVoteCounts for a=100, b=99, c=98 should return unchanged";
         String[] valI = {"a", "b", "c"}; // input
-        long[] votesI = {100,  99,  98}; // input vote counts
+        double[] votesI = {100,  99,  98}; // input vote counts
         String[] valO = {"a", "b", "c"}; // expected/desired output
         runTest(test, valI, votesI, valO);
      }
@@ -58,7 +58,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV02() {
         String test = "adjustAnnotationVoteCounts for a|b=1, c|d=2, e|f=3 should reverse order";
         String[] valI = {"a|b", "c|d", "e|f"}; // input
-        long[] votesI = {1,      2,     3   }; // input vote counts
+        double[] votesI = {1,      2,     3   }; // input vote counts
         String[] valO = {"e|f", "c|d", "a|b"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -70,7 +70,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV03() {
         String test = "adjustAnnotationVoteCounts for a=2, b=2, b|c=1 should make b, a, b|c";
         String[] valI = {"a", "b", "b|c"}; // input
-        long[] votesI = { 2,   2,   1   }; // input vote counts
+        double[] votesI = { 2,   2,   1   }; // input vote counts
         String[] valO = {"b", "a", "b|c"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -82,7 +82,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV04() {
         String test = "adjustAnnotationVoteCounts for a|b|c|f=8, a|b|e=6, a|e=4 should make a|b|e, a|e, a|b|c|f";
         String[] valI = {"a|b|c|f", "a|b|e", "a|e"}; // input
-        long[] votesI = {8,          6,       4   }; // input vote counts
+        double[] votesI = {8,          6,       4   }; // input vote counts
         String[] valO = {"a|b|e", "a|e", "a|b|c|f"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -99,7 +99,7 @@ public class TestAnnotationVotes extends TestFmwk {
          */
         String test = "adjustAnnotationVoteCounts for a=12, b|c=8, b|c|d=8 should make b|c, b|c|d, a";
         String[] valI = {"a", "b|c", "b|c|d"}; // input
-        long[] votesI = {12  , 8,     8     }; // input vote counts
+        double[] votesI = {12  , 8,     8     }; // input vote counts
         String[] valO = {"b|c", "b|c|d", "a"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -111,7 +111,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV06() {
         String test = "adjustAnnotationVoteCounts for a|b|c=8, a|b|d=6, a|d=4 should make a|b|d, a|d, a|b|c";
         String[] valI = {"a|b|c", "a|b|d", "a|d"}; // input
-        long[] votesI = {8,        6,       4   }; // input vote counts
+        double[] votesI = {8,        6,       4   }; // input vote counts
         String[] valO = {"a|b|d", "a|d", "a|b|c"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -123,7 +123,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV07() {
         String test = "adjustAnnotationVoteCounts for a=24, b|c=20, b|c|d=20 should make b|c, b|c|d, a";
         String[] valI = {"a", "b|c", "b|c|d"}; // input
-        long[] votesI = {24,   20,    20    }; // input vote counts
+        double[] votesI = {24,   20,    20    }; // input vote counts
         String[] valO = {"b|c", "b|c|d", "a"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -138,7 +138,7 @@ public class TestAnnotationVotes extends TestFmwk {
         //  https://unicode.org/cldr/trac/ticket/10973
         String test = "adjustAnnotationVoteCounts for hmyz | malárie | moskyt | štípnutí | virus, dengue | hmyz | malárie | moskyt | štípnutí | virus ...";
         String[] valI = {"hmyz | malárie | moskyt | štípnutí | virus", "dengue | hmyz | malárie | moskyt | štípnutí | virus"}; // input
-        long[] votesI = {4,                                             8                                                   }; // input vote counts
+        double[] votesI = {4,                                             8                                                   }; // input vote counts
         String[] valO = {"dengue | hmyz | malárie | moskyt | štípnutí | virus", "hmyz | malárie | moskyt | štípnutí | virus"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -151,7 +151,7 @@ public class TestAnnotationVotes extends TestFmwk {
         // same as TestAV08 except one-letter names
         String test = "adjustAnnotationVoteCounts for b|c|d|e|f=4, a|b|c|d|e|f=8 should make a|b|c|d|e|f, b|c|d|e|f";
         String[] valI = {"b|c|d|e|f", "a|b|c|d|e|f"}; // input
-        long[] votesI = {4,            8           }; // input vote counts
+        double[] votesI = {4,            8           }; // input vote counts
         String[] valO = {"a|b|c|d|e|f", "b|c|d|e|f"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -164,7 +164,7 @@ public class TestAnnotationVotes extends TestFmwk {
         // same input and output as TestAV09, different vote counts
         String test = "adjustAnnotationVoteCounts for b|c|d|e|f=4, a|b|c|d|e|f=6 should make a|b|c|d|e|f, b|c|d|e|f";
         String[] valI = {"b|c|d|e|f", "a|b|c|d|e|f"}; // input
-        long[] votesI = {4,            6           }; // input vote counts
+        double[] votesI = {4,            6           }; // input vote counts
         String[] valO = {"a|b|c|d|e|f", "b|c|d|e|f"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -177,7 +177,7 @@ public class TestAnnotationVotes extends TestFmwk {
         // same input as TestAV09, different vote counts and output
         String test = "adjustAnnotationVoteCounts for b|c|d|e|f=4, a|b|c|d|e|f=5 should make b|c|d|e|f, a|b|c|d|e|f";
         String[] valI = {"b|c|d|e|f", "a|b|c|d|e|f"}; // input
-        long[] votesI = {4,            5           }; // input vote counts
+        double[] votesI = {4,            5           }; // input vote counts
         String[] valO = {"b|c|d|e|f", "a|b|c|d|e|f"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -190,7 +190,7 @@ public class TestAnnotationVotes extends TestFmwk {
         // test superior supersets with alphabetical fallback: a|b|c before a|b|d
         String test = "adjustAnnotationVoteCounts for a|b=4, a|b|d=8, a|b|c=8 should make a|b|c, a|b|d, a|b";
         String[] valI = {"a|b", "a|b|d", "a|b|c"}; // input
-        long[] votesI = {4,      8,       8     }; // input vote counts
+        double[] votesI = {4,      8,       8     }; // input vote counts
         String[] valO = {"a|b|c", "a|b|d", "a|b"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -202,7 +202,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV13() {
         String test = "adjustAnnotationVoteCounts for a|b=4, a|b|d=8, a|b|c=7 should make a|b|d, a|b|c, a|b";
         String[] valI = {"a|b", "a|b|d", "a|b|c"}; // input
-        long[] votesI = {4,      8,       7     }; // input vote counts
+        double[] votesI = {4,      8,       7     }; // input vote counts
         String[] valO = {"a|b|d", "a|b|c", "a|b"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -214,7 +214,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV14() {
         String test = "adjustAnnotationVoteCounts for a|b=8, a=8 should make a, a|b";
         String[] valI = {"a|b", "a"}; // input
-        long[] votesI = {8,      8 }; // input vote counts
+        double[] votesI = {8,      8 }; // input vote counts
         String[] valO = {"a", "a|b"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -226,7 +226,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV15() {
         String test = "adjustAnnotationVoteCounts for a|b=8, a=4 should make a|b, a";
         String[] valI = {"a|b", "a"}; // input
-        long[] votesI = {8,      4 }; // input vote counts
+        double[] votesI = {8,      4 }; // input vote counts
         String[] valO = {"a|b", "a"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -238,7 +238,7 @@ public class TestAnnotationVotes extends TestFmwk {
     public void TestAV16() {
         String test = "adjustAnnotationVoteCounts for a|b=4, a|b|d=8, a|b|c=7 should make a|b|d, a|b|c, a|b";
         String[] valI = {"a|b", "a|b|d", "a|b|c"}; // input
-        long[] votesI = {4,      8,       7     }; // input vote counts
+        double[] votesI = {4,      8,       7     }; // input vote counts
         String[] valO = {"a|b|d", "a|b|c", "a|b"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -251,7 +251,7 @@ public class TestAnnotationVotes extends TestFmwk {
         // test superior supersets with shorter-set fallback: a|b|e before a|b|c|d
         String test = "adjustAnnotationVoteCounts for a|b=4, a|b|c|d=8, a|b|e=8 should make a|b|e, a|b|c|d, a|b";
         String[] valI = {"a|b", "a|b|c|d", "a|b|e"}; // input
-        long[] votesI = {4,      8,         8     }; // input vote counts
+        double[] votesI = {4,      8,         8     }; // input vote counts
         String[] valO = {"a|b|e", "a|b|c|d", "a|b"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -264,7 +264,7 @@ public class TestAnnotationVotes extends TestFmwk {
         // test shorter-set fallback: a|b|e before a|b|c|d
         String test = "adjustAnnotationVoteCounts for a|b|c|d=8, a|b|e=8 should make a|b|e, a|b|c|d";
         String[] valI = {"a|b|c|d", "a|b|e"}; // input
-        long[] votesI = {8,          8     }; // input vote counts
+        double[] votesI = {8,          8     }; // input vote counts
         String[] valO = {"a|b|e", "a|b|c|d"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -277,7 +277,7 @@ public class TestAnnotationVotes extends TestFmwk {
         // Superior supersets can't have more than 7 = CheckWidths.MAX_COMPONENTS_PER_ANNOTATION.
         String test = "adjustAnnotationVoteCounts for a|b=4, a|b|c|d|e|f|g|h=9, a|b|c|x|y=8 should make a|b|c|x|y, a|b, a|b|c|d|e|f|g|h";
         String[] valI = {"a|b", "a|b|c|d|e|f|g|h", "a|b|c|x|y"}; // input
-        long[] votesI = {4,      9,                 8         }; // input vote counts
+        double[] votesI = {4,      9,                 8         }; // input vote counts
         String[] valO = {"a|b|c|d|e|f|g|h", "a|b|c|x|y", "a|b"}; // expected/desired output
         runTest(test, valI, votesI, valO);
     }
@@ -294,7 +294,7 @@ public class TestAnnotationVotes extends TestFmwk {
      * Note: there is no array of expected output vote counts. Treat the test as passing
      * or failing based only on the order of output values, not on the exact output vote counts.
      */
-   private void runTest(String test, String[] valI, long[] votesI, String[] valO) {
+   private void runTest(String test, String[] valI, double[] votesI, String[] valO) {
         setupTestIO(valI, votesI, valO);
         String input = sortedValuesI.toString() + " " + voteCountI.toString(); // before adjusting
         try {
@@ -325,10 +325,10 @@ public class TestAnnotationVotes extends TestFmwk {
      * @param votesI the array of vote counts corresponding to valI
      * @param valO the array of expected output values
      */
-    private void setupTestIO(String[] valI, long[] votesI, String[] valO) {
+    private void setupTestIO(String[] valI, double[] votesI, String[] valO) {
         sortedValuesI = new LinkedHashSet<String>(new ArrayList<String>(Arrays.asList(valI)));
         sortedValuesO = new LinkedHashSet<String>(new ArrayList<String>(Arrays.asList(valO)));
-        voteCountI = new HashMap<String, Long>();
+        voteCountI = new HashMap<String, Double>();
         int i = 0;
         for (String value : valI) {
             voteCountI.put(value, votesI[i++]);

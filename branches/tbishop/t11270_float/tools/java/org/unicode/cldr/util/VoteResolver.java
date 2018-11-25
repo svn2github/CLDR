@@ -551,11 +551,11 @@ public class VoteResolver<T> {
             return orgToAdd.get(orgOfUser);
         }
 
-        public Map<T, Long> getOrgToVotes(Organization org) {
-            Map<T, Long> result = new LinkedHashMap<T, Long>();
+        public Map<T, Double> getOrgToVotes(Organization org) {
+            Map<T, Double> result = new LinkedHashMap<T, Double>();
             MaxCounter<T> counter = orgToVotes.get(org);
             for (T item : counter) {
-                result.put(item, counter.getCount(item));
+                result.put(item, ((Long) counter.getCount(item)).doubleValue());
             }
             // Skip the System.out.println here normally, it clutters the logs. 
             // See https://unicode.org/cldr/trac/ticket/10295
@@ -861,7 +861,7 @@ public class VoteResolver<T> {
          * may affect the winners in vote resolution, while still preserving the original
          * voting data including the totals field.
          */
-        HashMap<T, Long> voteCount = makeVoteCountMap(sortedValues);
+        HashMap<T, Double> voteCount = makeVoteCountMap(sortedValues);
 
         /*
          * Adjust sortedValues and voteCount as needed to combine "soft" votes for inheritance
@@ -880,7 +880,7 @@ public class VoteResolver<T> {
         /*
          * Perform the actual resolution.
          */
-        long weights[] = setBestNextAndSameVoteValues(sortedValues, voteCount);
+        double weights[] = setBestNextAndSameVoteValues(sortedValues, voteCount);
         
         oValue = winningValue;
 
@@ -905,10 +905,10 @@ public class VoteResolver<T> {
      * @param sortedValues the sorted list of values (really a LinkedHashSet, "with predictable iteration order")
      * @return the HashMap
      */
-    private HashMap<T, Long> makeVoteCountMap(Set<T> sortedValues) {
-        HashMap<T, Long> map = new HashMap<T, Long>();
+    private HashMap<T, Double> makeVoteCountMap(Set<T> sortedValues) {
+        HashMap<T, Double> map = new HashMap<T, Double>();
         for (T value : sortedValues) {
-            map.put(value, totals.getCount(value));
+            map.put(value, ((Long) totals.getCount(value)).doubleValue());
         }
         return map;
     }
@@ -932,7 +932,7 @@ public class VoteResolver<T> {
      * 
      * Reference: https://unicode.org/cldr/trac/ticket/11299
      */
-    private void combineInheritanceWithBaileyForVoting(Set<T> sortedValues, HashMap<T, Long> voteCount) {
+    private void combineInheritanceWithBaileyForVoting(Set<T> sortedValues, HashMap<T, Double> voteCount) {
         if (organizationToValueAndVote == null
                 || organizationToValueAndVote.baileySet == false
                 || organizationToValueAndVote.baileyValue == null) {
@@ -946,24 +946,24 @@ public class VoteResolver<T> {
         if (!voteCount.containsKey(hardValue) || !voteCount.containsKey(softValue)) {
             return;
         }
-        long hardCount = voteCount.get(hardValue);
-        long softCount = voteCount.get(softValue);
+        double hardCount = voteCount.get(hardValue);
+        double softCount = voteCount.get(softValue);
         if (hardCount == 0 || softCount == 0) {
             return;
         }
         T combValue = (hardCount > softCount) ? hardValue : softValue;
         T skipValue = (hardCount > softCount) ? softValue : hardValue;
-        long combinedCount = hardCount + softCount;
+        double combinedCount = hardCount + softCount;
         voteCount.put(combValue, combinedCount);
-        voteCount.put(skipValue, 0L);
+        voteCount.put(skipValue, 0.0);
         /*
          * Sort again, and omit skipValue
          */
         List<T> list = new ArrayList<T>(sortedValues);
         Collator col = Collator.getInstance(ULocale.ENGLISH);
         Collections.sort(list, (v1, v2) -> {
-            long c1 = (voteCount != null) ? voteCount.get(v1) : totals.getCount(v1);
-            long c2 = (voteCount != null) ? voteCount.get(v2) : totals.getCount(v2);
+            double c1 = (voteCount != null) ? voteCount.get(v1) : totals.getCount(v1);
+            double c2 = (voteCount != null) ? voteCount.get(v2) : totals.getCount(v2);
             if (c1 != c2) {
                 return (c1 < c2) ? 1 : -1; // decreasing numeric order (most votes wins)
             }
@@ -996,15 +996,15 @@ public class VoteResolver<T> {
      * 
      * public for unit testing, see TestAnnotationVotes.java
      */
-    public void adjustAnnotationVoteCounts(Set<T> sortedValues, HashMap<T, Long> voteCount) {
+    public void adjustAnnotationVoteCounts(Set<T> sortedValues, HashMap<T, Double> voteCount) {
         if (voteCount == null || sortedValues == null) {
             return;
         }
         // Make compMap map individual components to cumulative vote counts.
-        HashMap<T, Long> compMap = makeAnnotationComponentMap(sortedValues, voteCount);
+        HashMap<T, Double> compMap = makeAnnotationComponentMap(sortedValues, voteCount);
 
         // Save a copy of the "raw" vote count before adjustment, since it's needed by promoteSuperiorAnnotationSuperset.
-        HashMap<T, Long> rawVoteCount = new HashMap<T, Long>(voteCount);
+        HashMap<T, Double> rawVoteCount = new HashMap<T, Double>(voteCount);
 
         // Calculate new counts for original values, based on components.
         calculateNewCountsBasedOnAnnotationComponents(sortedValues, voteCount, compMap);
@@ -1024,10 +1024,10 @@ public class VoteResolver<T> {
      * @param sortedValues the set of sorted values
      * @param voteCount the hash giving the vote count for each value in sortedValues
      */
-    private HashMap<T, Long> makeAnnotationComponentMap(Set<T> sortedValues, HashMap<T, Long> voteCount) {
-        HashMap<T, Long> compMap = new HashMap<T, Long>();        
+    private HashMap<T, Double> makeAnnotationComponentMap(Set<T> sortedValues, HashMap<T, Double> voteCount) {
+        HashMap<T, Double> compMap = new HashMap<T, Double>();        
         for (T value : sortedValues) {
-            Long count = voteCount.get(value);
+            double count = voteCount.get(value);
             List<T> comps = splitAnnotationIntoComponentsList(value);
             for (T comp : comps) {
                 if (compMap.containsKey(comp)) {
@@ -1062,7 +1062,7 @@ public class VoteResolver<T> {
      *
      * See http://unicode.org/cldr/trac/ticket/10973
      */
-    private void calculateNewCountsBasedOnAnnotationComponents(Set<T> sortedValues, HashMap<T, Long> voteCount, HashMap<T, Long> compMap) {
+    private void calculateNewCountsBasedOnAnnotationComponents(Set<T> sortedValues, HashMap<T, Double> voteCount, HashMap<T, Double> compMap) {
         voteCount.clear();
         for (T value : sortedValues) {
             List<T> comps = splitAnnotationIntoComponentsList(value);
@@ -1075,7 +1075,7 @@ public class VoteResolver<T> {
              * unfortunate side-effects involving thresholds (see getRequiredVotes). An eventual improvement
              * may be to use doubles or floats for all vote counts.
              */
-            Long newCount = Math.round(Math.pow(product, 1.0 / comps.size())); // geometric mean
+            double newCount = Math.pow(product, 1.0 / comps.size()); // geometric mean
             voteCount.put(value, newCount);
         }
     }
@@ -1103,12 +1103,15 @@ public class VoteResolver<T> {
      * @param sortedValues the set of sorted values, maybe no longer sorted the way we want
      * @param voteCount the hash giving the adjusted vote count for each value in sortedValues
      */
-    private void resortValuesBasedOnAdjustedVoteCounts(Set<T> sortedValues, HashMap<T, Long> voteCount) {
+    private void resortValuesBasedOnAdjustedVoteCounts(Set<T> sortedValues, HashMap<T, Double> voteCount) {
         List<T> list = new ArrayList<T>(sortedValues);
         Collator col = Collator.getInstance(ULocale.ENGLISH);
         Collections.sort(list, (v1, v2) -> {
-            long c1 = voteCount.get(v1), c2 = voteCount.get(v2);
+            double c1 = voteCount.get(v1), c2 = voteCount.get(v2);
             if (c1 != c2) {
+                if (Math.round(c1) == Math.round(c2)) {
+                    System.out.println("precision matters in resortValuesBasedOnAdjustedVoteCounts: " + c1 + ", " + c2);
+                }
                 return (c1 < c2) ? 1 : -1; // decreasing numeric order (most votes wins)
             }
             int size1 = splitAnnotationIntoComponentsList(v1).size();
@@ -1148,10 +1151,10 @@ public class VoteResolver<T> {
      *
      * Reference: https://unicode.org/cldr/trac/ticket/10973                 
      */
-    private void promoteSuperiorAnnotationSuperset(Set<T> sortedValues, HashMap<T, Long> voteCount, HashMap<T, Long> rawVoteCount) {
+    private void promoteSuperiorAnnotationSuperset(Set<T> sortedValues, HashMap<T, Double> voteCount, HashMap<T, Double> rawVoteCount) {
         final long requiredGap = 2;
         T oldWinner = null;
-        long oldWinnerRawCount = 0;
+        double oldWinnerRawCount = 0;
         LinkedHashSet<T> oldWinnerComps = null;
         LinkedHashSet<T> superiorSupersets = null;
         for (T value : sortedValues) {
@@ -1196,11 +1199,11 @@ public class VoteResolver<T> {
      * 
      * @param sortedValues the set of sorted values
      * @param voteCount the hash giving the vote count for each value
-     * @return an array of two longs, the weights for the best and next-best values.
+     * @return an array of two doubles, the weights for the best and next-best values.
      */
-    private long[] setBestNextAndSameVoteValues(Set<T> sortedValues, HashMap<T, Long> voteCount) {
+    private double[] setBestNextAndSameVoteValues(Set<T> sortedValues, HashMap<T, Double> voteCount) {
 
-        long weightArray[] = new long[2];
+        double weightArray[] = new double[2];
         weightArray[0] = 0;
         weightArray[1] = 0;
         nValue = null;
@@ -1215,7 +1218,7 @@ public class VoteResolver<T> {
         Iterator<T> iterator = sortedValues.iterator();
         for (T value : sortedValues) {
             ++i;
-            long valueWeight = voteCount.get(value);
+            double valueWeight = voteCount.get(value);
             if (i == 0) {
                 winningValue = value;
                 weightArray[0] = valueWeight;
@@ -1238,7 +1241,7 @@ public class VoteResolver<T> {
         return weightArray;
     }
 
-    private Status computeStatus(long weight1, long weight2, Status oldStatus) {
+    private Status computeStatus(double weight1, double weight2, Status oldStatus) {
         int orgCount = organizationToValueAndVote.getOrgCount(winningValue);
         return weight1 > weight2 &&
             (weight1 >= requiredVotes) ? Status.approved
@@ -1354,7 +1357,7 @@ public class VoteResolver<T> {
         return organizationToValueAndVote.getOrgVote(org);
     }
 
-    public Map<T, Long> getOrgToVotes(Organization org) {
+    public Map<T, Double> getOrgToVotes(Organization org) {
         return organizationToValueAndVote.getOrgToVotes(org);
     }
 
@@ -1735,23 +1738,23 @@ public class VoteResolver<T> {
      *
      * @return
      */
-    public Map<T, Long> getResolvedVoteCounts() {
+    public Map<T, Double> getResolvedVoteCounts() {
         if (!resolved) {
             resolveVotes();
         }
-        Map<T, Long> result = new LinkedHashMap<T, Long>();
+        Map<T, Double> result = new LinkedHashMap<T, Double>();
         if (winningValue != null && !totals.containsKey(winningValue)) {
-            result.put(winningValue, 0L);
+            result.put(winningValue, 0.0);
         }
         for (T value : totals.getKeysetSortedByCount(false, votesThenUcaCollator)) {
-            result.put(value, totals.get(value));
+            result.put(value, ((Long) totals.get(value)).doubleValue());
         }
         if (lastReleaseValue != null && !totals.containsKey(lastReleaseValue)) {
-            result.put(lastReleaseValue, 0L);
+            result.put(lastReleaseValue, 0.0);
         }
         for (T value : organizationToValueAndVote.totalVotes.getMap().keySet()) {
             if (!result.containsKey(value)) {
-                result.put(value, 0L);
+                result.put(value, 0.0);
             }
         }
         if (DEBUG) {
