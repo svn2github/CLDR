@@ -2904,8 +2904,7 @@ function appendExtraAttributes(container, theRow) {
  * 
  * codecell  comparisoncell  nocell  statuscell  proposedcell  addcell  othercell
  *
- * TODO: is this function also used for Dashboard? See call to isDashboard() which
- * seems to imply this was used for Dashboard at one time.
+ * Note: this function is also used for Dashboard. See call to isDashboard().
  *
  * Dashboard columns are:
  * Code    English    CLDR 33    Winning 34    Action
@@ -3036,7 +3035,7 @@ function updateRow(tr, theRow) {
 	/*
 	 * If the user can make changes, add "+" button for adding new candidate item.
 	 * 
-	 * TODO: explain the call to isDashboard(): is this code for Dashboard as well as the basic navigation interface?
+	 * Note: this code is used for Dashboard as well as the basic navigation interface.
 	 * This block concerns othercell if isDashboard(), otherwise it concerns addcell.
 	 */
 	if(tr.canChange) {
@@ -3746,7 +3745,16 @@ function findPartition(partitions,partitionList,curPartition,i) {
 	return null;
 }
 
-function insertRowsIntoTbody(theTable,tbody) {
+/**
+ * Insert rows into the table
+ *
+ * @param theTable
+ *
+ * Called by insertRows, and also by reSort
+ */
+function insertRowsIntoTbody(theTable) {
+	'use strict';
+	var tbody = theTable.getElementsByTagName("tbody")[0];
 	theTable.hitCount++;
 	var theRows = theTable.json.section.rows;
 	var toAdd = theTable.toAdd;
@@ -3827,7 +3835,7 @@ function reSort(theTable,k) {
 		return; // no op
 	}
 	theTable.curSortMode=k;
-	insertRowsIntoTbody(theTable,theTable.getElementsByTagName("tbody")[0]);
+	insertRowsIntoTbody(theTable);
 	var lis = theTable.sortMode.getElementsByTagName("li");
 	for(i in lis) {
 		var li = lis[i];
@@ -3978,20 +3986,20 @@ function updateCoverage(theDiv) {
 
 /**
  * Prepare rows to be inserted into theDiv
+ *
  * @method insertRows
  */
 function insertRows(theDiv,xpath,session,json) {
-	var theTable = theDiv.theTable;
-	var doInsertTable = null;
-
+	'use strict';
 	removeAllChildNodes(theDiv);
 	window.insertLocaleSpecialNote(theDiv);
 	//recreated table in every case
-	theTable = cloneLocalizeAnon(dojo.byId('proto-datatable'));
-	if(isDashboard())
+	var theTable = cloneLocalizeAnon(dojo.byId('proto-datatable'));
+	if (isDashboard()) {
 		theTable.className += ' dashboard';
-	else
+	} else {
 		theTable.className += ' vetting-page';
+	}
 	updateCoverage(theDiv);
 	localizeFlyover(theTable);
 	theTable.theadChildren = getTagChildren(theTable.getElementsByTagName("tr")[0]);
@@ -4003,10 +4011,6 @@ function insertRows(theDiv,xpath,session,json) {
 		if(rowChildren[c].id) {
 			surveyConfig[rowChildren[c].id] = c;
 			stdebug("  config."+rowChildren[c].id+" = children["+c+"]");
-			if(false&&stdebug_enabled) {
-				removeAllChildNodes(rowChildren[c]);
-				rowChildren[c].appendChild(createChunk("config."+rowChildren[c].id+"="+c));
-			}
 		} else {
 			stdebug("(proto-datarow #"+c+" has no id");
 		}
@@ -4022,7 +4026,6 @@ function insertRows(theDiv,xpath,session,json) {
 	theTable.myTRs = [];
 	theDiv.theTable = theTable;
 	theTable.theDiv = theDiv;
-	doInsertTable=theTable;
 
 	// append header row
 	theTable.json = json;
@@ -4041,13 +4044,8 @@ function insertRows(theDiv,xpath,session,json) {
 	}
 	setupSortmode(theTable);
 
-	var tbody = theTable.getElementsByTagName("tbody")[0];
-	insertRowsIntoTbody(theTable,tbody);
-	if(doInsertTable) {
-		theDiv.appendChild(doInsertTable);
-	} else {
-		setDisplayed(theTable, true);
-	}
+	insertRowsIntoTbody(theTable);
+	theDiv.appendChild(theTable);
 	hideLoader(theDiv.loader);
 }
 
