@@ -1215,7 +1215,7 @@ function undeferUpdate(what) {
 /**
  * Perform or queue an update. Note that there's data waiting if we are deferring.
  * @method doUpdate
- * @param {String} what
+ * @param {String} what, e.g., "DynamicDataSection" (theDiv.id)
  * @param {Function} fn function to call, now or later
  */
 function doUpdate(what,fn) {
@@ -3748,17 +3748,19 @@ function findPartition(partitions,partitionList,curPartition,i) {
 /**
  * Insert rows into the table
  *
- * @param theTable
+ * @param theTable the table in which to insert the rows
+ * @param reuseTable boolean, true if theTable already has rows and we're updating them,
+ *                            false if we need to insert new rows
  *
  * Called by insertRows, and also by reSort
  */
-function insertRowsIntoTbody(theTable) {
+function insertRowsIntoTbody(theTable, reuseTable) {
 	'use strict';
 	var tbody = theTable.getElementsByTagName("tbody")[0];
 	var theRows = theTable.json.section.rows;
 	var toAdd = theTable.toAdd;
 	var parRow = dojo.byId('proto-parrow');
-	removeAllChildNodes(tbody);
+	// removeAllChildNodes(tbody);
 
 	var theSort = theTable.json.displaySets[theTable.curSortMode];
 	var partitions = theSort.partitions;
@@ -3770,8 +3772,11 @@ function insertRowsIntoTbody(theTable) {
 		var theRow = theRows[k];
 		var dir = theRow.dir;
 		overridedir = (dir != null ? dir : null);
-		//no partition in the dashboard
-		if(!isDashboard()) {
+		/*
+		 * There is no partition (section headings) in the dashboard.
+		 * Also we don't regenerate the headings if we're re-using an existing table.
+		 */
+		if(!reuseTable && !isDashboard()) {
 			var newPartition = findPartition(partitions,partitionList,curPartition,i);
 
 			if(newPartition != curPartition) {
@@ -3798,34 +3803,49 @@ function insertRowsIntoTbody(theTable) {
 			}
 		}
 
-		var tr = theTable.myTRs[k];
-		if(!tr) {
-			tr = cloneAnon(toAdd);
-			theTable.myTRs[k]=tr; // save for later use
+		/*
+		 * If tbody already contains tr with this id, re-use it
+		 * Cf. in updateRow: tr.id = "r@"+tr.xpstrid;
+		 */
+		var tr = document.getElementById("r@" + theRow.xpstrid);
+		const trAlreadyInTbody = (tr !== null);
+		if (!tr) {
+			tr = theTable.myTRs[k];
+			if (!tr) {
+				tr = cloneAnon(toAdd);
+				theTable.myTRs[k]=tr; // save for later use -- TODO: explain when/how would it get re-used? Impossible?
+			} else {
+				alert("tr already existed in insertRowsIntoTbody"); // TODO: temporary; does this ever happen?
+			}
 		}
-
 		tr.rowHash = k;
 		tr.theTable = theTable;
 		if(!theRow) {
-			console.log("Missing row " + k);
+			console.log("Missing row " + k); // TODO: pointless? If this happens, we'll get exception below anyway
 		}
-		// update the xpath map
-		xpathMap.put({id: theRow.xpathId,
-					  hex: theRow.xpstrid,
-					  path: theRow.xpath,
-					  ph: {
-					       section: surveyCurrentSection, // Section: Timezones
-					       page: surveyCurrentPage,    // Page: SEAsia ( id, not name )
-					       header: curPartition.name,    // Header: Borneo
-					       code: theRow.code           // Code: standard-long
-					  	}
-					});
-
+		/*
+		 * Update the xpath map, unless re-using the table. If we're re-using the table, then
+		 * curPartition.name isn't defined, and anyway xpathMap shouldn't need changing.
+		 */
+		if (!reuseTable) {
+			xpathMap.put({id: theRow.xpathId,
+						  hex: theRow.xpstrid,
+						  path: theRow.xpath,
+						  ph: {
+						       section: surveyCurrentSection, // Section: Timezones
+						       page: surveyCurrentPage,    // Page: SEAsia ( id, not name )
+						       header: curPartition.name,    // Header: Borneo
+						       code: theRow.code           // Code: standard-long
+						  	}
+						});
+		}
 		// refresh the tr's contents
 		updateRow(tr,theRow);
 
-		// add the tr to the table
-		tbody.appendChild(tr);
+		if (!trAlreadyInTbody) {
+			// add the tr to the table
+			tbody.appendChild(tr); // TODO: move this above into "if (!tr)" block
+		}
 	}
 	// downloadObjectAsJson(theTable, "theTable.json");
 }
@@ -3861,7 +3881,7 @@ function reSort(theTable,k) {
 		return; // no op
 	}
 	theTable.curSortMode=k;
-	insertRowsIntoTbody(theTable);
+	insertRowsIntoTbody(theTable, false);
 	var lis = theTable.sortMode.getElementsByTagName("li");
 	for(i in lis) {
 		var li = lis[i];
@@ -3874,8 +3894,9 @@ function reSort(theTable,k) {
 }
 
 /**
- *
  * Setup the 'sort' popup menu.
+ * 
+ * TODO: document this -- where is the 'sort' popup menu? I've never seen it.
  */
 function setupSortmode(theTable) {
 	var theSortmode = theTable.sortMode;
@@ -4011,23 +4032,43 @@ function updateCoverage(theDiv) {
 }
 
 /**
- * Prepare rows to be inserted into theDiv
+ * Prepare rows to be inserted into the table
  * 
- * @param theDiv
- * @param xpath
- * @param session
- * @param json
+ * @param theDiv the division (typically or always? with id='DynamicDataSection') that contains, or will contain, the table
+ * @param xpath = json.pageId; e.g., "Alphabetic_Information"
+ * @param session the session id; e.g., "DEF67BCAAFED4332EBE742C05A8D1161"
+ * @param json the json received from the server; including (among much else):
+ * 			json.locale, e.g., "aa"
+ * 			json.section.coverage, e.g., "comprehensive"
+ *  		json.section.rows, with info for each row
  */
-function insertRows(theDiv,xpath,session,json) {
+function insertRows(theDiv, xpath, session, json) {
 	'use strict';
-	removeAllChildNodes(theDiv);
+
+	// removeAllChildNodes(theDiv); // maybe superfluous if always recreate the table, and wrong if we don't always recreate the table
+
+	$('.warnText').remove(); // remove any pre-existing "special notes", before insertLocaleSpecialNote
 	window.insertLocaleSpecialNote(theDiv);
-	//recreated table in every case
-	var theTable = cloneLocalizeAnon(dojo.byId('proto-datatable'));
-	if (isDashboard()) {
-		theTable.className += ' dashboard';
+
+	var theTable = null;
+	const reuseTable = theDiv.theTable && theDiv.theTable.json && tablesAreCompatible(json, theDiv.theTable.json);
+	if (reuseTable) {
+		/*
+		 * Re-use the old table, just update contents of individual cells
+		 */
+		console.log("insertRows: re-using table"); // TODO: remove temporary debugging message
+		theTable = theDiv.theTable;
 	} else {
-		theTable.className += ' vetting-page';
+		/*
+		 * Re-create the table from scratch
+		 */
+		console.log("insertRows: recreating table from scratch"); // TODO: remove temporary debugging message
+		var theTable = cloneLocalizeAnon(dojo.byId('proto-datatable'));
+		if (isDashboard()) {
+			theTable.className += ' dashboard';
+		} else {
+			theTable.className += ' vetting-page';
+		}
 	}
 	updateCoverage(theDiv);
 	localizeFlyover(theTable);
@@ -4035,7 +4076,7 @@ function insertRows(theDiv,xpath,session,json) {
 	var toAdd = dojo.byId('proto-datarow');  // loaded from "hidden.html", which see.
 	var rowChildren = getTagChildren(toAdd);
 	theTable.config = surveyConfig ={};
-	for(var c in rowChildren) {
+	for (var c in rowChildren) {
 		rowChildren[c].title = theTable.theadChildren[c].title;
 		if(rowChildren[c].id) {
 			surveyConfig[rowChildren[c].id] = c;
@@ -4044,15 +4085,17 @@ function insertRows(theDiv,xpath,session,json) {
 			stdebug("(proto-datarow #"+c+" has no id");
 		}
 	}
-	if(stdebug_enabled) stdebug("Table Config: " + JSON.stringify(theTable.config));
+	if (stdebug_enabled) {
+		stdebug("Table Config: " + JSON.stringify(theTable.config));
+	}
 
 	theTable.toAdd = toAdd;
-	if(!json.canModify) {
+	if (!json.canModify) {
 		setDisplayed(theTable.theadChildren[theTable.config.nocell], false);
 	}
 	theTable.sortMode = cloneAnon(dojo.byId('proto-sortmode'));
 	theDiv.appendChild(theTable.sortMode);
-	theTable.myTRs = [];
+	theTable.myTRs = []; // TODO: why here? only accessed in insertRowsIntoTbody?
 	theDiv.theTable = theTable;
 	theTable.theDiv = theDiv;
 
@@ -4061,10 +4104,10 @@ function insertRows(theDiv,xpath,session,json) {
 	theTable.xpath = xpath;
 	theTable.session = session;
 
-	if(!theTable.curSortMode) {
+	if (!theTable.curSortMode) {
 		theTable.curSortMode = theTable.json.displaySets["default"];
 		// hack - choose one of these
-		if(theTable.json.displaySets.codecal) {
+		if (theTable.json.displaySets.codecal) {
 			theTable.curSortMode = "codecal";
 		} else if(theTable.json.displaySets.metazon) {
 			theTable.curSortMode = "metazon";
@@ -4072,9 +4115,31 @@ function insertRows(theDiv,xpath,session,json) {
 	}
 	setupSortmode(theTable);
 
-	insertRowsIntoTbody(theTable);
-	theDiv.appendChild(theTable);
+	insertRowsIntoTbody(theTable, reuseTable);
+	if (!reuseTable) {
+		theDiv.appendChild(theTable);
+	}
 	hideLoader(theDiv.loader);
+}
+
+/**
+ * Are the new (to-be-built) table and old table (already built) compatible, in the
+ * sense that we can re-use the old table structure, just replacing the contents of
+ * individual cells, rather than rebuilding the table from scratch?
+ * 
+ * @param json1 the json for one table
+ * @param json2 the json for the other table
+ * @returns true if compatible, else false
+ */
+function tablesAreCompatible(json1, json2) {
+	if (json1.section && json2.section
+		&& json1.pageId === json2.pageId
+		&& json1.locale === json2.locale
+		&& json1.section.coverage === json2.section.coverage
+		&& json1.section.rows.length === json2.section.rows.length) {
+		return true;
+   }
+   return false;
 }
 
 function loadStui(loc, cb) {
@@ -5234,14 +5299,6 @@ function showV() {
 		}
 
 		window.insertLocaleSpecialNote = function insertLocaleSpecialNote(theDiv) {
-			if(surveyBeta) {
-				var theChunk = domConstruct.toDom(stui.sub("beta_msg", { info: bund, locale: surveyCurrentLocale, msg: msg}));
-				var subDiv = document.createElement("div");
-				subDiv.appendChild(theChunk);
-				subDiv.className = 'warnText';
-				theDiv.appendChild(subDiv);
-			}
-
 			var bund = locmap.getLocaleInfo(surveyCurrentLocale);
 
 			if(bund) {
@@ -5258,14 +5315,22 @@ function showV() {
 					var subDiv = document.createElement("div");
 					subDiv.appendChild(theChunk);
 					subDiv.className = 'warnText';
-					theDiv.appendChild(subDiv);
+					theDiv.insertBefore(subDiv, theDiv.childNodes[0]); 
 				} else if(bund.dcChild) {
 					var theChunk = domConstruct.toDom(stui.sub("defaultContentChild_msg", { info: bund, locale: surveyCurrentLocale, dcChildName: locmap.getLocaleName(bund.dcChild)}));
 					var subDiv = document.createElement("div");
 					subDiv.appendChild(theChunk);
 					subDiv.className = 'warnText';
-					theDiv.appendChild(subDiv);
+					theDiv.insertBefore(subDiv, theDiv.childNodes[0]); 
 				}
+			}
+
+			if(surveyBeta) {
+				var theChunk = domConstruct.toDom(stui.sub("beta_msg", { info: bund, locale: surveyCurrentLocale, msg: msg}));
+				var subDiv = document.createElement("div");
+				subDiv.appendChild(theChunk);
+				subDiv.className = 'warnText';
+				theDiv.insertBefore(subDiv, theDiv.childNodes[0]); 
 			}
 		};
 
@@ -5459,9 +5524,13 @@ function showV() {
 									updateCoverage(flipper.get(pages.data)); // make sure cov is set right before we show.
 									flipper.flipTo(pages.data); // TODO now? or later?
 									window.showCurrentId(); // already calls scroll
-									//refresh counter and add navigation at bottom
 									refreshCounterVetting();
-									$('.vetting-page').after($('#nav-page .nav-button').clone());
+									/*
+									 * Formerly we cloned the "Previous/Next..." buttons from the top to add them at the bottom,
+									 * but now that we don't always removeAllChildNodes when updating, that would result in
+									 * more and more buttons. Instead, now v.jsp simply has the buttons twice.
+									 */
+									// $('.vetting-page').after($('#nav-page .nav-button').clone());
 								});
 							}
 						});
