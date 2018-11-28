@@ -4135,6 +4135,7 @@ function tablesAreCompatible(json1, json2) {
 	if (json1.section && json2.section
 		&& json1.pageId === json2.pageId
 		&& json1.locale === json2.locale
+		&& json1.canModify === json2.canModify
 		&& json1.section.coverage === json2.section.coverage
 		&& json1.section.rows.length === json2.section.rows.length) {
 		return true;
