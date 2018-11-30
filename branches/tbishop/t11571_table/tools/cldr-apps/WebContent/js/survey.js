@@ -3390,12 +3390,11 @@ function updateRowVoteInfoForAllOrgs(theRow, vr, value, item, vdiv) {
  * @param children
  * 
  * Called by updateRow.
+ * 
+ * TODO: call with td = children[config.codecell]) instead of config, children
  */
 function updateRowCodeCell(tr, theRow, config, children) {
 	'use strict';
-	children[config.codecell].appendChild(createChunk('|>'));
-	removeAllChildNodes(children[config.codecell]);
-	children[config.codecell].appendChild(createChunk('<|'));
 	removeAllChildNodes(children[config.codecell]);
 	var codeStr = theRow.code;
 	if (theRow.coverageValue == 101 && !stdebug_enabled) {
@@ -3452,6 +3451,8 @@ function updateRowCodeCell(tr, theRow, config, children) {
  * @param children
  * 
  * Called by updateRow.
+ * 
+ * TODO: call with td = children[config.comparisoncell]) instead of config, children
  */
 function updateRowEnglishComparisonCell(tr, theRow, config, children) {
 	'use strict';
@@ -3508,6 +3509,8 @@ function updateRowEnglishComparisonCell(tr, theRow, config, children) {
  * @param protoButton
  * 
  * Called by updateRow.
+ * 
+ * TODO: call with td = children[config.proposedcell]) instead of config, children
  */
 function updateRowProposedWinningCell(tr, theRow, config, children, protoButton) {
 	'use strict';
@@ -3546,6 +3549,8 @@ function updateRowProposedWinningCell(tr, theRow, config, children, protoButton)
  * @param formAdd
  * 
  * Called by updateRow.
+ * 
+ * TODO: call with td = children[config.othercell]) instead of config, children
  */
 function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd) {
 	'use strict';
@@ -3650,7 +3655,7 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 		};
 	}
 	/*
-	/* Add the other vote info -- that is, vote info for the "Others" column.
+	 * Add the other vote info -- that is, vote info for the "Others" column.
 	 */
 	for (k in theRow.items) {
 		if (k === theRow.winningVhash) { // skip vote for winner
@@ -3672,7 +3677,7 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
 	}
 }
 
-/*
+/**
  * Update the "no cell", a.k.a, the "Abstain" column, of this row
  *
  * If the user can make changes, add an "abstain" button;
@@ -3685,6 +3690,11 @@ function updateRowOthersCell(tr, theRow, config, children, protoButton, formAdd)
  * @param protoButton
  * 
  * Called by updateRow.
+ * 
+ * TODO: call with td = children[config.nocell]) instead of config, children
+ * --- BUT: complication: children[config.proposedcell] is also accessed here! Assuming that's correct,
+ * call with additional param tdProposedCell = children[config.proposedcell], or, alternatively, move
+ * some code from here to updateRowProposedWinningCell
  */
 function updateRowNoAbstainCell(tr, theRow, config, children, protoButton) {
 	'use strict';
@@ -3752,7 +3762,7 @@ function findPartition(partitions,partitionList,curPartition,i) {
  * @param reuseTable boolean, true if theTable already has rows and we're updating them,
  *                            false if we need to insert new rows
  *
- * Called by insertRows, and also by reSort
+ * Called by insertRows only.
  */
 function insertRowsIntoTbody(theTable, reuseTable) {
 	'use strict';
@@ -3762,12 +3772,12 @@ function insertRowsIntoTbody(theTable, reuseTable) {
 	var parRow = dojo.byId('proto-parrow');
 	// removeAllChildNodes(tbody);
 
-	var theSort = theTable.json.displaySets[theTable.curSortMode];
+	var theSort = theTable.json.displaySets[theTable.curSortMode]; // typically (always?) curSortMode = "ph"
 	var partitions = theSort.partitions;
 	var rowList = theSort.rows;
 	var partitionList = Object.keys(partitions);
 	var curPartition = null;
-	for (i in rowList) {
+	for (var i in rowList) {
 		var k = rowList[i];
 		var theRow = theRows[k];
 		var dir = theRow.dir;
@@ -3867,88 +3877,6 @@ function downloadObjectAsJson(exportObj, exportName) {
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
-}
-
-/**
- * TODO: what is the purpose of this function? Is there an interface for sorting rows? Where?
- *
- * @param theTable
- * @param k
- * @returns
- */
-function reSort(theTable,k) {
-	if(theTable.curSortMode==k) {
-		return; // no op
-	}
-	theTable.curSortMode=k;
-	insertRowsIntoTbody(theTable, false);
-	var lis = theTable.sortMode.getElementsByTagName("li");
-	for(i in lis) {
-		var li = lis[i];
-		if(li.mode==k) {
-			li.className="selected";
-		} else {
-			li.className = "notselected";
-		}
-	}
-}
-
-/**
- * Setup the 'sort' popup menu.
- * 
- * TODO: document this -- where is the 'sort' popup menu? I've never seen it.
- */
-function setupSortmode(theTable) {
-	var theSortmode = theTable.sortMode;
-	// ignore what's there
-	removeAllChildNodes(theSortmode);
-	var listOfLists = Object.keys(theTable.json.displaySets);
-	var itemCount = Object.keys(theTable.json.section.rows).length;
-	var size = document.createElement("span");
-	size.className="d-sort-size";
-	var ul = document.createElement("ul");
-	if(itemCount>0) {
-		for(i in listOfLists) {
-			var k = listOfLists[i];
-			if(k=="default") continue;
-
-			var a = document.createElement("li");
-			a.onclick = (function() {
-				var kk = k;
-				return function() {
-					reSort(theTable, kk);
-				};
-			})();
-			a.appendChild(document.createTextNode(theTable.json.displaySets[k].displayName));
-			a.mode=k;
-			if(k==theTable.curSortMode) {
-				a.className="selected";
-			} else {
-				a.className = "notselected";
-			}
-			ul.appendChild(a);
-		}
-	}
-	theTable.json.section.itemCount = itemCount;
-
-	if(itemCount==0 && theTable.json.section.skippedDueToCoverage) {
-		size.appendChild(document.createTextNode(
-				stui.sub("itemCountAllHidden", theTable.json.section)
-				));
-		size.className = "d-sort-size0";
-	} else if(itemCount==0) {
-		size.appendChild(document.createTextNode(
-				stui.sub("itemCountNone", theTable.json.section)
-				));
-		size.className = "d-sort-size0";
-	} else if(theTable.json.section.skippedDueToCoverage) {
-		size.appendChild(document.createTextNode(
-				stui.sub("itemCountHidden",theTable.json.section)
-				));
-	} else {
-		size.appendChild(document.createTextNode(
-				stui.sub("itemCount", theTable.json.section)));
-	}
 }
 
 /**
@@ -4093,7 +4021,10 @@ function insertRows(theDiv, xpath, session, json) {
 	if (!json.canModify) {
 		setDisplayed(theTable.theadChildren[theTable.config.nocell], false);
 	}
-	theTable.sortMode = cloneAnon(dojo.byId('proto-sortmode'));
+	/*
+	 * TODO: remove all sortMode and sortmode code, not actually used for anything
+	 */
+	theTable.sortMode = cloneAnon(dojo.byId('proto-sortmode')); // an empty div: <div id='proto-sortmode' class='d-sortmode'></div>
 	theDiv.appendChild(theTable.sortMode);
 	theTable.myTRs = []; // TODO: why here? only accessed in insertRowsIntoTbody?
 	theDiv.theTable = theTable;
@@ -4113,8 +4044,6 @@ function insertRows(theDiv, xpath, session, json) {
 			theTable.curSortMode = "metazon";
 		}
 	}
-	setupSortmode(theTable);
-
 	insertRowsIntoTbody(theTable, reuseTable);
 	if (!reuseTable) {
 		theDiv.appendChild(theTable);
@@ -4725,8 +4654,8 @@ function showV() {
 					//resize height
 					$('#main-row').css({height:$('#main-row>div').height()});
 				}catch(e) {
-					console.log("Error in ajax post ["+message+"]  " + e.message + " / " + e.name );
-					handleDisconnect("Exception while  loading: " + message + " - "  + e.message + ", n="+e.name, null); // in case the 2nd line doesn't work
+					console.log("Error in ajax post ["+message+"]  " + e.message + " / " + e.name + " / " + e.fileName + " line " + e.lineNumber );
+					handleDisconnect("Exception while  loading: " + message + " - "  + e.message + ", n=" + e.name + " / " + e.fileName + " line " + e.lineNumber, null); // in case the 2nd line doesn't work
 				}
 			};
 			var xhrArgs = {
@@ -5391,6 +5320,7 @@ function showV() {
 
 			document.getElementById('DynamicDataSection').innerHTML = '';//reset the data
 			$('#nav-page').hide();
+			$('#nav-page-footer').hide();
 			isLoading = false;
 			showers[flipper.get(pages.data).id]=function(){ console.log("reloadV()'s shower - ignoring reload request, we are in the middle of a load!"); };
 
@@ -5484,6 +5414,7 @@ function showV() {
 						itemLoadInfo.appendChild(document.createTextNode(locmap.getLocaleName(surveyCurrentLocale) + '/' + surveyCurrentPage + '/' + surveyCurrentId));
 						var url = contextPath + "/RefreshRow.jsp?json=t&_="+surveyCurrentLocale+"&s="+surveySessionId+"&x="+surveyCurrentPage+"&strid="+surveyCurrentId+cacheKill();
 						$('#nav-page').show();
+						$('#nav-page-footer').show();
 						myLoad(url, "section", function(json) {
 							isLoading=false;
 							showLoader(theDiv.loader,stui.loading2);
@@ -5526,12 +5457,6 @@ function showV() {
 									flipper.flipTo(pages.data); // TODO now? or later?
 									window.showCurrentId(); // already calls scroll
 									refreshCounterVetting();
-									/*
-									 * Formerly we cloned the "Previous/Next..." buttons from the top to add them at the bottom,
-									 * but now that we don't always removeAllChildNodes when updating, that would result in
-									 * more and more buttons. Instead, now v.jsp simply has the buttons twice.
-									 */
-									// $('.vetting-page').after($('#nav-page .nav-button').clone());
 								});
 							}
 						});
