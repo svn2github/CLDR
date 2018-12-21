@@ -833,9 +833,10 @@ public class SurveyAjax extends HttpServlet {
                             /*
                              * If this user's old winning votes can be imported, and haven't already been imported,
                              * inform the client that we "canAutoImport". Client will send a new WHAT_AUTO_IMPORT request.
-                             * TC votes don’t get imported automatically.
+                             * Do not automatically import TC votes.
                              */
-                            if (mySession.user != null && mySession.user.canImportOldVotes() && !UserRegistry.userIsTC(mySession.user)
+                            if (mySession.user != null && mySession.user.canImportOldVotes()
+                                    && !UserRegistry.userIsTC(mySession.user)
                                     && !alreadyAutoImportedVotes(mySession.user.id, "ask")) {
                                 r.put("canAutoImport", "true");
                             }
@@ -2227,10 +2228,11 @@ public class SurveyAjax extends HttpServlet {
     private int importAllOldWinningVotes(User user, SurveyMain sm, final String oldVotesTable, final String newVotesTable)
                throws ServletException, IOException, JSONException, SQLException {
         STFactory fac = sm.getSTFactory();
-
-        // Different from similar queries elsewhere: since we're doing ALL locales for this user,
-        // here we have "where submitter=?", not "where locale=? and submitter=?";
-        // and we have "select xpath,value,locale" since we need each locale for fac.ballotBoxForLocale(locale)...
+        /*
+         * Different from similar queries elsewhere: since we're doing ALL locales for this user,
+         * here we have "where submitter=?", not "where locale=? and submitter=?";
+         * and we have "select xpath,value,locale" since we need each locale for fac.ballotBoxForLocale(locale).
+         */
         String sqlStr = "select xpath,value,locale from " + oldVotesTable + " where submitter=?" +
             " and not exists (select * from " + newVotesTable + " where " + oldVotesTable + ".locale=" + newVotesTable
             + ".locale  and " + oldVotesTable + ".xpath=" + newVotesTable + ".xpath "
@@ -2242,7 +2244,6 @@ public class SurveyAjax extends HttpServlet {
         for (Map<String, Object> m : rows) {
             Object obj = m.get("value");
             String value = (obj == null) ? null : obj.toString();
-            // if (value == null) continue; // ignore unvotes.
             int xp = (Integer) m.get("xpath");
             String xpathString = sm.xpt.getById(xp);
             String loc = m.get("locale").toString();
@@ -2257,10 +2258,16 @@ public class SurveyAjax extends HttpServlet {
                 if (curValue == null) {
                     continue;
                 }
+                /*
+                 * Import if the value is winning (equalsOrInheritsCurrentValue), or is null (abstain).
+                 * By importing null (abstain) votes, we fix a problem where, for example, the user
+                 * voted for a value "x" in one old version, then voted to abstain in a later version,
+                 * and then  the "x" still got imported into an even later version. 
+                 */
                 if (value == null || equalsOrInheritsCurrentValue(value, curValue, file, xpathString)) {
-                    // it's "winning" (uncontested).
                     BallotBox<User> box = fac.ballotBoxForLocale(locale);
-                    /* Only import the most recent vote for the given user and xpathString.
+                    /*
+                     * Only import the most recent vote (or abstention) for the given user and xpathString.
                      * Skip if user already has a vote for this xpathString (with ANY value).
                      * Since we're going through tables in reverse chronological order, "already" here implies
                      * "for a later version".
@@ -2271,8 +2278,7 @@ public class SurveyAjax extends HttpServlet {
                     }
                 }
             } catch (InvalidXPathException ix) {
-                // Silently ignore InvalidXPathException, otherwise logs grow too fast with useless errors
-                // SurveyLog.logException(ix, "Bad XPath: Trying to vote for " + xpathString);
+                /* Silently catch InvalidXPathException, otherwise logs grow too fast with useless warnings */
             } catch (VoteNotAcceptedException ix) {
                 SurveyLog.logException(ix, "Vote not accepted: Trying to vote for " + xpathString);
             } catch (IllegalByDtdException ix) {
