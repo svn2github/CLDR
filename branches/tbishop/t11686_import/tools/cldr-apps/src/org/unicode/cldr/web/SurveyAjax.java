@@ -258,6 +258,7 @@ public class SurveyAjax extends HttpServlet {
     public static final String WHAT_USER_XFEROLDVOTES = "user_xferoldvotes"; // users.js
     public static final String WHAT_OLDVOTES = "oldvotes"; // survey.js
     public static final String WHAT_FLAGGED = "flagged"; // survey.js
+    public static final String WHAT_AUTO_IMPORT = "auto_import"; // survey.js
 
     public static final int oldestVersionForImportingVotes = 25; // Oldest table is cldr_vote_value_25, as of 2018-05-23.
 
@@ -829,14 +830,24 @@ public class SurveyAjax extends HttpServlet {
                             if (modifyableLocs.length() > 0) {
                                 r.put("canmodify", modifyableLocs);
                             }
-                            // Import old votes if appropriate.
-                            // TC votes don’t get imported automatically.
-                            if (mySession.user != null && mySession.user.canImportOldVotes() && !UserRegistry.userIsTC(mySession.user)) {
-                                doAutoImportOldWinningVotes(r, mySession.user, sm);
+                            /*
+                             * If this user's old winning votes can be imported, and haven't already been imported,
+                             * inform the client that we "canAutoImport". Client will send a new WHAT_AUTO_IMPORT request.
+                             * TC votes don’t get imported automatically.
+                             */
+                            if (mySession.user != null && mySession.user.canImportOldVotes() && !UserRegistry.userIsTC(mySession.user)
+                                    && !alreadyAutoImportedVotes(mySession.user.id, "ask")) {
+                                r.put("canAutoImport", "true");
                             }
                         }
                         send(r, out);
-                    } else if (what.equals(WHAT_POSS_PROBLEMS)) {
+                    } else if (what.equals(WHAT_AUTO_IMPORT)) {
+                        mySession.userDidAction();
+                        JSONWriter r = newJSONStatus(sm);
+                        r.put("what", what);
+                        doAutoImportOldWinningVotes(r, mySession.user, sm);
+                        send(r, out);
+                   } else if (what.equals(WHAT_POSS_PROBLEMS)) {
                         mySession.userDidAction();
                         JSONWriter r = newJSONStatus(sm);
                         r.put("what", what);
@@ -2146,8 +2157,7 @@ public class SurveyAjax extends HttpServlet {
             if (DBUtils.hasTable(oldVotesTable)) {
                 SurveyLog.warnOnce("Old Votes table present: " + oldVotesTable);
                 int count = DBUtils.sqlCount("select  count(*) as count from " + oldVotesTable
-                    + " where submitter=? " +
-                    " and value is not null", user.id);
+                    + " where submitter=?", user.id);
                 if (count > 0) { // may be -1 on error
                     if (SurveyMain.isUnofficial()) {
                         System.out.println("Old Votes remaining: " + user + " oldVotesCount = " + count);
@@ -2221,31 +2231,33 @@ public class SurveyAjax extends HttpServlet {
         // Different from similar queries elsewhere: since we're doing ALL locales for this user,
         // here we have "where submitter=?", not "where locale=? and submitter=?";
         // and we have "select xpath,value,locale" since we need each locale for fac.ballotBoxForLocale(locale)...
-        String sqlStr = "select xpath,value,locale from " + oldVotesTable + " where submitter=? and value is not null " +
+        String sqlStr = "select xpath,value,locale from " + oldVotesTable + " where submitter=?" +
             " and not exists (select * from " + newVotesTable + " where " + oldVotesTable + ".locale=" + newVotesTable
             + ".locale  and " + oldVotesTable + ".xpath=" + newVotesTable + ".xpath "
-            + "and " + oldVotesTable + ".submitter=" + newVotesTable + ".submitter and " + newVotesTable
-            + ".value is not null)";
+            + "and " + oldVotesTable + ".submitter=" + newVotesTable + ".submitter)";
         Map<String, Object> rows[] = DBUtils.queryToArrayAssoc(sqlStr, user.id);
 
         int confirmations = 0;
         Exception[] exceptionList = new Exception[1];
         for (Map<String, Object> m : rows) {
-            String value = m.get("value").toString();
-            if (value == null) continue; // ignore unvotes.
+            Object obj = m.get("value");
+            String value = (obj == null) ? null : obj.toString();
+            // if (value == null) continue; // ignore unvotes.
             int xp = (Integer) m.get("xpath");
             String xpathString = sm.xpt.getById(xp);
             String loc = m.get("locale").toString();
             CLDRLocale locale = CLDRLocale.getInstance(loc);
             CLDRFile file = sm.getOldFile(loc, true);
             DisplayAndInputProcessor daip = new DisplayAndInputProcessor(locale, false);
-            value = daip.processInput(xpathString, value, exceptionList);
+            if (value != null) {
+                value = daip.processInput(xpathString, value, exceptionList);
+            }
             try {
                 String curValue = file.getStringValue(xpathString);
                 if (curValue == null) {
                     continue;
                 }
-                if (equalsOrInheritsCurrentValue(value, curValue, file, xpathString)) {
+                if (value == null || equalsOrInheritsCurrentValue(value, curValue, file, xpathString)) {
                     // it's "winning" (uncontested).
                     BallotBox<User> box = fac.ballotBoxForLocale(locale);
                     /* Only import the most recent vote for the given user and xpathString.
