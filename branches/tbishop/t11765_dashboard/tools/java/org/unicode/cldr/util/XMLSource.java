@@ -834,8 +834,6 @@ public abstract class XMLSource implements Freezable<XMLSource>, Iterable<String
          * @return the AliasLocation
          */
         private AliasLocation getCachedFullStatus(String xpath, boolean skipInheritanceMarker) {
-            // skipInheritanceMarker = true; // temporary debugging!!!
-            // System.out.println("Temporary debugging in getCachedFullStatus...");
             /*
              * Skip the cache in the special and relatively rare cases where skipInheritanceMarker is false.
              *

@@ -1096,9 +1096,9 @@ public class VettingViewer<T> {
                 result = ValuePathStatus.isMissingOk(sourceFile, path, latin, isAliased)
                     || sourceFile.getLocaleID().equals("en") ? MissingStatus.ROOT_OK : MissingStatus.ABSENT;
             } else if (isAliased) {
-                result = MissingStatus.PRESENT;
-            } else {
                 result = MissingStatus.ALIASED;
+            } else {
+                result = MissingStatus.PRESENT;
             }
         }
         return result;
